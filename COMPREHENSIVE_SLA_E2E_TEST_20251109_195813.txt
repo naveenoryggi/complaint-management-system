@@ -1,0 +1,73 @@
+[19:58:13] [INFO] ========================================
+[19:58:13] [INFO] COMPREHENSIVE SLA E2E TESTING STARTING
+[19:58:13] [INFO] ========================================
+[19:58:13] [INFO] Getting authentication token...
+[19:58:13] [PASS] Token loaded successfully
+[19:58:13] [INFO] 
+===== PHASE 1: SLA CONFIGURATION DISCOVERY =====
+[19:58:13] [INFO] 
+[1.1] Testing Category-Level SLA Configuration...
+[19:58:14] [PASS] Retrieved  categories
+[19:58:14] [WARN] No SLA fields found in category objects
+[19:58:14] [INFO] Categories with SLA configured: 0
+[19:58:14] [INFO] 
+[1.2] Testing Workflow Status-Level SLA Configuration...
+[19:58:14] [PASS] Retrieved  workflows
+[19:58:14] [WARN] No workflow statuses with SLA configuration found
+[19:58:14] [INFO] 
+[1.3] Testing SLA Management Endpoints...
+[19:58:14] [INFO] ❌ SLA Policies endpoint not found at /sla
+[19:58:14] [INFO] ❌ SLA Policy List endpoint not found at /sla/policies
+[19:58:14] [INFO] ❌ SLA Calculator endpoint not found at /sla/calculator
+[19:58:14] [INFO] ❌ SLA Compliance endpoint not found at /sla/compliance
+[19:58:14] [INFO] ❌ SLA Dashboard endpoint not found at /dashboard/sla
+[19:58:14] [INFO] 
+[1.4] Loading master data...
+[19:58:14] [FAIL] Failed to load master data: The remote server returned an error: (404) Not Found.
+[19:58:14] [INFO] 
+===== PHASE 2: CREATE TEST DATA =====
+[19:58:14] [INFO] 
+[2.1] Creating Test Categories with SLA...
+[19:58:14] [FAIL] Failed to create category SLA-TEST-Hardware-48h: The remote server returned an error: (400) Bad Request.
+[19:58:14] [FAIL] Failed to create category SLA-TEST-Software-24h: The remote server returned an error: (400) Bad Request.
+[19:58:14] [FAIL] Failed to create category SLA-TEST-Critical-4h: The remote server returned an error: (400) Bad Request.
+[19:58:14] [FAIL] Failed to create category SLA-TEST-General-72h: The remote server returned an error: (400) Bad Request.
+[19:58:14] [INFO] 
+[2.2] Creating Test Complaints...
+[19:58:14] [INFO] Total test complaints created: 0
+[19:58:14] [INFO] 
+===== PHASE 3: SLA VISIBILITY & CALCULATIONS =====
+[19:58:14] [INFO] 
+[3.1] Testing SLA Visibility in Complaint List...
+[19:58:16] [PASS] Retrieved  total complaints, 0 test complaints
+[19:58:16] [INFO] 
+[3.2] Testing SLA Visibility in Complaint Detail...
+[19:58:16] [INFO] 
+[3.3] Testing SLA Calculation Accuracy...
+[19:58:16] [INFO] 
+===== PHASE 4: SLA BREACH SCENARIOS =====
+[19:58:16] [INFO] 
+[4.1] Testing SLA Inheritance...
+[19:58:16] [INFO] 
+===== PHASE 5: EDGE CASES =====
+[19:58:16] [INFO] 
+[5.1] Testing Category Without SLA...
+[19:58:16] [FAIL] No-SLA test failed: The remote server returned an error: (400) Bad Request.
+[19:58:16] [INFO] 
+[5.2] Testing Very Short SLA (0.5 hours)...
+[19:58:16] [FAIL] Short SLA test failed: The remote server returned an error: (400) Bad Request.
+[19:58:16] [INFO] 
+[5.3] Testing Very Long SLA (999 hours)...
+[19:58:16] [FAIL] Long SLA test failed: The remote server returned an error: (400) Bad Request.
+[19:58:16] [INFO] 
+========================================
+[19:58:16] [INFO] TEST EXECUTION COMPLETE
+[19:58:16] [INFO] ========================================
+[19:58:17] [INFO] 
+[19:58:17] [INFO] Total Tests: 20
+[19:58:17] [PASS] Passed: 3
+[19:58:17] [FAIL] Failed: 12
+[19:58:17] [INFO] Success Rate: 15%
+[19:58:17] [INFO] 
+[19:58:17] [INFO] Results saved to: COMPREHENSIVE_SLA_E2E_TEST_20251109_195813.txt
+[19:58:17] [WARN] ⚠️ Some tests failed. Review the log for details.

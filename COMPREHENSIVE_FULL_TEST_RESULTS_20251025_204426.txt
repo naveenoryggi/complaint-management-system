@@ -1,0 +1,99 @@
+[2025-10-25 20:44:26] [INFO] =============================================
+[2025-10-25 20:44:26] [INFO] COMPREHENSIVE FULL TEST SUITE - 245+ TESTS
+[2025-10-25 20:44:26] [INFO] =============================================
+[2025-10-25 20:44:26] [INFO] 
+[2025-10-25 20:44:26] [INFO] Testing all 26 controllers with complete coverage
+[2025-10-25 20:44:26] [INFO] 
+[2025-10-25 20:44:26] [INFO] Authenticating to get access token...
+[2025-10-25 20:44:27] [INFO] Authentication successful - Token obtained
+[2025-10-25 20:44:27] [INFO] 
+[2025-10-25 20:44:27] [INFO] [Setup] Get Categories
+[2025-10-25 20:44:27] [PASS] PASS: Get Categories
+[2025-10-25 20:44:27] [INFO] =============================================
+[2025-10-25 20:44:27] [INFO] CATEGORY 1: ORGANIZATION STRUCTURE (24 TESTS)
+[2025-10-25 20:44:27] [INFO] =============================================
+[2025-10-25 20:44:27] [INFO] --- Employee Types Management (6 tests) ---
+[2025-10-25 20:44:28] [INFO] [Org Structure] Get All Employee Types
+[2025-10-25 20:44:28] [PASS] PASS: Get All Employee Types
+[2025-10-25 20:44:28] [INFO] [Org Structure] Create Employee Type
+[2025-10-25 20:44:28] [PASS] PASS: Create Employee Type
+[2025-10-25 20:44:28] [INFO] [Org Structure] Get Employee Type by ID
+[2025-10-25 20:44:28] [PASS] PASS: Get Employee Type by ID
+[2025-10-25 20:44:28] [INFO] [Org Structure] Update Employee Type
+[2025-10-25 20:44:28] [PASS] PASS: Update Employee Type
+[2025-10-25 20:44:28] [INFO] [Org Structure] Delete Employee Type
+[2025-10-25 20:44:28] [PASS] PASS: Delete Employee Type
+[2025-10-25 20:44:28] [INFO] [Org Structure] Validation: Empty Employee Type Name
+[2025-10-25 20:44:28] [PASS] PASS: Validation: Empty Employee Type Name (Expected failure - 400)
+[2025-10-25 20:44:28] [INFO] --- Branch Management (6 tests) ---
+[2025-10-25 20:44:28] [INFO] [Org Structure] Testing Branch Management Page page accessibility
+[2025-10-25 20:44:28] [PASS] PASS: Branch Management Page accessible
+[2025-10-25 20:44:28] [INFO] [Org Structure] Get All Branches
+[2025-10-25 20:44:28] [PASS] PASS: Get All Branches
+[2025-10-25 20:44:28] [INFO] [Org Structure] Create Branch
+[2025-10-25 20:44:29] [PASS] PASS: Create Branch
+[2025-10-25 20:44:29] [INFO] [Org Structure] Get Branch by ID
+[2025-10-25 20:44:29] [PASS] PASS: Get Branch by ID
+[2025-10-25 20:44:29] [INFO] [Org Structure] Update Branch
+[2025-10-25 20:44:29] [PASS] PASS: Update Branch
+[2025-10-25 20:44:29] [INFO] [Org Structure] Delete Branch
+[2025-10-25 20:44:29] [PASS] PASS: Delete Branch
+[2025-10-25 20:44:29] [INFO] --- Department Management (6 tests) ---
+[2025-10-25 20:44:29] [INFO] [Org Structure] Testing Department Management Page page accessibility
+[2025-10-25 20:44:29] [PASS] PASS: Department Management Page accessible
+[2025-10-25 20:44:29] [INFO] [Org Structure] Get All Departments
+[2025-10-25 20:44:29] [PASS] PASS: Get All Departments
+[2025-10-25 20:44:29] [INFO] [Org Structure] Create Department
+[2025-10-25 20:44:29] [PASS] PASS: Create Department
+[2025-10-25 20:44:29] [INFO] [Org Structure] Get Department by ID
+[2025-10-25 20:44:30] [PASS] PASS: Get Department by ID
+[2025-10-25 20:44:30] [INFO] [Org Structure] Update Department
+[2025-10-25 20:44:30] [PASS] PASS: Update Department
+[2025-10-25 20:44:30] [INFO] [Org Structure] Delete Department
+[2025-10-25 20:44:30] [PASS] PASS: Delete Department
+[2025-10-25 20:44:30] [INFO] --- Section Management (6 tests) ---
+[2025-10-25 20:44:30] [INFO] [Org Structure] Testing Section Management Page page accessibility
+[2025-10-25 20:44:30] [PASS] PASS: Section Management Page accessible
+[2025-10-25 20:44:30] [INFO] [Org Structure] Get All Sections
+[2025-10-25 20:44:30] [PASS] PASS: Get All Sections
+[2025-10-25 20:44:30] [INFO] [Org Structure] Create Section
+[2025-10-25 20:44:30] [PASS] PASS: Create Section
+[2025-10-25 20:44:30] [INFO] [Org Structure] Get Section by ID
+[2025-10-25 20:44:30] [PASS] PASS: Get Section by ID
+[2025-10-25 20:44:30] [INFO] [Org Structure] Update Section
+[2025-10-25 20:44:31] [PASS] PASS: Update Section
+[2025-10-25 20:44:31] [INFO] [Org Structure] Delete Section
+[2025-10-25 20:44:31] [PASS] PASS: Delete Section
+[2025-10-25 20:44:31] [INFO] 
+[2025-10-25 20:44:31] [INFO] =============================================
+[2025-10-25 20:44:31] [INFO] CATEGORY 2: ROLE MANAGEMENT (12 TESTS)
+[2025-10-25 20:44:31] [INFO] =============================================
+[2025-10-25 20:44:31] [INFO] [Role Management] Get All Roles
+[2025-10-25 20:44:31] [PASS] PASS: Get All Roles
+[2025-10-25 20:44:31] [INFO] [Role Management] Create Role
+[2025-10-25 20:44:31] [PASS] PASS: Create Role
+[2025-10-25 20:44:31] [INFO] [Role Management] Get Role by ID
+[2025-10-25 20:44:31] [PASS] PASS: Get Role by ID
+[2025-10-25 20:44:31] [INFO] [Role Management] Update Role
+[2025-10-25 20:44:31] [PASS] PASS: Update Role
+[2025-10-25 20:44:31] [INFO] [Role Management] Assign Permissions to Role
+[2025-10-25 20:44:31] [PASS] PASS: Assign Permissions to Role
+[2025-10-25 20:44:31] [INFO] [Role Management] Get Role Permissions
+[2025-10-25 20:44:31] [PASS] PASS: Get Role Permissions
+[2025-10-25 20:44:31] [INFO] [Role Management] Remove Permission from Role
+[2025-10-25 20:44:32] [PASS] PASS: Remove Permission from Role
+[2025-10-25 20:44:32] [INFO] [Role Management] Assign Role to User
+[2025-10-25 20:44:32] [PASS] PASS: Assign Role to User
+[2025-10-25 20:44:32] [INFO] [Role Management] Get Users by Role
+[2025-10-25 20:44:32] [PASS] PASS: Get Users by Role
+[2025-10-25 20:44:32] [INFO] [Role Management] Remove Role from User
+[2025-10-25 20:44:32] [PASS] PASS: Remove Role from User
+[2025-10-25 20:44:32] [INFO] [Role Management] Delete Role
+[2025-10-25 20:44:32] [PASS] PASS: Delete Role
+[2025-10-25 20:44:32] [INFO] [Role Management] Validation: Modify System Role
+[2025-10-25 20:44:32] [PASS] PASS: Validation: Modify System Role (Expected failure - 400)
+[2025-10-25 20:44:32] [INFO] 
+[2025-10-25 20:44:32] [INFO] =============================================
+[2025-10-25 20:44:32] [INFO] TEST SUITE PART 1 COMPLETED
+[2025-10-25 20:44:32] [INFO] =============================================
+[2025-10-25 20:44:32] [INFO] Continuing with remaining categories...

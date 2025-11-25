@@ -1,0 +1,394 @@
+<div class="whatsapp-settings-container">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title-row">
+        <button class="btn-back" (click)="navigateBack()">
+          <i class="fas fa-arrow-left"></i>
+          Back to Dashboard
+        </button>
+        <h1>
+          <i class="bi bi-whatsapp"></i>
+          WhatsApp Settings
+        </h1>
+      </div>
+      <p class="header-description">Configure WhatsApp Business API for sending rich media notifications</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      Add WhatsApp Configuration
+    </button>
+  </div>
+
+  <!-- Info Banner -->
+  <div class="info-banner">
+    <div class="info-icon">
+      <i class="fas fa-info-circle"></i>
+    </div>
+    <div class="info-content">
+      <h3>About WhatsApp Business API</h3>
+      <p>
+        <strong>WhatsApp Business API</strong> allows you to send automated notifications with rich media content,
+        interactive buttons, and message templates.
+      </p>
+      <ul>
+        <li><strong>Media Support:</strong> Send images, documents, and PDFs with notifications</li>
+        <li><strong>Template Messages:</strong> Pre-approved message templates for business use</li>
+        <li><strong>Global Reach:</strong> WhatsApp is used worldwide, especially in international markets</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage && !showModal" class="alert alert-danger">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Search and Filter -->
+  <div class="filter-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="filterItems()"
+        placeholder="Search by name, provider, phone number, or business name..."
+        class="search-input"
+      />
+    </div>
+    <div class="filter-buttons">
+      <button class="filter-btn" [class.active]="statusFilter === 'all'" (click)="setStatusFilter('all')">
+        <i class="fas fa-list"></i> All
+      </button>
+      <button class="filter-btn" [class.active]="statusFilter === 'active'" (click)="setStatusFilter('active')">
+        <i class="fas fa-check-circle"></i> Active
+      </button>
+      <button class="filter-btn" [class.active]="statusFilter === 'inactive'" (click)="setStatusFilter('inactive')">
+        <i class="fas fa-times-circle"></i> Inactive
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading && items.length === 0" class="loading-state">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading WhatsApp settings...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredItems.length === 0" class="empty-state">
+    <i class="bi bi-whatsapp"></i>
+    <h3>No WhatsApp Configurations Found</h3>
+    <p *ngIf="searchTerm">Try adjusting your search criteria</p>
+    <p *ngIf="!searchTerm">Get started by configuring WhatsApp Business API</p>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      Add WhatsApp Configuration
+    </button>
+  </div>
+
+  <!-- Settings Grid -->
+  <div *ngIf="!loading && filteredItems.length > 0" class="settings-grid">
+    <div *ngFor="let settings of filteredItems" class="settings-card" [class.inactive]="!settings.isActive">
+      <div class="card-header">
+        <div class="settings-info">
+          <h3>{{ settings.name }}</h3>
+          <span class="status-badge" [class.active]="settings.isActive" [class.inactive]="!settings.isActive">
+            {{ settings.isActive ? 'Active' : 'Inactive' }}
+          </span>
+          <span *ngIf="settings.isDefault" class="default-badge">
+            <i class="fas fa-star"></i> Default
+          </span>
+        </div>
+        <div class="card-actions">
+          <button class="btn-icon btn-test" (click)="testWhatsAppConnection(settings)" title="Test Connection" [disabled]="isTestingWhatsApp">
+            <i [class]="isTestingWhatsApp ? 'fas fa-spinner fa-spin' : 'fas fa-vial'"></i>
+          </button>
+          <button class="btn-icon" (click)="openEditModal(settings)" title="Edit Settings">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-icon" (click)="toggleSettingsStatus(settings)" [title]="settings.isActive ? 'Deactivate' : 'Activate'">
+            <i [class]="settings.isActive ? 'fas fa-toggle-on' : 'fas fa-toggle-off'"></i>
+          </button>
+          <button *ngIf="!settings.isDefault && settings.isActive" class="btn-icon btn-default" (click)="setAsDefault(settings)" title="Set as Default">
+            <i class="fas fa-star"></i>
+          </button>
+          <button class="btn-icon btn-delete" (click)="confirmDelete(settings)" title="Delete Settings">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="settings-details">
+          <div class="detail-item">
+            <i class="fas fa-building"></i>
+            <span><strong>Provider:</strong> {{ settings.provider }}</span>
+          </div>
+          <div class="detail-item">
+            <i class="bi bi-whatsapp"></i>
+            <span><strong>From Number:</strong> {{ settings.fromNumber }}</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-signature"></i>
+            <span><strong>Business Name:</strong> {{ settings.businessName }}</span>
+          </div>
+          <div *ngIf="settings.maxMessagesPerHour" class="detail-item">
+            <i class="fas fa-tachometer-alt"></i>
+            <span><strong>Rate Limit:</strong> {{ settings.maxMessagesPerHour }} messages/hour</span>
+          </div>
+          <div *ngIf="settings.mediaStorageType" class="detail-item">
+            <i class="fas fa-database"></i>
+            <span><strong>Media Storage:</strong> {{ settings.mediaStorageType }}</span>
+          </div>
+          <div *ngIf="settings.lastTestedAt" class="detail-item">
+            <i class="fas fa-check-circle"></i>
+            <span><strong>Last Tested:</strong> {{ settings.lastTestedAt | utcToLocal:'medium' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <small>Created: {{ settings.createdAt | utcToLocal:'medium' }}</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div *ngIf="items.length > 0" class="summary-stats">
+    <div class="stat-item">
+      <span class="stat-label">Total Configurations:</span>
+      <span class="stat-value">{{ items.length }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Active:</span>
+      <span class="stat-value stat-active">{{ getActiveSettingsCount() }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Inactive:</span>
+      <span class="stat-value stat-inactive">{{ getInactiveSettingsCount() }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content large-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="bi bi-whatsapp"></i>
+        {{ modalMode === 'edit' ? 'Edit WhatsApp Settings' : 'Create New WhatsApp Configuration' }}
+      </h2>
+      <button class="btn-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="testResult" class="alert" [class.alert-success]="testResult.success" [class.alert-danger]="!testResult.success">
+        <i [class]="testResult.success ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'"></i>
+        {{ testResult.message }}
+      </div>
+
+      <form (ngSubmit)="save()">
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+
+          <div class="form-group">
+            <label for="settingsName" class="required">Configuration Name</label>
+            <input id="settingsName" type="text" [(ngModel)]="formName" name="name" class="form-control"
+                   placeholder="e.g., Production WhatsApp, WhatsApp Business API" required />
+            <small class="form-help-text">A friendly name to identify this WhatsApp configuration</small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label for="provider" class="required">Provider</label>
+              <select id="provider" [(ngModel)]="provider" name="provider" class="form-control" (ngModelChange)="onProviderChange()" required>
+                <option value="">Select Provider</option>
+                <option *ngFor="let p of providers" [value]="p.value">{{ p.label }}</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-2">
+              <label for="apiUrl" class="required">API URL</label>
+              <input id="apiUrl" type="url" [(ngModel)]="apiUrl" name="apiUrl" class="form-control"
+                     placeholder="e.g., https://graph.facebook.com/v18.0" required />
+            </div>
+          </div>
+        </div>
+
+        <!-- WhatsApp Business API Details -->
+        <div class="form-section">
+          <h3>WhatsApp Business API Details</h3>
+
+          <div class="form-group">
+            <label for="businessAccountId" class="required">Business Account ID</label>
+            <input id="businessAccountId" type="text" [(ngModel)]="businessAccountId" name="businessAccountId"
+                   class="form-control" placeholder="Your WhatsApp Business Account ID" required />
+          </div>
+
+          <div class="form-group">
+            <label for="phoneNumberId" class="required">Phone Number ID</label>
+            <input id="phoneNumberId" type="text" [(ngModel)]="phoneNumberId" name="phoneNumberId"
+                   class="form-control" placeholder="Your WhatsApp Phone Number ID" required />
+          </div>
+
+          <div class="form-group">
+            <label for="accessToken" [class.required]="modalMode === 'create'">Access Token</label>
+            <input id="accessToken" type="password" [(ngModel)]="accessToken" name="accessToken"
+                   class="form-control" placeholder="Your WhatsApp Business API access token"
+                   [required]="modalMode === 'create'" />
+            <small *ngIf="modalMode === 'edit'" class="form-help-text">Leave blank to keep existing token</small>
+          </div>
+
+          <div class="form-group">
+            <label for="webhookToken">Webhook Verification Token</label>
+            <input id="webhookToken" type="text" [(ngModel)]="webhookToken" name="webhookToken"
+                   class="form-control" placeholder="Optional webhook verification token" />
+          </div>
+        </div>
+
+        <!-- Sender Information -->
+        <div class="form-section">
+          <h3>Sender Information</h3>
+
+          <div class="form-group">
+            <label for="fromNumber" class="required">From Phone Number</label>
+            <input id="fromNumber" type="tel" [(ngModel)]="fromNumber" name="fromNumber"
+                   class="form-control" placeholder="+1234567890" required />
+            <small class="form-help-text">Phone number in E.164 format (e.g., +1234567890)</small>
+          </div>
+
+          <div class="form-group">
+            <label for="businessName" class="required">Business Name</label>
+            <input id="businessName" type="text" [(ngModel)]="businessName" name="businessName"
+                   class="form-control" placeholder="Your Business Name" required />
+          </div>
+        </div>
+
+        <!-- Media Storage -->
+        <div class="form-section">
+          <h3>Media Storage Configuration</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mediaStorageType">Storage Type</label>
+              <select id="mediaStorageType" [(ngModel)]="mediaStorageType" name="mediaStorageType" class="form-control">
+                <option value="">None</option>
+                <option *ngFor="let type of mediaStorageTypes" [value]="type.value">{{ type.label }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="maxMediaSizeMB">Max Media Size (MB)</label>
+              <input id="maxMediaSizeMB" type="number" [(ngModel)]="maxMediaSizeMB" name="maxMediaSizeMB"
+                     class="form-control" placeholder="16" min="1" step="1" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="mediaStoragePath">Storage Path</label>
+            <input id="mediaStoragePath" type="text" [(ngModel)]="mediaStoragePath" name="mediaStoragePath"
+                   class="form-control" placeholder="e.g., /uploads/whatsapp or s3://bucket-name" />
+          </div>
+
+          <div class="form-group">
+            <label for="mediaPublicBaseUrl">Public Base URL</label>
+            <input id="mediaPublicBaseUrl" type="url" [(ngModel)]="mediaPublicBaseUrl" name="mediaPublicBaseUrl"
+                   class="form-control" placeholder="https://yoursite.com/media" />
+            <small class="form-help-text">Public URL where WhatsApp can download media files</small>
+          </div>
+        </div>
+
+        <!-- Advanced Settings -->
+        <div class="form-section">
+          <h3>Advanced Settings</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="timeoutSeconds">Timeout (seconds)</label>
+              <input id="timeoutSeconds" type="number" [(ngModel)]="timeoutSeconds" name="timeoutSeconds"
+                     class="form-control" placeholder="30" min="10" max="300" />
+            </div>
+
+            <div class="form-group">
+              <label for="maxMessagesPerHour">Rate Limit (messages/hour)</label>
+              <input id="maxMessagesPerHour" type="number" [(ngModel)]="maxMessagesPerHour" name="maxMessagesPerHour"
+                     class="form-control" placeholder="Optional" min="1" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input id="isDefault" type="checkbox" [(ngModel)]="isDefault" name="isDefault" />
+              <label for="isDefault">
+                <i class="fas fa-star"></i> Set as Default WhatsApp Configuration
+              </label>
+            </div>
+            <small class="form-help-text">The default configuration will be used for all automated WhatsApp notifications</small>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input id="isActive" type="checkbox" [(ngModel)]="formIsActive" name="isActive" />
+              <label for="isActive">Active</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i [class]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-save'"></i>
+            {{ loading ? 'Saving...' : 'Save' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteConfirm" class="modal-overlay" (click)="cancelDelete()">
+  <div class="modal-content small-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-exclamation-triangle"></i>
+        Confirm Delete
+      </h2>
+      <button class="btn-close" (click)="cancelDelete()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p>Are you sure you want to delete this WhatsApp configuration?</p>
+      <p><strong>{{ itemToDelete?.name }}</strong></p>
+      <p class="warning-text">
+        <i class="fas fa-exclamation-triangle"></i>
+        This action cannot be undone.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+      <button type="button" class="btn btn-danger" (click)="executeDelete()" [disabled]="loading">
+        <i [class]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-trash'"></i>
+        {{ loading ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>

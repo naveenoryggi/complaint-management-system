@@ -1,0 +1,485 @@
+<div class="dashboard-modern">
+  <!-- Modern Header -->
+  <header class="dashboard-header">
+    <div class="header-container">
+      <div class="header-brand">
+        <div class="logo-wrapper">
+          <img *ngIf="companyLogoUrl" [src]="companyLogoUrl" [alt]="company?.name || 'Company Logo'" class="company-logo">
+          <div class="logo-placeholder" *ngIf="!companyLogoUrl">
+            <i class="bi bi-building"></i>
+          </div>
+        </div>
+        <div class="brand-info">
+          <h1 class="company-name">{{ company?.name || 'Complaint Management' }}</h1>
+          <p class="tagline">Track, Manage & Resolve Efficiently</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- View All Button -->
+        <button class="action-btn btn-secondary" (click)="navigateToPage('/complaints')">
+          <i class="bi bi-list-ul"></i>
+          <span>All Complaints</span>
+        </button>
+
+        <!-- Theme Settings Button - Integrated into Header -->
+        <button class="action-btn btn-theme" (click)="toggleThemeSettings()">
+          <i class="bi bi-palette-fill"></i>
+          <span>Theme</span>
+        </button>
+
+        <!-- Admin Menu -->
+        <div class="dropdown admin-dropdown" *ngIf="isAdmin()">
+          <button class="action-btn btn-admin" (click)="toggleAdminMenu()">
+            <i class="bi bi-gear-fill"></i>
+            <span>Admin Panel</span>
+            <i class="bi" [ngClass]="showAdminMenu ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          </button>
+          <div class="dropdown-menu-grouped" *ngIf="showAdminMenu">
+            <div class="menu-category" *ngFor="let category of menuCategories">
+              <div class="category-header" (click)="toggleMenuCategory(category.id)">
+                <div class="category-title">
+                  <i class="bi category-icon" [ngClass]="category.icon" [style.color]="category.color"></i>
+                  <span>{{ category.label }}</span>
+                  <span class="badge-count">{{ category.items.length }}</span>
+                </div>
+                <i class="bi chevron-icon" [ngClass]="category.expanded ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+              </div>
+              <div class="category-items" *ngIf="category.expanded">
+                <a class="menu-item"
+                   *ngFor="let item of category.items"
+                   (click)="navigateToAdmin(item.route)">
+                  <i class="bi item-icon" [ngClass]="item.icon"></i>
+                  <span class="item-label">{{ item.label }}</span>
+                  <span class="badge badge-new" *ngIf="item.badge">{{ item.badge }}</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Profile -->
+        <div class="dropdown user-profile-dropdown" *ngIf="currentUser">
+          <div class="user-profile" (click)="toggleUserMenu()">
+            <div class="user-avatar">
+              <i class="bi bi-person-circle"></i>
+            </div>
+            <div class="user-details">
+              <span class="user-name">{{ currentUser.fullName }}</span>
+              <span class="user-role">{{ getRoleNames() }}</span>
+            </div>
+            <i class="bi" [ngClass]="showUserMenu ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          </div>
+          <div class="dropdown-menu user-menu" *ngIf="showUserMenu">
+            <a class="menu-item" (click)="navigateToPage('/change-password')">
+              <i class="bi bi-key-fill item-icon"></i>
+              <span class="item-label">Change Password</span>
+            </a>
+            <div class="menu-divider"></div>
+            <a class="menu-item logout-item" (click)="logout()">
+              <i class="bi bi-box-arrow-right item-icon"></i>
+              <span class="item-label">Logout</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="dashboard-main">
+    <div class="content-container">
+      <!-- Welcome Section -->
+      <section class="welcome-section">
+        <div class="welcome-content">
+          <h2 class="welcome-title">Welcome back, {{ currentUser?.fullName }}!</h2>
+          <p class="welcome-subtitle">Here's what's happening with your complaints today</p>
+          <div class="role-indicator">
+            <i class="bi bi-eye-fill"></i>
+            <span>View: {{ getUserRoleDescription() }}</span>
+          </div>
+        </div>
+        <button class="btn-create-primary" (click)="createComplaint()">
+          <i class="bi bi-plus-circle"></i>
+          <span>Create New Complaint</span>
+        </button>
+      </section>
+
+      <!-- Dynamic Status Widgets -->
+      <section class="dashboard-widgets-section">
+        <div class="widgets-header">
+          <h3 class="widgets-title">
+            <i class="bi bi-speedometer2"></i>
+            Dashboard Statistics
+          </h3>
+          <button class="btn-customize" (click)="openCustomizer()">
+            <i class="bi bi-sliders"></i>
+            <span>Customize Dashboard</span>
+          </button>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-state" *ngIf="loadingDashboard">
+          <i class="bi bi-arrow-repeat spin"></i>
+          <span>Loading dashboard...</span>
+        </div>
+
+        <!-- Dynamic Widget Grid -->
+        <div class="dashboard-widgets" [ngClass]="getLayoutClass()" *ngIf="!loadingDashboard && dashboardStatistics?.statusWidgets && dashboardStatistics?.statusWidgets?.length">
+          <app-status-widget
+            *ngFor="let widget of (dashboardStatistics?.statusWidgets || [])"
+            [widget]="widget"
+            [showTrends]="dashboardPreferences?.showTrends ?? true"
+            [showPercentages]="dashboardPreferences?.showPercentages ?? true">
+          </app-status-widget>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="!loadingDashboard && (!dashboardStatistics?.statusWidgets || !dashboardStatistics?.statusWidgets?.length)">
+          <i class="bi bi-inbox"></i>
+          <h4>No Status Widgets Configured</h4>
+          <p>Click "Customize Dashboard" to select status widgets to display</p>
+          <button class="btn-primary" (click)="openCustomizer()">
+            <i class="bi bi-sliders"></i>
+            Customize Now
+          </button>
+        </div>
+      </section>
+
+      <!-- Filters Section -->
+      <section class="filters-card">
+        <div class="filters-header">
+          <h3 class="filters-title">
+            <i class="bi bi-funnel"></i>
+            Filter & Search
+          </h3>
+          <button class="btn-reset" *ngIf="selectedStatus || selectedPriority || searchTerm"
+                  (click)="selectedStatus = ''; selectedPriority = ''; searchTerm = ''; onFilterChange()">
+            <i class="bi bi-x-circle"></i>
+            Reset Filters
+          </button>
+        </div>
+
+        <div class="filters-grid">
+          <div class="filter-item search-filter">
+            <label class="filter-label">
+              <i class="bi bi-search"></i>
+              Search Complaints
+            </label>
+            <div class="input-with-icon">
+              <input
+                type="text"
+                class="filter-input"
+                [(ngModel)]="searchTerm"
+                (keyup.enter)="onSearch()"
+                placeholder="Search by title, number, or complainant...">
+              <button class="input-icon-btn" (click)="onSearch()">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="filter-item">
+            <label class="filter-label">
+              <i class="bi bi-flag"></i>
+              Status
+            </label>
+            <select class="filter-select" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+              <option [ngValue]="''">All Statuses</option>
+              <option *ngFor="let status of statusOptions" [ngValue]="status.value">
+                {{ status.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label class="filter-label">
+              <i class="bi bi-exclamation-triangle"></i>
+              Priority
+            </label>
+            <select class="filter-select" [(ngModel)]="selectedPriority" (change)="onFilterChange()">
+              <option [ngValue]="''">All Priorities</option>
+              <option *ngFor="let priority of priorityOptions" [ngValue]="priority.value">
+                {{ priority.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Complaints List -->
+      <section class="complaints-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="bi bi-file-earmark-text"></i>
+            Recent Complaints
+          </h3>
+          <div class="section-meta">
+            <span class="results-count">{{ totalCount }} results</span>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-state" *ngIf="loading">
+          <div class="spinner-modern"></div>
+          <p class="loading-text">Loading complaints...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="!loading && complaints.length === 0">
+          <div class="empty-icon">
+            <i class="bi bi-inbox"></i>
+          </div>
+          <h3 class="empty-title">No complaints found</h3>
+          <p class="empty-text">Try adjusting your filters or create a new complaint</p>
+          <button class="btn-create-empty" (click)="createComplaint()">
+            <i class="bi bi-plus-circle"></i>
+            Create Your First Complaint
+          </button>
+        </div>
+
+        <!-- Complaints Cards -->
+        <div class="complaints-grid" *ngIf="!loading && complaints.length > 0">
+          <div class="complaint-card" *ngFor="let complaint of complaints" (click)="viewComplaint(complaint.id)">
+            <div class="card-header">
+              <div class="card-number">
+                <i class="bi bi-hash"></i>
+                {{ complaint.complaintNumber }}
+              </div>
+              <div class="card-badges">
+                <span class="badge-status" [ngClass]="getStatusClass(complaint.status)">
+                  {{ getStatusName(complaint.status) }}
+                </span>
+                <span class="badge-priority" [ngClass]="getPriorityClass(complaint.priority)">
+                  {{ getPriorityName(complaint.priority) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <h4 class="card-title">{{ complaint.title }}</h4>
+
+              <div class="card-info">
+                <div class="info-item">
+                  <i class="bi bi-person"></i>
+                  <span>{{ complaint.complainantName }}</span>
+                </div>
+                <div class="info-item" *ngIf="complaint.complainantBranchName">
+                  <i class="bi bi-geo-alt"></i>
+                  <span>{{ complaint.complainantBranchName }}</span>
+                </div>
+                <div class="info-item" *ngIf="complaint.complainantDepartmentName">
+                  <i class="bi bi-building"></i>
+                  <span>{{ complaint.complainantDepartmentName }}</span>
+                </div>
+                <div class="info-item">
+                  <i class="bi bi-tag"></i>
+                  <span>{{ complaint.categoryName }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="footer-left">
+                <div class="assigned-to">
+                  <i class="bi bi-person-check"></i>
+                  <span>{{ complaint.assignedToName || 'Unassigned' }}</span>
+                </div>
+                <div class="timestamp">
+                  <i class="bi bi-clock"></i>
+                  <span>{{ formatDate(complaint.submittedAt) }}</span>
+                </div>
+              </div>
+              <div class="footer-actions">
+                <button class="btn-card-action btn-assign" (click)="openAssignModal(complaint); $event.stopPropagation()">
+                  <i class="bi bi-person-plus"></i>
+                  Assign
+                </button>
+                <button class="btn-card-action btn-view" (click)="viewComplaint(complaint.id); $event.stopPropagation()">
+                  <i class="bi bi-eye"></i>
+                  View
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-wrapper" *ngIf="!loading && totalPages > 1">
+          <div class="pagination">
+            <button class="page-btn" [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">
+              <i class="bi bi-chevron-left"></i>
+              Previous
+            </button>
+
+            <div class="page-numbers">
+              <button
+                *ngFor="let page of pageNumbers"
+                class="page-num"
+                [class.active]="page === currentPage"
+                (click)="onPageChange(page)">
+                {{ page }}
+              </button>
+            </div>
+
+            <button class="page-btn" [disabled]="currentPage === totalPages" (click)="onPageChange(currentPage + 1)">
+              Next
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+          <div class="pagination-info">
+            Page {{ currentPage }} of {{ totalPages }} • {{ totalCount }} total complaints
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Assignment Modal -->
+  <div class="modal-overlay" *ngIf="showAssignModal" (click)="closeAssignModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header-modern">
+        <div class="modal-title-wrapper">
+          <i class="bi bi-person-plus-fill"></i>
+          <h2 class="modal-title">Assign Complaint</h2>
+        </div>
+        <button class="btn-modal-close" (click)="closeAssignModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body-modern" *ngIf="selectedComplaint">
+        <div class="complaint-preview">
+          <div class="preview-number">{{ selectedComplaint.complaintNumber }}</div>
+          <div class="preview-title">{{ selectedComplaint.title }}</div>
+        </div>
+
+        <div class="search-section">
+          <h3 class="section-subtitle">
+            <i class="bi bi-search"></i>
+            Search & Filter Users
+          </h3>
+
+          <div class="search-input-group">
+            <i class="bi bi-search"></i>
+            <input
+              type="text"
+              class="search-input-modern"
+              [(ngModel)]="userSearchTerm"
+              (input)="onModalFilterChange()"
+              placeholder="Search by name, employee ID, or email...">
+          </div>
+
+          <div class="filter-row-modal">
+            <div class="filter-col">
+              <label>Branch</label>
+              <select class="select-modern" [(ngModel)]="filterBranchId" (change)="onModalFilterChange()">
+                <option value="">All Branches</option>
+                <option *ngFor="let branch of branches" [value]="branch.id">{{ branch.name }}</option>
+              </select>
+            </div>
+
+            <div class="filter-col">
+              <label>Department</label>
+              <select class="select-modern" [(ngModel)]="filterDepartmentId" (change)="onModalFilterChange()">
+                <option value="">All Departments</option>
+                <option *ngFor="let department of departments" [value]="department.id">{{ department.name }}</option>
+              </select>
+            </div>
+
+            <div class="filter-col">
+              <label>Section</label>
+              <select class="select-modern" [(ngModel)]="filterSectionId" (change)="onModalFilterChange()">
+                <option value="">All Sections</option>
+                <option *ngFor="let section of sections" [value]="section.id">{{ section.name }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="users-section">
+          <h3 class="section-subtitle">
+            <i class="bi bi-people"></i>
+            Select User ({{ filteredUsers.length }} found)
+          </h3>
+
+          <div class="no-users-state" *ngIf="filteredUsers.length === 0">
+            <i class="bi bi-person-x"></i>
+            <p>No users found matching your filters</p>
+          </div>
+
+          <div class="users-list">
+            <label *ngFor="let user of filteredUsers" class="user-card-select">
+              <input type="radio" name="selectedUser" [value]="user.id" [(ngModel)]="selectedUserId">
+              <div class="user-card-content">
+                <div class="user-avatar-small">
+                  <i class="bi bi-person-circle"></i>
+                </div>
+                <div class="user-info-select">
+                  <div class="user-name-select">{{ user.fullName }}</div>
+                  <div class="user-meta-select">
+                    <span *ngIf="user.employeeCode" class="meta-badge">{{ user.employeeCode }}</span>
+                    <span *ngIf="user.branchName" class="meta-badge">{{ user.branchName }}</span>
+                    <span *ngIf="user.departmentName" class="meta-badge">{{ user.departmentName }}</span>
+                  </div>
+                  <div class="user-email-select">{{ user.email }}</div>
+                </div>
+                <div class="select-indicator">
+                  <i class="bi bi-check-circle-fill"></i>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="error-alert" *ngIf="assignmentError">
+          <i class="bi bi-exclamation-triangle"></i>
+          <span>{{ assignmentError }}</span>
+        </div>
+      </div>
+
+      <div class="modal-footer-modern">
+        <button class="btn-modal btn-modal-cancel" (click)="closeAssignModal()" [disabled]="assigning">
+          Cancel
+        </button>
+        <button class="btn-modal btn-modal-primary" (click)="assignComplaint()" [disabled]="!selectedUserId || assigning">
+          <span *ngIf="!assigning">
+            <i class="bi bi-check-lg"></i>
+            Assign Complaint
+          </span>
+          <span *ngIf="assigning">
+            <span class="spinner-small"></span>
+            Assigning...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dashboard Customizer Modal -->
+<app-dashboard-customizer
+  [show]="showCustomizer"
+  [currentPreferences]="dashboardPreferences"
+  (close)="showCustomizer = false"
+  (save)="onSavePreferences($event)">
+</app-dashboard-customizer>
+
+<!-- Theme Settings Modal -->
+<div class="modal-overlay" *ngIf="showThemeSettings" (click)="closeThemeSettings()">
+  <div class="theme-modal-container" (click)="$event.stopPropagation()">
+    <div class="theme-modal-header">
+      <div class="theme-modal-title-wrapper">
+        <i class="bi bi-palette-fill"></i>
+        <h2 class="theme-modal-title">Theme Settings</h2>
+      </div>
+      <button class="btn-modal-close" (click)="closeThemeSettings()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="theme-modal-body">
+      <app-theme-settings></app-theme-settings>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,261 @@
+========================================
+COMPLAINT MANAGEMENT SYSTEM
+CONFIGURATION SUMMARY
+========================================
+Date: November 10, 2025
+Status: 70% Complete (Automated + Manual Steps Required)
+
+========================================
+COMPLETED AUTOMATICALLY ✅
+========================================
+
+WORKFLOWS (3 Created)
+---------------------
+1. Standard Complaint Workflow
+   ID: 3f2ca1d4-e1cd-4166-8ea5-64c24bcd8428
+   Categories: Attendance Issues, Product Quality Issues
+   Statuses: 5 (Submitted → Under Review → In Progress → Resolved → Closed)
+   Transitions: 4
+
+2. Fast Track Workflow
+   ID: fb3f8bb1-7928-4f2b-a5dd-984812949946
+   Category: Service Delays
+   Statuses: 4 (Submitted → In Progress → Resolved → Closed)
+   Transitions: 3
+
+3. Escalation Required Workflow
+   ID: c33a4602-9140-4c98-847b-759ef856744d
+   Categories: Technical Issues, Billing Problems
+   Statuses: 6 (Submitted → Under Review → Escalated → In Progress → Resolved → Closed)
+   Transitions: 5
+
+ESCALATION MATRICES (5 Created)
+-------------------------------
+1. Critical Issues (Urgent Priority)
+   ID: 7e7a40c4-6cb4-4168-acb9-85e7e32efe5c
+   Levels: 3 (4h, 8h, 12h) - NEEDS MANUAL ADDITION
+
+2. Critical Priority Escalation
+   ID: 3e0d0a46-cded-453d-bf7b-13e06ccd5f52
+   Levels: 3 (4h, 8h, 12h) - NEEDS MANUAL ADDITION
+
+3. Standard Escalation (Normal Priority)
+   ID: 87d39635-342c-493a-ac04-75e46398b03b
+   Levels: 2 (24h, 48h) - NEEDS MANUAL ADDITION
+
+4. High Priority Escalation
+   ID: 95ee785b-d1c7-4bde-92db-ee45b64456a2
+   Levels: 2 (24h, 48h) - NEEDS MANUAL ADDITION
+
+5. Low Priority Escalation
+   ID: 3f468eba-0ff5-496e-bd46-5125201ff5b9
+   Levels: 2 (72h, 120h) - NEEDS MANUAL ADDITION
+
+========================================
+MANUAL STEPS REQUIRED ⚠️
+========================================
+
+1. ADD ESCALATION LEVELS (30-45 minutes)
+   ----------------------------------------
+   Navigate to: Admin → Escalation Matrix Management
+
+   For each of the 5 matrices above:
+   - Click "Add Level" or "Edit"
+   - Add escalation levels with:
+     * Level number (1, 2, 3)
+     * Hours until escalation
+     * Handler email
+     * Handler name
+   - Set to Active
+   - Save
+
+   Total: 14 escalation levels to add
+
+2. CREATE NOTIFICATION RULES (45-60 minutes)
+   ------------------------------------------
+   Navigate to: Admin → Notification Rule Management
+
+   Create 7 notification rules:
+   a) COMPLAINT_CREATED → Complainant (Email)
+   b) COMPLAINT_ASSIGNED → Assigned Handler (Email)
+   c) COMPLAINT_CLOSED → Complainant + Handler (Email)
+   d) COMPLAINT_ESCALATED → Escalation Handlers (Email, CC: support@)
+   e) COMPLAINT_OVERDUE → Handler + Manager (Email)
+   f) COMPLAINT_STATUS_CHANGED → Complainant (Email)
+   g) COMPLAINT_COMMENTED → Complainant (Email)
+
+========================================
+CONFIGURATION FILES CREATED
+========================================
+
+1. complete-system-configuration.ps1
+   - Main automation script
+   - Creates workflows with full configuration
+   - Status: Successfully executed
+
+2. manual-configuration-remaining-tasks.ps1
+   - Creates escalation matrices
+   - Attempts level and rule creation
+   - Status: Partial success (matrices created)
+
+3. SYSTEM_CONFIGURATION_COMPLETE_REPORT.md
+   - Comprehensive documentation (16KB)
+   - All IDs, mappings, and details
+   - Testing recommendations
+
+4. MANUAL_CONFIGURATION_GUIDE.md
+   - Step-by-step manual configuration guide
+   - Quick reference with all required data
+   - Includes troubleshooting
+
+5. SYSTEM_CONFIGURATION_REPORT_20251110_161116.json
+   - Machine-readable report
+   - Contains all workflow and matrix IDs
+
+6. THIS FILE: CONFIGURATION_SUMMARY.txt
+   - Quick reference summary
+
+========================================
+DETAILED CONFIGURATION DATA
+========================================
+
+ESCALATION LEVEL DETAILS
+-------------------------
+
+CRITICAL/URGENT (Matrices 1 & 2):
+  Level 1: 4 hours  → naveen.chandra@oryggitech.com (Level 1 - Naveen)
+  Level 2: 8 hours  → himanshu.singh@oryggitech.com (Level 2 - Himanshu)
+  Level 3: 12 hours → marketing@oryggitech.com (Level 3 - Management)
+
+HIGH/NORMAL (Matrices 3 & 4):
+  Level 1: 24 hours → naveen.chandra@oryggitech.com (Support Team)
+  Level 2: 48 hours → support@oryggitech.com (Senior Support)
+
+LOW (Matrix 5):
+  Level 1: 72 hours  → support@oryggitech.com (Support Team)
+  Level 2: 120 hours → naveen.chandra@oryggitech.com (Management)
+
+PRIORITY MAPPINGS
+-----------------
+URGENT   → Matrix 1 (7e7a40c4-6cb4-4168-acb9-85e7e32efe5c)
+CRITICAL → Matrix 2 (3e0d0a46-cded-453d-bf7b-13e06ccd5f52)
+HIGH     → Matrix 4 (95ee785b-d1c7-4bde-92db-ee45b64456a2)
+NORMAL   → Matrix 3 (87d39635-342c-493a-ac04-75e46398b03b)
+LOW      → Matrix 5 (3f468eba-0ff5-496e-bd46-5125201ff5b9)
+
+CATEGORY TO WORKFLOW MAPPING
+----------------------------
+Attendance Issues       → Standard Complaint Workflow
+Product Quality Issues  → Standard Complaint Workflow
+Service Delays         → Fast Track Workflow
+Technical Issues       → Escalation Required Workflow
+Billing Problems       → Escalation Required Workflow
+
+========================================
+NEXT STEPS
+========================================
+
+IMMEDIATE (Today):
+1. Read MANUAL_CONFIGURATION_GUIDE.md
+2. Add 14 escalation levels (30-45 min)
+3. Create 7 notification rules (45-60 min)
+
+TESTING (Tomorrow):
+1. Create test complaints in each workflow
+2. Test status transitions
+3. Test notifications (if email configured)
+4. Verify workflows function correctly
+
+VALIDATION (Next Week):
+1. Test escalation triggers (requires time delays)
+2. End-to-end testing with real scenarios
+3. User acceptance testing
+4. Performance validation
+
+========================================
+SYSTEM STATUS
+========================================
+
+Master Data: ✅ All loaded (19 categories, 11 statuses, 6 priorities)
+Workflows: ✅ 3 workflows fully configured with statuses and transitions
+Escalation Matrices: ⚠️ 5 created, levels need manual addition
+Notification Rules: ⚠️ Need manual creation via UI
+Overall Progress: 70% Complete
+
+========================================
+ESTIMATED COMPLETION TIME
+========================================
+
+Manual Configuration: 2-3 hours
+Initial Testing: 1-2 hours
+Full Testing: 1 week (due to escalation time delays)
+
+========================================
+API ENDPOINTS USED
+========================================
+
+GET  /api/categories
+GET  /api/complaintstatusMaster
+GET  /api/complaintpriorityMaster
+GET  /api/event-types
+POST /api/workflows
+POST /api/workflows/{id}/statuses
+POST /api/workflows/{id}/transitions
+POST /api/escalation/matrices
+POST /api/escalation/matrices/{id}/levels (UI required)
+POST /api/event-communication-rules (UI required)
+
+========================================
+SUPPORT INFORMATION
+========================================
+
+Backend API: http://localhost:5000
+Frontend: http://localhost:4200 (assumed)
+Token File: .test-token
+Company ID: fe28cd85-4226-4daa-9e45-66a3d51877fa
+
+User: admin@complaintmanagement.com
+Permissions: Full Admin Access (ManageEscalation, ManageSettings, etc.)
+
+========================================
+TROUBLESHOOTING
+========================================
+
+Issue: Can't see Escalation Matrix menu
+Fix: Check user has ManageEscalation permission
+
+Issue: Workflow not showing for category
+Fix: Verify category assignment and workflow is Active
+
+Issue: Notifications not sending
+Fix: Configure SMTP settings in Admin → Email Settings
+
+Issue: Escalation not triggering
+Fix: Ensure levels are added and auto-escalation service is running
+
+========================================
+CONCLUSION
+========================================
+
+The automated configuration successfully created:
+✅ 3 complete workflows with 15 statuses and 12 transitions
+✅ 5 escalation matrices with proper priority mappings
+✅ Category to workflow assignments
+
+Manual steps required to complete:
+⚠️ Add 14 escalation levels to 5 matrices
+⚠️ Create 7 notification rules for event types
+
+Once manual steps are completed, the system will be fully
+configured for production use with comprehensive complaint
+tracking, automated escalations, and event notifications.
+
+Total Time: 5 minutes (automated) + 2-3 hours (manual)
+Difficulty: Easy to Medium
+Status: Ready for manual completion
+
+========================================
+GENERATED BY: Claude AI Assistant
+DATE: November 10, 2025
+SCRIPTS LOCATION: C:\Users\Navin Chandra\Pictures\Complaint management system\
+========================================

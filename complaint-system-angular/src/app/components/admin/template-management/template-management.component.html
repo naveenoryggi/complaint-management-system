@@ -1,0 +1,543 @@
+<div class="template-management-container">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title-row">
+        <button class="btn-back" (click)="navigateBack()">
+          <i class="fas fa-arrow-left"></i>
+          Back to Dashboard
+        </button>
+        <h1>
+          <i class="fas fa-file-alt"></i>
+          Communication Templates
+        </h1>
+      </div>
+      <p class="header-description">Manage notification templates for Email, SMS, and WhatsApp</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      Add Template
+    </button>
+  </div>
+
+  <!-- Info Banner -->
+  <div class="info-banner">
+    <div class="info-icon">
+      <i class="fas fa-info-circle"></i>
+    </div>
+    <div class="info-content">
+      <h3>About Communication Templates</h3>
+      <p>
+        <strong>Templates</strong> define the content of automated notifications sent when events occur in the system.
+        Use placeholders like {{ '{' }}complaintNumber{{ '}' }}, {{ '{' }}title{{ '}' }}, {{ '{' }}assignedToName{{ '}' }} to dynamically insert data.
+      </p>
+      <ul>
+        <li><strong>Email Templates:</strong> Support subject, plain text body, and HTML body</li>
+        <li><strong>SMS/WhatsApp:</strong> Keep messages concise (160-300 characters)</li>
+        <li><strong>System Templates:</strong> Pre-configured templates that can be edited but not deleted</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage && !showModal" class="alert alert-danger">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="filter-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="filterItems()"
+        placeholder="Search templates by name, code, or content..."
+        class="search-input"
+      />
+    </div>
+  </div>
+
+  <!-- Filter Buttons -->
+  <div class="filter-chips-container">
+    <!-- Status Filter -->
+    <div class="filter-group">
+      <label class="filter-label">Status:</label>
+      <div class="filter-chips">
+        <button
+          class="filter-chip"
+          [class.active]="statusFilter === 'all'"
+          (click)="setStatusFilter('all')"
+        >
+          All
+        </button>
+        <button
+          class="filter-chip"
+          [class.active]="statusFilter === 'active'"
+          (click)="setStatusFilter('active')"
+        >
+          <i class="fas fa-check-circle"></i>
+          Active
+        </button>
+        <button
+          class="filter-chip"
+          [class.active]="statusFilter === 'inactive'"
+          (click)="setStatusFilter('inactive')"
+        >
+          <i class="fas fa-times-circle"></i>
+          Inactive
+        </button>
+      </div>
+    </div>
+
+    <!-- Channel Filter -->
+    <div class="filter-group">
+      <label class="filter-label">Channel:</label>
+      <div class="filter-chips">
+        <button
+          class="filter-chip"
+          [class.active]="channelFilter === 'all'"
+          (click)="setChannelFilter('all')"
+        >
+          All Channels
+        </button>
+        <button
+          class="filter-chip"
+          [class.active]="channelFilter === CommunicationChannel.Email"
+          (click)="setChannelFilter(CommunicationChannel.Email)"
+        >
+          <i class="fas fa-envelope"></i>
+          Email
+        </button>
+        <button
+          class="filter-chip"
+          [class.active]="channelFilter === CommunicationChannel.SMS"
+          (click)="setChannelFilter(CommunicationChannel.SMS)"
+        >
+          <i class="fas fa-sms"></i>
+          SMS
+        </button>
+        <button
+          class="filter-chip"
+          [class.active]="channelFilter === CommunicationChannel.WhatsApp"
+          (click)="setChannelFilter(CommunicationChannel.WhatsApp)"
+        >
+          <i class="fab fa-whatsapp"></i>
+          WhatsApp
+        </button>
+        <button
+          class="filter-chip"
+          [class.active]="channelFilter === CommunicationChannel.InApp"
+          (click)="setChannelFilter(CommunicationChannel.InApp)"
+        >
+          <i class="fas fa-bell"></i>
+          In-App
+        </button>
+      </div>
+    </div>
+
+    <!-- System Filter -->
+    <div class="filter-group">
+      <label class="filter-label">Type:</label>
+      <div class="filter-chips">
+        <button
+          class="filter-chip"
+          [class.active]="systemFilter === 'all'"
+          (click)="setSystemFilter('all')"
+        >
+          All Types
+        </button>
+        <button
+          class="filter-chip"
+          [class.active]="systemFilter === 'system'"
+          (click)="setSystemFilter('system')"
+        >
+          <i class="fas fa-cog"></i>
+          System
+        </button>
+        <button
+          class="filter-chip"
+          [class.active]="systemFilter === 'custom'"
+          (click)="setSystemFilter('custom')"
+        >
+          <i class="fas fa-user"></i>
+          Custom
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading && items.length === 0" class="loading-state">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading templates...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredItems.length === 0" class="empty-state">
+    <i class="fas fa-file-alt"></i>
+    <h3>No Templates Found</h3>
+    <p *ngIf="searchTerm">Try adjusting your search criteria</p>
+    <p *ngIf="!searchTerm">Get started by creating your first custom template</p>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      Add Template
+    </button>
+  </div>
+
+  <!-- Templates Grid -->
+  <div *ngIf="!loading && filteredItems.length > 0" class="templates-grid">
+    <div *ngFor="let template of filteredItems" class="template-card" [class.inactive]="!template.isActive">
+      <div class="card-header">
+        <div class="template-info">
+          <h3>{{ template.name }}</h3>
+          <div class="badges">
+            <span class="channel-badge" [class]="'channel-' + template.channel">
+              <i [class]="template.channel === CommunicationChannel.Email ? 'fas fa-envelope' :
+                           template.channel === CommunicationChannel.SMS ? 'fas fa-sms' :
+                           template.channel === CommunicationChannel.WhatsApp ? 'fab fa-whatsapp' :
+                           'fas fa-bell'"></i>
+              {{ getChannelLabel(template.channel) }}
+            </span>
+            <span class="status-badge" [class.active]="template.isActive" [class.inactive]="!template.isActive">
+              {{ template.isActive ? 'Active' : 'Inactive' }}
+            </span>
+            <span *ngIf="template.isSystem" class="system-badge">
+              <i class="fas fa-cog"></i> System
+            </span>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button
+            class="btn-icon"
+            (click)="openEditModal(template)"
+            title="Edit Template"
+          >
+            <i class="fas fa-edit"></i>
+          </button>
+          <button
+            class="btn-icon"
+            (click)="toggleTemplateStatus(template)"
+            [title]="template.isActive ? 'Deactivate' : 'Activate'"
+          >
+            <i [class]="template.isActive ? 'fas fa-toggle-on' : 'fas fa-toggle-off'"></i>
+          </button>
+          <button
+            *ngIf="!template.isSystem"
+            class="btn-icon btn-delete"
+            (click)="confirmDelete(template)"
+            title="Delete Template"
+          >
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="template-code">
+          <i class="fas fa-code"></i>
+          <code>{{ template.code }}</code>
+        </div>
+
+        <div *ngIf="template.description" class="template-description">
+          <p>{{ template.description }}</p>
+        </div>
+
+        <div *ngIf="template.subject && template.channel === CommunicationChannel.Email" class="template-subject">
+          <strong>Subject:</strong> {{ template.subject }}
+        </div>
+
+        <div class="template-body">
+          <strong>Body:</strong>
+          <pre class="body-preview">{{ template.body.substring(0, 200) }}{{ template.body.length > 200 ? '...' : '' }}</pre>
+        </div>
+
+        <div *ngIf="template.htmlBody" class="template-html-indicator">
+          <i class="fas fa-code"></i>
+          <span>HTML template available</span>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <small>
+          Created: {{ template.createdAt | utcToLocal:'medium' }}
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div *ngIf="items.length > 0" class="summary-stats">
+    <div class="stat-item">
+      <span class="stat-label">Total Templates:</span>
+      <span class="stat-value">{{ items.length }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Active:</span>
+      <span class="stat-value stat-active">{{ getActiveTemplatesCount() }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">System:</span>
+      <span class="stat-value stat-system">{{ getSystemTemplatesCount() }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Custom:</span>
+      <span class="stat-value stat-custom">{{ getCustomTemplatesCount() }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content large-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-file-alt"></i>
+        {{ modalMode === 'edit' ? 'Edit Communication Template' : 'Create New Template' }}
+      </h2>
+      <button class="btn-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Error Message in Modal -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <form (ngSubmit)="save()">
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label for="templateName" class="required">Template Name</label>
+              <input
+                id="templateName"
+                type="text"
+                [(ngModel)]="formName"
+                name="name"
+                class="form-control"
+                placeholder="e.g., Complaint Created Email, SMS Assignment Alert"
+                required
+              />
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="templateCode" class="required">Template Code</label>
+              <input
+                id="templateCode"
+                type="text"
+                [(ngModel)]="formCode"
+                name="code"
+                class="form-control"
+                placeholder="COMPLAINT_CREATED"
+                [disabled]="modalMode === 'edit' && isSystem"
+                required
+              />
+              <small class="form-help-text">Uppercase with underscores only</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="templateDescription">Description</label>
+            <textarea
+              id="templateDescription"
+              [(ngModel)]="formDescription"
+              name="description"
+              class="form-control"
+              rows="2"
+              placeholder="Brief description of when this template is used..."
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="channel" class="required">Communication Channel</label>
+              <select
+                id="channel"
+                [(ngModel)]="channel"
+                name="channel"
+                class="form-control"
+                [disabled]="modalMode === 'edit' && isSystem"
+                required
+              >
+                <option [ngValue]="CommunicationChannel.Email">
+                  <i class="fas fa-envelope"></i> Email
+                </option>
+                <option [ngValue]="CommunicationChannel.SMS">SMS</option>
+                <option [ngValue]="CommunicationChannel.WhatsApp">WhatsApp</option>
+                <option [ngValue]="CommunicationChannel.InApp">In-App Notification</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <div class="checkbox-group">
+                <input
+                  id="isActive"
+                  type="checkbox"
+                  [(ngModel)]="formIsActive"
+                  name="isActive"
+                />
+                <label for="isActive">
+                  Active
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email Subject (only for Email channel) -->
+        <div *ngIf="channel === CommunicationChannel.Email" class="form-section">
+          <h3>Email Subject</h3>
+
+          <div class="form-group">
+            <label for="subject" class="required">Subject Line</label>
+            <input
+              id="subject"
+              type="text"
+              [(ngModel)]="subject"
+              name="subject"
+              class="form-control"
+              placeholder="Complaint {complaintNumber} - {statusName}"
+              required
+            />
+            <small class="form-help-text">Use placeholders like {{ '{' }}complaintNumber{{ '}' }}, {{ '{' }}title{{ '}' }}, {{ '{' }}assignedToName{{ '}' }}</small>
+          </div>
+        </div>
+
+        <!-- Template Body -->
+        <div class="form-section">
+          <h3>Template Content</h3>
+
+          <div class="form-group">
+            <label for="templateBody" class="required">Message Body</label>
+            <textarea
+              id="templateBody"
+              [(ngModel)]="body"
+              name="body"
+              class="form-control template-body-textarea"
+              rows="10"
+              placeholder="Enter your template content here. Use placeholders like {complaintNumber}, {title}, etc."
+              required
+            ></textarea>
+            <small class="form-help-text">
+              <i class="fas fa-info-circle"></i>
+              Click placeholder buttons below to insert them at cursor position
+            </small>
+          </div>
+
+          <!-- Placeholder Buttons -->
+          <div class="placeholders-section">
+            <label class="placeholders-label">Available Placeholders:</label>
+            <div class="placeholders-grid">
+              <button
+                *ngFor="let placeholder of availablePlaceholders"
+                type="button"
+                class="placeholder-btn"
+                (click)="insertPlaceholder(placeholder)"
+                [title]="'Insert ' + placeholder"
+              >
+                {{ placeholder }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Preview Button -->
+          <div class="preview-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="togglePreview()"
+            >
+              <i [class]="showPreview ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              {{ showPreview ? 'Hide Preview' : 'Preview with Sample Data' }}
+            </button>
+          </div>
+
+          <!-- Preview Panel -->
+          <div *ngIf="showPreview" class="preview-panel">
+            <h4>Preview:</h4>
+            <div class="preview-content">
+              <pre>{{ previewContent }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- HTML Body (only for Email channel) -->
+        <div *ngIf="channel === CommunicationChannel.Email" class="form-section">
+          <h3>HTML Template (Optional)</h3>
+
+          <div class="form-group">
+            <label for="htmlBody">HTML Body</label>
+            <textarea
+              id="htmlBody"
+              [(ngModel)]="htmlBody"
+              name="htmlBody"
+              class="form-control"
+              rows="8"
+              placeholder="<html><body>HTML email template with placeholders...</body></html>"
+            ></textarea>
+            <small class="form-help-text">
+              Optional HTML version for email clients that support rich formatting
+            </small>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i [class]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-save'"></i>
+            {{ loading ? 'Saving...' : 'Save' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteConfirm" class="modal-overlay" (click)="cancelDelete()">
+  <div class="modal-content small-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-exclamation-triangle"></i>
+        Confirm Delete
+      </h2>
+      <button class="btn-close" (click)="cancelDelete()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p>Are you sure you want to delete this communication template?</p>
+      <p><strong>{{ itemToDelete?.name }}</strong></p>
+      <p class="warning-text">
+        <i class="fas fa-exclamation-triangle"></i>
+        This action cannot be undone. Notification rules using this template will be affected.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="cancelDelete()">
+        Cancel
+      </button>
+      <button type="button" class="btn btn-danger" (click)="executeDelete()" [disabled]="loading">
+        <i [class]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-trash'"></i>
+        {{ loading ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>

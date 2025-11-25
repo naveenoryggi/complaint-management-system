@@ -1,0 +1,6 @@
+[2025-10-25 00:19:41] [INFO] ========================================
+[2025-10-25 00:19:41] [INFO] ULTIMATE 100% SUCCESS TEST SUITE
+[2025-10-25 00:19:41] [INFO] ========================================
+[2025-10-25 00:19:41] [INFO] 
+[2025-10-25 00:19:41] [INFO] Authenticating...
+[2025-10-25 00:19:41] [FAIL] Authentication failed: Cannot bind parameter 'Headers'. Cannot convert the "Content-Type: application/json" value of type "System.String" to type "System.Collections.IDictionary".

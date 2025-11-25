@@ -1,0 +1,102 @@
+[2025-10-24 23:34:37] [INFO] ========================================
+[2025-10-24 23:34:37] [INFO] DATA INTEGRITY TEST SUITE STARTED
+[2025-10-24 23:34:37] [INFO] ========================================
+[2025-10-24 23:34:37] [INFO] 
+[2025-10-24 23:34:37] [INFO] === TEST CATEGORY 1: STATUS SYNCHRONIZATION ===
+[2025-10-24 23:34:37] [INFO] Test 1.1: Status/StatusMasterId Synchronization Check
+[2025-10-24 23:34:37] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid object name 'StatusMaster'."
+[2025-10-24 23:34:37] [PASS] PASS: Status/StatusMasterId Synchronization
+[2025-10-24 23:34:37] [INFO] Test 1.2: Invalid Status Values Check
+[2025-10-24 23:34:37] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid object name 'StatusMaster'."
+[2025-10-24 23:34:37] [PASS] PASS: Invalid Status Values
+[2025-10-24 23:34:37] [INFO] 
+[2025-10-24 23:34:37] [INFO] === TEST CATEGORY 2: NULL FOREIGN KEY DETECTION ===
+[2025-10-24 23:34:37] [INFO] Test 2.1: NULL StatusMasterId Check
+[2025-10-24 23:34:37] [PASS] PASS: NULL StatusMasterId
+[2025-10-24 23:34:37] [INFO] Test 2.2: NULL PriorityMasterId Check
+[2025-10-24 23:34:38] [PASS] PASS: NULL PriorityMasterId
+[2025-10-24 23:34:38] [INFO] Test 2.3: NULL CategoryMasterId Check
+[2025-10-24 23:34:38] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid column name 'CategoryMasterId'."
+[2025-10-24 23:34:38] [PASS] PASS: NULL CategoryMasterId
+[2025-10-24 23:34:38] [INFO] Test 2.4: NULL CompanyId Check
+[2025-10-24 23:34:38] [PASS] PASS: NULL CompanyId
+[2025-10-24 23:34:38] [INFO] Test 2.5: NULL CreatedBy Check
+[2025-10-24 23:34:38] [PASS] PASS: NULL CreatedBy
+[2025-10-24 23:34:38] [INFO] 
+[2025-10-24 23:34:38] [INFO] === TEST CATEGORY 3: ORPHANED RECORDS DETECTION ===
+[2025-10-24 23:34:38] [INFO] Test 3.1: Orphaned Comments Check
+[2025-10-24 23:34:38] [PASS] PASS: Orphaned Comments
+[2025-10-24 23:34:38] [INFO] Test 3.2: Orphaned Attachments Check
+[2025-10-24 23:34:38] [PASS] PASS: Orphaned Attachments
+[2025-10-24 23:34:38] [INFO] Test 3.3: Orphaned Escalations Check
+[2025-10-24 23:34:38] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid object name 'ComplaintEscalations'."
+[2025-10-24 23:34:38] [PASS] PASS: Orphaned Escalations
+[2025-10-24 23:34:38] [INFO] Test 3.4: Orphaned Status History Check
+[2025-10-24 23:34:38] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid object name 'ComplaintStatusHistory'."
+[2025-10-24 23:34:38] [PASS] PASS: Orphaned Status History
+[2025-10-24 23:34:38] [INFO] Test 3.5: Invalid AssignedTo User References
+[2025-10-24 23:34:38] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid column name 'AssignedTo'.
+Invalid column name 'AssignedTo'."
+[2025-10-24 23:34:38] [PASS] PASS: Invalid AssignedTo References
+[2025-10-24 23:34:38] [INFO] 
+[2025-10-24 23:34:38] [INFO] === TEST CATEGORY 4: AUDIT TRAIL COMPLETENESS ===
+[2025-10-24 23:34:38] [INFO] Test 4.1: Missing CreatedDate Check
+[2025-10-24 23:34:38] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid column name 'CreatedDate'."
+[2025-10-24 23:34:38] [PASS] PASS: Missing CreatedDate
+[2025-10-24 23:34:38] [INFO] Test 4.2: Future CreatedDate Check
+[2025-10-24 23:34:38] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid column name 'CreatedDate'."
+[2025-10-24 23:34:38] [PASS] PASS: Future CreatedDate
+[2025-10-24 23:34:38] [INFO] Test 4.3: UpdatedDate Before CreatedDate Check
+[2025-10-24 23:34:38] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid column name 'UpdatedDate'.
+Invalid column name 'UpdatedDate'.
+Invalid column name 'CreatedDate'."
+[2025-10-24 23:34:38] [PASS] PASS: UpdatedDate Before CreatedDate
+[2025-10-24 23:34:38] [INFO] 
+[2025-10-24 23:34:38] [INFO] === TEST CATEGORY 5: REFERENTIAL INTEGRITY ===
+[2025-10-24 23:34:38] [INFO] Test 5.1: Invalid Company References
+[2025-10-24 23:34:38] [PASS] PASS: Invalid Company References
+[2025-10-24 23:34:38] [INFO] Test 5.2: Invalid Category References
+[2025-10-24 23:34:38] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid column name 'CategoryMasterId'."
+[2025-10-24 23:34:38] [PASS] PASS: Invalid Category References
+[2025-10-24 23:34:38] [INFO] Test 5.3: Invalid Priority References
+[2025-10-24 23:34:38] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid object name 'PriorityMaster'."
+[2025-10-24 23:34:38] [PASS] PASS: Invalid Priority References
+[2025-10-24 23:34:38] [INFO] Test 5.4: Invalid Status References
+[2025-10-24 23:34:38] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid object name 'StatusMaster'."
+[2025-10-24 23:34:39] [PASS] PASS: Invalid Status References
+[2025-10-24 23:34:39] [INFO] 
+[2025-10-24 23:34:39] [INFO] === TEST CATEGORY 6: DATA CONSISTENCY ===
+[2025-10-24 23:34:39] [INFO] Test 6.1: Duplicate ComplaintNumber Check
+[2025-10-24 23:34:39] [PASS] PASS: Duplicate ComplaintNumber
+[2025-10-24 23:34:39] [INFO] Test 6.2: Empty Subject Check
+[2025-10-24 23:34:39] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid column name 'Subject'.
+Invalid column name 'Subject'."
+[2025-10-24 23:34:39] [PASS] PASS: Empty Subject
+[2025-10-24 23:34:39] [INFO] Test 6.3: Empty Description Check
+[2025-10-24 23:34:39] [PASS] PASS: Empty Description
+[2025-10-24 23:34:39] [INFO] Test 6.4: Closed Complaints Without Resolution Notes
+[2025-10-24 23:34:39] [PASS] PASS: Closed Without Resolution Notes
+[2025-10-24 23:34:39] [INFO] 
+[2025-10-24 23:34:39] [INFO] === TEST CATEGORY 7: MASTER DATA INTEGRITY ===
+[2025-10-24 23:34:39] [INFO] Test 7.1: Essential Status Master Records
+[2025-10-24 23:34:39] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid object name 'StatusMaster'."
+[2025-10-24 23:34:39] [FAIL] FAIL: Essential Status Master Records - CRITICAL: Missing essential status records: Submitted, InProgress, Resolved, Closed, Escalated
+[2025-10-24 23:34:39] [INFO] Test 7.2: Essential Priority Master Records
+[2025-10-24 23:34:39] [ERROR] SQL Error: Exception calling "Fill" with "1" argument(s): "Invalid object name 'PriorityMaster'."
+[2025-10-24 23:34:39] [FAIL] FAIL: Essential Priority Master Records - HIGH: Missing essential priority records: Low, Medium, High, Critical
+[2025-10-24 23:34:39] [INFO] 
+[2025-10-24 23:34:39] [INFO] ========================================
+[2025-10-24 23:34:39] [INFO] DATA INTEGRITY TEST SUITE COMPLETED
+[2025-10-24 23:34:39] [INFO] ========================================
+[2025-10-24 23:34:39] [INFO] Total Tests: 25
+[2025-10-24 23:34:39] [INFO] Passed: 23
+[2025-10-24 23:34:39] [INFO] Failed: 2
+[2025-10-24 23:34:39] [INFO] Success Rate: 92%
+[2025-10-24 23:34:39] [ERROR] 
+[2025-10-24 23:34:39] [ERROR] === ISSUES FOUND ===
+[2025-10-24 23:34:39] [ERROR] 
+[2025-10-24 23:34:39] [ERROR] CRITICAL Issues (2):
+[2025-10-24 23:34:39] [ERROR]   - Essential Status Master Records: CRITICAL: Missing essential status records: Submitted, InProgress, Resolved, Closed, Escalated
+[2025-10-24 23:34:39] [ERROR]   - Essential Priority Master Records: HIGH: Missing essential priority records: Low, Medium, High, Critical
+[2025-10-24 23:34:39] [INFO] 
+[2025-10-24 23:34:39] [INFO] Results saved to: DATA_INTEGRITY_TEST_RESULTS_20251024_233437.txt

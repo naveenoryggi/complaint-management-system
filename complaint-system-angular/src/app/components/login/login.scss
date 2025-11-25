@@ -1,0 +1,758 @@
+// =============================================================================
+// LOGIN PAGE - MODERN PROFESSIONAL DESIGN
+// =============================================================================
+
+@import '../../../styles.scss';
+
+// -----------------------------------------------------------------------------
+// 1. CONTAINER & LAYOUT
+// -----------------------------------------------------------------------------
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: $spacing-6;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-4;
+  }
+}
+
+// Background Animation Elements
+.login-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+
+  .gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    animation: float 20s ease-in-out infinite;
+
+    &.orb-1 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      top: -100px;
+      left: -100px;
+      animation-delay: 0s;
+    }
+
+    &.orb-2 {
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      bottom: -150px;
+      right: -150px;
+      animation-delay: 7s;
+    }
+
+    &.orb-3 {
+      width: 350px;
+      height: 350px;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: 14s;
+    }
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 40px) scale(0.9);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 2. LOGIN CARD
+// -----------------------------------------------------------------------------
+
+.login-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: $border-radius-2xl;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: $spacing-10;
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  z-index: 1;
+  animation: slideUp 0.6s ease-out;
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-8;
+    max-width: 100%;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-6;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 3. HEADER & BRANDING
+// -----------------------------------------------------------------------------
+
+.login-header {
+  text-align: center;
+  margin-bottom: $spacing-8;
+
+  .brand-logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto $spacing-4;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: $border-radius-2xl;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    animation: pulse 2s ease-in-out infinite;
+
+    i {
+      font-size: $font-size-4xl;
+      color: white;
+    }
+  }
+
+  h1 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $neutral-900;
+    margin: 0 0 $spacing-2 0;
+    line-height: $line-height-tight;
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: $font-size-xl;
+    }
+  }
+
+  .subtitle {
+    font-size: $font-size-base;
+    color: $neutral-600;
+    margin: 0;
+    font-weight: $font-weight-normal;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 4. FORM ELEMENTS
+// -----------------------------------------------------------------------------
+
+.login-form {
+  margin-bottom: $spacing-6;
+}
+
+// Alert Messages
+.alert {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  border-radius: $border-radius-lg;
+  margin-bottom: $spacing-5;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  animation: slideDown 0.3s ease-out;
+
+  &.alert-error {
+    background-color: $error-100;
+    color: $error-800;
+    border: 1px solid $error-300;
+
+    i {
+      color: $error-600;
+      font-size: $font-size-lg;
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Form Groups
+.form-group {
+  margin-bottom: $spacing-6;
+
+  .form-label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $neutral-800;
+    margin-bottom: $spacing-3;
+
+    i {
+      color: $primary-600;
+      font-size: $font-size-base;
+    }
+
+    .required {
+      color: $error-600;
+      margin-left: auto;
+    }
+  }
+}
+
+// Input Wrapper
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .form-input {
+    width: 100%;
+    padding: $spacing-4 $spacing-12 $spacing-4 $spacing-10;
+    font-size: $font-size-base;
+    font-family: var(--font-family-primary);
+    color: $neutral-900;
+    background-color: white;
+    border: 2px solid $neutral-300;
+    border-radius: $border-radius-lg;
+    transition: all $transition-base;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: $neutral-400;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-500;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    &.is-invalid {
+      border-color: $error-500;
+      background-color: $error-50;
+
+      &:focus {
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+      }
+    }
+
+    &.is-valid {
+      border-color: $success-500;
+
+      &:focus {
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+      }
+    }
+  }
+
+  .input-icon {
+    position: absolute;
+    left: $spacing-4;
+    color: $neutral-400;
+    font-size: $font-size-lg;
+    pointer-events: none;
+    transition: color $transition-base;
+  }
+
+  &:focus-within .input-icon {
+    color: $primary-600;
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: $spacing-3;
+    background: none;
+    border: none;
+    color: $neutral-500;
+    cursor: pointer;
+    padding: $spacing-2;
+    border-radius: $border-radius-base;
+    transition: all $transition-fast;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: $font-size-lg;
+    }
+
+    &:hover {
+      color: $primary-600;
+      background-color: $primary-50;
+    }
+
+    &:focus {
+      outline: 2px solid $primary-500;
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Help Text & Error Messages
+.form-help-text {
+  display: block;
+  margin-top: $spacing-2;
+  font-size: $font-size-xs;
+  color: $neutral-500;
+  line-height: $line-height-normal;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  margin-top: $spacing-2;
+  font-size: $font-size-xs;
+  color: $error-700;
+  font-weight: $font-weight-medium;
+  animation: shake 0.4s ease-in-out;
+
+  i {
+    font-size: $font-size-sm;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+// -----------------------------------------------------------------------------
+// 5. FORM OPTIONS (Remember Me & Forgot Password)
+// -----------------------------------------------------------------------------
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-6;
+
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-3;
+  }
+}
+
+// Custom Checkbox
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+
+  .checkbox-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+
+    &:checked + .checkbox-label .checkbox-custom {
+      background-color: $primary-600;
+      border-color: $primary-600;
+
+      &::after {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    &:focus + .checkbox-label .checkbox-custom {
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-sm;
+    color: $neutral-700;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-left: 28px;
+
+    .checkbox-custom {
+      position: absolute;
+      left: 0;
+      width: 20px;
+      height: 20px;
+      border: 2px solid $neutral-400;
+      border-radius: $border-radius-base;
+      background-color: white;
+      transition: all $transition-base;
+
+      &::after {
+        content: '\f00c';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        color: white;
+        font-size: 10px;
+        opacity: 0;
+        transition: all $transition-fast;
+      }
+    }
+
+    &:hover .checkbox-custom {
+      border-color: $primary-600;
+    }
+  }
+}
+
+// Forgot Password Link
+.forgot-password {
+  font-size: $font-size-sm;
+  color: $primary-600;
+  text-decoration: none;
+  font-weight: $font-weight-medium;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: $primary-800;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: 2px solid $primary-500;
+    outline-offset: 2px;
+    border-radius: $border-radius-base;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 6. SUBMIT BUTTON
+// -----------------------------------------------------------------------------
+
+.login-button {
+  width: 100%;
+  padding: $spacing-4;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: $border-radius-lg;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  position: relative;
+  overflow: hidden;
+
+  .button-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-2;
+    position: relative;
+    z-index: 1;
+
+    i {
+      font-size: $font-size-lg;
+    }
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    opacity: 0;
+    transition: opacity $transition-base;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &.loading {
+    pointer-events: none;
+  }
+
+  // Loading Spinner
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 7. DIVIDER
+// -----------------------------------------------------------------------------
+
+.divider {
+  position: relative;
+  text-align: center;
+  margin: $spacing-8 0 $spacing-6;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, $neutral-300, transparent);
+  }
+
+  span {
+    position: relative;
+    display: inline-block;
+    padding: 0 $spacing-4;
+    background: rgba(255, 255, 255, 0.95);
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $neutral-500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 8. TEST CREDENTIALS
+// -----------------------------------------------------------------------------
+
+.test-credentials {
+  margin-bottom: $spacing-6;
+
+  .credential-card {
+    background: linear-gradient(135deg, $primary-50 0%, $secondary-50 100%);
+    border: 1px solid $primary-200;
+    border-radius: $border-radius-lg;
+    padding: $spacing-5;
+    transition: all $transition-base;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .credential-header {
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+      margin-bottom: $spacing-4;
+      padding-bottom: $spacing-3;
+      border-bottom: 1px solid $primary-200;
+
+      i {
+        font-size: $font-size-xl;
+        color: $primary-600;
+      }
+
+      .credential-role {
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        color: $neutral-800;
+      }
+    }
+
+    .credential-details {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-3;
+
+      .credential-item {
+        display: flex;
+        align-items: center;
+        gap: $spacing-3;
+        font-size: $font-size-sm;
+
+        i {
+          color: $primary-600;
+          font-size: $font-size-base;
+          width: 20px;
+          text-align: center;
+        }
+
+        .credential-value {
+          color: $neutral-700;
+          font-family: var(--font-family-mono);
+          background: white;
+          padding: $spacing-1 $spacing-3;
+          border-radius: $border-radius-base;
+          font-size: $font-size-xs;
+          border: 1px solid $neutral-200;
+        }
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 9. FOOTER
+// -----------------------------------------------------------------------------
+
+.login-footer {
+  text-align: center;
+  padding-top: $spacing-6;
+  border-top: 1px solid $neutral-200;
+
+  .footer-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-2;
+    font-size: $font-size-xs;
+    color: $neutral-500;
+    margin: 0;
+
+    i {
+      color: $success-600;
+      font-size: $font-size-sm;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 10. RESPONSIVE DESIGN
+// -----------------------------------------------------------------------------
+
+@media (max-width: $breakpoint-md) {
+  .login-card {
+    padding: $spacing-8;
+  }
+
+  .login-header {
+    margin-bottom: $spacing-6;
+
+    .brand-logo {
+      width: 70px;
+      height: 70px;
+
+      i {
+        font-size: $font-size-3xl;
+      }
+    }
+
+    h1 {
+      font-size: $font-size-xl;
+    }
+  }
+
+  .form-group {
+    margin-bottom: $spacing-5;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .login-container {
+    padding: $spacing-3;
+  }
+
+  .login-card {
+    padding: $spacing-6;
+  }
+
+  .login-header {
+    .brand-logo {
+      width: 60px;
+      height: 60px;
+
+      i {
+        font-size: $font-size-2xl;
+      }
+    }
+
+    h1 {
+      font-size: $font-size-lg;
+    }
+  }
+
+  .input-wrapper .form-input {
+    font-size: $font-size-sm;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 11. ACCESSIBILITY ENHANCEMENTS
+// -----------------------------------------------------------------------------
+
+// Focus visible for keyboard navigation
+*:focus-visible {
+  outline: 2px solid $primary-600;
+  outline-offset: 2px;
+}
+
+// Reduced motion for accessibility
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

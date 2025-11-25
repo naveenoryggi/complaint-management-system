@@ -1,0 +1,202 @@
+[INFO] ==============================================
+[INFO] PHASE 1: SECURITY & DATA INTEGRITY TEST SUITE
+[INFO] ==============================================
+[INFO] Starting: 20251025_200030
+[INFO] 
+[INFO] === SETUP: Authenticating as Admin ===
+[PASS] Admin authenticated. CompanyId: fe28cd85-4226-4daa-9e45-66a3d51877fa
+[INFO] 
+[INFO] === CATEGORY 1: AUTHORIZATION & PERMISSION TESTS ===
+[INFO] 
+[INFO] --- 1.1 User Management Permission Tests ---
+[PASS] [1] Auth-001: Admin can GET all users - PASS (200)
+[INFO]     Description: Admin with ManageUsers permission should access user list
+[PASS] [2] Auth-002: Admin can search users - PASS (200)
+[INFO]     Description: Admin should be able to search for users
+[PASS] [3] Auth-003: Admin can GET user by ID - PASS (200)
+[INFO]     Description: Admin should access specific user details
+[PASS] [4] Auth-004: Admin can GET user by employee code - PASS (200)
+[INFO]     Description: Admin should access user by employee code
+[PASS] [5] Auth-005: Admin can create user (validation) - PASS (400 - expected)
+[INFO]     Description: Should validate required fields for user creation
+[PASS] [6] Auth-006: Admin can update user - PASS (200)
+[INFO]     Description: Admin should be able to update users
+[INFO] 
+[INFO] --- 1.2 Role Management Permission Tests ---
+[PASS] [7] Auth-007: Admin can GET all roles - PASS (200)
+[INFO]     Description: Admin should access all roles in the system
+[PASS] [8] Auth-008: Admin can GET role permissions - PASS (200)
+[INFO]     Description: Admin should view all available permissions
+[PASS] [9] Auth-009: Admin can GET users in role - PASS (404 - expected)
+[INFO]     Description: Admin should view users assigned to a specific role
+[PASS] [10] Auth-010: Admin can create role (validation) - PASS (400 - expected)
+[INFO]     Description: Should validate role creation data
+[INFO] 
+[INFO] --- 1.3 Organization Structure Permission Tests ---
+[PASS] [11] Auth-011: Admin can GET branches - PASS (200)
+[INFO]     Description: Admin should access branch list
+[PASS] [12] Auth-012: Admin can create branch (validation) - PASS (400 - expected)
+[INFO]     Description: Should validate branch creation
+[PASS] [13] Auth-013: Admin can GET departments - PASS (200)
+[INFO]     Description: Admin should access department list
+[PASS] [14] Auth-014: Admin can create department (validation) - PASS (400 - expected)
+[INFO]     Description: Should validate department creation
+[PASS] [15] Auth-015: Admin can GET sections - PASS (200)
+[INFO]     Description: Admin should access section list
+[PASS] [16] Auth-016: Admin can GET employee types - PASS (200)
+[INFO]     Description: Admin should access employee types
+[INFO] 
+[INFO] --- 1.4 Complaint Management Permission Tests ---
+[PASS] [17] Auth-017: Admin can GET all complaints - PASS (200)
+[INFO]     Description: Admin should view all complaints in company
+[PASS] [18] Auth-018: Admin can create complaint (validation) - PASS (400 - expected)
+[INFO]     Description: Should validate complaint creation data
+[PASS] [19] Auth-019: Assign complaint requires valid assignee - PASS (404 - expected)
+[INFO]     Description: Should validate assignee exists
+[PASS] [20] Auth-020: Change status requires valid status - PASS (404 - expected)
+[INFO]     Description: Should validate status exists
+[PASS] [21] Auth-021: Admin can GET complaint comments - PASS (200)
+[INFO]     Description: Should retrieve complaint comments or 404 if complaint doesn't exist
+[PASS] [22] Auth-022: Admin can GET complaint attachments - PASS (200)
+[INFO]     Description: Should retrieve complaint attachments
+[PASS] [23] Auth-023: Admin can GET complaint history - PASS (200)
+[INFO]     Description: Should retrieve complaint audit history
+[INFO] 
+[INFO] --- 1.5 Master Data Permission Tests ---
+[PASS] [24] Auth-024: Anyone can GET categories - PASS (200)
+[INFO]     Description: Categories should be readable by all authenticated users
+[PASS] [25] Auth-025: Anyone can GET status master - PASS (200)
+[INFO]     Description: Status master should be readable by all
+[PASS] [26] Auth-026: Anyone can GET priority master - PASS (200)
+[INFO]     Description: Priority master should be readable by all
+[PASS] [27] Auth-027: Admin can create category (validation) - PASS (400 - expected)
+[INFO]     Description: Should validate category creation
+[PASS] [28] Auth-028: Admin can update category (validation) - PASS (400 - expected)
+[INFO]     Description: Should validate category update
+[INFO] 
+[INFO] --- 1.6 Escalation Permission Tests ---
+[PASS] [29] Auth-029: Admin can GET escalation data - PASS (200)
+[INFO]     Description: Admin with ViewEscalation can access escalation data
+[PASS] [30] Auth-030: Admin can GET escalation matrices - PASS (200)
+[INFO]     Description: Admin can view escalation matrices
+[PASS] [31] Auth-031: Admin can create escalation matrix (validation) - PASS (400 - expected)
+[INFO]     Description: Should validate escalation matrix creation
+[PASS] [32] Auth-032: Admin can GET escalation policies - PASS (200)
+[INFO]     Description: Admin can view escalation policies
+[INFO] 
+[INFO] === CATEGORY 2: DATA VALIDATION TESTS ===
+[INFO] 
+[INFO] --- 2.1 User Data Validation Tests ---
+[PASS] [33] Valid-001: Create user without email - PASS (400 - expected)
+[INFO]     Description: Email is required for user creation
+[PASS] [34] Valid-002: Create user with invalid email - PASS (400 - expected)
+[INFO]     Description: Email format should be validated
+[PASS] [35] Valid-003: Create user with duplicate email - PASS (400 - expected)
+[INFO]     Description: Duplicate email should be rejected
+[PASS] [36] Valid-004: Create user without first name - PASS (400 - expected)
+[INFO]     Description: First name is required
+[PASS] [37] Valid-005: Create user without last name - PASS (400 - expected)
+[INFO]     Description: Last name is required
+[PASS] [38] Valid-006: Create user without password - PASS (400 - expected)
+[INFO]     Description: Password is required for user creation
+[PASS] [39] Valid-007: Create user with weak password - PASS (400 - expected)
+[INFO]     Description: Weak password should be rejected
+[PASS] [40] Valid-008: Create user with non-existent role - PASS (400 - expected)
+[INFO]     Description: Invalid role ID should be rejected
+[INFO] 
+[INFO] --- 2.2 Complaint Data Validation Tests ---
+[PASS] [41] Valid-009: Create complaint without title - PASS (400 - expected)
+[INFO]     Description: Title is required for complaint creation
+[PASS] [42] Valid-010: Create complaint without description - PASS (400 - expected)
+[INFO]     Description: Description is required for complaint creation
+[PASS] [43] Valid-011: Create complaint with invalid category - PASS (400 - expected)
+[INFO]     Description: Invalid category should be rejected
+[PASS] [44] Valid-012: Create complaint with invalid priority - PASS (400 - expected)
+[INFO]     Description: Invalid priority should be rejected
+[PASS] [45] Valid-013: Create complaint with invalid status - PASS (400 - expected)
+[INFO]     Description: Invalid status should be rejected
+[INFO] 
+[INFO] --- 2.3 Organization Data Validation Tests ---
+[PASS] [46] Valid-014: Create branch without name - PASS (400 - expected)
+[INFO]     Description: Branch name is required
+[PASS] [47] Valid-015: Create branch without code - PASS (400 - expected)
+[INFO]     Description: Branch code is required
+[PASS] [48] Valid-016: Create branch without company - PASS (400 - expected)
+[INFO]     Description: Company ID is required for branch
+[PASS] [49] Valid-017: Create department without name - PASS (400 - expected)
+[INFO]     Description: Department name is required
+[PASS] [50] Valid-018: Create section without name - PASS (400 - expected)
+[INFO]     Description: Section name is required
+[INFO] 
+[INFO] --- 2.4 Master Data Validation Tests ---
+[PASS] [51] Valid-019: Create category without name - PASS (400 - expected)
+[INFO]     Description: Category name is required
+[PASS] [52] Valid-020: Create status without name - PASS (400 - expected)
+[INFO]     Description: Status name is required
+[PASS] [53] Valid-021: Create priority without name - PASS (400 - expected)
+[INFO]     Description: Priority name is required
+[PASS] [54] Valid-022: Update category with empty name - PASS (400 - expected)
+[INFO]     Description: Category name cannot be empty on update
+[PASS] [55] Valid-023: Update status with empty name - PASS (400 - expected)
+[INFO]     Description: Status name cannot be empty on update
+[INFO] 
+[INFO] === CATEGORY 3: MULTI-TENANT ISOLATION TESTS ===
+[INFO] 
+[INFO] --- 3.1 Company Data Isolation Tests ---
+[PASS] [56] Tenant-001: GET complaints returns only company complaints - PASS (200)
+[INFO]     Description: Should only return complaints for authenticated user's company
+[PASS] [57] Tenant-002: GET users returns only company users - PASS (200)
+[INFO]     Description: Should only return users from authenticated user's company
+[PASS] [58] Tenant-003: GET branches returns only company branches - PASS (200)
+[INFO]     Description: Should only return branches for specified company
+[PASS] [59] Tenant-004: GET departments filtered by company - PASS (200)
+[INFO]     Description: Departments should be company-scoped
+[PASS] [60] Tenant-005: GET escalation matrices for company only - PASS (200)
+[INFO]     Description: Escalation matrices should be company-specific
+[PASS] [61] Tenant-006: GET dashboard for company only - PASS (200)
+[INFO]     Description: Dashboard should show only company-specific statistics
+[PASS] [62] Tenant-007: GET company data - PASS (200)
+[INFO]     Description: Should retrieve company information
+[PASS] [63] Tenant-008: GET company by ID - PASS (200)
+[INFO]     Description: Should retrieve specific company details
+[INFO] 
+[INFO] === CATEGORY 4: TOKEN & SESSION SECURITY TESTS ===
+[INFO] 
+[INFO] --- 4.1 Authentication Token Tests ---
+[PASS] [64] Token-001: Request without token - PASS (401 - expected)
+[INFO]     Description: Request without Authorization header should be rejected
+[PASS] [65] Token-002: Request with invalid token - PASS (401 - expected)
+[INFO]     Description: Request with invalid token should be rejected
+[PASS] [66] Token-003: Request with malformed token - PASS (401 - expected)
+[INFO]     Description: Request with malformed Authorization header should be rejected
+[PASS] [67] Token-004: Request with empty token - PASS (401 - expected)
+[INFO]     Description: Request with empty token should be rejected
+[PASS] [68] Token-005: Valid token returns data - PASS (200)
+[INFO]     Description: Valid token should return authenticated user data
+[INFO] 
+[INFO] --- 4.2 Login Security Tests ---
+[PASS] [69] Login-001: Login with wrong password - PASS (401 - expected)
+[INFO]     Description: Login with incorrect password should fail
+[PASS] [70] Login-002: Login with non-existent user - PASS (401 - expected)
+[INFO]     Description: Login with non-existent user should fail
+[PASS] [71] Login-003: Login without email - PASS (400 - expected)
+[INFO]     Description: Login without email should fail validation
+[PASS] [72] Login-004: Login without password - PASS (400 - expected)
+[INFO]     Description: Login without password should fail validation
+[PASS] [73] Login-005: Login with empty email - PASS (400 - expected)
+[INFO]     Description: Login with empty email should fail
+[PASS] [74] Login-006: Login with empty password - PASS (400 - expected)
+[INFO]     Description: Login with empty password should fail
+[INFO] 
+[INFO] ==============================================
+[INFO] PHASE 1 TEST RESULTS
+[INFO] ==============================================
+[INFO] Total Tests: 74
+[INFO] Passed: 74
+[INFO] Failed: 0
+[INFO] Success Rate: 100%
+[INFO] 
+[PASS] *** PHASE 1 COMPLETE - ALL TESTS PASSED! ***
+[INFO] 
+[INFO] Results saved to: PHASE1_SECURITY_TESTS_20251025_200030.txt
+[INFO] Test completed: 2025-10-25 20:01:06

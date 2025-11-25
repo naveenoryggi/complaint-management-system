@@ -1,0 +1,87 @@
+================================================================================
+                         QUICK LOGIN REFERENCE
+================================================================================
+
+TEST CREDENTIALS (WORKING)
+---------------------------
+
+COMPLAINANT:
+  Email:    nav_nainital@yahoo.com
+  Password: Nav@12345
+  Role:     Complainant
+  Status:   ACTIVE ✓
+
+HANDLER:
+  Email:    naveen.chandra@oryggitech.com
+  Password: Naveen@12345
+  Role:     Level 1 Handler
+  Status:   ACTIVE ✓
+
+================================================================================
+
+API LOGIN ENDPOINT
+------------------
+URL:    http://localhost:5000/api/auth/login
+Method: POST
+Type:   application/json
+
+CURL EXAMPLES
+-------------
+
+# Complainant
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"nav_nainital@yahoo.com","password":"Nav@12345"}'
+
+# Handler
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"naveen.chandra@oryggitech.com","password":"Naveen@12345"}'
+
+POWERSHELL TEST
+---------------
+cd "C:\Users\Navin Chandra\Pictures\Complaint management system"
+.\test-user-authentication-debug.ps1
+
+================================================================================
+
+RESPONSE FORMAT (SUCCESS)
+-------------------------
+{
+  "data": {
+    "token": "eyJhbGci...",
+    "refreshToken": "...",
+    "expiresAt": "2025-11-11T...",
+    "user": {
+      "id": "...",
+      "email": "...",
+      "roles": [...],
+      "permissions": [...]
+    }
+  },
+  "isSuccess": true,
+  "message": "Login successful"
+}
+
+================================================================================
+
+TOKEN STORAGE FILES
+-------------------
+authentication-tokens.json        - Complete token data
+USER_LOGIN_SUCCESS_SUMMARY.txt   - Quick summary
+USER_AUTHENTICATION_FIX_REPORT.md - Detailed report
+AUTHENTICATION_FIX_COMPLETE.txt   - Full completion report
+
+================================================================================
+
+VERIFICATION
+------------
+Both users tested: SUCCESS ✓
+JWT tokens valid:  SUCCESS ✓
+Roles assigned:    SUCCESS ✓
+Permissions OK:    SUCCESS ✓
+
+Status: READY FOR USE
+
+================================================================================
+Last Updated: 2025-11-10 14:10 UTC

@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-11-13T19:04:46.259Z",
+  "tests": [
+    {
+      "name": "Frontend Accessibility",
+      "status": "FAIL",
+      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4200/\", waiting until \"networkidle\"\u001b[22m\n"
+    }
+  ],
+  "screenshots": [],
+  "overallStatus": "FAIL",
+  "error": "Frontend not accessible - servers may not be running"
+}

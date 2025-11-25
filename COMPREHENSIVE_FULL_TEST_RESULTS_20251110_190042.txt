@@ -1,0 +1,8 @@
+[2025-11-10 19:00:42] [INFO] =============================================
+[2025-11-10 19:00:42] [INFO] COMPREHENSIVE FULL TEST SUITE - 245+ TESTS
+[2025-11-10 19:00:42] [INFO] =============================================
+[2025-11-10 19:00:42] [INFO] 
+[2025-11-10 19:00:42] [INFO] Testing all 26 controllers with complete coverage
+[2025-11-10 19:00:42] [INFO] 
+[2025-11-10 19:00:42] [INFO] Authenticating to get access token...
+[2025-11-10 19:00:46] [FAIL] FATAL: Authentication failed - Unable to connect to the remote server

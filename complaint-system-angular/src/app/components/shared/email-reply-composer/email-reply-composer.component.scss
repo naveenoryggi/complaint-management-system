@@ -1,0 +1,671 @@
+// ==================== EMAIL REPLY COMPOSER STYLES ====================
+
+.email-reply-composer {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  // ==================== COMPOSER HEADER ====================
+
+  .composer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      i {
+        font-size: 20px;
+      }
+
+      h4 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .private-note-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+      }
+    }
+
+    .header-right {
+      .btn-icon {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: scale(1.1);
+        }
+
+        i {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  // ==================== ALERTS ====================
+
+  .alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    font-size: 14px;
+
+    i {
+      font-size: 18px;
+    }
+
+    &.alert-success {
+      background: linear-gradient(90deg, #10b981, #059669);
+      color: white;
+    }
+
+    &.alert-danger {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+      color: white;
+    }
+  }
+
+  // ==================== EMAIL FORM ====================
+
+  .email-form {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    // ==================== RECIPIENTS SECTION ====================
+
+    .recipients-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #f3f4f6;
+    }
+
+    .recipient-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .field-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0;
+      }
+
+      .recipient-input-container {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        min-height: 48px;
+
+        &:focus-within {
+          border-color: #667eea;
+          box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+          background: white;
+        }
+
+        .recipient-chips {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+
+        .recipient-chip {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border-radius: 16px;
+          font-size: 13px;
+          font-weight: 500;
+          animation: chipFadeIn 0.2s ease;
+
+          .chip-text {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .chip-remove {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0;
+
+            &:hover {
+              background: rgba(255, 255, 255, 0.3);
+              transform: scale(1.1);
+            }
+
+            i {
+              font-size: 10px;
+            }
+          }
+        }
+
+        .recipient-input {
+          flex: 1;
+          border: none;
+          outline: none;
+          background: transparent;
+          font-size: 14px;
+          color: #1f2937;
+          min-width: 200px;
+
+          &::placeholder {
+            color: #9ca3af;
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+      }
+
+      .field-actions {
+        display: flex;
+        gap: 12px;
+
+        .btn-link {
+          background: none;
+          border: none;
+          color: #667eea;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 0;
+          transition: all 0.2s ease;
+
+          &:hover {
+            color: #764ba2;
+            text-decoration: underline;
+          }
+
+          i {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+
+    // ==================== FORM FIELDS ====================
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .field-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0;
+      }
+
+      .form-control {
+        padding: 12px 16px;
+        font-size: 14px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        background: #f9fafb;
+        color: #1f2937;
+        transition: all 0.2s ease;
+
+        &:focus {
+          outline: none;
+          border-color: #667eea;
+          box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+          background: white;
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        &.subject-input {
+          font-size: 15px;
+          font-weight: 500;
+        }
+      }
+
+      .field-error {
+        color: #ef4444;
+        font-size: 12px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        animation: errorShake 0.3s ease;
+
+        &::before {
+          content: "⚠";
+          font-size: 14px;
+        }
+      }
+    }
+
+    // ==================== CANNED RESPONSES ====================
+
+    .canned-responses-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .canned-responses-select {
+        padding: 10px 16px;
+        font-size: 14px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        background: #f9fafb;
+        color: #1f2937;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:focus {
+          outline: none;
+          border-color: #667eea;
+          box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+          background: white;
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+
+      .text-muted {
+        color: #6b7280;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        i {
+          color: #667eea;
+        }
+      }
+    }
+
+    // ==================== RICH TEXT EDITOR ====================
+
+    .editor-field {
+      ::ng-deep {
+        .quill-editor {
+          .ql-container {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+
+            &.ql-snow {
+              border-top: none;
+              border-radius: 0 0 8px 8px;
+            }
+          }
+
+          .ql-toolbar {
+            border: 2px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 8px 8px 0 0;
+            background: white;
+            padding: 12px;
+
+            &.ql-snow {
+              .ql-formats {
+                margin-right: 15px;
+              }
+
+              button:hover,
+              button:focus {
+                color: #667eea;
+              }
+
+              button.ql-active {
+                color: #667eea;
+              }
+            }
+          }
+
+          .ql-editor {
+            min-height: 300px;
+            padding: 16px;
+
+            &:focus {
+              background: white;
+            }
+
+            &.ql-blank::before {
+              color: #9ca3af;
+              font-style: normal;
+            }
+
+            // Fix table and text rendering issues - comprehensive email table support
+            table {
+              border-collapse: collapse;
+              border: none;
+              background: transparent;
+              width: auto !important; // Allow tables to use their natural width
+              max-width: 100%; // But don't overflow
+              table-layout: auto !important; // Let browser calculate column widths
+              display: table !important; // Force proper table display
+
+              // Prevent vertical text rendering
+              writing-mode: horizontal-tb !important;
+              text-orientation: mixed !important;
+
+              td, th {
+                border: none;
+                padding: 4px 8px; // Restore some padding for readability
+                background: transparent;
+                vertical-align: top; // Align content to top of cells
+                white-space: normal !important; // Allow text wrapping
+                word-wrap: break-word; // Break long words if needed
+                min-width: auto !important; // Don't force minimum widths
+                max-width: none !important; // Don't restrict maximum widths
+
+                // Prevent vertical text rendering in cells
+                writing-mode: horizontal-tb !important;
+                text-orientation: mixed !important;
+                display: table-cell !important; // Force proper cell display
+              }
+
+              // Handle nested tables (common in marketing emails)
+              table {
+                margin: 0;
+                padding: 0;
+              }
+
+              // Images in table cells
+              img {
+                max-width: 100%;
+                height: auto;
+                display: inline-block;
+                vertical-align: middle;
+              }
+
+              // Links in tables
+              a {
+                color: inherit;
+                text-decoration: underline;
+                display: inline;
+              }
+            }
+
+            // Remove selection-like appearance and shadows
+            p, div, span {
+              background: transparent !important;
+              box-shadow: none !important;
+              text-shadow: none !important;
+            }
+
+            // Clean email content rendering
+            * {
+              -webkit-text-fill-color: inherit;
+              -webkit-background-clip: initial;
+              background-clip: initial;
+            }
+
+            // Remove any conflicting borders or backgrounds
+            hr {
+              border: none;
+              border-top: 1px solid #e5e7eb;
+              margin: 15px 0;
+              background: transparent;
+            }
+          }
+        }
+      }
+    }
+
+    // ==================== HELPER TEXT ====================
+
+    .composer-help-text {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+      border-left: 4px solid #667eea;
+      border-radius: 8px;
+      color: #4b5563;
+      font-size: 12px;
+
+      i {
+        color: #667eea;
+        font-size: 16px;
+        margin-top: 2px;
+      }
+
+      kbd {
+        padding: 2px 6px;
+        background: white;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        font-size: 11px;
+        font-family: 'Courier New', monospace;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    // ==================== ACTION BUTTONS ====================
+
+    .composer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 2px solid #f3f4f6;
+      margin-top: auto;
+
+      .actions-left,
+      .actions-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .sending-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 500;
+
+        .spinner-sm {
+          width: 16px;
+          height: 16px;
+          border: 2px solid #e5e7eb;
+          border-top-color: #667eea;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+      }
+
+      .btn {
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+
+        i {
+          font-size: 16px;
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        &.btn-primary {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+
+          &:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+          }
+
+          &:active:not(:disabled) {
+            transform: translateY(0);
+          }
+        }
+
+        &.btn-secondary {
+          background: #f3f4f6;
+          color: #6b7280;
+
+          &:hover:not(:disabled) {
+            background: #e5e7eb;
+            color: #374151;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ==================== ANIMATIONS ====================
+
+@keyframes chipFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ==================== RESPONSIVE DESIGN ====================
+
+@media (max-width: 768px) {
+  .email-reply-composer {
+    border-radius: 0;
+
+    .composer-header {
+      padding: 12px 16px;
+
+      .header-left {
+        h4 {
+          font-size: 16px;
+        }
+      }
+    }
+
+    .email-form {
+      padding: 16px;
+
+      .recipient-field {
+        .recipient-input-container {
+          .recipient-input {
+            min-width: 150px;
+          }
+        }
+      }
+
+      .composer-actions {
+        flex-direction: column;
+        gap: 12px;
+
+        .actions-left,
+        .actions-right {
+          width: 100%;
+        }
+
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}

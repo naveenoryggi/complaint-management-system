@@ -1,0 +1,30 @@
+========================================
+WORKFLOW MANAGEMENT E2E TEST SUITE
+========================================
+
+[TEST 1] BUG #001: Categories Dropdown
+  PASS: Found 19 categories
+
+[TEST 2] BUG #002: Status Masters Dropdown
+  PASS: Found 9 status masters
+
+[TEST 3] Get All Workflows
+  PASS: Found 2 workflows
+
+[TEST 4] Create New Workflow
+  PASS: Workflow created with ID f1242fea-e6de-49a7-bc8c-d01241f2ae22
+
+[TEST 5] Add Status to Workflow
+  PASS: Status added to workflow
+
+[TEST 6] Get Workflow Details
+  FAIL: The remote server returned an error: (404) Not Found.
+
+========================================
+TEST RESULTS
+========================================
+Passed: 5
+Failed: 1
+Success Rate: 83.33%
+
+SOME TESTS FAILED

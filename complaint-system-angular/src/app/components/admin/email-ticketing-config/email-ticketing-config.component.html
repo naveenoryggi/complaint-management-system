@@ -1,0 +1,1186 @@
+<div class="email-ticketing-config-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h2 class="page-title">
+      <i class="fas fa-envelope-open-text"></i>
+      Email Ticketing Configuration
+    </h2>
+    <p class="page-description">
+      Configure email settings for automatic ticket creation. Emails sent to your inbox will automatically create complaints.
+    </p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading configurations...</p>
+  </div>
+
+  <!-- System Settings Overlay -->
+  <div *ngIf="showSystemSettings" class="settings-overlay" (click)="toggleSystemSettings()"></div>
+
+  <!-- System Settings Panel -->
+  <div *ngIf="showSystemSettings && systemConfig" class="system-settings-panel">
+    <div class="settings-header">
+      <h3><i class="fas fa-cog"></i> System Settings</h3>
+      <button class="btn-close" (click)="toggleSystemSettings()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="settings-content">
+      <!-- OAuth Token Management -->
+      <div class="settings-section">
+        <h4><i class="fas fa-key"></i> OAuth Token Management</h4>
+        <p class="section-description">
+          Configure how often OAuth tokens are checked and refreshed.
+          <strong>Recommended:</strong> Set refresh interval to half your token's expiry time.
+        </p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>
+              <i class="fas fa-clock"></i> Token Refresh Interval
+              <span class="help-text">How often to check and refresh OAuth tokens (5-120 minutes)</span>
+            </label>
+            <input
+              type="number"
+              [(ngModel)]="systemConfig.oAuthTokenRefreshIntervalMinutes"
+              min="5"
+              max="120"
+              class="form-control"
+            />
+            <div class="value-display">Current: {{ getRefreshIntervalDisplay() }}</div>
+            <div class="recommendation" *ngIf="systemConfig.oAuthTokenRefreshIntervalMinutes === 30">
+              <i class="fas fa-check-circle"></i> Perfect for 1-hour tokens!
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <i class="fas fa-exclamation-triangle"></i> Token Expiry Warning
+              <span class="help-text">Warn when tokens will expire within this many days (1-30 days)</span>
+            </label>
+            <input
+              type="number"
+              [(ngModel)]="systemConfig.oAuthTokenExpiryWarningDays"
+              min="1"
+              max="30"
+              class="form-control"
+            />
+            <div class="value-display">Current: {{ systemConfig.oAuthTokenExpiryWarningDays }} days</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email Polling Settings -->
+      <div class="settings-section">
+        <h4><i class="fas fa-inbox"></i> Email Polling Settings</h4>
+        <p class="section-description">
+          <strong>Note:</strong> These are system-wide defaults used when creating NEW email configurations.
+          Each individual email account can have its own polling interval set separately in its configuration.
+        </p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>
+              <i class="fas fa-sync"></i> Default Polling Interval for New Email Accounts
+              <span class="help-text">System default: How often NEW email accounts will check for emails (60-3600 seconds). Existing accounts keep their individual settings.</span>
+            </label>
+            <input
+              type="number"
+              [(ngModel)]="systemConfig.defaultEmailPollingIntervalSeconds"
+              min="60"
+              max="3600"
+              class="form-control"
+            />
+            <div class="value-display">Current: {{ getSystemPollingIntervalDisplay() }}</div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <i class="fas fa-envelope-open"></i> Max Emails Per Poll
+              <span class="help-text">Maximum emails to fetch in one poll (10-500)</span>
+            </label>
+            <input
+              type="number"
+              [(ngModel)]="systemConfig.maxEmailsFetchPerPoll"
+              min="10"
+              max="500"
+              class="form-control"
+            />
+            <div class="value-display">Current: {{ systemConfig.maxEmailsFetchPerPoll }} emails</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="settings-actions">
+        <button
+          class="btn btn-primary"
+          (click)="saveSystemConfiguration()"
+          [disabled]="isSavingSystemConfig"
+        >
+          <i class="fas fa-save"></i>
+          {{ isSavingSystemConfig ? 'Saving...' : 'Save Settings' }}
+        </button>
+        <button
+          class="btn btn-secondary"
+          (click)="resetSystemConfiguration()"
+          [disabled]="isSavingSystemConfig"
+        >
+          <i class="fas fa-undo"></i>
+          Reset to Defaults
+        </button>
+        <button
+          class="btn btn-cancel"
+          (click)="toggleSystemSettings()"
+        >
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configurations List -->
+  <div *ngIf="!isLoading && !showForm" class="configurations-section">
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <button class="btn btn-primary" (click)="showCreateForm()">
+        <i class="fas fa-plus"></i>
+        Add Email Configuration
+      </button>
+      <button class="btn btn-secondary" (click)="loadConfigurations()">
+        <i class="fas fa-sync-alt"></i>
+        Refresh
+      </button>
+      <button class="btn btn-settings" (click)="toggleSystemSettings()">
+        <i class="fas fa-cog"></i>
+        System Settings
+      </button>
+    </div>
+
+    <!-- No Configurations -->
+    <div *ngIf="configurations.length === 0" class="empty-state">
+      <i class="fas fa-inbox fa-3x"></i>
+      <h3>No Email Configurations</h3>
+      <p>Get started by adding your first email configuration to enable email ticketing.</p>
+      <button class="btn btn-primary" (click)="showCreateForm()">
+        <i class="fas fa-plus"></i>
+        Add Configuration
+      </button>
+    </div>
+
+    <!-- Configurations Cards -->
+    <div *ngIf="configurations.length > 0" class="configurations-grid">
+      <div *ngFor="let config of configurations; trackBy: trackByConfigId" class="config-card" [class.active]="config.isEnabled">
+        <!-- Card Header -->
+        <div class="card-header">
+          <div class="header-left">
+            <span class="status-badge" [class.enabled]="config.isEnabled" [class.disabled]="!config.isEnabled">
+              {{ config.isEnabled ? 'Enabled' : 'Disabled' }}
+            </span>
+            <h3>{{ config.fromName }}</h3>
+            <span class="auth-badge" [ngClass]="getOAuthStatusClass(config)">
+              <i class="fas" [class.fa-shield-alt]="config.authenticationType === 1" [class.fa-key]="config.authenticationType === 0"></i>
+              {{ getOAuthStatusText(config) }}
+            </span>
+          </div>
+          <div class="header-actions">
+            <button class="btn-icon" (click)="showEditForm(config)" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon" (click)="toggleConfiguration(config)" [title]="config.isEnabled ? 'Disable' : 'Enable'">
+              <i class="fas" [class.fa-toggle-on]="config.isEnabled" [class.fa-toggle-off]="!config.isEnabled"></i>
+            </button>
+            <button class="btn-icon danger" (click)="deleteConfiguration(config)" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="config-info">
+            <div class="info-row">
+              <i class="fas fa-envelope"></i>
+              <span>{{ config.fromEmail }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fas fa-server"></i>
+              <span>IMAP: {{ config.imapHost }}:{{ config.imapPort }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fas fa-paper-plane"></i>
+              <span>SMTP: {{ config.smtpHost }}:{{ config.smtpPort }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fas fa-clock"></i>
+              <span>Poll every {{ getPollingIntervalDisplay(config) }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fas fa-history"></i>
+              <span>Last polled: {{ config.lastPolledAt | utcToLocal }}</span>
+            </div>
+            <div *ngIf="config.oAuthTokenExpiresAt && config.authenticationType === 2" class="info-row" [class.warning]="isTokenExpiringSoon(config.oAuthTokenExpiresAt)">
+              <i class="fas fa-clock"></i>
+              <span>OAuth token expires: {{ config.oAuthTokenExpiresAt | utcToLocal }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="card-footer">
+          <button class="btn btn-sm btn-secondary" (click)="pollEmailsNow(config)" [disabled]="isPolling || !config.isEnabled">
+            <i class="fas fa-sync-alt" [class.fa-spin]="isPolling"></i>
+            Poll Now
+          </button>
+
+          <!-- Authorize Now button for pending OAuth configurations -->
+          <button *ngIf="isOAuthPendingAuthorization(config)" class="btn btn-sm btn-warning" (click)="refreshOAuth(config)" title="Complete OAuth Authorization">
+            <i class="fas fa-shield-alt"></i>
+            Authorize Now
+          </button>
+
+          <!-- Re-authorize button for expired OAuth configurations -->
+          <button *ngIf="isOAuthTokenExpired(config)" class="btn btn-sm btn-danger" (click)="refreshOAuth(config)" title="Token Expired - Re-authorize">
+            <i class="fas fa-exclamation-triangle"></i>
+            Re-authorize
+          </button>
+
+          <!-- Refresh Token button for authorized OAuth configurations -->
+          <button *ngIf="isOAuthAuthorized(config) && !isOAuthTokenExpired(config)" class="btn btn-sm btn-info" (click)="refreshOAuth(config)" title="Refresh OAuth Token">
+            <i class="fas fa-sync"></i>
+            Refresh OAuth
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configuration Form with OAuth Wizard -->
+  <div *ngIf="showForm" class="form-section">
+    <!-- Form Header -->
+    <div class="form-header">
+      <h3>{{ isEditMode ? 'Edit' : 'Add' }} Email Configuration</h3>
+      <button class="btn-close" (click)="cancelForm()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- OAuth Information Banner -->
+    <div class="info-banner oauth-info">
+      <div class="banner-icon">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <div class="banner-content">
+        <h4><i class="fas fa-info-circle"></i> About Modern Email Authentication</h4>
+        <p><strong>Important:</strong> Most email providers (Gmail, Outlook, Office 365) have <strong>disabled basic password authentication</strong> for security reasons.</p>
+        <p><strong>You must use OAuth 2.0</strong> - a secure, modern authentication method where you authorize this application through your email provider's official login page.</p>
+        <div class="oauth-benefits">
+          <div class="benefit">
+            <i class="fas fa-check-circle"></i>
+            <span>No passwords stored in database</span>
+          </div>
+          <div class="benefit">
+            <i class="fas fa-check-circle"></i>
+            <span>Revokable access anytime</span>
+          </div>
+          <div class="benefit">
+            <i class="fas fa-check-circle"></i>
+            <span>Automatic token refresh</span>
+          </div>
+          <div class="benefit">
+            <i class="fas fa-check-circle"></i>
+            <span>Industry-standard security</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Validation Errors -->
+    <div *ngIf="validationErrors.length > 0" class="alert alert-danger">
+      <h4><i class="fas fa-exclamation-triangle"></i> Validation Errors:</h4>
+      <ul>
+        <li *ngFor="let error of validationErrors; trackBy: trackByValidationError">{{ error }}</li>
+      </ul>
+    </div>
+
+    <!-- Authentication Type Selector -->
+    <div class="auth-type-selector">
+      <div class="form-section-title">
+        <i class="fas fa-lock"></i>
+        Authentication Method
+      </div>
+      <div class="auth-options">
+        <div class="auth-option" [class.selected]="form.authenticationType === 1" (click)="selectAuthType(1)">
+          <div class="option-header">
+            <i class="fas fa-shield-alt"></i>
+            <strong>OAuth 2.0 (Recommended)</strong>
+            <span class="badge badge-success">Secure</span>
+          </div>
+          <p>Modern, secure authentication for Gmail, Outlook, Office 365</p>
+          <ul class="option-features">
+            <li><i class="fas fa-check"></i> No passwords stored</li>
+            <li><i class="fas fa-check"></i> Required for Office 365 & Gmail</li>
+            <li><i class="fas fa-check"></i> Automatic token refresh</li>
+          </ul>
+        </div>
+        <div class="auth-option" [class.selected]="form.authenticationType === 0" (click)="selectAuthType(0)">
+          <div class="option-header">
+            <i class="fas fa-key"></i>
+            <strong>Basic Authentication (Legacy)</strong>
+            <span class="badge badge-warning">Deprecated</span>
+          </div>
+          <p>Traditional username/password (only for self-hosted email servers)</p>
+          <ul class="option-features">
+            <li><i class="fas fa-times"></i> Disabled by most providers</li>
+            <li><i class="fas fa-exclamation-triangle"></i> Less secure</li>
+            <li><i class="fas fa-info-circle"></i> Only use for custom servers</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <form class="config-form" (ngSubmit)="saveConfiguration()">
+      <!-- OAuth Setup Wizard (shown when OAuth is selected) -->
+      <div *ngIf="form.authenticationType === 1" class="oauth-wizard">
+        <div class="form-section-title">
+          <i class="fas fa-magic"></i>
+          OAuth 2.0 Setup Wizard
+        </div>
+
+        <div class="wizard-steps">
+          <!-- Step 1: Provider Selection -->
+          <div class="wizard-step" [class.completed]="wizardStep > 1" [class.active]="wizardStep === 1">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4>Select Your Email Provider</h4>
+              <p>Choose your email service provider to auto-fill server settings</p>
+
+              <div class="provider-selector-grid">
+                <button *ngFor="let provider of oauthProviders; trackBy: trackByProviderName" type="button"
+                        class="provider-card"
+                        [class.selected]="selectedProvider === provider"
+                        (click)="selectProvider(provider)">
+                  <i [class]="provider.icon"></i>
+                  <strong>{{ provider.name }}</strong>
+                  <small>{{ provider.notes }}</small>
+                </button>
+              </div>
+
+              <button type="button" class="btn btn-primary" (click)="nextWizardStep()" [disabled]="!selectedProvider">
+                Next: Enter Email Address <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Email Configuration -->
+          <div class="wizard-step" [class.completed]="wizardStep > 2" [class.active]="wizardStep === 2">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>Enter Your Email Address</h4>
+              <p>This email will be used for IMAP (receiving) and SMTP (sending)</p>
+
+              <div class="form-group">
+                <label for="fromEmail">Email Address *</label>
+                <input type="email" id="fromEmail" [(ngModel)]="form.fromEmail" name="fromEmail"
+                       class="form-control" placeholder="your-email@example.com" required>
+                <small class="form-text">Enter the email address you want to use for ticketing</small>
+              </div>
+
+              <div class="form-group">
+                <label for="fromName">Display Name *</label>
+                <input type="text" id="fromName" [(ngModel)]="form.fromName" name="fromName"
+                       class="form-control" placeholder="Support Team" required>
+                <small class="form-text">This name will appear in outgoing emails</small>
+              </div>
+
+              <div class="wizard-navigation">
+                <button type="button" class="btn btn-secondary" (click)="prevWizardStep()">
+                  <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button type="button" class="btn btn-primary" (click)="nextWizardStep()"
+                        [disabled]="!form.fromEmail || !form.fromName">
+                  Next: SMTP Account Selection <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Separate SMTP Account Selection -->
+          <div class="wizard-step" [class.completed]="wizardStep > 3" [class.active]="wizardStep === 3">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>Configure Sending Email Account</h4>
+              <p>Choose whether to use the same account for receiving and sending emails</p>
+
+              <div class="smtp-account-options">
+                <!-- Option 1: Use Same Account -->
+                <div class="account-option"
+                     [class.selected]="!form.useSeparateSmtpAccount"
+                     (click)="form.useSeparateSmtpAccount = false">
+                  <div class="option-header">
+                    <i class="fas fa-link"></i>
+                    <strong>Use Same Account</strong>
+                    <span class="badge badge-success">Recommended</span>
+                  </div>
+                  <p>Use <strong>{{ form.fromEmail || 'your email' }}</strong> for both receiving and sending</p>
+                  <ul class="option-features">
+                    <li><i class="fas fa-check"></i> Simpler setup - one set of credentials</li>
+                    <li><i class="fas fa-check"></i> Single OAuth authorization</li>
+                    <li><i class="fas fa-check"></i> Best for most use cases</li>
+                  </ul>
+                </div>
+
+                <!-- Option 2: Use Separate Account -->
+                <div class="account-option"
+                     [class.selected]="form.useSeparateSmtpAccount"
+                     (click)="form.useSeparateSmtpAccount = true">
+                  <div class="option-header">
+                    <i class="fas fa-unlink"></i>
+                    <strong>Use Separate Sending Account</strong>
+                    <span class="badge badge-info">Advanced</span>
+                  </div>
+                  <p>Use different email addresses for receiving vs sending</p>
+                  <ul class="option-features">
+                    <li><i class="fas fa-info-circle"></i> Receive: {{ form.fromEmail || 'support@company.com' }}</li>
+                    <li><i class="fas fa-info-circle"></i> Send: noreply@company.com</li>
+                    <li><i class="fas fa-lightbulb"></i> Use cases: No-reply addresses, different branding</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Separate SMTP Account Configuration (shown when selected) -->
+              <div *ngIf="form.useSeparateSmtpAccount" class="separate-smtp-config">
+                <div class="config-header">
+                  <i class="fas fa-paper-plane"></i>
+                  <h5>Sending Email Account Configuration</h5>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="smtpSeparateFromEmail">
+                      <i class="fas fa-envelope"></i> SMTP From Email *
+                    </label>
+                    <input type="email" id="smtpSeparateFromEmail"
+                           [(ngModel)]="form.smtpSeparateFromEmail"
+                           name="smtpSeparateFromEmail"
+                           class="form-control"
+                           placeholder="noreply@company.com"
+                           required>
+                    <small class="form-text">The email address that will appear as sender</small>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="smtpSeparateFromName">
+                      <i class="fas fa-user"></i> SMTP From Name *
+                    </label>
+                    <input type="text" id="smtpSeparateFromName"
+                           [(ngModel)]="form.smtpSeparateFromName"
+                           name="smtpSeparateFromName"
+                           class="form-control"
+                           placeholder="No Reply - Support Team"
+                           required>
+                    <small class="form-text">Display name for outgoing emails</small>
+                  </div>
+                </div>
+
+                <!-- SMTP Authentication Type Selection -->
+                <div class="auth-type-mini-selector">
+                  <label>
+                    <i class="fas fa-key"></i> SMTP Authentication Type *
+                  </label>
+                  <div class="auth-type-options">
+                    <div class="auth-type-option"
+                         [class.selected]="form.smtpAuthenticationType === 1"
+                         (click)="form.smtpAuthenticationType = 1">
+                      <i class="fas fa-shield-alt"></i>
+                      <span>OAuth 2.0</span>
+                      <small>Recommended</small>
+                    </div>
+                    <div class="auth-type-option"
+                         [class.selected]="form.smtpAuthenticationType === 0"
+                         (click)="form.smtpAuthenticationType = 0">
+                      <i class="fas fa-key"></i>
+                      <span>Basic Auth</span>
+                      <small>Legacy</small>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- OAuth 2.0 Fields (shown when OAuth selected) -->
+                <div *ngIf="form.smtpAuthenticationType === 1" class="smtp-oauth-fields">
+                  <div class="callout-info">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                      <strong>Separate OAuth Configuration Required</strong>
+                      <p>You'll need to register a separate Azure AD application for the sending account, or use the same application if both accounts are in the same tenant.</p>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="smtpSeparateOAuthClientId">
+                      <i class="fas fa-key"></i> SMTP OAuth Client ID *
+                    </label>
+                    <input type="text" id="smtpSeparateOAuthClientId"
+                           [(ngModel)]="form.smtpSeparateOAuthClientId"
+                           name="smtpSeparateOAuthClientId"
+                           class="form-control"
+                           placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+                    <small class="form-text">Application (client) ID from Azure AD for SMTP account</small>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="smtpSeparateOAuthTenantId">
+                      <i class="fas fa-building"></i> SMTP OAuth Tenant ID *
+                    </label>
+                    <input type="text" id="smtpSeparateOAuthTenantId"
+                           [(ngModel)]="form.smtpSeparateOAuthTenantId"
+                           name="smtpSeparateOAuthTenantId"
+                           class="form-control"
+                           placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+                    <small class="form-text">Directory (tenant) ID from Azure AD</small>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="smtpSeparateOAuthClientSecret">
+                      <i class="fas fa-lock"></i> SMTP OAuth Client Secret *
+                    </label>
+                    <input type="password" id="smtpSeparateOAuthClientSecret"
+                           [(ngModel)]="form.smtpSeparateOAuthClientSecret"
+                           name="smtpSeparateOAuthClientSecret"
+                           class="form-control"
+                           placeholder="Enter the secret value">
+                    <small class="form-text warning-text">Copy this from Azure AD - it won't be shown again!</small>
+                  </div>
+                </div>
+
+                <!-- Basic Auth Fields (shown when Basic Auth selected) -->
+                <div *ngIf="form.smtpAuthenticationType === 0" class="smtp-basic-auth-fields">
+                  <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Warning:</strong> Basic authentication may not work with Office 365, Gmail, or other modern providers.
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="smtpSeparateUsername">
+                        <i class="fas fa-user"></i> SMTP Username *
+                      </label>
+                      <input type="text" id="smtpSeparateUsername"
+                             [(ngModel)]="form.smtpSeparateUsername"
+                             name="smtpSeparateUsername"
+                             class="form-control"
+                             placeholder="smtp-username">
+                      <small class="form-text">SMTP authentication username</small>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="smtpSeparatePassword">
+                        <i class="fas fa-lock"></i> SMTP Password *
+                      </label>
+                      <input type="password" id="smtpSeparatePassword"
+                             [(ngModel)]="form.smtpSeparatePassword"
+                             name="smtpSeparatePassword"
+                             class="form-control"
+                             placeholder="Enter password">
+                      <small class="form-text">SMTP authentication password</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Use Case Examples -->
+              <div class="use-case-examples">
+                <h5><i class="fas fa-lightbulb"></i> When to Use Separate Accounts?</h5>
+                <div class="example-grid">
+                  <div class="example-card">
+                    <i class="fas fa-ban"></i>
+                    <strong>No-Reply Setup</strong>
+                    <p>Receive at support@company.com, send from noreply@company.com</p>
+                  </div>
+                  <div class="example-card">
+                    <i class="fas fa-building"></i>
+                    <strong>Different Branding</strong>
+                    <p>Receive at help@company.com, send from notifications@brand.com</p>
+                  </div>
+                  <div class="example-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <strong>Security Separation</strong>
+                    <p>Isolate incoming mail monitoring from outgoing mail sending</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="wizard-navigation">
+                <button type="button" class="btn btn-secondary" (click)="prevWizardStep()">
+                  <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button type="button" class="btn btn-primary" (click)="nextWizardStep()"
+                        [disabled]="form.useSeparateSmtpAccount && (!form.smtpSeparateFromEmail || !form.smtpSeparateFromName)">
+                  Next: OAuth Setup <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Azure AD/OAuth Configuration -->
+          <div class="wizard-step" [class.completed]="wizardStep > 4" [class.active]="wizardStep === 4">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h4>Configure OAuth Application</h4>
+
+              <!-- Instruction Panel -->
+              <div class="instruction-panel">
+                <div class="panel-header">
+                  <i class="fas fa-graduation-cap"></i>
+                  <strong>How to Get OAuth Credentials</strong>
+                </div>
+
+                <div class="instructions-tabs">
+                  <button type="button" [class.active]="selectedInstructionsTab === 'office365'"
+                          (click)="selectedInstructionsTab = 'office365'">
+                    <i class="fab fa-microsoft"></i> Office 365 / Outlook
+                  </button>
+                  <button type="button" [class.active]="selectedInstructionsTab === 'gmail'"
+                          (click)="selectedInstructionsTab = 'gmail'">
+                    <i class="fab fa-google"></i> Gmail
+                  </button>
+                </div>
+
+                <!-- Office 365 Instructions -->
+                <div *ngIf="selectedInstructionsTab === 'office365'" class="instructions-content">
+                  <div class="instruction-step">
+                    <div class="step-badge">Step 1</div>
+                    <div class="step-details">
+                      <strong>Go to Azure Portal</strong>
+                      <p>Visit <a href="https://portal.azure.com" target="_blank">portal.azure.com</a> and sign in with your admin account</p>
+                    </div>
+                  </div>
+
+                  <div class="instruction-step">
+                    <div class="step-badge">Step 2</div>
+                    <div class="step-details">
+                      <strong>Register New Application</strong>
+                      <ol>
+                        <li>Search for "Azure Active Directory" (or "Microsoft Entra ID")</li>
+                        <li>Click "App registrations" in the left menu</li>
+                        <li>Click "+ New registration"</li>
+                        <li>Enter name: <code>Complaint Management Email</code></li>
+                        <li>Select "Accounts in this organizational directory only"</li>
+                        <li>For Redirect URI, select "Web" and enter: <code class="copyable" (click)="copyToClipboard(getOAuthCallbackUrl())">{{ getOAuthCallbackUrl() }}</code></li>
+                        <li>Click "Register"</li>
+                      </ol>
+                    </div>
+                  </div>
+
+                  <div class="instruction-step">
+                    <div class="step-badge">Step 3</div>
+                    <div class="step-details">
+                      <strong>Copy Application (Client) ID</strong>
+                      <p>On the app Overview page, copy the "Application (client) ID" value</p>
+                      <div class="screenshot-placeholder">
+                        <i class="fas fa-image"></i> You'll see this on the Overview page
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="instruction-step">
+                    <div class="step-badge">Step 4</div>
+                    <div class="step-details">
+                      <strong>Copy Directory (Tenant) ID</strong>
+                      <p>Also copy the "Directory (tenant) ID" from the same page</p>
+                    </div>
+                  </div>
+
+                  <div class="instruction-step">
+                    <div class="step-badge">Step 5</div>
+                    <div class="step-details">
+                      <strong>Create Client Secret</strong>
+                      <ol>
+                        <li>Click "Certificates & secrets" in the left menu</li>
+                        <li>Click "+ New client secret"</li>
+                        <li>Enter description: "Email Integration"</li>
+                        <li>Set expiration (recommended: 24 months)</li>
+                        <li>Click "Add"</li>
+                        <li><strong class="warning-text">IMPORTANT: Copy the "Value" immediately!</strong> It won't be shown again</li>
+                      </ol>
+                    </div>
+                  </div>
+
+                  <div class="instruction-step">
+                    <div class="step-badge">Step 6</div>
+                    <div class="step-details">
+                      <strong>Add API Permissions</strong>
+                      <ol>
+                        <li>Click "API permissions" in the left menu</li>
+                        <li>Click "+ Add a permission"</li>
+                        <li>Select "Office 365 Exchange Online"</li>
+                        <li>Select "Delegated permissions"</li>
+                        <li>Add these permissions:
+                          <ul>
+                            <li><code>IMAP.AccessAsUser.All</code> (Read emails)</li>
+                            <li><code>SMTP.Send</code> (Send emails)</li>
+                          </ul>
+                        </li>
+                        <li>Click "Add permissions"</li>
+                        <li><strong>Click "Grant admin consent for [Your Organization]"</strong></li>
+                        <li>Confirm by clicking "Yes"</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Gmail Instructions -->
+                <div *ngIf="selectedInstructionsTab === 'gmail'" class="instructions-content">
+                  <div class="instruction-step">
+                    <div class="step-badge">Step 1</div>
+                    <div class="step-details">
+                      <strong>Go to Google Cloud Console</strong>
+                      <p>Visit <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> and sign in</p>
+                    </div>
+                  </div>
+
+                  <div class="instruction-step">
+                    <div class="step-badge">Step 2</div>
+                    <div class="step-details">
+                      <strong>Create New Project</strong>
+                      <ol>
+                        <li>Click the project dropdown at the top</li>
+                        <li>Click "New Project"</li>
+                        <li>Name: "Complaint Management Email"</li>
+                        <li>Click "Create"</li>
+                      </ol>
+                    </div>
+                  </div>
+
+                  <div class="instruction-step">
+                    <div class="step-badge">Step 3</div>
+                    <div class="step-details">
+                      <strong>Enable Gmail API</strong>
+                      <ol>
+                        <li>Go to "APIs & Services" > "Library"</li>
+                        <li>Search for "Gmail API"</li>
+                        <li>Click on it and click "Enable"</li>
+                      </ol>
+                    </div>
+                  </div>
+
+                  <div class="instruction-step">
+                    <div class="step-badge">Step 4</div>
+                    <div class="step-details">
+                      <strong>Create OAuth Credentials</strong>
+                      <ol>
+                        <li>Go to "APIs & Services" > "Credentials"</li>
+                        <li>Click "Create Credentials" > "OAuth client ID"</li>
+                        <li>If prompted, configure OAuth consent screen first</li>
+                        <li>Select "Web application"</li>
+                        <li>Name: "Complaint Management"</li>
+                        <li>Add Authorized redirect URI: <code class="copyable" (click)="copyToClipboard(getOAuthCallbackUrl())">{{ getOAuthCallbackUrl() }}</code></li>
+                        <li>Click "Create"</li>
+                      </ol>
+                    </div>
+                  </div>
+
+                  <div class="instruction-step">
+                    <div class="step-badge">Step 5</div>
+                    <div class="step-details">
+                      <strong>Copy Credentials</strong>
+                      <p>Copy the "Client ID" and "Client Secret" that appear</p>
+                      <p class="note-text">Note: Gmail uses different field names - use Client ID for both fields below, and enter your Gmail address</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- OAuth Credentials Form -->
+              <div class="oauth-credentials-form">
+                <div class="form-group">
+                  <label for="oauthClientId">
+                    <i class="fas fa-key"></i> Client ID (Application ID) *
+                    <span class="field-help" title="From Azure AD App Registration Overview page">
+                      <i class="fas fa-question-circle"></i>
+                    </span>
+                  </label>
+                  <input type="text" id="oauthClientId" [(ngModel)]="form.oauthClientId"
+                         name="oauthClientId" class="form-control"
+                         placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required>
+                  <small class="form-text">Copy from "Application (client) ID" in Azure Portal</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="oauthTenantId">
+                    <i class="fas fa-building"></i> Tenant ID (Directory ID) *
+                    <span class="field-help" title="From Azure AD App Registration Overview page">
+                      <i class="fas fa-question-circle"></i>
+                    </span>
+                  </label>
+                  <input type="text" id="oauthTenantId" [(ngModel)]="form.oauthTenantId"
+                         name="oauthTenantId" class="form-control"
+                         placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required>
+                  <small class="form-text">Copy from "Directory (tenant) ID" in Azure Portal</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="oauthClientSecret">
+                    <i class="fas fa-lock"></i> Client Secret (Value) *
+                    <span class="field-help" title="From Azure AD Certificates & secrets page">
+                      <i class="fas fa-question-circle"></i>
+                    </span>
+                  </label>
+                  <input type="password" id="oauthClientSecret" [(ngModel)]="form.oauthClientSecret"
+                         name="oauthClientSecret" class="form-control"
+                         placeholder="Enter the secret value" required>
+                  <small class="form-text warning-text">⚠️ Copy this immediately from Azure - it won't be shown again!</small>
+                </div>
+
+                <div class="callout-info">
+                  <i class="fas fa-info-circle"></i>
+                  <div>
+                    <strong>Callback URL for Azure AD:</strong>
+                    <code class="copyable-url" (click)="copyToClipboard(getOAuthCallbackUrl())">
+                      {{ getOAuthCallbackUrl() }}
+                      <i class="fas fa-copy"></i>
+                    </code>
+                    <small>Add this as a redirect URI in your Azure AD app registration</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="wizard-navigation">
+                <button type="button" class="btn btn-secondary" (click)="prevWizardStep()">
+                  <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button type="button" class="btn btn-primary" (click)="nextWizardStep()"
+                        [disabled]="!form.oauthClientId || !form.oauthTenantId || !form.oauthClientSecret">
+                  Next: Configure Settings <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5: Additional Settings -->
+          <div class="wizard-step" [class.completed]="wizardStep > 5" [class.active]="wizardStep === 5">
+            <div class="step-number">5</div>
+            <div class="step-content">
+              <h4>Configure Additional Settings</h4>
+              <p>Set polling interval and other preferences</p>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="pollingIntervalSeconds">
+                    <i class="fas fa-clock"></i> Polling Interval *
+                  </label>
+                  <select id="pollingIntervalSeconds" [(ngModel)]="form.pollingIntervalSeconds"
+                          name="pollingIntervalSeconds" class="form-control" required>
+                    <option [ngValue]="30">30 seconds (Ultra Fast - High Server Load)</option>
+                    <option [ngValue]="60">1 minute (Very Fast)</option>
+                    <option [ngValue]="120">2 minutes (Fast - Recommended)</option>
+                    <option [ngValue]="300">5 minutes (Standard)</option>
+                    <option [ngValue]="600">10 minutes (Slow)</option>
+                  </select>
+                  <small class="form-text">
+                    <i class="fas fa-info-circle"></i>
+                    How often to check for new emails. Faster intervals use more server resources.
+                  </small>
+                </div>
+
+                <div class="form-group">
+                  <label for="oauthTokenRefreshIntervalMinutes">
+                    <i class="fas fa-key"></i> OAuth Token Refresh Interval (Optional)
+                  </label>
+                  <select id="oauthTokenRefreshIntervalMinutes" [(ngModel)]="form.oauthTokenRefreshIntervalMinutes"
+                          name="oauthTokenRefreshIntervalMinutes" class="form-control">
+                    <option [ngValue]="undefined">Use System Default ({{ systemConfig?.oAuthTokenRefreshIntervalMinutes || 60 }} minutes)</option>
+                    <option [ngValue]="15">15 minutes (Very Frequent)</option>
+                    <option [ngValue]="30">30 minutes (Recommended for 1-hour tokens)</option>
+                    <option [ngValue]="45">45 minutes</option>
+                    <option [ngValue]="60">60 minutes (Standard)</option>
+                    <option [ngValue]="90">90 minutes</option>
+                    <option [ngValue]="120">120 minutes (2 hours)</option>
+                  </select>
+                  <small class="form-text">
+                    <i class="fas fa-info-circle"></i>
+                    How often to refresh OAuth access tokens for THIS email account. Leave as "Use System Default" unless you need a custom interval for this account.
+                  </small>
+                </div>
+
+                <div class="form-group">
+                  <label for="imapFolder">
+                    <i class="fas fa-folder"></i> IMAP Folder *
+                  </label>
+                  <input type="text" id="imapFolder" [(ngModel)]="form.imapFolder"
+                         name="imapFolder" class="form-control" required>
+                  <small class="form-text">Mail folder to monitor (usually "INBOX")</small>
+                </div>
+              </div>
+
+              <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" [(ngModel)]="form.isEnabled" name="isEnabled">
+                  <span>
+                    <i class="fas fa-toggle-on"></i> Enable Email Ticketing
+                  </span>
+                </label>
+                <small class="form-text">Start polling emails immediately after setup</small>
+              </div>
+
+              <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" [(ngModel)]="form.sendAutoAcknowledgement" name="sendAutoAcknowledgement">
+                  <span>
+                    <i class="fas fa-paper-plane"></i> Send Auto-Acknowledgement
+                  </span>
+                </label>
+                <small class="form-text">Automatically reply to confirm ticket creation</small>
+              </div>
+
+              <div class="wizard-navigation">
+                <button type="button" class="btn btn-secondary" (click)="prevWizardStep()">
+                  <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button type="button" class="btn btn-primary" (click)="nextWizardStep()">
+                  Next: Authorize Access <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 6: OAuth Authorization -->
+          <div class="wizard-step" [class.active]="wizardStep === 6">
+            <div class="step-number">6</div>
+            <div class="step-content">
+              <h4>Authorize Email Access</h4>
+              <p>Save configuration and authorize the application to access your email</p>
+
+              <div class="authorization-panel">
+                <div class="panel-icon">
+                  <i class="fas fa-user-check fa-3x"></i>
+                </div>
+                <h3>Final Step: Grant Permissions</h3>
+                <p>After saving, you'll be redirected to Microsoft's login page to authorize this application.</p>
+
+                <div class="auth-steps">
+                  <div class="auth-step-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Sign in with your <strong>{{ form.fromEmail }}</strong> account</span>
+                  </div>
+                  <div class="auth-step-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Review the requested permissions</span>
+                  </div>
+                  <div class="auth-step-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Click "Accept" to grant access</span>
+                  </div>
+                  <div class="auth-step-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>You'll be redirected back automatically</span>
+                  </div>
+                </div>
+
+                <div class="security-note">
+                  <i class="fas fa-shield-alt"></i>
+                  <div>
+                    <strong>Secure & Private</strong>
+                    <p>Your password is never shared with us. You can revoke access anytime from your Microsoft account settings.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="wizard-navigation">
+                <button type="button" class="btn btn-secondary" (click)="prevWizardStep()">
+                  <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button type="submit" class="btn btn-success btn-lg" [disabled]="isSaving">
+                  <i class="fas" [class.fa-save]="!isSaving" [class.fa-spinner]="isSaving" [class.fa-spin]="isSaving"></i>
+                  {{ isSaving ? 'Saving & Authorizing...' : 'Save & Authorize Access' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Basic Auth Form (Legacy - shown when Basic Auth is selected) -->
+      <div *ngIf="form.authenticationType === 0" class="basic-auth-form">
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong>Warning:</strong> Basic authentication is disabled by most email providers (Gmail, Outlook, Office 365).
+          Use this only for self-hosted email servers or providers that still support it.
+        </div>
+
+        <!-- Provider Preset -->
+        <div class="form-section-title">
+          <i class="fas fa-server"></i>
+          Email Provider Preset
+        </div>
+
+        <div class="provider-selector">
+          <button type="button" class="btn btn-secondary" (click)="toggleProviderDropdown()">
+            <i [class]="selectedProvider.icon"></i>
+            {{ selectedProvider.name }}
+            <i class="fas fa-chevron-down"></i>
+          </button>
+
+          <div *ngIf="showProviderDropdown" class="provider-dropdown">
+            <div *ngFor="let provider of emailProviders; trackBy: trackByProviderName" class="provider-option" (click)="selectProvider(provider)">
+              <i [class]="provider.icon"></i>
+              <div class="provider-info">
+                <strong>{{ provider.name }}</strong>
+                <small>{{ provider.notes }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- General Settings -->
+        <div class="form-section-title">
+          <i class="fas fa-cog"></i>
+          General Settings
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fromNameBasic">From Name *</label>
+            <input type="text" id="fromNameBasic" [(ngModel)]="form.fromName" name="fromNameBasic" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="fromEmailBasic">From Email *</label>
+            <input type="email" id="fromEmailBasic" [(ngModel)]="form.fromEmail" name="fromEmailBasic" class="form-control" required>
+          </div>
+        </div>
+
+        <!-- IMAP Settings -->
+        <div class="form-section-title">
+          <i class="fas fa-download"></i>
+          IMAP Settings (Incoming Mail)
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="imapHost">IMAP Host *</label>
+            <input type="text" id="imapHost" [(ngModel)]="form.imapHost" name="imapHost" class="form-control" placeholder="imap.example.com" required>
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="imapPort">Port *</label>
+            <input type="number" id="imapPort" [(ngModel)]="form.imapPort" name="imapPort" class="form-control" placeholder="993" required>
+          </div>
+
+          <div class="form-group flex-1">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="form.imapUseSsl" name="imapUseSsl">
+              Use SSL/TLS
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="imapUsername">IMAP Username *</label>
+            <input type="text" id="imapUsername" [(ngModel)]="form.imapUsername" name="imapUsername" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="imapPassword">IMAP Password *</label>
+            <input type="password" id="imapPassword" [(ngModel)]="form.imapPassword" name="imapPassword" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="imapFolderBasic">IMAP Folder *</label>
+            <input type="text" id="imapFolderBasic" [(ngModel)]="form.imapFolder" name="imapFolderBasic" class="form-control" placeholder="INBOX" required>
+          </div>
+        </div>
+
+        <!-- SMTP Settings -->
+        <div class="form-section-title">
+          <i class="fas fa-upload"></i>
+          SMTP Settings (Outgoing Mail)
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="smtpHost">SMTP Host *</label>
+            <input type="text" id="smtpHost" [(ngModel)]="form.smtpHost" name="smtpHost" class="form-control" placeholder="smtp.example.com" required>
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="smtpPort">Port *</label>
+            <input type="number" id="smtpPort" [(ngModel)]="form.smtpPort" name="smtpPort" class="form-control" placeholder="587" required>
+          </div>
+
+          <div class="form-group flex-1">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="form.smtpUseSsl" name="smtpUseSsl">
+              Use SSL/TLS
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="smtpUsername">SMTP Username *</label>
+            <input type="text" id="smtpUsername" [(ngModel)]="form.smtpUsername" name="smtpUsername" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="smtpPassword">SMTP Password *</label>
+            <input type="password" id="smtpPassword" [(ngModel)]="form.smtpPassword" name="smtpPassword" class="form-control" required>
+          </div>
+        </div>
+
+        <!-- Advanced Settings -->
+        <div class="form-section-title">
+          <i class="fas fa-sliders-h"></i>
+          Advanced Settings
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pollingIntervalMinutesBasic">Polling Interval (minutes) *</label>
+            <input type="number" id="pollingIntervalMinutesBasic" [(ngModel)]="form.pollingIntervalMinutes" name="pollingIntervalMinutesBasic" class="form-control" min="1" required>
+          </div>
+
+          <div class="form-group">
+            <label for="maxAttachmentSizeBytes">Max Attachment Size (bytes)</label>
+            <input type="number" id="maxAttachmentSizeBytes" [(ngModel)]="form.maxAttachmentSizeBytes" name="maxAttachmentSizeBytes" class="form-control">
+            <small>{{ formatBytes(form.maxAttachmentSizeBytes || 0) }}</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="form.isEnabled" name="isEnabledBasic">
+              Enable Email Ticketing
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="form.sendAutoAcknowledgement" name="sendAutoAcknowledgementBasic">
+              Send Auto-Acknowledgement
+            </label>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+            <i class="fas fa-save"></i>
+            {{ isSaving ? 'Saving...' : 'Save Configuration' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()">
+            <i class="fas fa-times"></i>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+ 

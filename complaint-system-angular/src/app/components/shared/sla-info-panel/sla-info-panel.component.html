@@ -1,0 +1,122 @@
+<div [class]="containerClass" *ngIf="!loading && !error && slaStatus">
+  <!-- Panel Header -->
+  <div class="panel-header">
+    <div class="panel-title">
+      <i class="bi bi-shield-check"></i>
+      <h6>Service Level Agreement</h6>
+    </div>
+    <app-sla-badge
+      [slaLevel]="slaStatus?.slaLevel?.name || 'Standard'"
+      [urgency]="slaStatus?.urgencyLevel || 'green'"
+      [remainingTime]="formatTime(slaStatus?.resolution?.remainingMinutes || 0)"
+      [compact]="compact">
+    </app-sla-badge>
+  </div>
+
+  <!-- Pause Indicator -->
+  <div class="pause-indicator" *ngIf="slaStatus?.isPaused">
+    <i class="bi bi-pause-circle-fill"></i>
+    {{ pauseText }}
+  </div>
+
+  <!-- Panel Body -->
+  <div class="panel-body">
+    <!-- Response SLA -->
+    <div class="sla-section" *ngIf="showResponse && slaStatus?.response">
+      <div class="sla-section-header">
+        <h6>Initial Response</h6>
+        <span class="sla-deadline">
+          Due: {{ slaStatus?.response?.dueDate | utcToLocal:'short' }}
+        </span>
+      </div>
+
+      <app-sla-progress-bar
+        label="Response Time"
+        [percentComplete]="slaStatus?.response?.percentComplete || 0"
+        [elapsedTime]="formatTime(slaStatus?.response?.elapsedMinutes || 0)"
+        [remainingTime]="formatTime(slaStatus?.response?.remainingMinutes || 0)"
+        [urgency]="getResponseUrgency()"
+        [compact]="compact"
+        [showFooter]="!compact">
+      </app-sla-progress-bar>
+
+      <!-- Response Met Badge -->
+      <div class="sla-met-badge" *ngIf="isResponseMet">
+        <i class="bi bi-check-circle-fill"></i>
+        Response provided on {{ slaStatus?.response?.metDate | utcToLocal:'short' }}
+      </div>
+    </div>
+
+    <!-- Resolution SLA -->
+    <div class="sla-section" *ngIf="showResolution && slaStatus?.resolution">
+      <div class="sla-section-header">
+        <h6>Resolution Time</h6>
+        <span class="sla-deadline">
+          Due: {{ slaStatus?.resolution?.dueDate | utcToLocal:'short' }}
+        </span>
+      </div>
+
+      <app-sla-progress-bar
+        label="Resolution Progress"
+        [percentComplete]="slaStatus?.resolution?.percentComplete || 0"
+        [elapsedTime]="formatTime(slaStatus?.resolution?.elapsedMinutes || 0)"
+        [remainingTime]="formatTime(slaStatus?.resolution?.remainingMinutes || 0)"
+        [urgency]="slaStatus?.urgencyLevel || 'green'"
+        [compact]="compact"
+        [showFooter]="!compact">
+      </app-sla-progress-bar>
+
+      <!-- Resolution Complete Badge -->
+      <div class="sla-met-badge" *ngIf="isResolutionComplete">
+        <i class="bi bi-check-circle-fill"></i>
+        Resolved on {{ slaStatus?.resolution?.resolvedDate | utcToLocal:'short' }}
+      </div>
+    </div>
+
+    <!-- SLA Details Summary -->
+    <div class="sla-summary" *ngIf="!compact">
+      <div class="summary-item">
+        <span class="summary-label">SLA Level:</span>
+        <span class="summary-value">{{ slaStatus?.slaLevel?.name || 'N/A' }}</span>
+      </div>
+      <div class="summary-item" *ngIf="showResponse && slaStatus?.response">
+        <span class="summary-label">Response Target:</span>
+        <span class="summary-value">{{ slaStatus?.response?.targetHours || 0 }}h</span>
+      </div>
+      <div class="summary-item" *ngIf="showResolution && slaStatus?.resolution">
+        <span class="summary-label">Resolution Target:</span>
+        <span class="summary-value">{{ slaStatus?.resolution?.targetHours || 0 }}h</span>
+      </div>
+    </div>
+
+    <!-- Explanation -->
+    <div class="sla-explanation" *ngIf="showExplanation && !compact">
+      <i class="bi bi-info-circle"></i>
+      <p>{{ getExplanationText() }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="sla-loading" *ngIf="loading">
+  <div class="spinner-border spinner-border-sm" role="status">
+    <span class="visually-hidden">Loading SLA information...</span>
+  </div>
+  <span>Loading SLA information...</span>
+</div>
+
+<!-- Error State -->
+<div class="sla-error" *ngIf="error && !loading">
+  <i class="bi bi-exclamation-triangle"></i>
+  <p>{{ error }}</p>
+  <button class="btn btn-sm btn-outline-primary" (click)="loadSLAStatus()">
+    <i class="bi bi-arrow-clockwise"></i>
+    Retry
+  </button>
+</div>
+
+<!-- No Data State -->
+<div class="sla-no-data" *ngIf="!loading && !error && !slaStatus && complaintId">
+  <i class="bi bi-info-circle"></i>
+  <p>No SLA information available for this complaint.</p>
+</div>

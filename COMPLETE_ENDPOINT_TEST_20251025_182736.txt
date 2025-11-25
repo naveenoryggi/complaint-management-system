@@ -1,0 +1,8 @@
+[INFO] ==========================================
+[INFO] COMPLETE ENDPOINT TEST SUITE
+[INFO] ==========================================
+[INFO] Ensuring admin user is active...
+[INFO] Admin user activated
+[INFO] Authenticating...
+[FAIL] Authentication failed: Unable to connect to the remote server
+[FAIL] Response: 

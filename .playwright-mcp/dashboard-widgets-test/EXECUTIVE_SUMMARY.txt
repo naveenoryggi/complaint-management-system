@@ -1,0 +1,144 @@
+================================================================================
+DASHBOARD WIDGETS E2E TEST - EXECUTIVE SUMMARY
+================================================================================
+
+Test Date: November 16, 2025
+Test Status: FAILED ❌
+Severity: CRITICAL 🔴
+
+================================================================================
+ISSUE SUMMARY
+================================================================================
+
+Only 1 widget displays on the dashboard instead of the expected 11 widgets.
+
+Expected: 11 status widgets (Ticket Received, Submitted, Under Review, In Progress,
+          Escalated, Pending Info, Resolved, Closed, Rejected, Reopened, etc.)
+
+Actual:   1 status widget (Escalated - showing 0 complaints)
+
+Missing:  10 status widgets
+
+================================================================================
+ROOT CAUSE
+================================================================================
+
+The backend API endpoint /api/dashboard/statistics returns HTTP 200 OK but with
+NULL/empty response body. This causes the frontend to have no statistics data
+to render the widgets.
+
+Technical Details:
+- Dashboard preferences are correctly configured with 11 statusIds
+- Frontend code is working as designed
+- Backend statistics API is broken
+- API returns 200 OK (misleading success status)
+- Response body is null/empty
+
+================================================================================
+EVIDENCE
+================================================================================
+
+Screenshots Captured:
+✓ 01-dashboard-only-1-widget-showing.png (full page view)
+✓ 02-after-login-still-only-1-widget.png (after fresh login)
+✓ 03-widget-section-closeup.png (close-up of widget section)
+
+Console Log Evidence:
+[WARNING] Dashboard statistics API returned null response
+[LOG] Keeping existing statistics due to null API response
+
+Network Evidence:
+GET /api/dashboard/statistics?dateRangeDays=30&statusIds=... => 200 OK (but NULL body)
+
+LocalStorage Evidence:
+statistics: null
+statisticsCount: 0
+
+================================================================================
+IMPACT
+================================================================================
+
+Business Impact:
+- Dashboard is non-functional (only 10% of widgets display)
+- No visibility into complaint distribution
+- Cannot track trends or performance metrics
+- Cannot make data-driven decisions
+
+User Impact:
+- Admin users see incomplete dashboard
+- Cannot monitor workload by status
+- Cannot identify bottlenecks
+
+Technical Impact:
+- Backend API is broken
+- 200 OK status masks the error from monitoring
+- Data may exist in database but not being retrieved
+
+================================================================================
+IMMEDIATE ACTIONS REQUIRED
+================================================================================
+
+1. DEBUG BACKEND STATISTICS API (Priority: CRITICAL)
+   - Fix /api/dashboard/statistics endpoint
+   - Verify SQL query is correct
+   - Check Entity Framework LINQ query
+   - Add logging to identify why query returns empty
+
+2. FIX API RESPONSE (Priority: HIGH)
+   - Do not return 200 OK with null body
+   - Return 204 No Content if no data
+   - Return proper error status if query fails
+
+3. IMPROVE ERROR HANDLING (Priority: MEDIUM)
+   - Frontend: Show user-friendly message when stats fail
+   - Backend: Add proper logging and error messages
+   - Add retry mechanism
+
+4. ADD MONITORING (Priority: MEDIUM)
+   - Alert when statistics API returns null
+   - Track API error rates
+   - Dashboard health check endpoint
+
+================================================================================
+FILES GENERATED
+================================================================================
+
+Test Report:
+C:\Users\Navin Chandra\Pictures\Complaint management system\.playwright-mcp\dashboard-widgets-test\DASHBOARD_WIDGETS_E2E_TEST_REPORT.md
+
+Screenshots:
+C:\Users\Navin Chandra\Pictures\Complaint management system\.playwright-mcp\dashboard-widgets-test\01-dashboard-only-1-widget-showing.png
+C:\Users\Navin Chandra\Pictures\Complaint management system\.playwright-mcp\dashboard-widgets-test\02-after-login-still-only-1-widget.png
+C:\Users\Navin Chandra\Pictures\Complaint management system\.playwright-mcp\dashboard-widgets-test\03-widget-section-closeup.png
+
+This Summary:
+C:\Users\Navin Chandra\Pictures\Complaint management system\.playwright-mcp\dashboard-widgets-test\EXECUTIVE_SUMMARY.txt
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Backend developer must fix the statistics API endpoint
+2. Re-run this E2E test after fix is deployed
+3. Verify all 11 widgets display correctly
+4. Perform regression testing
+
+================================================================================
+TEST CREDENTIALS USED
+================================================================================
+
+Email: admin@complaintmanagement.com
+Password: Admin@123
+Role: System Administrator
+
+================================================================================
+CONCLUSION
+================================================================================
+
+The dashboard widget functionality is BROKEN due to a backend API issue. The
+statistics endpoint returns no data, causing 10 out of 11 widgets to not display.
+
+This is a CRITICAL bug that must be fixed immediately as it renders the dashboard
+essentially non-functional for all users.
+
+================================================================================

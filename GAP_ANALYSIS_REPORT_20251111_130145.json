@@ -1,0 +1,233 @@
+﻿{
+    "configurationStatus":  {
+                                "categories":  {
+                                                   "configured":  true,
+                                                   "itemCount":  19
+                                               },
+                                "roles":  {
+                                              "configured":  true,
+                                              "itemCount":  17
+                                          },
+                                "workflows":  {
+                                                  "configured":  true,
+                                                  "itemCount":  6
+                                              },
+                                "escalationMatrices":  {
+                                                           "configured":  true,
+                                                           "itemCount":  8
+                                                       }
+                            },
+    "recommendations":  [
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/complaints/1",
+                                "area":  "/api/complaints/1"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/sla",
+                                "area":  "/api/sla"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/notificationrules",
+                                "area":  "/api/notificationrules"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/settings/email",
+                                "area":  "/api/settings/email"
+                            },
+                            {
+                                "priority":  "CRITICAL",
+                                "action":  "Fix endpoint accessibility issue: /api/priorities",
+                                "area":  "/api/priorities"
+                            },
+                            {
+                                "priority":  "CRITICAL",
+                                "action":  "Fix endpoint accessibility issue: /api/statuses",
+                                "area":  "/api/statuses"
+                            }
+                        ],
+    "baseUrl":  "http://localhost:5000",
+    "timestamp":  "2025-11-11 13:01:45",
+    "authentication":  {
+                           "status":  "SUCCESS",
+                           "token_length":  1243,
+                           "message":  "Successfully authenticated as admin"
+                       },
+    "gaps":  [
+                 {
+                     "endpoint":  "/api/complaints/1",
+                     "message":  "Core endpoint not accessible or returning errors",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/sla",
+                     "message":  "Configuration endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/notificationrules",
+                     "message":  "Configuration endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/settings/email",
+                     "message":  "Configuration endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/priorities",
+                     "message":  "Master data endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "CRITICAL"
+                 },
+                 {
+                     "endpoint":  "/api/statuses",
+                     "message":  "Master data endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "CRITICAL"
+                 }
+             ],
+    "summary":  {
+                    "successRate":  53.85,
+                    "failedTests":  6,
+                    "highGaps":  4,
+                    "passedTests":  7,
+                    "totalEndpointsTested":  13,
+                    "mediumGaps":  0,
+                    "criticalGaps":  2,
+                    "totalGaps":  6
+                },
+    "endpointTests":  [
+                          {
+                              "url":  "/api/complaints",
+                              "hasData":  false,
+                              "method":  "GET",
+                              "category":  "Core",
+                              "name":  "List Complaints",
+                              "itemCount":  0,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/complaints/1",
+                              "method":  "GET",
+                              "category":  "Core",
+                              "error":  "The remote server returned an error: (400) Bad Request.",
+                              "name":  "Get Single Complaint",
+                              "status":  "FAIL",
+                              "statusCode":  400
+                          },
+                          {
+                              "url":  "/api/dashboard/statistics",
+                              "hasData":  false,
+                              "method":  "GET",
+                              "category":  "Core",
+                              "name":  "Dashboard Statistics",
+                              "itemCount":  0,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/users",
+                              "hasData":  true,
+                              "method":  "GET",
+                              "category":  "Core",
+                              "name":  "User Management",
+                              "itemCount":  10614,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/sla",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "SLA Levels",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          },
+                          {
+                              "url":  "/api/notificationrules",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "Notification Rules",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          },
+                          {
+                              "url":  "/api/workflows",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "name":  "Workflows",
+                              "itemCount":  6,
+                              "isConfigured":  true,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/escalation/matrices",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "name":  "Escalation Configuration",
+                              "itemCount":  8,
+                              "isConfigured":  true,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/settings/email",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "Email Settings",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          },
+                          {
+                              "url":  "/api/categories",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "name":  "Complaint Categories",
+                              "itemCount":  19,
+                              "isConfigured":  true,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/roles",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "name":  "Role Definitions",
+                              "itemCount":  17,
+                              "isConfigured":  true,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/priorities",
+                              "method":  "GET",
+                              "category":  "MasterData",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "Priority Levels",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          },
+                          {
+                              "url":  "/api/statuses",
+                              "method":  "GET",
+                              "category":  "MasterData",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "Status Types",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          }
+                      ]
+}

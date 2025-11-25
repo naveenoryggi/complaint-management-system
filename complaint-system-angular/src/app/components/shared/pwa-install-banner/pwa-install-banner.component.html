@@ -1,0 +1,63 @@
+<div *ngIf="showInstallBanner && !isInstalled" class="pwa-install-banner">
+  <div class="banner-container">
+    <div class="banner-content">
+      <div class="banner-icon">
+        <i [class]="deviceIcon"></i>
+      </div>
+
+      <div class="banner-text">
+        <h4>Install Complaint Management System</h4>
+        <p>Install our app for faster access and offline capabilities</p>
+        <div class="banner-features">
+          <span class="feature">
+            <i class="bi-lightning-charge"></i>
+            Faster
+          </span>
+          <span class="feature">
+            <i class="bi-wifi-off"></i>
+            Offline
+          </span>
+          <span class="feature">
+            <i class="bi-window"></i>
+            Native Feel
+          </span>
+        </div>
+      </div>
+
+      <div class="banner-actions">
+        <button
+          class="btn btn-primary install-btn"
+          (click)="installApp()"
+          [disabled]="!isOnline"
+          title="Install app"
+        >
+          <i class="bi-download"></i>
+          Install
+        </button>
+
+        <button
+          class="btn btn-outline-secondary dismiss-btn"
+          (click)="dismissBanner()"
+          title="Not now"
+        >
+          <i class="bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Offline indicator -->
+    <div *ngIf="!isOnline" class="offline-indicator">
+      <i class="bi-wifi-off"></i>
+      <span>Connect to internet to install</span>
+    </div>
+  </div>
+</div>
+
+<!-- Connection status indicator -->
+<div *ngIf="!isOnline" class="connection-status offline">
+  <div class="status-content">
+    <i class="bi-wifi-off"></i>
+    <span>You're offline</span>
+    <small>Some features may be unavailable</small>
+  </div>
+</div>

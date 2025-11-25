@@ -1,0 +1,288 @@
+<div class="employee-type-management-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>
+        <i class="fas fa-user-tag"></i>
+        Employee Type Management
+      </h1>
+      <p class="header-description">Manage employee classifications and types</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      Add Employee Type
+    </button>
+  </div>
+
+  <!-- Info Banner -->
+  <div class="info-banner">
+    <div class="info-icon">
+      <i class="fas fa-info-circle"></i>
+    </div>
+    <div class="info-content">
+      <h3>About Employee Types</h3>
+      <p>
+        <strong>Employee Types</strong> are used to classify employees based on their employment status or contract type.
+      </p>
+      <ul>
+        <li><strong>Purpose:</strong> Categorize employees (e.g., Full-time, Part-time, Contract, Intern)</li>
+        <li><strong>Usage:</strong> Used in HR reporting, access control, and workflow routing</li>
+        <li><strong>Benefits:</strong> Better employee segmentation and targeted policies</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage && !showModal" class="alert alert-danger">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Search and Filter -->
+  <div class="filter-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Search employee types by name, code, or description..."
+        class="search-input"
+      />
+    </div>
+    <div class="filter-options">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="showInactive" />
+        Show Inactive Employee Types
+      </label>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading && employeeTypes.length === 0" class="loading-state">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading employee types...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredEmployeeTypes.length === 0" class="empty-state">
+    <i class="fas fa-user-tag"></i>
+    <h3>No Employee Types Found</h3>
+    <p *ngIf="searchTerm">Try adjusting your search criteria</p>
+    <p *ngIf="!searchTerm">Get started by creating your first employee type</p>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      Add Employee Type
+    </button>
+  </div>
+
+  <!-- Employee Types Grid -->
+  <div *ngIf="!loading && filteredEmployeeTypes.length > 0" class="employee-types-grid">
+    <div *ngFor="let employeeType of filteredEmployeeTypes; trackBy: trackByEmployeeTypeId" class="employee-type-card" [class.inactive]="!employeeType.isActive">
+      <div class="card-header">
+        <div class="employee-type-info">
+          <h3>{{ employeeType.name }}</h3>
+          <span class="employee-type-code">{{ employeeType.code }}</span>
+          <span class="status-badge" [class.active]="employeeType.isActive" [class.inactive]="!employeeType.isActive">
+            {{ employeeType.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+        <div class="card-actions">
+          <button
+            class="btn-icon"
+            (click)="openEditModal(employeeType)"
+            title="Edit Employee Type"
+          >
+            <i class="fas fa-edit"></i>
+          </button>
+          <button
+            class="btn-icon"
+            (click)="toggleEmployeeTypeStatus(employeeType)"
+            [title]="employeeType.isActive ? 'Deactivate' : 'Activate'"
+          >
+            <i [class]="employeeType.isActive ? 'fas fa-toggle-on' : 'fas fa-toggle-off'"></i>
+          </button>
+          <button
+            class="btn-icon btn-delete"
+            (click)="openDeleteModal(employeeType)"
+            title="Delete Employee Type"
+          >
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div *ngIf="employeeType.description" class="employee-type-description">
+          <p>{{ employeeType.description }}</p>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <small>
+          Created: {{ employeeType.createdAt | utcToLocal:'medium' }}
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div *ngIf="employeeTypes.length > 0" class="summary-stats">
+    <div class="stat-item">
+      <span class="stat-label">Total Employee Types:</span>
+      <span class="stat-value">{{ employeeTypes.length }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Active:</span>
+      <span class="stat-value stat-active">{{ getActiveEmployeeTypesCount() }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Inactive:</span>
+      <span class="stat-value stat-inactive">{{ getInactiveEmployeeTypesCount() }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-user-tag"></i>
+        {{ isEditMode ? 'Edit Employee Type' : 'Create New Employee Type' }}
+      </h2>
+      <button class="btn-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Error Message in Modal -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <form (ngSubmit)="saveEmployeeType()">
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="employeeTypeName" class="required">Employee Type Name</label>
+              <input
+                id="employeeTypeName"
+                type="text"
+                [(ngModel)]="employeeTypeForm.name"
+                name="name"
+                class="form-control"
+                placeholder="e.g., Full-time, Part-time, Contract"
+                required
+              />
+              <small class="form-help-text">The name of the employee classification</small>
+            </div>
+
+            <div class="form-group">
+              <label for="employeeTypeCode" class="required">Employee Type Code</label>
+              <input
+                id="employeeTypeCode"
+                type="text"
+                [(ngModel)]="employeeTypeForm.code"
+                name="code"
+                class="form-control"
+                placeholder="e.g., FT, PT, CONT"
+                maxlength="20"
+                required
+              />
+              <small class="form-help-text">A unique identifier or abbreviation (max 20 characters)</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="employeeTypeDescription">Description</label>
+            <textarea
+              id="employeeTypeDescription"
+              [(ngModel)]="employeeTypeForm.description"
+              name="description"
+              class="form-control"
+              rows="3"
+              placeholder="Brief description of the employee type..."
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="form-section">
+          <h3>Status</h3>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="employeeTypeForm.isActive"
+                name="isActive"
+              />
+              Active
+            </label>
+            <small class="form-help-text">Inactive employee types won't be available for selection</small>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="loading">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+            <i *ngIf="!loading" [class]="isEditMode ? 'fas fa-save' : 'fas fa-plus'"></i>
+            {{ isEditMode ? 'Update Employee Type' : 'Create Employee Type' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+  <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-exclamation-triangle"></i>
+        Confirm Deletion
+      </h2>
+      <button class="btn-close" (click)="closeDeleteModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <p>Are you sure you want to delete the employee type <strong>{{ employeeTypeToDelete?.name }}</strong>?</p>
+      <p class="warning-text">
+        <i class="fas fa-exclamation-triangle"></i>
+        This action cannot be undone. Make sure no users are assigned to this employee type before deleting.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="loading">
+        Cancel
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="loading">
+        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+        <i *ngIf="!loading" class="fas fa-trash"></i>
+        Delete Employee Type
+      </button>
+    </div>
+  </div>
+</div>

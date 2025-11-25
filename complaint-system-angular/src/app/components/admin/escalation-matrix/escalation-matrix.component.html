@@ -1,0 +1,317 @@
+<div class="escalation-matrix-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <i class="fas fa-layer-group"></i>
+        Escalation Matrix Management
+      </h1>
+      <p class="page-description">Configure escalation levels and rules for complaint handling</p>
+    </div>
+    <button *ngIf="!showForm" class="btn btn-primary" (click)="createNewMatrix()">
+      <i class="fas fa-plus"></i>
+      Create New Matrix
+    </button>
+  </div>
+
+  <!-- Alert Messages -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading && !showForm" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading escalation matrices...</p>
+  </div>
+
+  <!-- Matrix List -->
+  <div *ngIf="!showForm && !loading" class="matrix-list">
+    <div *ngIf="matrices.length === 0" class="empty-state">
+      <i class="fas fa-inbox"></i>
+      <h3>No Escalation Matrices</h3>
+      <p>Get started by creating your first escalation matrix</p>
+      <button class="btn btn-primary" (click)="createNewMatrix()">
+        <i class="fas fa-plus"></i>
+        Create Matrix
+      </button>
+    </div>
+
+    <div *ngFor="let matrix of matrices; trackBy: trackByMatrixId" class="matrix-card">
+      <div class="matrix-card-header">
+        <div class="matrix-info">
+          <h3 class="matrix-name">
+            {{ matrix.name }}
+            <span *ngIf="matrix.isDefault" class="badge badge-primary">Default</span>
+            <span *ngIf="!matrix.isActive" class="badge badge-secondary">Inactive</span>
+          </h3>
+          <p *ngIf="matrix.description" class="matrix-description">{{ matrix.description }}</p>
+        </div>
+        <div class="matrix-actions">
+          <button class="btn btn-icon btn-secondary" (click)="editMatrix(matrix)" title="Edit">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-icon btn-danger" (click)="deleteMatrix(matrix)" title="Delete">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="matrix-levels">
+        <div class="levels-header">
+          <span class="levels-count">
+            <i class="fas fa-layer-group"></i>
+            {{ matrix.escalationLevels.length }} Escalation {{ matrix.escalationLevels.length === 1 ? 'Level' : 'Levels' }}
+          </span>
+        </div>
+        <div *ngIf="matrix.escalationLevels.length > 0" class="levels-timeline">
+          <div *ngFor="let level of matrix.escalationLevels; let i = index; trackBy: trackByEscalationLevel" class="level-item">
+            <div class="level-number">{{ level.level }}</div>
+            <div class="level-content">
+              <h4 class="level-name">{{ level.name }}</h4>
+              <div class="level-details">
+                <span class="detail-item">
+                  <i class="fas fa-clock"></i>
+                  After {{ level.triggerTimeDisplay }}
+                </span>
+                <span class="detail-item">
+                  <i class="fas fa-user-tag"></i>
+                  {{ getAssignmentStrategyLabel(level.assignmentStrategy) }}
+                </span>
+                <span *ngIf="level.sendNotification" class="detail-item">
+                  <i class="fas fa-bell"></i>
+                  Notifications Enabled
+                </span>
+              </div>
+            </div>
+            <div *ngIf="i < matrix.escalationLevels.length - 1" class="level-connector"></div>
+          </div>
+        </div>
+        <div *ngIf="matrix.escalationLevels.length === 0" class="empty-levels-message">
+          <i class="fas fa-info-circle"></i>
+          <span>No escalation levels configured yet. Click Edit to add levels.</span>
+        </div>
+      </div>
+
+      <div class="matrix-card-footer">
+        <span class="footer-item">
+          <i class="fas fa-calendar-plus"></i>
+          Created {{ matrix.createdAt | utcToLocal:'medium' }}
+        </span>
+        <span *ngIf="matrix.updatedAt" class="footer-item">
+          <i class="fas fa-calendar-check"></i>
+          Updated {{ matrix.updatedAt | utcToLocal:'medium' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Matrix Form -->
+  <div *ngIf="showForm" class="matrix-form-container">
+    <div class="form-header">
+      <h2>
+        <i class="fas fa-{{ isEditMode ? 'edit' : 'plus-circle' }}"></i>
+        {{ isEditMode ? 'Edit' : 'Create New' }} Escalation Matrix
+      </h2>
+      <button class="btn btn-text" (click)="cancelForm()">
+        <i class="fas fa-times"></i>
+        Cancel
+      </button>
+    </div>
+
+    <form [formGroup]="matrixForm" (ngSubmit)="saveMatrix()" class="matrix-form">
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h3 class="section-title">Basic Information</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name" class="form-label required">Matrix Name</label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              class="form-control"
+              [class.invalid]="isFieldInvalid('name')"
+              placeholder="e.g., Standard Escalation Matrix"
+            />
+            <span *ngIf="isFieldInvalid('name')" class="error-message">
+              Matrix name is required
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="description" class="form-label">Description</label>
+            <textarea
+              id="description"
+              formControlName="description"
+              class="form-control"
+              rows="3"
+              placeholder="Describe the purpose of this escalation matrix..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group-checkbox">
+            <input
+              id="isDefault"
+              type="checkbox"
+              formControlName="isDefault"
+              class="form-checkbox"
+            />
+            <label for="isDefault" class="checkbox-label">
+              Set as default matrix
+              <span class="checkbox-description">This matrix will be used by default for new complaints</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Escalation Levels -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3 class="section-title">Escalation Levels</h3>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="addLevel()">
+            <i class="fas fa-plus"></i>
+            Add Level
+          </button>
+        </div>
+
+        <div formArrayName="levels" class="levels-form">
+          <div *ngFor="let level of levels.controls; let i = index; trackBy: trackByLevel" [formGroupName]="i" class="level-form-card">
+            <div class="level-form-header">
+              <h4 class="level-form-title">
+                <span class="level-badge">Level {{ i + 1 }}</span>
+                <input
+                  type="text"
+                  formControlName="name"
+                  class="level-name-input"
+                  [class.invalid]="isLevelFieldInvalid(i, 'name')"
+                  placeholder="Level name"
+                />
+              </h4>
+              <button
+                *ngIf="levels.length > 1"
+                type="button"
+                class="btn btn-icon btn-danger btn-sm"
+                (click)="removeLevel(i)"
+                title="Remove this level"
+              >
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+
+            <div class="level-form-content">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Description</label>
+                  <textarea
+                    formControlName="description"
+                    class="form-control"
+                    rows="2"
+                    placeholder="Describe this escalation level..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="form-row form-row-2">
+                <div class="form-group">
+                  <label class="form-label required">Trigger After</label>
+                  <div class="input-group">
+                    <input
+                      type="number"
+                      formControlName="triggerAfterValue"
+                      class="form-control"
+                      [class.invalid]="isLevelFieldInvalid(i, 'triggerAfterValue')"
+                      min="1"
+                      placeholder="24"
+                    />
+                    <select formControlName="triggerTimeUnit" class="form-select">
+                      <option *ngFor="let unit of timeUnits; trackBy: trackByTimeUnit" [ngValue]="unit.value">
+                        {{ unit.label }}
+                      </option>
+                    </select>
+                  </div>
+                  <span *ngIf="isLevelFieldInvalid(i, 'triggerAfterValue')" class="error-message">
+                    Value must be at least 1
+                  </span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label required">Assignment Strategy</label>
+                  <select
+                    formControlName="assignmentStrategy"
+                    class="form-control"
+                    [class.invalid]="isLevelFieldInvalid(i, 'assignmentStrategy')"
+                  >
+                    <option *ngFor="let strategy of assignmentStrategies; trackBy: trackByStrategy" [value]="strategy.value">
+                      {{ strategy.label }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Escalation Message</label>
+                  <textarea
+                    formControlName="escalationMessage"
+                    class="form-control"
+                    rows="2"
+                    placeholder="Message to include in escalation notification..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="form-row form-row-2">
+                <div class="form-group-checkbox">
+                  <input
+                    [id]="'sendNotification' + i"
+                    type="checkbox"
+                    formControlName="sendNotification"
+                    class="form-checkbox"
+                  />
+                  <label [for]="'sendNotification' + i" class="checkbox-label">
+                    Send email notification
+                  </label>
+                </div>
+
+                <div class="form-group-checkbox">
+                  <input
+                    [id]="'notifyPreviousHandler' + i"
+                    type="checkbox"
+                    formControlName="notifyPreviousHandler"
+                    class="form-checkbox"
+                  />
+                  <label [for]="'notifyPreviousHandler' + i" class="checkbox-label">
+                    Notify previous handler
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancelForm()">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading || matrixForm.invalid">
+          <i class="fas fa-{{ loading ? 'spinner fa-spin' : 'save' }}"></i>
+          {{ loading ? 'Saving...' : (isEditMode ? 'Update Matrix' : 'Create Matrix') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

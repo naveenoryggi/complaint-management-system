@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Detail - Readability Test</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --spacing-2: 0.5rem;
+            --spacing-3: 0.75rem;
+            --spacing-4: 1rem;
+            --spacing-5: 1.25rem;
+            --spacing-lg: 1.5rem;
+            --spacing-md: 1rem;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-lg: 1.125rem;
+            --font-weight-semibold: 600;
+            --font-weight-medium: 500;
+            --font-weight-bold: 700;
+            --border-radius-full: 9999px;
+            --border-color: #e5e7eb;
+            --radius-lg: 0.75rem;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            color: #ffffff;
+        }
+
+        .card-body {
+            padding: var(--spacing-lg);
+        }
+
+        .card-body h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 1rem 0;
+        }
+
+        .card-body p {
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        .table th {
+            width: 40%;
+            font-weight: var(--font-weight-semibold);
+            color: #1f2937;
+            padding: var(--spacing-3);
+            border-bottom: 1px solid var(--border-color);
+            font-size: var(--font-size-sm);
+        }
+
+        .table td {
+            color: #1f2937;
+            padding: var(--spacing-3);
+            border-bottom: 1px solid var(--border-color);
+            font-size: var(--font-size-sm);
+        }
+
+        .badge {
+            font-size: var(--font-size-xs);
+            padding: var(--spacing-2) var(--spacing-3);
+            font-weight: var(--font-weight-semibold);
+            border-radius: var(--border-radius-full);
+            display: inline-block;
+        }
+
+        .badge.bg-success {
+            background-color: #16a34a !important;
+            color: #ffffff !important;
+        }
+
+        .badge.bg-warning {
+            background-color: #d97706 !important;
+            color: #ffffff !important;
+        }
+
+        .badge.bg-danger {
+            background-color: #dc2626 !important;
+            color: #ffffff !important;
+        }
+
+        .badge.bg-info {
+            background-color: #2563eb !important;
+            color: #ffffff !important;
+        }
+
+        h6.text-muted {
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-bold);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #4b5563 !important;
+            margin-bottom: var(--spacing-4);
+            padding-bottom: var(--spacing-2);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .form-label {
+            font-weight: var(--font-weight-semibold);
+            color: #1f2937;
+            margin-bottom: var(--spacing-2);
+            font-size: var(--font-size-sm);
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: var(--spacing-3);
+            font-size: var(--font-size-sm);
+            width: 100%;
+            background-color: #ffffff;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .row {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .col-md-6 {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="color: #1f2937; margin-bottom: 2rem;">Complaint Detail - Readability Test</h1>
+
+        <!-- Basic Info Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Complaint Information</h5>
+                <div>
+                    <span class="badge bg-success">IN PROGRESS</span>
+                    <span class="badge bg-warning">HIGH PRIORITY</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <h4>Broken AC Unit in Conference Room</h4>
+                <p>The air conditioning system in Conference Room B has been malfunctioning for the past three days. The temperature is uncomfortable for meetings and affecting productivity.</p>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table">
+                            <tr>
+                                <th>Complaint #:</th>
+                                <td>CMP-2024-001</td>
+                            </tr>
+                            <tr>
+                                <th>Category:</th>
+                                <td>Facilities</td>
+                            </tr>
+                            <tr>
+                                <th>Company:</th>
+                                <td>Tech Corp Ltd</td>
+                            </tr>
+                            <tr>
+                                <th>Branch:</th>
+                                <td>Head Office</td>
+                            </tr>
+                            <tr>
+                                <th>Department:</th>
+                                <td>IT Services</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table">
+                            <tr>
+                                <th>Submitted:</th>
+                                <td>Nov 1, 2025 10:30 AM</td>
+                            </tr>
+                            <tr>
+                                <th>Due Date:</th>
+                                <td>Nov 5, 2025</td>
+                            </tr>
+                            <tr>
+                                <th>Assigned To:</th>
+                                <td>John Maintenance</td>
+                            </tr>
+                            <tr>
+                                <th>Escalation Level:</th>
+                                <td>0</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Complainant Information Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Complainant Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Personal Details</h6>
+                        <table class="table">
+                            <tr>
+                                <th>Name:</th>
+                                <td>Sarah Johnson</td>
+                            </tr>
+                            <tr>
+                                <th>Employee Code:</th>
+                                <td>EMP-1234</td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td>sarah.johnson@techcorp.com</td>
+                            </tr>
+                            <tr>
+                                <th>Phone:</th>
+                                <td>+1 234 567 8900</td>
+                            </tr>
+                            <tr>
+                                <th>Preferred Contact:</th>
+                                <td><span class="badge bg-info">EMAIL</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Organizational Details</h6>
+                        <table class="table">
+                            <tr>
+                                <th>Company:</th>
+                                <td>Tech Corp Ltd</td>
+                            </tr>
+                            <tr>
+                                <th>Branch:</th>
+                                <td>Head Office</td>
+                            </tr>
+                            <tr>
+                                <th>Department:</th>
+                                <td>Marketing</td>
+                            </tr>
+                            <tr>
+                                <th>Section:</th>
+                                <td>Digital Marketing</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Example -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Add Comment</h5>
+            </div>
+            <div class="card-body">
+                <div style="margin-bottom: 1rem;">
+                    <label class="form-label">Comment Text <span style="color: #dc2626;">*</span></label>
+                    <textarea class="form-control" rows="4" placeholder="Enter your comment here...">This is a test comment to verify text readability in form fields.</textarea>
+                </div>
+                <button style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer;">
+                    <i class="bi bi-send"></i> Submit Comment
+                </button>
+            </div>
+        </div>
+
+        <!-- Badge Examples -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Badge Color Contrast Test</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-muted">Status Badges</h6>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                    <span class="badge bg-success">RESOLVED</span>
+                    <span class="badge bg-warning">PENDING</span>
+                    <span class="badge bg-danger">REJECTED</span>
+                    <span class="badge bg-info">IN REVIEW</span>
+                </div>
+
+                <h6 class="text-muted">Priority Badges</h6>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <span class="badge bg-danger">CRITICAL</span>
+                    <span class="badge bg-warning">HIGH</span>
+                    <span class="badge bg-info">NORMAL</span>
+                    <span class="badge bg-success">LOW</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

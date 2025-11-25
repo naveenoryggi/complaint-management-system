@@ -1,0 +1,56 @@
+<div class="breadcrumb-container">
+  <!-- Navigation Bar -->
+  <nav class="breadcrumb-nav" *ngIf="(breadcrumbs$ | async)?.length ?? 0 > 0">
+    <!-- Back Button -->
+    <button
+      *ngIf="showBackButton$ | async"
+      class="btn-nav btn-back"
+      (click)="goBack()"
+      title="Go back to previous page">
+      <i class="bi bi-arrow-left"></i>
+      <span>Back</span>
+    </button>
+
+    <!-- Home Button -->
+    <button
+      *ngIf="showHomeButton$ | async"
+      class="btn-nav btn-home"
+      (click)="goHome()"
+      title="Go to dashboard">
+      <i class="bi bi-house-door"></i>
+      <span class="home-text">Home</span>
+    </button>
+
+    <!-- Breadcrumb Trail -->
+    <ol class="breadcrumb-trail">
+      <li
+        *ngFor="let breadcrumb of breadcrumbs$ | async; let last = last"
+        class="breadcrumb-item"
+        [class.active]="last">
+
+        <!-- Separator -->
+        <i class="bi bi-chevron-right breadcrumb-separator" *ngIf="breadcrumb.url !== '/dashboard'"></i>
+
+        <!-- Clickable breadcrumb (not last) -->
+        <a
+          *ngIf="!last"
+          [routerLink]="breadcrumb.url"
+          class="breadcrumb-link">
+          <i *ngIf="breadcrumb.icon" class="bi breadcrumb-icon" [ngClass]="breadcrumb.icon"></i>
+          <span>{{ breadcrumb.label }}</span>
+        </a>
+
+        <!-- Current page (last breadcrumb) -->
+        <span *ngIf="last" class="breadcrumb-current">
+          <i *ngIf="breadcrumb.icon" class="bi breadcrumb-icon" [ngClass]="breadcrumb.icon"></i>
+          <span>{{ breadcrumb.label }}</span>
+        </span>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Page Title -->
+  <div class="page-header">
+    <h1 class="page-title">{{ pageTitle$ | async }}</h1>
+  </div>
+</div>

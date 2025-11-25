@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -ExecutionPolicy Bypass -File \"C:\\Users\\Navin Chandra\\Pictures\\Complaint management system\\kill-playwright-chrome.ps1\")",
+      "Bash(powershell -Command:*)",
+      "Bash(timeout /t 5 /nobreak)",
+      "Bash(dir:*)",
+      "Bash(dotnet new:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"Build-Installer-WithLogs.ps1\")",
+      "Bash(dotnet publish:*)",
+      "Bash(start \"C:\\Users\\Navin Chandra\\Pictures\\Complaint management system\\installer-output\")",
+      "Bash(git config:*)",
+      "Bash(cat:*)",
+      "Bash(git rm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

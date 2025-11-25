@@ -1,0 +1,37 @@
+﻿{
+    "Summary":  {
+                    "TotalTasks":  4,
+                    "Warnings":  [
+                                     "5 SLA policies failed to create",
+                                     "2 category SLA policies failed to create"
+                                 ],
+                    "Successful":  1,
+                    "Failed":  1
+                },
+    "TaskResults":  [
+                        {
+                            "TaskName":  "Task 1: Create Test User",
+                            "Status":  "FAILED",
+                            "Timestamp":  "2025-11-10 15:50:51",
+                            "Details":  "Error creating user: The remote server returned an error: (400) Bad Request."
+                        },
+                        {
+                            "TaskName":  "Task 2: Verify Handler User",
+                            "Status":  "SUCCESS",
+                            "Timestamp":  "2025-11-10 15:50:58",
+                            "Details":  "Handler user found and verified:\n- User ID: 94c91ae3-72ef-4b53-8057-08de0e0582b5\n- Email: naveen.chandra@oryggitech.com\n- Full Name: NAVEEN CHANDRA\n- Employee Code: 218819771403\n- Is Active: True\n- Role Assignments:\n\n- Has Handler Role: NO - WARNING!"
+                        },
+                        {
+                            "TaskName":  "Task 3: Create Priority-Based SLA Policies",
+                            "Status":  "WARNING",
+                            "Timestamp":  "2025-11-10 15:50:58",
+                            "Details":  "Priority-Based SLA Policies Created/Verified:\n\nSuccessfully Created/Existing (0):\n\n\nFailed (5):\n- Low Priority SLA: The remote server returned an error: (404) Not Found.\n- Normal Priority SLA: The remote server returned an error: (404) Not Found.\n- High Priority SLA: The remote server returned an error: (404) Not Found.\n- Critical Priority SLA: The remote server returned an error: (404) Not Found.\n- Urgent Priority SLA: The remote server returned an error: (404) Not Found."
+                        },
+                        {
+                            "TaskName":  "Task 4: Create Category-Based SLA Policies",
+                            "Status":  "WARNING",
+                            "Timestamp":  "2025-11-10 15:50:59",
+                            "Details":  "Category-Based SLA Policies Created/Verified:\n\nSuccessfully Created/Existing (0):\n\n\nFailed (2):\n- Technical Issues SLA: The remote server returned an error: (404) Not Found.\n- Billing Problems SLA: The remote server returned an error: (404) Not Found.\n\nNote: If categories don\u0027t exist with exact names, the script attempts partial matching."
+                        }
+                    ]
+}

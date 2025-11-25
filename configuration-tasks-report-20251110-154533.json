@@ -1,0 +1,36 @@
+﻿{
+    "Summary":  {
+                    "TotalTasks":  4,
+                    "Warnings":  [
+
+                                 ],
+                    "Successful":  0,
+                    "Failed":  4
+                },
+    "TaskResults":  [
+                        {
+                            "TaskName":  "Task 1: Create Test User",
+                            "Status":  "FAILED",
+                            "Timestamp":  "2025-11-10 15:45:28",
+                            "Details":  "Error creating user: The term \u0027Join-String\u0027 is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again."
+                        },
+                        {
+                            "TaskName":  "Task 2: Verify Handler User",
+                            "Status":  "FAILED",
+                            "Timestamp":  "2025-11-10 15:45:33",
+                            "Details":  "Error verifying handler user: The term \u0027Join-String\u0027 is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again."
+                        },
+                        {
+                            "TaskName":  "Task 3: Create Priority-Based SLA Policies",
+                            "Status":  "FAILED",
+                            "Timestamp":  "2025-11-10 15:45:33",
+                            "Details":  "Error creating priority-based SLA policies: Index operation failed; the array index evaluated to null."
+                        },
+                        {
+                            "TaskName":  "Task 4: Create Category-Based SLA Policies",
+                            "Status":  "FAILED",
+                            "Timestamp":  "2025-11-10 15:45:33",
+                            "Details":  "Error creating category-based SLA policies: Index operation failed; the array index evaluated to null."
+                        }
+                    ]
+}

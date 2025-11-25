@@ -1,0 +1,26 @@
+{
+  "company": {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "name": "Temp"
+  },
+  "imapHost": "outlook.office365.com",
+  "imapPort": 993,
+  "imapUseSsl": true,
+  "imapUsername": "marketing@oryggitech.com",
+  "imapPassword": "M%226099461497uf",
+  "imapFolder": "INBOX",
+  "smtpHost": "smtp.office365.com",
+  "smtpPort": 587,
+  "smtpUseSsl": true,
+  "smtpUsername": "marketing@oryggitech.com",
+  "smtpPassword": "M%226099461497uf",
+  "fromEmail": "marketing@oryggitech.com",
+  "fromName": "Oryggi Tech Support",
+  "pollingIntervalMinutes": 5,
+  "isEnabled": true,
+  "sendAutoAcknowledgement": true,
+  "enableThreading": true,
+  "threadTimeoutDays": 7,
+  "maxAttachmentSizeBytes": 10485760,
+  "allowedAttachmentExtensions": ".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.zip"
+}

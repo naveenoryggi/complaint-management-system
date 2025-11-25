@@ -1,0 +1,204 @@
+/* ========================================
+   Company Settings Component
+   100% Design Token Implementation
+   ======================================== */
+
+.company-settings-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-8);
+}
+
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.settings-card {
+  background: var(--card-background);
+  border-radius: var(--border-radius-xl);
+  border: 2px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-base);
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-header {
+    background: linear-gradient(to bottom, var(--border-color-light), var(--card-background));
+    padding: var(--spacing-6);
+    border-bottom: 2px solid var(--border-color);
+
+    h2 {
+      margin: 0 0 var(--spacing-2) 0;
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+
+      i {
+        color: var(--primary-color);
+      }
+    }
+
+    .card-description {
+      margin: 0;
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+    }
+  }
+
+  .card-body {
+    padding: var(--spacing-6);
+  }
+}
+
+/* Logo Section */
+.logo-section {
+  display: flex;
+  gap: var(--spacing-8);
+  align-items: flex-start;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.logo-preview {
+  flex-shrink: 0;
+
+  .logo-container {
+    width: 200px;
+    height: 200px;
+    border: 3px dashed var(--border-color-dark);
+    border-radius: var(--border-radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--border-color-light);
+    transition: var(--transition-base);
+
+    &:hover {
+      border-color: var(--primary-color);
+      background: var(--primary-color-light);
+    }
+
+    .logo-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: var(--spacing-4);
+    }
+
+    .logo-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-3);
+      color: var(--text-muted);
+
+      i {
+        font-size: var(--font-size-5xl);
+      }
+
+      span {
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
+      }
+    }
+  }
+}
+
+.logo-actions {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+
+  .file-input-wrapper {
+    position: relative;
+
+    .file-input {
+      position: absolute;
+      width: 0.1px;
+      height: 0.1px;
+      opacity: 0;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    label {
+      cursor: pointer;
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-2);
+    }
+  }
+}
+
+.selected-file-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--info-color-light);
+  border: 1px solid var(--info-color);
+  border-radius: var(--border-radius-lg);
+  font-size: var(--font-size-sm);
+  color: var(--info-color);
+
+  i {
+    color: var(--info-color);
+    font-size: var(--font-size-lg);
+  }
+
+  .file-size {
+    color: var(--info-color);
+    font-weight: var(--font-weight-semibold);
+    margin-left: auto;
+  }
+}
+
+/* Form Styles */
+.company-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-4);
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.help-text {
+  display: block;
+  margin-top: var(--spacing-1);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .company-settings-container {
+    padding: var(--spacing-4);
+  }
+
+  .logo-section {
+    gap: var(--spacing-4);
+  }
+}

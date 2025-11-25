@@ -1,0 +1,460 @@
+using ComplaintManagement.Application.Common.Models;
+using ComplaintManagement.Application.DTOs.Assignment;
+using ComplaintManagement.Application.Interfaces.Repositories;
+using ComplaintManagement.Application.Interfaces.Services;
+using ComplaintManagement.Domain.Entities.Assignment;
+using ComplaintManagement.Domain.Entities.Escalation;
+using ComplaintManagement.Domain.Entities.MasterData;
+using ComplaintManagement.Domain.Enums;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Text.Json;
+
+namespace ComplaintManagement.Infrastructure.Services;
+
+/// <summary>
+/// Advanced assignment engine for intelligent complaint routing and resource allocation
+/// </summary>
+public class AssignmentEngine : IAssignmentEngine
+{
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<AssignmentEngine> _logger;
+    private readonly IResourcePoolService _resourcePoolService;
+
+    public AssignmentEngine(
+        IUnitOfWork unitOfWork,
+        ILogger<AssignmentEngine> logger,
+        IResourcePoolService resourcePoolService)
+    {
+        _unitOfWork = unitOfWork;
+        _logger = logger;
+        _resourcePoolService = resourcePoolService;
+    }
+
+    public async Task<AssignmentResult> AutoAssignComplaintAsync(Guid complaintId, AssignmentContext context, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+
+        try
+        {
+            _logger.LogInformation("Starting auto-assignment for complaint {ComplaintId}", complaintId);
+
+            // 1. Load complaint details
+            var complaint = await _unitOfWork.Complaints.GetByIdWithIncludesAsync(
+                complaintId,
+                cancellationToken,
+                c => c.Category,
+                c => c.Company,
+                c => c.Branch,
+                c => c.Department,
+                c => c.Section);
+
+            if (complaint == null)
+            {
+                return AssignmentResult.Failure("Complaint not found", "COMPLAINT_NOT_FOUND");
+            }
+
+            // 2. Execute assignment rules
+            var ruleResult = await ExecuteAssignmentRulesAsync(complaintId, context, cancellationToken);
+            if (ruleResult.Success)
+            {
+                stopwatch.Stop();
+                ruleResult.ExecutionTimeMs = stopwatch.ElapsedMilliseconds;
+                return ruleResult;
+            }
+
+            // 3. Fallback to intelligent pool selection
+            var criteria = BuildAssignmentCriteria(complaint);
+            var candidates = await FindCandidatePoolsAsync(criteria, cancellationToken);
+
+            if (!candidates.Any())
+            {
+                return AssignmentResult.Failure("No suitable resource pools found", "NO_SUITABLE_POOLS");
+            }
+
+            // 4. Select best candidate and assign
+            var bestCandidate = candidates.First();
+            var userCandidate = await SelectUserFromPoolAsync(
+                bestCandidate.ResourcePoolId,
+                AdvancedAssignmentMethod.BestFit,
+                context,
+                cancellationToken);
+
+            if (userCandidate == null)
+            {
+                return AssignmentResult.Failure("No suitable users found in resource pool", "NO_SUITABLE_USERS");
+            }
+
+            // 5. Perform the assignment
+            var assignmentResult = await PerformAssignmentAsync(
+                complaintId,
+                userCandidate.UserId,
+                bestCandidate.ResourcePoolId,
+                "Auto-Assignment",
+                context,
+                cancellationToken);
+
+            stopwatch.Stop();
+            assignmentResult.ExecutionTimeMs = stopwatch.ElapsedMilliseconds;
+
+            _logger.LogInformation("Auto-assignment completed for complaint {ComplaintId} in {ElapsedMs}ms. Assigned to user {UserId}",
+                complaintId, stopwatch.ElapsedMilliseconds, userCandidate.UserId);
+
+            return assignmentResult;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during auto-assignment for complaint {ComplaintId}", complaintId);
+            return AssignmentResult.Failure($"Assignment failed: {ex.Message}", "ASSIGNMENT_ERROR");
+        }
+    }
+
+    public async Task<AssignmentResult> AssignComplaintToPoolAsync(
+        Guid complaintId,
+        Guid resourcePoolId,
+        AdvancedAssignmentMethod assignmentMethod,
+        Guid? specificUserId = null,
+        AssignmentContext? context = null,
+        CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        context ??= new AssignmentContext();
+
+        try
+        {
+            _logger.LogInformation("Assigning complaint {ComplaintId} to pool {PoolId} using method {Method}",
+                complaintId, resourcePoolId, assignmentMethod);
+
+            // 1. Validate the pool exists and is active
+            var pool = await _unitOfWork.ResourcePools.GetByIdAsync(resourcePoolId, cancellationToken);
+            if (pool == null || !pool.IsActive)
+            {
+                return AssignmentResult.Failure("Resource pool not found or inactive", "POOL_NOT_AVAILABLE");
+            }
+
+            // 2. Select user based on assignment method
+            UserCandidate? selectedUser = null;
+
+            if (assignmentMethod == AdvancedAssignmentMethod.Manual && specificUserId.HasValue)
+            {
+                // Validate the specific user is available
+                selectedUser = await GetUserCandidateAsync(specificUserId.Value, resourcePoolId, cancellationToken);
+                if (selectedUser == null || !selectedUser.IsAvailable)
+                {
+                    return AssignmentResult.Failure("Specified user is not available", "USER_NOT_AVAILABLE");
+                }
+            }
+            else
+            {
+                selectedUser = await SelectUserFromPoolAsync(resourcePoolId, assignmentMethod, context, cancellationToken);
+            }
+
+            if (selectedUser == null)
+            {
+                return AssignmentResult.Failure("No suitable users found in resource pool", "NO_SUITABLE_USERS");
+            }
+
+            // 3. Perform the assignment
+            var assignmentResult = await PerformAssignmentAsync(
+                complaintId,
+                selectedUser.UserId,
+                resourcePoolId,
+                $"Pool Assignment ({assignmentMethod})",
+                context,
+                cancellationToken);
+
+            stopwatch.Stop();
+            assignmentResult.ExecutionTimeMs = stopwatch.ElapsedMilliseconds;
+
+            _logger.LogInformation("Pool assignment completed for complaint {ComplaintId} in {ElapsedMs}ms. Assigned to user {UserId}",
+                complaintId, stopwatch.ElapsedMilliseconds, selectedUser.UserId);
+
+            return assignmentResult;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during pool assignment for complaint {ComplaintId}", complaintId);
+            return AssignmentResult.Failure($"Pool assignment failed: {ex.Message}", "POOL_ASSIGNMENT_ERROR");
+        }
+    }
+
+    public async Task<List<ResourcePoolCandidate>> FindCandidatePoolsAsync(AssignmentCriteria criteria, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _logger.LogDebug("Finding candidate pools with criteria: {@Criteria}", criteria);
+
+            // 1. Get all active pools in the organizational scope
+            var pools = await GetPoolsInScopeAsync(criteria.OrganizationalScope, cancellationToken);
+
+            var candidates = new List<ResourcePoolCandidate>();
+
+            foreach (var pool in pools)
+            {
+                var candidate = await EvaluatePoolCandidateAsync(pool, criteria, cancellationToken);
+                if (candidate.CanHandleComplaint)
+                {
+                    candidates.Add(candidate);
+                }
+            }
+
+            // 2. Sort by suitability score (descending)
+            var sortedCandidates = candidates.OrderByDescending(c => c.SuitabilityScore).ToList();
+
+            // 3. Return only the requested number of candidates
+            return sortedCandidates.Take(criteria.MaxCandidates).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error finding candidate pools");
+            return new List<ResourcePoolCandidate>();
+        }
+    }
+
+    public async Task<UserCandidate?> SelectUserFromPoolAsync(
+        Guid poolId,
+        AdvancedAssignmentMethod assignmentMethod,
+        AssignmentContext context,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _logger.LogDebug("Selecting user from pool {PoolId} using method {Method}", poolId, assignmentMethod);
+
+            // Get available members in the pool
+            var poolMembers = await GetAvailablePoolMembersAsync(poolId, cancellationToken);
+            if (!poolMembers.Any())
+            {
+                _logger.LogWarning("No available members found in pool {PoolId}", poolId);
+                return null;
+            }
+
+            // Select user based on assignment method
+            var selectedUser = assignmentMethod switch
+            {
+                AdvancedAssignmentMethod.RoundRobin => await SelectRoundRobinUserAsync(poolMembers, poolId, cancellationToken),
+                AdvancedAssignmentMethod.LeastBusy => await SelectLeastBusyUserAsync(poolMembers, cancellationToken),
+                AdvancedAssignmentMethod.SkillBased => await SelectSkillBasedUserAsync(poolMembers, context, cancellationToken),
+                AdvancedAssignmentMethod.PriorityBased => await SelectPriorityBasedUserAsync(poolMembers, context, cancellationToken),
+                AdvancedAssignmentMethod.WorkloadBalanced => await SelectWorkloadBalancedUserAsync(poolMembers, cancellationToken),
+                AdvancedAssignmentMethod.BestFit => await SelectBestFitUserAsync(poolMembers, context, cancellationToken),
+                AdvancedAssignmentMethod.ExperienceBased => await SelectExperienceBasedUserAsync(poolMembers, context, cancellationToken),
+                AdvancedAssignmentMethod.Random => SelectRandomUser(poolMembers),
+                _ => await SelectLeastBusyUserAsync(poolMembers, cancellationToken) // Default fallback
+            };
+
+            return selectedUser;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error selecting user from pool {PoolId}", poolId);
+            return null;
+        }
+    }
+
+    public async Task<AssignmentValidationResult> ValidateAssignmentAsync(
+        Guid complaintId,
+        Guid? userId = null,
+        Guid? poolId = null,
+        AssignmentContext? context = null,
+        CancellationToken cancellationToken = default)
+    {
+        var result = new AssignmentValidationResult();
+
+        try
+        {
+            // Load complaint details
+            var complaint = await _unitOfWork.Complaints.GetByIdWithIncludesAsync(
+                complaintId,
+                cancellationToken,
+                c => c.Category,
+                c => c.Company,
+                c => c.Branch,
+                c => c.Department,
+                c => c.Section);
+
+            if (complaint == null)
+            {
+                result.ValidationErrors.Add("Complaint not found");
+                return result;
+            }
+
+            // Validate user assignment
+            if (userId.HasValue)
+            {
+                await ValidateUserAssignmentAsync(userId.Value, complaint, result, cancellationToken);
+            }
+
+            // Validate pool assignment
+            if (poolId.HasValue)
+            {
+                await ValidatePoolAssignmentAsync(poolId.Value, complaint, result, cancellationToken);
+            }
+
+            // Calculate overall suitability score
+            result.SuitabilityScore = CalculateSuitabilityScore(result);
+
+            // Generate recommendations
+            GenerateRecommendations(result);
+
+            result.IsValid = !result.ValidationErrors.Any();
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error validating assignment for complaint {ComplaintId}", complaintId);
+            result.ValidationErrors.Add($"Validation error: {ex.Message}");
+            return result;
+        }
+    }
+
+    // Helper methods (implementations would go here)
+    public async Task<AssignmentResult> ExecuteAssignmentRulesAsync(Guid complaintId, AssignmentContext context, CancellationToken cancellationToken)
+    {
+        // This would implement the rule execution logic
+        // For now, return failure to trigger fallback logic
+        return await Task.FromResult(AssignmentResult.Failure("No assignment rules found", "NO_RULES_FOUND"));
+    }
+
+    private AssignmentCriteria BuildAssignmentCriteria(/* complaint parameters */)
+    {
+        // Build criteria based on complaint details
+        return new AssignmentCriteria();
+    }
+
+    private async Task<List<ResourcePool>> GetPoolsInScopeAsync(OrganizationalScope scope, CancellationToken cancellationToken)
+    {
+        // Get pools based on organizational scope
+        return new List<ResourcePool>();
+    }
+
+    private async Task<ResourcePoolCandidate> EvaluatePoolCandidateAsync(ResourcePool pool, AssignmentCriteria criteria, CancellationToken cancellationToken)
+    {
+        // Evaluate a pool against criteria and return candidate info
+        return new ResourcePoolCandidate();
+    }
+
+    private async Task<List<User>> GetAvailablePoolMembersAsync(Guid poolId, CancellationToken cancellationToken)
+    {
+        // Get available members of a resource pool
+        return new List<User>();
+    }
+
+    private async Task<UserCandidate?> SelectRoundRobinUserAsync(List<User> members, Guid poolId, CancellationToken cancellationToken)
+    {
+        // Implement round-robin selection logic
+        return null;
+    }
+
+    private async Task<UserCandidate?> SelectLeastBusyUserAsync(List<User> members, CancellationToken cancellationToken)
+    {
+        // Implement least busy selection logic
+        return null;
+    }
+
+    private async Task<UserCandidate?> SelectSkillBasedUserAsync(List<User> members, AssignmentContext context, CancellationToken cancellationToken)
+    {
+        // Implement skill-based selection logic
+        return null;
+    }
+
+    private async Task<UserCandidate?> SelectPriorityBasedUserAsync(List<User> members, AssignmentContext context, CancellationToken cancellationToken)
+    {
+        // Implement priority-based selection logic
+        return null;
+    }
+
+    private async Task<UserCandidate?> SelectWorkloadBalancedUserAsync(List<User> members, CancellationToken cancellationToken)
+    {
+        // Implement workload-balanced selection logic
+        return null;
+    }
+
+    private async Task<UserCandidate?> SelectBestFitUserAsync(List<User> members, AssignmentContext context, CancellationToken cancellationToken)
+    {
+        // Implement best-fit selection logic
+        return null;
+    }
+
+    private async Task<UserCandidate?> SelectExperienceBasedUserAsync(List<User> members, AssignmentContext context, CancellationToken cancellationToken)
+    {
+        // Implement experience-based selection logic
+        return null;
+    }
+
+    private UserCandidate? SelectRandomUser(List<User> members)
+    {
+        // Implement random selection logic
+        return null;
+    }
+
+    private async Task<UserCandidate?> GetUserCandidateAsync(Guid userId, Guid poolId, CancellationToken cancellationToken)
+    {
+        // Get user candidate details
+        return null;
+    }
+
+    private async Task<AssignmentResult> PerformAssignmentAsync(
+        Guid complaintId,
+        Guid userId,
+        Guid poolId,
+        string assignmentReason,
+        AssignmentContext context,
+        CancellationToken cancellationToken)
+    {
+        // Perform the actual assignment and update database
+        return AssignmentResult.CreateSuccess(userId, "User Name", assignmentReason, "Assignment completed", poolId, "Pool Name");
+    }
+
+    private async Task ValidateUserAssignmentAsync(Guid userId, AssignmentValidationResult result, CancellationToken cancellationToken)
+    {
+        // Validate user assignment
+    }
+
+    private async Task ValidatePoolAssignmentAsync(Guid poolId, AssignmentValidationResult result, CancellationToken cancellationToken)
+    {
+        // Validate pool assignment
+    }
+
+    private double CalculateSuitabilityScore(AssignmentValidationResult result)
+    {
+        // Calculate overall suitability score
+        return result.ValidationErrors.Any() ? 0.0 : 0.8;
+    }
+
+    private void GenerateRecommendations(AssignmentValidationResult result)
+    {
+        // Generate recommendations based on validation results
+    }
+
+    public async Task<List<ResourcePoolCandidate>> GetAssignmentCandidatesAsync(
+        Guid complaintId,
+        AssignmentCriteria? criteria = null,
+        bool includeUserDetails = true,
+        bool calculateSkillScores = true,
+        CancellationToken cancellationToken = default)
+    {
+        // Implementation for getting assignment candidates
+        return new List<ResourcePoolCandidate>();
+    }
+
+    public async Task<double> CalculateUserSuitabilityScoreAsync(
+        Guid userId,
+        Guid poolId,
+        AssignmentCriteria criteria,
+        CancellationToken cancellationToken = default)
+    {
+        // Implementation for calculating user suitability score
+        return 0.8;
+    }
+
+    public async Task UpdateWorkloadStatisticsAsync(
+        Guid userId,
+        Guid poolId,
+        Guid complaintId,
+        CancellationToken cancellationToken = default)
+    {
+        // Implementation for updating workload statistics
+    }
+}

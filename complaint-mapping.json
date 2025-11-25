@@ -1,0 +1,11 @@
+{
+  "complainant": "fd0073b8-fc95-4a49-867c-6ffb38b7d177",
+  "handler": "94c91ae3-72ef-4b53-8057-08de0e0582b5",
+  "categories": {
+    "attendance": "a4e6d993-ea9b-442f-a803-e61356c56760",
+    "billing": "b26d2ff8-df47-40d7-e648-08de11eea5a9",
+    "technical": "5d0bc4da-f333-42bd-e649-08de11eea5a9",
+    "service": "84b22239-787e-4599-e647-08de11eea5a9",
+    "hrms": "7ec22a28-f757-4133-8152-22400fc4627a"
+  }
+}

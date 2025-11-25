@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Widget Persistence Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+        .storage-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        pre {
+            background: #f1f1f1;
+            padding: 10px;
+            overflow-x: auto;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard Widget Persistence Test</h1>
+        <p>This page tests if local storage is working correctly for dashboard widget preferences.</p>
+
+        <div class="test-section">
+            <h3>1. Test Local Storage Access</h3>
+            <button onclick="testLocalStorageAccess()">Test Local Storage</button>
+            <div id="localStorageTest"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Test Widget State Save/Load</h3>
+            <button onclick="testWidgetState()">Test Widget State</button>
+            <div id="widgetStateTest"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Simulate Dashboard Preferences</h3>
+            <button onclick="simulateDashboardPreferences()">Save Sample Preferences</button>
+            <button onclick="loadSimulatedPreferences()">Load Sample Preferences</button>
+            <button onclick="clearSimulatedPreferences()">Clear Preferences</button>
+            <div id="preferencesTest"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Current Local Storage Contents</h3>
+            <button onclick="showLocalStorageContents()">Show All Storage</button>
+            <button onclick="clearAllStorage()">Clear All Storage</button>
+            <div id="storageContents"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. Application Connection Test</h3>
+            <button onclick="testAPIConnection()">Test API Connection</button>
+            <div id="apiTest"></div>
+        </div>
+    </div>
+
+    <script>
+        // Test 1: Basic local storage access
+        function testLocalStorageAccess() {
+            const resultDiv = document.getElementById('localStorageTest');
+            try {
+                localStorage.setItem('test-key', 'test-value');
+                const value = localStorage.getItem('test-key');
+                localStorage.removeItem('test-key');
+
+                if (value === 'test-value') {
+                    resultDiv.innerHTML = '<span class="success">✅ Local storage is working correctly</span>';
+                } else {
+                    resultDiv.innerHTML = '<span class="error">❌ Local storage value mismatch</span>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Local storage error: ${error.message}</span>`;
+            }
+        }
+
+        // Test 2: Widget state save/load
+        function testWidgetState() {
+            const resultDiv = document.getElementById('widgetStateTest');
+            try {
+                const widgetState = {
+                    preferences: {
+                        layout: 'grid-4',
+                        dateRangeDays: 7,
+                        autoRefreshInterval: 300,
+                        statusWidgets: ['1', '2', '3'],
+                        customWidgets: []
+                    },
+                    timestamp: new Date().toISOString(),
+                    userId: 'test-user-id'
+                };
+
+                // Save
+                localStorage.setItem('dashboard_widget_state_test-user-id', JSON.stringify(widgetState));
+
+                // Load
+                const loadedState = JSON.parse(localStorage.getItem('dashboard_widget_state_test-user-id'));
+
+                if (JSON.stringify(widgetState) === JSON.stringify(loadedState)) {
+                    resultDiv.innerHTML = '<span class="success">✅ Widget state save/load working</span>';
+                } else {
+                    resultDiv.innerHTML = '<span class="error">❌ Widget state data mismatch</span>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Widget state error: ${error.message}</span>`;
+            }
+        }
+
+        // Test 3: Simulate dashboard preferences
+        function simulateDashboardPreferences() {
+            const resultDiv = document.getElementById('preferencesTest');
+            try {
+                const mockPreferences = {
+                    layout: 'grid-3',
+                    dateRangeDays: 14,
+                    autoRefreshInterval: 600,
+                    statusWidgets: ['4', '5', '6'],
+                    customWidgets: [
+                        { id: 'widget1', type: 'chart', title: 'Custom Chart' },
+                        { id: 'widget2', type: 'table', title: 'Custom Table' }
+                    ]
+                };
+
+                const widgetState = {
+                    preferences: mockPreferences,
+                    timestamp: new Date().toISOString(),
+                    userId: 'demo-user-id'
+                };
+
+                localStorage.setItem('dashboard_widget_state_demo-user-id', JSON.stringify(widgetState));
+
+                resultDiv.innerHTML = `<span class="success">✅ Sample preferences saved</span><br>
+                    <pre>${JSON.stringify(mockPreferences, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Save error: ${error.message}</span>`;
+            }
+        }
+
+        function loadSimulatedPreferences() {
+            const resultDiv = document.getElementById('preferencesTest');
+            try {
+                const storedState = localStorage.getItem('dashboard_widget_state_demo-user-id');
+
+                if (storedState) {
+                    const widgetState = JSON.parse(storedState);
+                    resultDiv.innerHTML = `<span class="success">✅ Preferences loaded</span><br>
+                        <pre>${JSON.stringify(widgetState.preferences, null, 2)}</pre>`;
+                } else {
+                    resultDiv.innerHTML = '<span class="info">ℹ️ No saved preferences found</span>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Load error: ${error.message}</span>`;
+            }
+        }
+
+        function clearSimulatedPreferences() {
+            const resultDiv = document.getElementById('preferencesTest');
+            try {
+                localStorage.removeItem('dashboard_widget_state_demo-user-id');
+                resultDiv.innerHTML = '<span class="info">ℹ️ Demo preferences cleared</span>';
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Clear error: ${error.message}</span>`;
+            }
+        }
+
+        // Test 4: Show all local storage contents
+        function showLocalStorageContents() {
+            const resultDiv = document.getElementById('storageContents');
+            try {
+                let html = '<h4>Local Storage Contents:</h4>';
+                const dashboardKeys = [];
+
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('dashboard_widget_state_')) {
+                        dashboardKeys.push(key);
+                    }
+                }
+
+                if (dashboardKeys.length === 0) {
+                    html += '<p class="info">No dashboard widget states found in local storage</p>';
+                } else {
+                    dashboardKeys.forEach(key => {
+                        const value = localStorage.getItem(key);
+                        html += `<div class="storage-item">`;
+                        html += `<strong>Key:</strong> ${key}<br>`;
+                        html += `<strong>Value:</strong><br>`;
+                        html += `<pre>${JSON.stringify(JSON.parse(value), null, 2)}</pre>`;
+                        html += `</div>`;
+                    });
+                }
+
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Error reading storage: ${error.message}</span>`;
+            }
+        }
+
+        function clearAllStorage() {
+            const resultDiv = document.getElementById('storageContents');
+            try {
+                let clearedCount = 0;
+                for (let i = localStorage.length - 1; i >= 0; i--) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('dashboard_widget_state_')) {
+                        localStorage.removeItem(key);
+                        clearedCount++;
+                    }
+                }
+                resultDiv.innerHTML = `<span class="success">✅ Cleared ${clearedCount} dashboard storage items</span>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Clear error: ${error.message}</span>`;
+            }
+        }
+
+        // Test 5: Test API connection
+        function testAPIConnection() {
+            const resultDiv = document.getElementById('apiTest');
+
+            resultDiv.innerHTML = '<span class="info">Testing API connection...</span>';
+
+            // Test if backend is reachable
+            fetch('http://localhost:5059/api/dashboard/preferences', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    resultDiv.innerHTML = '<span class="success">✅ API endpoint exists (401 Unauthorized - expected)</span>';
+                } else if (response.status === 200) {
+                    resultDiv.innerHTML = '<span class="success">✅ API endpoint accessible</span>';
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Unexpected API response: ${response.status}</span>`;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<span class="error">❌ API connection failed: ${error.message}</span>`;
+            });
+        }
+
+        // Auto-run tests on page load
+        window.onload = function() {
+            console.log('Dashboard Widget Persistence Test Page Loaded');
+            testLocalStorageAccess();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+{
+  "testResults": [
+    {
+      "role": "Complainant",
+      "email": "nav_nainital@yahoo.com",
+      "tests": [
+        {
+          "name": "Login and Dashboard Load",
+          "status": "PASS",
+          "message": "Successfully logged in and dashboard loaded"
+        },
+        {
+          "name": "Statistics Count Verification",
+          "status": "FAIL",
+          "message": "Expected 5 complaints, but found 0"
+        },
+        {
+          "name": "Complaint List Verification",
+          "status": "FAIL",
+          "message": "Expected 5 complaints in list, but found 0"
+        }
+      ],
+      "screenshots": [
+        ".playwright-mcp/dashboard-e2e/complainant-01-login-page.png",
+        ".playwright-mcp/dashboard-e2e/complainant-02-login-form-filled.png",
+        ".playwright-mcp/dashboard-e2e/complainant-03-dashboard-loaded.png",
+        ".playwright-mcp/dashboard-e2e/complainant-04-dashboard-with-statistics.png"
+      ],
+      "dashboardStats": {
+        "total": 0
+      },
+      "complaintListCount": 0,
+      "roleIndicator": null
+    },
+    {
+      "role": "Admin",
+      "email": "admin@complaintmanagement.com",
+      "tests": [
+        {
+          "name": "Login and Dashboard Load",
+          "status": "PASS",
+          "message": "Successfully logged in and dashboard loaded"
+        },
+        {
+          "name": "Statistics Count Verification",
+          "status": "FAIL",
+          "message": "Expected 5 complaints, but found 0"
+        },
+        {
+          "name": "Complaint List Verification",
+          "status": "FAIL",
+          "message": "Expected 5 complaints in list, but found 24"
+        }
+      ],
+      "screenshots": [
+        ".playwright-mcp/dashboard-e2e/admin-01-login-page.png",
+        ".playwright-mcp/dashboard-e2e/admin-02-login-form-filled.png",
+        ".playwright-mcp/dashboard-e2e/admin-03-dashboard-loaded.png",
+        ".playwright-mcp/dashboard-e2e/admin-04-dashboard-with-statistics.png"
+      ],
+      "dashboardStats": {
+        "total": 0
+      },
+      "complaintListCount": 24,
+      "roleIndicator": null
+    },
+    {
+      "role": "Handler",
+      "email": "naveen.chandra@oryggitech.com",
+      "tests": [
+        {
+          "name": "Login and Dashboard Load",
+          "status": "PASS",
+          "message": "Successfully logged in and dashboard loaded"
+        },
+        {
+          "name": "Statistics Count Verification",
+          "status": "PASS",
+          "message": "Expected 0 complaints, found 0"
+        },
+        {
+          "name": "Complaint List Verification",
+          "status": "PASS",
+          "message": "Complaint list shows 0 items as expected"
+        }
+      ],
+      "screenshots": [
+        ".playwright-mcp/dashboard-e2e/handler-01-login-page.png",
+        ".playwright-mcp/dashboard-e2e/handler-02-login-form-filled.png",
+        ".playwright-mcp/dashboard-e2e/handler-03-dashboard-loaded.png",
+        ".playwright-mcp/dashboard-e2e/handler-04-dashboard-with-statistics.png"
+      ],
+      "dashboardStats": {
+        "total": 0
+      },
+      "complaintListCount": 0,
+      "roleIndicator": null
+    }
+  ],
+  "apiResults": {},
+  "timestamp": "2025-11-11T05:26:10.517Z"
+}

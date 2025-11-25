@@ -1,0 +1,69 @@
+{
+  "complainant": {
+    "email": "nav_nainital@yahoo.com",
+    "password": "Nav@12345",
+    "userId": "fd0073b8-fc95-4a49-867c-6ffb38b7d177",
+    "employeeCode": "NAV001",
+    "name": "Nav Nainital",
+    "role": "Complainant",
+    "roleCode": "COMPLAINANT",
+    "roleId": "1eb8ac1a-254a-4b6c-9cf3-863b22e87ea1",
+    "companyId": "fe28cd85-4226-4daa-9e45-66a3d51877fa",
+    "companyName": "Updated Company Name",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImZkMDA3M2I4LWZjOTUtNGE0OS04NjdjLTZmZmIzOGI3ZDE3NyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Im5hdl9uYWluaXRhbEB5YWhvby5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiTmF2IE5haW5pdGFsIiwiRW1wbG95ZWVDb2RlIjoiTkFWMDAxIiwiQ29tcGFueUlkIjoiZmUyOGNkODUtNDIyNi00ZGFhLTllNDUtNjZhM2Q1MTg3N2ZhIiwiUGVybWlzc2lvbiI6WyJBZGRDb21tZW50IiwiVmlld0NvbW1lbnRzIiwiQ3JlYXRlQ29tcGxhaW50IiwiQWRkQXR0YWNobWVudCIsIlZpZXdBdHRhY2htZW50cyIsIlZpZXdDb21wbGFpbnRzIl0sImV4cCI6MTc2Mjg3MDE1NCwiaXNzIjoiQ29tcGxhaW50TWFuYWdlbWVudFN5c3RlbSIsImF1ZCI6IkNvbXBsYWludE1hbmFnZW1lbnRBUEkifQ.yARZOplvvaqxijBIqp0VyHjeF5dXqV8fC3OLCXRan_o",
+    "refreshToken": "yzP5XhqaZrV7LkxKSDSKRJOTmOgAL/14/PR4s7QvOwE=",
+    "expiresAt": "2025-11-11T14:09:14.576024Z",
+    "permissions": [
+      "AddComment",
+      "ViewComments",
+      "CreateComplaint",
+      "AddAttachment",
+      "ViewAttachments",
+      "ViewComplaints"
+    ]
+  },
+  "handler": {
+    "email": "naveen.chandra@oryggitech.com",
+    "password": "Naveen@12345",
+    "userId": "94c91ae3-72ef-4b53-8057-08de0e0582b5",
+    "employeeCode": "218819771403",
+    "name": "NAVEEN CHANDRA",
+    "jobTitle": "CONTRACT WORKERS",
+    "phone": "09555745560",
+    "role": "Level 1 Handler",
+    "roleCode": "LEVEL1_HANDLER",
+    "roleId": "51b6a8eb-aba9-4d7d-97d4-07068172a980",
+    "escalationLevel": 1,
+    "companyId": "bab3dd8f-ffdb-4a03-4076-08de0d58631f",
+    "companyName": "Mangalore Refinery and Petrochemicals Limited",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6Ijk0YzkxYWUzLTcyZWYtNGI1My04MDU3LTA4ZGUwZTA1ODJiNSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Im5hdmVlbi5jaGFuZHJhQG9yeWdnaXRlY2guY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6Ik5BVkVFTiBDSEFORFJBIiwiRW1wbG95ZWVDb2RlIjoiMjE4ODE5NzcxNDAzIiwiQ29tcGFueUlkIjoiYmFiM2RkOGYtZmZkYi00YTAzLTQwNzYtMDhkZTBkNTg2MzFmIiwiUGVybWlzc2lvbiI6WyJWaWV3Q29tcGxhaW50cyIsIkFzc2lnbkNvbXBsYWludCIsIlZpZXdDb21tZW50cyIsIkVkaXRDb21wbGFpbnQiLCJFc2NhbGF0ZUNvbXBsYWludCIsIlJlb3BlbkNvbXBsYWludCIsIkFkZEF0dGFjaG1lbnQiLCJDbG9zZUNvbXBsYWludCIsIkFkZENvbW1lbnQiLCJWaWV3QXR0YWNobWVudHMiXSwiZXhwIjoxNzYyODcwMTU1LCJpc3MiOiJDb21wbGFpbnRNYW5hZ2VtZW50U3lzdGVtIiwiYXVkIjoiQ29tcGxhaW50TWFuYWdlbWVudEFQSSJ9.CS8IClfzhNpdD9ad2_BPy2EavnJbfbUBepFljaKBU-Q",
+    "refreshToken": "NzYtv2D67772T4/KJp5rz8v+VnKiiBk0UuPstsrZKcU=",
+    "expiresAt": "2025-11-11T14:09:15.0425941Z",
+    "permissions": [
+      "ViewComplaints",
+      "AssignComplaint",
+      "ViewComments",
+      "EditComplaint",
+      "EscalateComplaint",
+      "ReopenComplaint",
+      "AddAttachment",
+      "CloseComplaint",
+      "AddComment",
+      "ViewAttachments"
+    ]
+  },
+  "testInfo": {
+    "testedAt": "2025-11-10T14:09:15Z",
+    "baseUrl": "http://localhost:5000/api",
+    "loginEndpoint": "/auth/login",
+    "tokenLifetime": "24 hours",
+    "refreshTokenLifetime": "30 days",
+    "notes": [
+      "Both users successfully authenticated",
+      "JWT tokens contain complete user claims",
+      "Permissions correctly assigned based on roles",
+      "Refresh tokens generated for extended sessions",
+      "Handler has EscalateComplaint permission (required for escalation workflow)"
+    ]
+  }
+}

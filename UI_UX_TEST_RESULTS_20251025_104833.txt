@@ -1,0 +1,226 @@
+[2025-10-25 10:48:33] [INFO] =============================================
+[2025-10-25 10:48:33] [INFO] COMPREHENSIVE UI/UX TEST SUITE STARTED
+[2025-10-25 10:48:33] [INFO] =============================================
+[2025-10-25 10:48:33] [INFO] 
+[2025-10-25 10:48:33] [INFO] Authenticating to get access token...
+[2025-10-25 10:48:33] [INFO] Authentication successful - Token obtained
+[2025-10-25 10:48:33] [INFO] 
+[2025-10-25 10:48:33] [INFO] =============================================
+[2025-10-25 10:48:33] [INFO] MODULE 1: DASHBOARD TESTING
+[2025-10-25 10:48:33] [INFO] =============================================
+[2025-10-25 10:48:33] [INFO] [Dashboard] Testing Dashboard Main Page page accessibility
+[2025-10-25 10:48:33] [PASS] PASS: Dashboard Main Page accessible
+[2025-10-25 10:48:33] [INFO] [Dashboard] Testing Dashboard Widgets Load page accessibility
+[2025-10-25 10:48:33] [PASS] PASS: Dashboard Widgets Load accessible
+[2025-10-25 10:48:33] [INFO] [Dashboard] Get Dashboard Statistics
+[2025-10-25 10:48:34] [PASS] PASS: Get Dashboard Statistics
+[2025-10-25 10:48:34] [INFO] [Dashboard] Get Recent Complaints
+[2025-10-25 10:48:34] [FAIL] FAIL: Get Recent Complaints - The remote server returned an error: (404) Not Found.
+[2025-10-25 10:48:34] [INFO] [Dashboard] Get Pending Assignments
+[2025-10-25 10:48:34] [FAIL] FAIL: Get Pending Assignments - The remote server returned an error: (404) Not Found.
+[2025-10-25 10:48:34] [INFO] 
+[2025-10-25 10:48:34] [INFO] =============================================
+[2025-10-25 10:48:34] [INFO] MODULE 2: COMPLAINT MANAGEMENT TESTING
+[2025-10-25 10:48:34] [INFO] =============================================
+[2025-10-25 10:48:34] [INFO] [Complaints] Testing Complaint List Page page accessibility
+[2025-10-25 10:48:34] [PASS] PASS: Complaint List Page accessible
+[2025-10-25 10:48:34] [INFO] [Complaints] Testing Create Complaint Page page accessibility
+[2025-10-25 10:48:34] [PASS] PASS: Create Complaint Page accessible
+[2025-10-25 10:48:34] [INFO] [Complaints] Get All Complaints
+[2025-10-25 10:48:35] [PASS] PASS: Get All Complaints
+[2025-10-25 10:48:35] [INFO] [Complaints] Get Complaints (Page 1, Size 10)
+[2025-10-25 10:48:36] [PASS] PASS: Get Complaints (Page 1, Size 10)
+[2025-10-25 10:48:36] [INFO] [Complaints] Get Submitted Complaints
+[2025-10-25 10:48:36] [PASS] PASS: Get Submitted Complaints
+[2025-10-25 10:48:36] [INFO] [Complaints] Create Complaint (All Fields)
+[2025-10-25 10:48:43] [PASS] PASS: Create Complaint (All Fields)
+[2025-10-25 10:48:43] [INFO] [Complaints] Get Complaint by ID
+[2025-10-25 10:48:43] [PASS] PASS: Get Complaint by ID
+[2025-10-25 10:48:43] [INFO] [Complaints] Update Complaint
+[2025-10-25 10:48:43] [FAIL] FAIL: Update Complaint - The remote server returned an error: (500) Internal Server Error.
+[2025-10-25 10:48:43] [INFO] [Complaints] Add Comment to Complaint
+[2025-10-25 10:48:43] [PASS] PASS: Add Comment to Complaint
+[2025-10-25 10:48:43] [INFO] [Complaints] Assign Complaint
+[2025-10-25 10:48:43] [FAIL] FAIL: Assign Complaint - The remote server returned an error: (404) Not Found.
+[2025-10-25 10:48:43] [INFO] [Complaints] Close Complaint
+[2025-10-25 10:48:43] [FAIL] FAIL: Close Complaint - The remote server returned an error: (400) Bad Request.
+[2025-10-25 10:48:43] [INFO] [Complaints] Reopen Complaint
+[2025-10-25 10:48:43] [FAIL] FAIL: Reopen Complaint - The remote server returned an error: (400) Bad Request.
+[2025-10-25 10:48:43] [INFO] [Complaints] Get Complaint Comments
+[2025-10-25 10:48:44] [PASS] PASS: Get Complaint Comments
+[2025-10-25 10:48:44] [INFO] [Complaints] Get Complaint History
+[2025-10-25 10:48:44] [FAIL] FAIL: Get Complaint History - The remote server returned an error: (404) Not Found.
+[2025-10-25 10:48:44] [INFO] [Complaints] Validation: Empty Title/Description
+[2025-10-25 10:48:44] [FAIL] FAIL: Validation: Empty Title/Description - The remote server returned an error: (500) Internal Server Error.
+[2025-10-25 10:48:44] [INFO] [Complaints] Validation: Get Non-Existent Complaint
+[2025-10-25 10:48:44] [PASS] PASS: Validation: Get Non-Existent Complaint (404 as expected)
+[2025-10-25 10:48:44] [INFO] 
+[2025-10-25 10:48:44] [INFO] =============================================
+[2025-10-25 10:48:44] [INFO] MODULE 3: CATEGORY MANAGEMENT TESTING
+[2025-10-25 10:48:44] [INFO] =============================================
+[2025-10-25 10:48:44] [INFO] [Categories] Testing Category Management Page page accessibility
+[2025-10-25 10:48:44] [PASS] PASS: Category Management Page accessible
+[2025-10-25 10:48:44] [INFO] [Categories] Get All Categories
+[2025-10-25 10:48:44] [PASS] PASS: Get All Categories
+[2025-10-25 10:48:44] [INFO] [Categories] Get Active Categories
+[2025-10-25 10:48:44] [PASS] PASS: Get Active Categories
+[2025-10-25 10:48:44] [INFO] [Categories] Create Category (All Fields)
+[2025-10-25 10:48:44] [PASS] PASS: Create Category (All Fields)
+[2025-10-25 10:48:44] [INFO] [Categories] Get Category by ID
+[2025-10-25 10:48:44] [FAIL] FAIL: Get Category by ID - The remote server returned an error: (405) Method Not Allowed.
+[2025-10-25 10:48:44] [INFO] [Categories] Update Category
+[2025-10-25 10:48:44] [FAIL] FAIL: Update Category - The remote server returned an error: (400) Bad Request.
+[2025-10-25 10:48:44] [INFO] [Categories] Deactivate Category
+[2025-10-25 10:48:44] [FAIL] FAIL: Deactivate Category - The remote server returned an error: (400) Bad Request.
+[2025-10-25 10:48:44] [INFO] [Categories] Delete Category
+[2025-10-25 10:48:44] [PASS] PASS: Delete Category
+[2025-10-25 10:48:44] [INFO] [Categories] Validation: Empty Name/Code
+[2025-10-25 10:48:44] [PASS] PASS: Validation: Empty Name/Code (400 validation as expected)
+[2025-10-25 10:48:44] [INFO] [Categories] Validation: Duplicate Code
+[2025-10-25 10:48:44] [PASS] PASS: Validation: Duplicate Code
+[2025-10-25 10:48:44] [INFO] 
+[2025-10-25 10:48:44] [INFO] =============================================
+[2025-10-25 10:48:44] [INFO] MODULE 4: USER MANAGEMENT TESTING
+[2025-10-25 10:48:44] [INFO] =============================================
+[2025-10-25 10:48:44] [INFO] [Users] Testing User Management Page page accessibility
+[2025-10-25 10:48:44] [PASS] PASS: User Management Page accessible
+[2025-10-25 10:48:44] [INFO] [Users] Testing User Profile Page page accessibility
+[2025-10-25 10:48:45] [PASS] PASS: User Profile Page accessible
+[2025-10-25 10:48:45] [INFO] [Users] Get All Users
+[2025-10-25 10:48:50] [PASS] PASS: Get All Users
+[2025-10-25 10:48:50] [INFO] [Users] Search Users by Name
+[2025-10-25 10:48:51] [PASS] PASS: Search Users by Name
+[2025-10-25 10:48:51] [INFO] [Users] Get User by ID
+[2025-10-25 10:48:51] [PASS] PASS: Get User by ID
+[2025-10-25 10:48:51] [INFO] [Users] Get Current User Profile
+[2025-10-25 10:48:51] [FAIL] FAIL: Get Current User Profile - The remote server returned an error: (400) Bad Request.
+[2025-10-25 10:48:51] [INFO] [Users] Create User (All Fields)
+[2025-10-25 10:48:51] [PASS] PASS: Create User (All Fields)
+[2025-10-25 10:48:51] [INFO] [Users] Update User
+[2025-10-25 10:48:51] [PASS] PASS: Update User
+[2025-10-25 10:48:51] [INFO] [Users] Deactivate User
+[2025-10-25 10:48:51] [PASS] PASS: Deactivate User
+[2025-10-25 10:48:51] [INFO] [Users] Delete User
+[2025-10-25 10:48:51] [PASS] PASS: Delete User
+[2025-10-25 10:48:51] [INFO] [Users] Validation: Invalid Email Format
+[2025-10-25 10:48:51] [PASS] PASS: Validation: Invalid Email Format
+[2025-10-25 10:48:51] [INFO] [Users] Validation: Duplicate Employee Code
+[2025-10-25 10:48:51] [PASS] PASS: Validation: Duplicate Employee Code (400 validation as expected)
+[2025-10-25 10:48:51] [INFO] 
+[2025-10-25 10:48:51] [INFO] =============================================
+[2025-10-25 10:48:51] [INFO] MODULE 5: ROLE MANAGEMENT TESTING
+[2025-10-25 10:48:51] [INFO] =============================================
+[2025-10-25 10:48:51] [INFO] [Roles] Testing Role Management Page page accessibility
+[2025-10-25 10:48:51] [PASS] PASS: Role Management Page accessible
+[2025-10-25 10:48:51] [INFO] [Roles] Get All Roles
+[2025-10-25 10:48:51] [FAIL] FAIL: Get All Roles - The remote server returned an error: (404) Not Found.
+[2025-10-25 10:48:51] [INFO] [Roles] Get Available Permissions
+[2025-10-25 10:48:51] [FAIL] FAIL: Get Available Permissions - The remote server returned an error: (404) Not Found.
+[2025-10-25 10:48:52] [INFO] 
+[2025-10-25 10:48:52] [INFO] =============================================
+[2025-10-25 10:48:52] [INFO] MODULE 6: STATUS MASTER TESTING
+[2025-10-25 10:48:52] [INFO] =============================================
+[2025-10-25 10:48:52] [INFO] [Status Master] Testing Status Master Page page accessibility
+[2025-10-25 10:48:52] [PASS] PASS: Status Master Page accessible
+[2025-10-25 10:48:52] [INFO] [Status Master] Get All Status Masters
+[2025-10-25 10:48:52] [PASS] PASS: Get All Status Masters
+[2025-10-25 10:48:52] [INFO] [Status Master] Create Status Master (All Fields)
+[2025-10-25 10:48:52] [PASS] PASS: Create Status Master (All Fields)
+[2025-10-25 10:48:52] [INFO] [Status Master] Update Status Master
+[2025-10-25 10:48:52] [PASS] PASS: Update Status Master
+[2025-10-25 10:48:52] [INFO] [Status Master] Delete Status Master
+[2025-10-25 10:48:52] [PASS] PASS: Delete Status Master
+[2025-10-25 10:48:52] [INFO] [Status Master] Validation: Cannot Delete System Status
+[2025-10-25 10:48:52] [FAIL] FAIL: Expected 400 but got 200
+[2025-10-25 10:48:52] [INFO] [Status Master] Validation: Duplicate Status Code
+[2025-10-25 10:48:52] [FAIL] FAIL: Expected 400 but got 200
+[2025-10-25 10:48:52] [INFO] 
+[2025-10-25 10:48:52] [INFO] =============================================
+[2025-10-25 10:48:52] [INFO] MODULE 7: PRIORITY MASTER TESTING
+[2025-10-25 10:48:52] [INFO] =============================================
+[2025-10-25 10:48:52] [INFO] [Priority Master] Testing Priority Master Page page accessibility
+[2025-10-25 10:48:52] [PASS] PASS: Priority Master Page accessible
+[2025-10-25 10:48:52] [INFO] [Priority Master] Get All Priority Masters
+[2025-10-25 10:48:52] [PASS] PASS: Get All Priority Masters
+[2025-10-25 10:48:52] [INFO] [Priority Master] Create Priority Master (All Fields)
+[2025-10-25 10:48:52] [PASS] PASS: Create Priority Master (All Fields)
+[2025-10-25 10:48:52] [INFO] [Priority Master] Update Priority Master
+[2025-10-25 10:48:52] [PASS] PASS: Update Priority Master
+[2025-10-25 10:48:52] [INFO] [Priority Master] Delete Priority Master
+[2025-10-25 10:48:52] [PASS] PASS: Delete Priority Master
+[2025-10-25 10:48:52] [INFO] [Priority Master] Validation: Invalid SLA Hours
+[2025-10-25 10:48:52] [FAIL] FAIL: Expected 400 but got 200
+[2025-10-25 10:48:52] [INFO] 
+[2025-10-25 10:48:52] [INFO] =============================================
+[2025-10-25 10:48:52] [INFO] MODULE 8: BRANCH MANAGEMENT TESTING
+[2025-10-25 10:48:52] [INFO] =============================================
+[2025-10-25 10:48:52] [INFO] [Branches] Testing Branch Management Page page accessibility
+[2025-10-25 10:48:52] [PASS] PASS: Branch Management Page accessible
+[2025-10-25 10:48:52] [INFO] [Branches] Get All Branches
+[2025-10-25 10:48:53] [PASS] PASS: Get All Branches
+[2025-10-25 10:48:53] [INFO] [Branches] Get Active Branches
+[2025-10-25 10:48:53] [PASS] PASS: Get Active Branches
+[2025-10-25 10:48:53] [INFO] 
+[2025-10-25 10:48:53] [INFO] =============================================
+[2025-10-25 10:48:53] [INFO] MODULE 9: DEPARTMENT MANAGEMENT TESTING
+[2025-10-25 10:48:53] [INFO] =============================================
+[2025-10-25 10:48:53] [INFO] [Departments] Testing Department Management Page page accessibility
+[2025-10-25 10:48:53] [PASS] PASS: Department Management Page accessible
+[2025-10-25 10:48:53] [INFO] [Departments] Get Departments by Branch
+[2025-10-25 10:48:53] [PASS] PASS: Get Departments by Branch
+[2025-10-25 10:48:53] [INFO] 
+[2025-10-25 10:48:53] [INFO] =============================================
+[2025-10-25 10:48:53] [INFO] MODULE 10: SECTION MANAGEMENT TESTING
+[2025-10-25 10:48:53] [INFO] =============================================
+[2025-10-25 10:48:53] [INFO] [Sections] Testing Section Management Page page accessibility
+[2025-10-25 10:48:53] [PASS] PASS: Section Management Page accessible
+[2025-10-25 10:48:53] [INFO] [Sections] Get Sections by Department
+[2025-10-25 10:48:53] [PASS] PASS: Get Sections by Department
+[2025-10-25 10:48:53] [INFO] 
+[2025-10-25 10:48:53] [INFO] =============================================
+[2025-10-25 10:48:53] [INFO] MODULE 11: ESCALATION MANAGEMENT TESTING
+[2025-10-25 10:48:53] [INFO] =============================================
+[2025-10-25 10:48:53] [INFO] [Escalation] Testing Escalation Policy Page page accessibility
+[2025-10-25 10:48:53] [PASS] PASS: Escalation Policy Page accessible
+[2025-10-25 10:48:53] [INFO] [Escalation] Testing Escalation Wizard Page page accessibility
+[2025-10-25 10:48:53] [PASS] PASS: Escalation Wizard Page accessible
+[2025-10-25 10:48:53] [INFO] [Escalation] Get Escalation Matrices
+[2025-10-25 10:48:53] [PASS] PASS: Get Escalation Matrices
+[2025-10-25 10:48:53] [INFO] 
+[2025-10-25 10:48:53] [INFO] =============================================
+[2025-10-25 10:48:54] [INFO] MODULE 12: NOTIFICATION SETTINGS TESTING
+[2025-10-25 10:48:54] [INFO] =============================================
+[2025-10-25 10:48:54] [INFO] [Notifications] Testing Email Settings Page page accessibility
+[2025-10-25 10:48:54] [PASS] PASS: Email Settings Page accessible
+[2025-10-25 10:48:54] [INFO] [Notifications] Testing SMS Gateway Page page accessibility
+[2025-10-25 10:48:54] [PASS] PASS: SMS Gateway Page accessible
+[2025-10-25 10:48:54] [INFO] [Notifications] Testing WhatsApp Settings Page page accessibility
+[2025-10-25 10:48:54] [PASS] PASS: WhatsApp Settings Page accessible
+[2025-10-25 10:48:54] [INFO] [Notifications] Testing Template Management Page page accessibility
+[2025-10-25 10:48:54] [PASS] PASS: Template Management Page accessible
+[2025-10-25 10:48:54] [INFO] [Notifications] Testing Notification Rules Page page accessibility
+[2025-10-25 10:48:54] [PASS] PASS: Notification Rules Page accessible
+[2025-10-25 10:48:54] [INFO] 
+[2025-10-25 10:48:54] [INFO] =============================================
+[2025-10-25 10:48:54] [INFO] MODULE 13: ORYGGI INTEGRATION TESTING
+[2025-10-25 10:48:54] [INFO] =============================================
+[2025-10-25 10:48:54] [INFO] [Oryggi] Testing Oryggi Sync Page page accessibility
+[2025-10-25 10:48:54] [PASS] PASS: Oryggi Sync Page accessible
+[2025-10-25 10:48:54] [INFO] [Oryggi] Get Sync Status
+[2025-10-25 10:48:54] [FAIL] FAIL: Get Sync Status - The remote server returned an error: (404) Not Found.
+[2025-10-25 10:48:54] [INFO] [Oryggi] Get Sync Logs
+[2025-10-25 10:48:54] [FAIL] FAIL: Get Sync Logs - The remote server returned an error: (404) Not Found.
+[2025-10-25 10:48:54] [INFO] 
+[2025-10-25 10:48:54] [INFO] =============================================
+[2025-10-25 10:48:54] [INFO] TEST EXECUTION COMPLETED
+[2025-10-25 10:48:54] [INFO] =============================================
+[2025-10-25 10:48:54] [INFO] 
+[2025-10-25 10:48:54] [INFO] Total Tests Executed: 77
+[2025-10-25 10:48:54] [INFO] Tests Passed: 58
+[2025-10-25 10:48:54] [INFO] Tests Failed: 19
+[2025-10-25 10:48:54] [INFO] Success Rate: 75.32%
+[2025-10-25 10:48:54] [INFO] 
+[2025-10-25 10:48:54] [FAIL] WARNING: 19 test(s) failed
+[2025-10-25 10:48:54] [FAIL] Review failed tests above for details
+[2025-10-25 10:48:54] [INFO] 
+[2025-10-25 10:48:54] [INFO] Detailed results saved to: UI_UX_TEST_RESULTS_20251025_104833.txt

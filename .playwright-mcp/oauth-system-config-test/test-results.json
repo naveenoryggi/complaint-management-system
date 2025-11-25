@@ -1,0 +1,57 @@
+{
+  "testName": "OAuth System Configuration E2E Test",
+  "timestamp": "2025-11-16T05:33:24.641Z",
+  "steps": [
+    {
+      "step": 1,
+      "name": "Login as Admin",
+      "status": "FAIL",
+      "error": "url.includes is not a function"
+    },
+    {
+      "step": 2,
+      "name": "Navigate to Email Ticketing Config",
+      "status": "PASS"
+    },
+    {
+      "step": 3,
+      "name": "Open System Settings Panel",
+      "status": "FAIL",
+      "error": "System Settings button not found on page"
+    },
+    {
+      "step": 4,
+      "name": "Configure OAuth Token Refresh",
+      "status": "FAIL",
+      "error": "Token Refresh Interval input not found"
+    },
+    {
+      "step": 5,
+      "name": "Verify Token Expiry Warning",
+      "status": "SKIP",
+      "reason": "Input not found"
+    },
+    {
+      "step": 6,
+      "name": "Save Configuration",
+      "status": "FAIL",
+      "error": "Save Settings button not found"
+    },
+    {
+      "step": 7,
+      "name": "Verify Settings Persisted",
+      "status": "FAIL",
+      "error": "Could not reopen System Settings panel"
+    },
+    {
+      "step": 8,
+      "name": "Verify Backend Logs",
+      "status": "INFO",
+      "message": "Manual verification required - check backend logs for configuration update"
+    }
+  ],
+  "screenshots": [],
+  "passed": 3,
+  "failed": 5,
+  "totalSteps": 8
+}

@@ -1,0 +1,99 @@
+[2025-10-25 20:18:49] [INFO] =============================================
+[2025-10-25 20:18:49] [INFO] COMPREHENSIVE FULL TEST SUITE - 245+ TESTS
+[2025-10-25 20:18:49] [INFO] =============================================
+[2025-10-25 20:18:49] [INFO] 
+[2025-10-25 20:18:49] [INFO] Testing all 26 controllers with complete coverage
+[2025-10-25 20:18:49] [INFO] 
+[2025-10-25 20:18:49] [INFO] Authenticating to get access token...
+[2025-10-25 20:18:50] [INFO] Authentication successful - Token obtained
+[2025-10-25 20:18:50] [INFO] 
+[2025-10-25 20:18:50] [INFO] [Setup] Get Categories
+[2025-10-25 20:18:50] [PASS] PASS: Get Categories
+[2025-10-25 20:18:50] [INFO] =============================================
+[2025-10-25 20:18:50] [INFO] CATEGORY 1: ORGANIZATION STRUCTURE (24 TESTS)
+[2025-10-25 20:18:50] [INFO] =============================================
+[2025-10-25 20:18:50] [INFO] --- Employee Types Management (6 tests) ---
+[2025-10-25 20:18:50] [INFO] [Org Structure] Get All Employee Types
+[2025-10-25 20:18:51] [PASS] PASS: Get All Employee Types
+[2025-10-25 20:18:51] [INFO] [Org Structure] Create Employee Type
+[2025-10-25 20:18:51] [PASS] PASS: Create Employee Type
+[2025-10-25 20:18:51] [INFO] [Org Structure] Get Employee Type by ID
+[2025-10-25 20:18:51] [PASS] PASS: Get Employee Type by ID
+[2025-10-25 20:18:51] [INFO] [Org Structure] Update Employee Type
+[2025-10-25 20:18:51] [PASS] PASS: Update Employee Type
+
+[2025-10-25 20:18:51] [INFO] [Org Structure] Delete Employee Type
+[2025-10-25 20:18:51] [PASS] PASS: Delete Employee Type
+[2025-10-25 20:18:51] [INFO] [Org Structure] Validation: Empty Employee Type Name
+[2025-10-25 20:18:51] [PASS] PASS: Validation: Empty Employee Type Name (Expected failure - 400)
+[2025-10-25 20:18:51] [INFO] --- Branch Management (6 tests) ---
+[2025-10-25 20:18:51] [INFO] [Org Structure] Testing Branch Management Page page accessibility
+[2025-10-25 20:18:51] [PASS] PASS: Branch Management Page accessible
+isSuccess message                            data                                                                      
+--------- -------                            ----                                                                      
+     True Employee type updated successfully @{id=97756977-5644-44d9-9725-dbb1ab0cafd8; companyId=fe28cd85-4226-4daa...
+     True Employee type deleted successfully                                                                           
+True
+True
+[2025-10-25 20:18:51] [INFO] [Org Structure] Get All Branches
+[2025-10-25 20:18:52] [PASS] PASS: Get All Branches
+[2025-10-25 20:18:52] [INFO] [Org Structure] Create Branch
+[2025-10-25 20:18:52] [PASS] PASS: Create Branch
+[2025-10-25 20:18:52] [INFO] [Org Structure] Get Branch by ID
+[2025-10-25 20:18:52] [PASS] PASS: Get Branch by ID
+[2025-10-25 20:18:52] [INFO] [Org Structure] Update Branch
+[2025-10-25 20:18:52] [PASS] PASS: Update Branch
+     True Branch updated successfully        @{id=39c5d225-1580-4369-8ce3-55f06c0352b9; companyId=fe28cd85-4226-4daa...
+[2025-10-25 20:18:52] [INFO] [Org Structure] Delete Branch
+[2025-10-25 20:18:53] [PASS] PASS: Delete Branch
+     True Branch deleted successfully                                                                                  
+[2025-10-25 20:18:53] [INFO] --- Department Management (6 tests) ---
+[2025-10-25 20:18:53] [INFO] [Org Structure] Testing Department Management Page page accessibility
+[2025-10-25 20:18:53] [PASS] PASS: Department Management Page accessible
+True
+[2025-10-25 20:18:53] [INFO] [Org Structure] Get All Departments
+[2025-10-25 20:18:53] [PASS] PASS: Get All Departments
+[2025-10-25 20:18:53] [INFO] [Org Structure] Create Department
+[2025-10-25 20:18:54] [PASS] PASS: Create Department
+[2025-10-25 20:18:54] [INFO] [Org Structure] Get Department by ID
+[2025-10-25 20:18:54] [PASS] PASS: Get Department by ID
+[2025-10-25 20:18:54] [INFO] [Org Structure] Update Department
+[2025-10-25 20:18:54] [PASS] PASS: Update Department
+     True Department updated successfully    @{id=b93a09ca-4524-427d-828a-751d79c586f0; branchId=f54bde9a-65aa-4c43-...
+[2025-10-25 20:18:54] [INFO] [Org Structure] Delete Department
+[2025-10-25 20:18:54] [PASS] PASS: Delete Department
+     True Department deleted successfully                                                                              
+[2025-10-25 20:18:54] [INFO] --- Section Management (6 tests) ---
+[2025-10-25 20:18:54] [INFO] [Org Structure] Testing Section Management Page page accessibility
+[2025-10-25 20:18:54] [PASS] PASS: Section Management Page accessible
+True
+[2025-10-25 20:18:54] [INFO] [Org Structure] Get All Sections
+[2025-10-25 20:18:55] [PASS] PASS: Get All Sections
+[2025-10-25 20:18:55] [INFO] [Org Structure] Create Section
+[2025-10-25 20:18:55] [PASS] PASS: Create Section
+[2025-10-25 20:18:55] [INFO] [Org Structure] Get Section by ID
+[2025-10-25 20:18:55] [PASS] PASS: Get Section by ID
+[2025-10-25 20:18:55] [INFO] [Org Structure] Update Section
+[2025-10-25 20:18:55] [PASS] PASS: Update Section
+     True Section updated successfully       @{id=2efba7b8-af8e-404b-bd3a-88485d1be64e; departmentId=226d33a8-c646-4...
+[2025-10-25 20:18:55] [INFO] [Org Structure] Delete Section
+[2025-10-25 20:18:55] [PASS] PASS: Delete Section
+     True Section deleted successfully                                                                                 
+[2025-10-25 20:18:55] [INFO] 
+[2025-10-25 20:18:55] [INFO] =============================================
+[2025-10-25 20:18:55] [INFO] CATEGORY 2: ROLE MANAGEMENT (12 TESTS)
+[2025-10-25 20:18:55] [INFO] =============================================
+[2025-10-25 20:18:55] [INFO] [Role Management] Get All Roles
+[2025-10-25 20:18:56] [PASS] PASS: Get All Roles
+[2025-10-25 20:18:56] [INFO] [Role Management] Create Role
+[2025-10-25 20:18:56] [FAIL] FAIL: Create Role - The remote server returned an error: (400) Bad Request.
+[2025-10-25 20:18:56] [INFO] [Role Management] Validation: Modify System Role
+[2025-10-25 20:18:56] [FAIL] FAIL: Validation: Modify System Role - Unexpected status 200
+False
+[2025-10-25 20:18:56] [INFO] 
+[2025-10-25 20:18:56] [INFO] =============================================
+[2025-10-25 20:18:56] [INFO] TEST SUITE PART 1 COMPLETED
+[2025-10-25 20:18:56] [INFO] =============================================
+[2025-10-25 20:18:56] [INFO] Continuing with remaining categories...
+
+

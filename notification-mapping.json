@@ -1,0 +1,14 @@
+{
+  "events": {
+    "created": "3a97bc1a-2698-404c-9823-db7e78d65e29",
+    "assigned": "8b047c28-f61d-43d5-92e0-4bac9a75f029",
+    "closed": "c7f9f389-1382-4b69-aa86-b23d52811579",
+    "escalated": "be0b5ec7-566a-4da3-beee-7902b173988e"
+  },
+  "templates": {
+    "created": "4a9a42d4-198c-4f63-9392-f69e6d486456",
+    "assigned": "16eec99e-e021-4535-9513-bb5a32ff4b8d",
+    "closed": "5ea9556e-8d32-4aca-8717-51eda7459224",
+    "escalated": "09b036bb-6bdf-4102-8795-885667e39c72"
+  }
+}

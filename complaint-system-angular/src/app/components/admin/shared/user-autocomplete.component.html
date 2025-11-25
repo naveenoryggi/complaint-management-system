@@ -1,0 +1,66 @@
+<div class="user-autocomplete">
+  <label *ngIf="label">{{ label }}</label>
+
+  <div class="autocomplete-container">
+    <div class="input-wrapper">
+      <i class="fas fa-search search-icon"></i>
+      <input
+        type="text"
+        class="form-control"
+        [placeholder]="placeholder"
+        [(ngModel)]="searchTerm"
+        (input)="onSearchInput($event)"
+        (focus)="onInputFocus()"
+        (blur)="onInputBlur()"
+      />
+      <button
+        *ngIf="selectedUser"
+        type="button"
+        class="btn-clear"
+        (click)="clearSelection()"
+        title="Clear selection"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+      <i *ngIf="isLoading" class="fas fa-spinner fa-spin loading-icon"></i>
+    </div>
+
+    <!-- Dropdown Results -->
+    <div *ngIf="showDropdown && searchResults.length > 0" class="dropdown-results">
+      <div
+        *ngFor="let user of searchResults"
+        class="result-item"
+        (mousedown)="selectUser(user)"
+      >
+        <div class="user-info">
+          <div class="user-name">
+            <i class="fas fa-user"></i>
+            <strong>{{ user.fullName }}</strong>
+          </div>
+          <div class="user-details">
+            <span class="employee-code">{{ user.employeeCode }}</span>
+            <span class="separator">•</span>
+            <span class="email">{{ user.email }}</span>
+            <span *ngIf="user.jobTitle" class="separator">•</span>
+            <span *ngIf="user.jobTitle" class="job-title">{{ user.jobTitle }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Results -->
+    <div *ngIf="showDropdown && !isLoading && searchResults.length === 0 && searchTerm.length >= 2" class="dropdown-results">
+      <div class="no-results">
+        <i class="fas fa-search"></i>
+        <span>No users found matching "{{ searchTerm }}"</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selected User Display -->
+  <div *ngIf="selectedUser" class="selected-user">
+    <i class="fas fa-check-circle"></i>
+    <span>Selected: <strong>{{ selectedUser.fullName }}</strong></span>
+    <span class="selected-code">({{ selectedUser.employeeCode }})</span>
+  </div>
+</div>

@@ -1,0 +1,288 @@
+﻿{
+    "configurationStatus":  {
+
+                            },
+    "recommendations":  [
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/complaints",
+                                "area":  "/api/complaints"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/complaints/1",
+                                "area":  "/api/complaints/1"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/dashboard/statistics",
+                                "area":  "/api/dashboard/statistics"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/users",
+                                "area":  "/api/users"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/sla",
+                                "area":  "/api/sla"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/notificationrules",
+                                "area":  "/api/notificationrules"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/workflows",
+                                "area":  "/api/workflows"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/escalation/matrices",
+                                "area":  "/api/escalation/matrices"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/settings/email",
+                                "area":  "/api/settings/email"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/categories",
+                                "area":  "/api/categories"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/roles",
+                                "area":  "/api/roles"
+                            },
+                            {
+                                "priority":  "CRITICAL",
+                                "action":  "Fix endpoint accessibility issue: /api/priorities",
+                                "area":  "/api/priorities"
+                            },
+                            {
+                                "priority":  "CRITICAL",
+                                "action":  "Fix endpoint accessibility issue: /api/statuses",
+                                "area":  "/api/statuses"
+                            }
+                        ],
+    "baseUrl":  "http://localhost:5000",
+    "timestamp":  "2025-11-11 13:00:44",
+    "authentication":  {
+                           "status":  "SUCCESS",
+                           "token_length":  0,
+                           "message":  "Successfully authenticated as admin"
+                       },
+    "gaps":  [
+                 {
+                     "endpoint":  "/api/complaints",
+                     "message":  "Core endpoint not accessible or returning errors",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/complaints/1",
+                     "message":  "Core endpoint not accessible or returning errors",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/dashboard/statistics",
+                     "message":  "Core endpoint not accessible or returning errors",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/users",
+                     "message":  "Core endpoint not accessible or returning errors",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/sla",
+                     "message":  "Configuration endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/notificationrules",
+                     "message":  "Configuration endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/workflows",
+                     "message":  "Configuration endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/escalation/matrices",
+                     "message":  "Configuration endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/settings/email",
+                     "message":  "Configuration endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/categories",
+                     "message":  "Configuration endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/roles",
+                     "message":  "Configuration endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/priorities",
+                     "message":  "Master data endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "CRITICAL"
+                 },
+                 {
+                     "endpoint":  "/api/statuses",
+                     "message":  "Master data endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "CRITICAL"
+                 }
+             ],
+    "summary":  {
+                    "successRate":  0,
+                    "failedTests":  13,
+                    "highGaps":  11,
+                    "passedTests":  0,
+                    "totalEndpointsTested":  13,
+                    "mediumGaps":  0,
+                    "criticalGaps":  2,
+                    "totalGaps":  13
+                },
+    "endpointTests":  [
+                          {
+                              "url":  "/api/complaints",
+                              "method":  "GET",
+                              "category":  "Core",
+                              "error":  "The remote server returned an error: (401) Unauthorized.",
+                              "name":  "List Complaints",
+                              "status":  "FAIL",
+                              "statusCode":  401
+                          },
+                          {
+                              "url":  "/api/complaints/1",
+                              "method":  "GET",
+                              "category":  "Core",
+                              "error":  "The remote server returned an error: (401) Unauthorized.",
+                              "name":  "Get Single Complaint",
+                              "status":  "FAIL",
+                              "statusCode":  401
+                          },
+                          {
+                              "url":  "/api/dashboard/statistics",
+                              "method":  "GET",
+                              "category":  "Core",
+                              "error":  "The remote server returned an error: (401) Unauthorized.",
+                              "name":  "Dashboard Statistics",
+                              "status":  "FAIL",
+                              "statusCode":  401
+                          },
+                          {
+                              "url":  "/api/users",
+                              "method":  "GET",
+                              "category":  "Core",
+                              "error":  "The remote server returned an error: (401) Unauthorized.",
+                              "name":  "User Management",
+                              "status":  "FAIL",
+                              "statusCode":  401
+                          },
+                          {
+                              "url":  "/api/sla",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "SLA Levels",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          },
+                          {
+                              "url":  "/api/notificationrules",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "Notification Rules",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          },
+                          {
+                              "url":  "/api/workflows",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "error":  "The remote server returned an error: (401) Unauthorized.",
+                              "name":  "Workflows",
+                              "status":  "FAIL",
+                              "statusCode":  401
+                          },
+                          {
+                              "url":  "/api/escalation/matrices",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "error":  "The remote server returned an error: (401) Unauthorized.",
+                              "name":  "Escalation Configuration",
+                              "status":  "FAIL",
+                              "statusCode":  401
+                          },
+                          {
+                              "url":  "/api/settings/email",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "Email Settings",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          },
+                          {
+                              "url":  "/api/categories",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "error":  "The remote server returned an error: (401) Unauthorized.",
+                              "name":  "Complaint Categories",
+                              "status":  "FAIL",
+                              "statusCode":  401
+                          },
+                          {
+                              "url":  "/api/roles",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "error":  "The remote server returned an error: (401) Unauthorized.",
+                              "name":  "Role Definitions",
+                              "status":  "FAIL",
+                              "statusCode":  401
+                          },
+                          {
+                              "url":  "/api/priorities",
+                              "method":  "GET",
+                              "category":  "MasterData",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "Priority Levels",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          },
+                          {
+                              "url":  "/api/statuses",
+                              "method":  "GET",
+                              "category":  "MasterData",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "Status Types",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          }
+                      ]
+}

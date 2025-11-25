@@ -1,0 +1,157 @@
+<div class="user-search-autocomplete" [class.is-loading]="isLoading">
+  <!-- Search Input -->
+  <div class="search-input-container">
+    <div class="search-input-wrapper">
+      <input
+        type="text"
+        class="search-input"
+        [placeholder]="mergedConfig.placeholder"
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        (keydown)="onKeyDown($event)"
+        [disabled]="isLoading"
+        autocomplete="off"
+      />
+
+      <!-- Search Icon -->
+      <div class="search-icon" [class.is-loading]="isLoading">
+        <i class="bi" [ngClass]="isLoading ? 'bi-hourglass-split' : 'bi-search'"></i>
+      </div>
+
+      <!-- Clear Button -->
+      <button
+        *ngIf="searchTerm"
+        type="button"
+        class="clear-button"
+        (click)="clearSearch()"
+        title="Clear search"
+      >
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="loading-indicator">
+      <div class="spinner"></div>
+      <span>Searching...</span>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">
+    <i class="bi bi-exclamation-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Search Results -->
+  <div
+    *ngIf="showResults"
+    class="search-results"
+    [class.has-results]="searchResults.length > 0"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- No Results Message -->
+    <div *ngIf="noResults" class="no-results">
+      <div class="no-results-icon">
+        <i class="bi bi-search"></i>
+      </div>
+      <div class="no-results-text">
+        <strong>No users found</strong>
+        <p>Try adjusting your search criteria</p>
+      </div>
+    </div>
+
+    <!-- Results List -->
+    <div *ngIf="searchResults.length > 0" class="results-list">
+      <div
+        *ngFor="let result of searchResults; let i = index"
+        class="result-item"
+        [class.selected]="selectedUser?.id === result.user.id"
+        (click)="selectUser(result)"
+        [attr.data-user-id]="result.user.id"
+      >
+        <!-- User Avatar -->
+        <div class="user-avatar">
+          <div class="avatar-circle">
+            {{ getDisplayText(result.user).charAt(0).toUpperCase() }}
+          </div>
+          <div
+            *ngIf="!isUserActive(result.user)"
+            class="status-indicator inactive"
+            title="Inactive user"
+          ></div>
+        </div>
+
+        <!-- User Info -->
+        <div class="user-info">
+          <!-- User Name with Highlight -->
+          <div class="user-name">
+            <span [innerHTML]="result.highlightedText.name || result.user.fullName || result.user.email || result.user.employeeCode"></span>
+          </div>
+
+          <!-- User Details -->
+          <div *ngIf="mergedConfig.showUserDetails" class="user-details">
+            <div class="user-email" *ngIf="result.highlightedText.email">
+              <i class="bi bi-envelope"></i>
+              <span [innerHTML]="result.highlightedText.email"></span>
+            </div>
+            <div class="user-phone" *ngIf="result.highlightedText.phone">
+              <i class="bi bi-telephone"></i>
+              <span [innerHTML]="result.highlightedText.phone"></span>
+            </div>
+            <div class="user-id" *ngIf="result.highlightedText.userId">
+              <i class="bi bi-badge"></i>
+              <span [innerHTML]="result.highlightedText.userId"></span>
+            </div>
+          </div>
+
+          <!-- Subtitle -->
+          <div class="user-subtitle">
+            {{ getUserSubtitle(result.user) }}
+          </div>
+
+          <!-- Match Type Badge -->
+          <div *ngIf="mergedConfig.showMatchType" class="match-type-badge">
+            <i class="bi" [ngClass]="getMatchTypeIcon(result.matchType)"></i>
+            <span>{{ getMatchTypeLabel(result.matchType) }}</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="user-actions">
+          <button
+            class="select-button"
+            (click)="selectUser(result); $event.stopPropagation()"
+            [class.selected]="selectedUser?.id === result.user.id"
+          >
+            <i class="bi" [ngClass]="selectedUser?.id === result.user.id ? 'bi-check-circle-fill' : 'bi-person-plus'"></i>
+            {{ selectedUser?.id === result.user.id ? 'Selected' : 'Select' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Tips -->
+    <div class="search-tips">
+      <div class="tips-header">
+        <i class="bi bi-lightbulb"></i>
+        <span>Search Tips:</span>
+      </div>
+      <ul class="tips-list">
+        <li>Search by email, name, phone, or user ID</li>
+        <li>Use partial matches for better results</li>
+        <li>Minimum {{ mergedConfig.minSearchLength }} characters required</li>
+        <li *ngIf="mergedConfig.maxResults && mergedConfig.maxResults < 100">
+          Limited to {{ mergedConfig.maxResults }} results for performance
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop for dropdown -->
+<div
+  *ngIf="showResults"
+  class="search-backdrop"
+  (click)="onBackdropClick()"
+></div>

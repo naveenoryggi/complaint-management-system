@@ -1,0 +1,237 @@
+[2025-10-25 14:43:09] [INFO] =============================================
+[2025-10-25 14:43:09] [INFO] COMPREHENSIVE TEST SUITE - PART 2
+[2025-10-25 14:43:09] [INFO] Categories 3-14 (200+ tests)
+[2025-10-25 14:43:09] [INFO] =============================================
+[2025-10-25 14:43:09] [INFO] 
+[2025-10-25 14:43:09] [INFO] Authenticating...
+[2025-10-25 14:43:10] [INFO] Authentication successful
+[2025-10-25 14:43:10] [INFO] [Setup] Get Categories
+[2025-10-25 14:43:10] [PASS] PASS: Get Categories
+[2025-10-25 14:43:10] [INFO] 
+[2025-10-25 14:43:10] [INFO] =============================================
+[2025-10-25 14:43:10] [INFO] CATEGORY 3: SECURITY & AUTHENTICATION (20 TESTS)
+[2025-10-25 14:43:10] [INFO] =============================================
+[2025-10-25 14:43:10] [INFO] --- Authentication Tests (5 tests) ---
+[2025-10-25 14:43:10] [INFO] [Security] Login: Invalid Credentials
+[2025-10-25 14:43:10] [PASS] PASS: Login: Invalid Credentials (Expected failure - 401)
+[2025-10-25 14:43:10] [INFO] [Security] Login: Empty Email
+[2025-10-25 14:43:10] [FAIL] FAIL: Login: Empty Email - The remote server returned an error: (500) Internal Server Error.
+[2025-10-25 14:43:10] [INFO] [Security] Login: Empty Password
+[2025-10-25 14:43:10] [FAIL] FAIL: Login: Empty Password - The remote server returned an error: (500) Internal Server Error.
+[2025-10-25 14:43:10] [INFO] [Security] Refresh Token
+[2025-10-25 14:43:11] [FAIL] FAIL: Refresh Token - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:43:11] [INFO] [Security] Logout
+[2025-10-25 14:43:11] [PASS] PASS: Logout
+[2025-10-25 14:43:11] [INFO] --- Authorization Tests (15 tests) ---
+[2025-10-25 14:43:11] [INFO] [Security] Access Without Token (401)
+[2025-10-25 14:43:11] [PASS] PASS: Access Without Token (401) (Expected failure - 401)
+[2025-10-25 14:43:11] [INFO] [Security] Access With Invalid Token (401)
+[2025-10-25 14:43:11] [PASS] PASS: Access With Invalid Token (401) (Expected failure - 401)
+[2025-10-25 14:43:11] [INFO] [Security] ViewComplaints Permission
+[2025-10-25 14:43:12] [PASS] PASS: ViewComplaints Permission
+[2025-10-25 14:43:12] [INFO] [Security] CreateComplaint Permission
+[2025-10-25 14:43:12] [FAIL] FAIL: CreateComplaint Permission - The remote server returned an error: (500) Internal Server Error.
+[2025-10-25 14:43:12] [INFO] [Security] ManageUsers Permission
+[2025-10-25 14:43:17] [PASS] PASS: ManageUsers Permission
+[2025-10-25 14:43:18] [INFO] [Security] ManageSettings Permission
+[2025-10-25 14:43:18] [FAIL] FAIL: ManageSettings Permission - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:43:18] [INFO] [Security] ManageCompany Permission
+[2025-10-25 14:43:18] [PASS] PASS: ManageCompany Permission
+[2025-10-25 14:43:18] [INFO] [Security] ManageCategories Permission
+[2025-10-25 14:43:18] [PASS] PASS: ManageCategories Permission
+[2025-10-25 14:43:18] [INFO] [Security] ViewReports Permission
+[2025-10-25 14:43:19] [PASS] PASS: ViewReports Permission
+[2025-10-25 14:43:19] [INFO] [Security] ManageEscalation Permission
+[2025-10-25 14:43:19] [PASS] PASS: ManageEscalation Permission
+[2025-10-25 14:43:19] [INFO] [Security] Cross-Tenant Prevention
+[2025-10-25 14:43:19] [PASS] PASS: Cross-Tenant Prevention
+[2025-10-25 14:43:19] [INFO] [Security] Valid Token Access
+[2025-10-25 14:43:20] [PASS] PASS: Valid Token Access
+[2025-10-25 14:43:20] [INFO] [Security] Rate Limiting Test 1
+[2025-10-25 14:43:20] [PASS] PASS: Rate Limiting Test 1
+[2025-10-25 14:43:20] [INFO] [Security] Rate Limiting Test 2
+[2025-10-25 14:43:20] [PASS] PASS: Rate Limiting Test 2
+[2025-10-25 14:43:20] [INFO] [Security] Rate Limiting Test 3
+[2025-10-25 14:43:20] [PASS] PASS: Rate Limiting Test 3
+[2025-10-25 14:43:20] [INFO] 
+[2025-10-25 14:43:20] [INFO] =============================================
+[2025-10-25 14:43:21] [INFO] CATEGORY 4: SEARCH, FILTER & PAGINATION (15 TESTS)
+[2025-10-25 14:43:21] [INFO] =============================================
+[2025-10-25 14:43:21] [INFO] --- Search Tests (5 tests) ---
+[2025-10-25 14:43:21] [INFO] [Search & Filter] User Search by Name
+[2025-10-25 14:43:21] [PASS] PASS: User Search by Name
+[2025-10-25 14:43:21] [INFO] [Search & Filter] User Search by Email
+[2025-10-25 14:43:22] [PASS] PASS: User Search by Email
+[2025-10-25 14:43:22] [INFO] [Search & Filter] User Search by Code
+[2025-10-25 14:43:22] [PASS] PASS: User Search by Code
+[2025-10-25 14:43:22] [INFO] [Search & Filter] Search with Empty Term
+[2025-10-25 14:43:22] [PASS] PASS: Search with Empty Term
+[2025-10-25 14:43:22] [INFO] [Search & Filter] Search with Special Characters
+[2025-10-25 14:43:23] [PASS] PASS: Search with Special Characters
+[2025-10-25 14:43:23] [INFO] --- Filter Tests (5 tests) ---
+[2025-10-25 14:43:23] [INFO] [Search & Filter] Filter by Status
+[2025-10-25 14:43:24] [PASS] PASS: Filter by Status
+[2025-10-25 14:43:24] [INFO] [Search & Filter] Filter by Priority
+[2025-10-25 14:43:25] [PASS] PASS: Filter by Priority
+[2025-10-25 14:43:25] [INFO] [Search & Filter] Filter by Category
+[2025-10-25 14:43:26] [PASS] PASS: Filter by Category
+[2025-10-25 14:43:26] [INFO] [Search & Filter] Filter by Date Range
+[2025-10-25 14:43:27] [PASS] PASS: Filter by Date Range
+[2025-10-25 14:43:27] [INFO] [Search & Filter] Combined Filters
+[2025-10-25 14:43:28] [PASS] PASS: Combined Filters
+[2025-10-25 14:43:28] [INFO] --- Pagination Tests (5 tests) ---
+[2025-10-25 14:43:28] [INFO] [Search & Filter] Pagination: Page 1
+[2025-10-25 14:43:29] [PASS] PASS: Pagination: Page 1
+[2025-10-25 14:43:29] [INFO] [Search & Filter] Pagination: Page 2
+[2025-10-25 14:43:29] [PASS] PASS: Pagination: Page 2
+[2025-10-25 14:43:29] [INFO] [Search & Filter] Pagination: Large Page Size
+[2025-10-25 14:43:31] [PASS] PASS: Pagination: Large Page Size
+[2025-10-25 14:43:31] [INFO] [Search & Filter] Pagination: Sort by Date Desc
+[2025-10-25 14:43:32] [PASS] PASS: Pagination: Sort by Date Desc
+[2025-10-25 14:43:32] [INFO] [Search & Filter] Pagination: Sort by Priority
+[2025-10-25 14:43:33] [PASS] PASS: Pagination: Sort by Priority
+[2025-10-25 14:43:33] [INFO] 
+[2025-10-25 14:43:33] [INFO] =============================================
+[2025-10-25 14:43:33] [INFO] CATEGORY 5: DATA VALIDATION (25 TESTS)
+[2025-10-25 14:43:33] [INFO] =============================================
+[2025-10-25 14:43:33] [INFO] --- Field Validation Tests (15 tests) ---
+[2025-10-25 14:43:33] [INFO] [Validation] Invalid Email Format
+[2025-10-25 14:43:33] [PASS] PASS: Invalid Email Format (Expected failure - 400)
+[2025-10-25 14:43:33] [INFO] [Validation] Required Field: Title
+[2025-10-25 14:43:33] [FAIL] FAIL: Required Field: Title - The remote server returned an error: (500) Internal Server Error.
+[2025-10-25 14:43:33] [INFO] [Validation] Required Field: Category
+[2025-10-25 14:43:34] [PASS] PASS: Required Field: Category (Expected failure - 400)
+[2025-10-25 14:43:34] [INFO] [Validation] String Max Length
+[2025-10-25 14:43:34] [PASS] PASS: String Max Length (Expected failure - 400)
+[2025-10-25 14:43:34] [INFO] [Validation] String Min Length
+[2025-10-25 14:43:34] [FAIL] FAIL: String Min Length - Unexpected status 201
+[2025-10-25 14:43:34] [INFO] [Validation] Numeric Range: Priority Level
+[2025-10-25 14:43:34] [FAIL] FAIL: Numeric Range: Priority Level - Unexpected status 200
+[2025-10-25 14:43:34] [INFO] [Validation] Date Range: Future Date
+[2025-10-25 14:43:34] [FAIL] FAIL: Date Range: Future Date - The remote server returned an error: (500) Internal Server Error.
+[2025-10-25 14:43:34] [INFO] [Validation] Phone Format
+[2025-10-25 14:43:34] [PASS] PASS: Phone Format
+[2025-10-25 14:43:34] [INFO] [Validation] Special Characters in Name
+[2025-10-25 14:43:35] [PASS] PASS: Special Characters in Name
+[2025-10-25 14:43:35] [INFO] [Validation] SQL Injection Prevention
+[2025-10-25 14:43:35] [PASS] PASS: SQL Injection Prevention
+[2025-10-25 14:43:35] [INFO] [Validation] XSS Prevention in Comment
+[2025-10-25 14:43:35] [FAIL] FAIL: XSS Prevention in Comment - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:43:35] [INFO] [Validation] Duplicate Code Prevention
+[2025-10-25 14:43:35] [PASS] PASS: Duplicate Code Prevention (Expected failure - 400)
+[2025-10-25 14:43:35] [INFO] [Validation] Duplicate Email Prevention
+[2025-10-25 14:43:35] [PASS] PASS: Duplicate Email Prevention (Expected failure - 400)
+[2025-10-25 14:43:35] [INFO] [Validation] Foreign Key Constraint
+[2025-10-25 14:43:35] [FAIL] FAIL: Foreign Key Constraint - The remote server returned an error: (500) Internal Server Error.
+[2025-10-25 14:43:35] [INFO] [Validation] Invalid GUID Format
+[2025-10-25 14:43:35] [PASS] PASS: Invalid GUID Format (Expected failure - 400)
+[2025-10-25 14:43:35] [INFO] --- Business Logic Validation (10 tests) ---
+[2025-10-25 14:43:36] [INFO] [Validation] Get Complaints for Testing
+[2025-10-25 14:43:36] [PASS] PASS: Get Complaints for Testing
+[2025-10-25 14:43:36] [INFO] [Validation] Status Transition Validation
+[2025-10-25 14:43:36] [FAIL] FAIL: Status Transition Validation - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:43:36] [INFO] [Validation] Close Without Resolution
+[2025-10-25 14:43:36] [FAIL] FAIL: Close Without Resolution - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:43:36] [INFO] [Validation] Reopen Closed Complaint
+[2025-10-25 14:43:36] [FAIL] FAIL: Reopen Closed Complaint - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:43:36] [INFO] [Validation] Assign to Invalid User
+[2025-10-25 14:43:37] [PASS] PASS: Assign to Invalid User (Expected failure - 404)
+[2025-10-25 14:43:37] [INFO] [Validation] Self Assignment
+[2025-10-25 14:43:41] [PASS] PASS: Self Assignment
+[2025-10-25 14:43:41] [INFO] [Validation] Update Deleted Entity
+[2025-10-25 14:43:41] [FAIL] FAIL: Update Deleted Entity - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:43:41] [INFO] [Validation] Delete Non-Existent
+[2025-10-25 14:43:41] [FAIL] FAIL: Delete Non-Existent - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:43:41] [INFO] [Validation] Concurrent Update Detection
+[2025-10-25 14:43:41] [FAIL] FAIL: Concurrent Update Detection - The remote server returned an error: (500) Internal Server Error.
+[2025-10-25 14:43:41] [INFO] [Validation] Cascade Delete Check
+[2025-10-25 14:43:42] [FAIL] FAIL: Cascade Delete Check - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:43:42] [INFO] 
+[2025-10-25 14:43:42] [INFO] =============================================
+[2025-10-25 14:43:42] [INFO] CATEGORY 6: DASHBOARD & REPORTING (15 TESTS)
+[2025-10-25 14:43:42] [INFO] =============================================
+[2025-10-25 14:43:42] [INFO] [Dashboard] Testing Dashboard Main Page page accessibility
+[2025-10-25 14:43:42] [PASS] PASS: Dashboard Main Page accessible
+[2025-10-25 14:43:42] [INFO] [Dashboard] Get Dashboard Statistics
+[2025-10-25 14:43:43] [PASS] PASS: Get Dashboard Statistics
+[2025-10-25 14:43:43] [INFO] [Dashboard] Get Status Distribution
+[2025-10-25 14:43:43] [FAIL] FAIL: Get Status Distribution - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:43:43] [INFO] [Dashboard] Get Priority Distribution
+[2025-10-25 14:43:43] [FAIL] FAIL: Get Priority Distribution - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:43:43] [INFO] [Dashboard] Get Category Distribution
+[2025-10-25 14:43:43] [FAIL] FAIL: Get Category Distribution - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:43:43] [INFO] [Dashboard] Get Trend Analysis
+[2025-10-25 14:43:43] [FAIL] FAIL: Get Trend Analysis - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:43:43] [INFO] [Dashboard] Get SLA Compliance
+[2025-10-25 14:43:43] [FAIL] FAIL: Get SLA Compliance - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:43:43] [INFO] [Dashboard] Get User Performance
+[2025-10-25 14:43:43] [FAIL] FAIL: Get User Performance - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:43:43] [INFO] [Dashboard] Custom Date Range: Last 7 Days
+[2025-10-25 14:43:44] [PASS] PASS: Custom Date Range: Last 7 Days
+[2025-10-25 14:43:44] [INFO] [Dashboard] Custom Date Range: Last Month
+[2025-10-25 14:43:44] [PASS] PASS: Custom Date Range: Last Month
+[2025-10-25 14:43:44] [INFO] [Dashboard] Save Dashboard Preferences
+[2025-10-25 14:43:44] [FAIL] FAIL: Save Dashboard Preferences - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:43:44] [INFO] [Dashboard] Load Dashboard Preferences
+[2025-10-25 14:43:44] [PASS] PASS: Load Dashboard Preferences
+[2025-10-25 14:43:44] [INFO] [Dashboard] Reset Dashboard to Default
+[2025-10-25 14:43:44] [PASS] PASS: Reset Dashboard to Default
+[2025-10-25 14:43:44] [INFO] [Dashboard] Export Dashboard Data
+[2025-10-25 14:43:44] [FAIL] FAIL: Export Dashboard Data - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:43:44] [INFO] [Dashboard] Schedule Dashboard Report
+[2025-10-25 14:43:44] [FAIL] FAIL: Schedule Dashboard Report - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:43:44] [INFO] 
+[2025-10-25 14:43:45] [INFO] =============================================
+[2025-10-25 14:43:45] [INFO] CATEGORY 7: ERROR HANDLING (15 TESTS)
+[2025-10-25 14:43:45] [INFO] =============================================
+[2025-10-25 14:43:45] [INFO] [Error Handling] Malformed JSON
+[2025-10-25 14:43:45] [PASS] PASS: Malformed JSON (Expected failure - 400)
+[2025-10-25 14:43:45] [INFO] [Error Handling] Missing Content-Type Header
+[2025-10-25 14:43:45] [FAIL] FAIL: Missing Content-Type Header - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:43:45] [INFO] [Error Handling] Invalid HTTP Method
+[2025-10-25 14:43:45] [PASS] PASS: Invalid HTTP Method (Expected failure - 405)
+[2025-10-25 14:43:45] [INFO] [Error Handling] Request Too Large
+[2025-10-25 14:43:45] [PASS] PASS: Request Too Large (Expected failure - 400)
+[2025-10-25 14:43:45] [INFO] [Error Handling] Invalid Route
+[2025-10-25 14:43:45] [PASS] PASS: Invalid Route (Expected failure - 404)
+[2025-10-25 14:43:45] [INFO] [Error Handling] Null Values in Required Fields
+[2025-10-25 14:43:45] [PASS] PASS: Null Values in Required Fields (Expected failure - 400)
+[2025-10-25 14:43:45] [INFO] [Error Handling] Empty Request Body
+[2025-10-25 14:43:46] [PASS] PASS: Empty Request Body (Expected failure - 415)
+[2025-10-25 14:43:46] [INFO] [Error Handling] Unicode Characters Support
+[2025-10-25 14:43:46] [FAIL] FAIL: Unicode Characters Support - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:43:46] [INFO] [Error Handling] Large Dataset Pagination
+[2025-10-25 14:43:47] [PASS] PASS: Large Dataset Pagination
+[2025-10-25 14:43:47] [INFO] [Error Handling] Negative Pagination Values
+[2025-10-25 14:43:48] [PASS] PASS: Negative Pagination Values
+[2025-10-25 14:43:48] [INFO] [Error Handling] Zero Page Size
+[2025-10-25 14:43:49] [PASS] PASS: Zero Page Size
+[2025-10-25 14:43:49] [INFO] [Error Handling] Invalid Query Parameters
+[2025-10-25 14:43:50] [PASS] PASS: Invalid Query Parameters
+[2025-10-25 14:43:50] [INFO] [Error Handling] Multiple Concurrent Requests
+[2025-10-25 14:43:50] [PASS] PASS: Multiple Concurrent Requests
+[2025-10-25 14:43:50] [INFO] [Error Handling] Request Timeout Simulation
+[2025-10-25 14:43:51] [PASS] PASS: Request Timeout Simulation
+[2025-10-25 14:43:51] [INFO] [Error Handling] Invalid Date Format
+[2025-10-25 14:43:52] [PASS] PASS: Invalid Date Format
+[2025-10-25 14:43:52] [INFO] 
+[2025-10-25 14:43:52] [INFO] =============================================
+[2025-10-25 14:43:52] [INFO] PART 2 TEST EXECUTION COMPLETED
+[2025-10-25 14:43:52] [INFO] =============================================
+[2025-10-25 14:43:52] [INFO] 
+[2025-10-25 14:43:52] [INFO] Total Tests Executed: 91
+[2025-10-25 14:43:52] [INFO] Tests Passed: 62
+[2025-10-25 14:43:52] [INFO] Tests Failed: 29
+[2025-10-25 14:43:52] [INFO] Success Rate: 68.13%
+[2025-10-25 14:43:52] [INFO] 
+[2025-10-25 14:43:52] [INFO] Results by Category:
+[2025-10-25 14:43:52] [INFO]   Dashboard: 6/15 passed (40%)
+[2025-10-25 14:43:52] [INFO]   Error Handling: 13/15 passed (86.67%)
+[2025-10-25 14:43:52] [INFO]   Search & Filter: 15/15 passed (100%)
+[2025-10-25 14:43:52] [INFO]   Security: 15/20 passed (75%)
+[2025-10-25 14:43:52] [INFO]   Setup: 1/1 passed (100%)
+[2025-10-25 14:43:52] [INFO]   Validation: 12/25 passed (48%)
+[2025-10-25 14:43:52] [INFO] 
+[2025-10-25 14:43:52] [INFO] Detailed results saved to: COMPREHENSIVE_FULL_TEST_PART2_RESULTS_20251025_144309.txt
+[2025-10-25 14:43:53] [WARN] WARNING: 29 test(s) failed
+[2025-10-25 14:43:53] [WARN] Review failed tests above for details

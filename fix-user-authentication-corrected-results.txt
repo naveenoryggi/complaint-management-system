@@ -1,0 +1,5 @@
+Changed database context to 'ComplaintManagementDB'.
+Msg 207, Level 16, State 1, Server LAPTOP-NF9BTG7Q\SQLEXPRESS, Line 126
+Invalid column name 'FullName'.
+Msg 207, Level 16, State 1, Server LAPTOP-NF9BTG7Q\SQLEXPRESS, Line 152
+Invalid column name 'FullName'.

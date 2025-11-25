@@ -1,0 +1,522 @@
+// Resource Pool Management Component
+// Fully self-contained with design system tokens
+
+.resource-pool-management {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-8);
+}
+
+// Pools Grid
+.pools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: var(--spacing-6);
+}
+
+.pool-card {
+  background: white;
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: var(--transition-base);
+  border: 2px solid transparent;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  &.inactive {
+    opacity: 0.6;
+    border-color: var(--border-color);
+  }
+}
+
+.card-header {
+  background: linear-gradient(to bottom, var(--bg-secondary), white);
+  padding: var(--spacing-5);
+  border-bottom: 2px solid var(--border-color-light);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+
+  .pool-icon {
+    width: var(--spacing-12);
+    height: var(--spacing-12);
+    background: linear-gradient(135deg, var(--success-color), var(--success-color-dark));
+    border-radius: var(--border-radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      color: white;
+      font-size: var(--font-size-xl);
+    }
+  }
+
+  .pool-info {
+    flex: 1;
+    min-width: 0;
+
+    h3 {
+      margin: 0 0 var(--spacing-2) 0;
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pool-type-badge {
+      padding: var(--spacing-1) var(--spacing-3);
+      border-radius: var(--border-radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+      display: inline-block;
+    }
+  }
+
+  .status-badge {
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    background: var(--warning-color-bg);
+    color: var(--warning-color-dark);
+
+    &.active {
+      background: var(--success-color-light);
+      color: var(--success-color-dark);
+    }
+  }
+}
+
+// Pool Type Badges
+.badge-primary {
+  background: var(--info-color-light);
+  color: var(--info-color-dark);
+}
+
+.badge-success {
+  background: var(--success-color-light);
+  color: var(--success-color-dark);
+}
+
+.badge-info {
+  background: var(--info-color-light);
+  color: var(--info-color-dark);
+}
+
+.badge-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.card-body {
+  padding: var(--spacing-5);
+
+  .pool-description {
+    margin: 0 0 var(--spacing-4) 0;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+  }
+
+  .no-description {
+    margin: 0 0 var(--spacing-4) 0;
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+    font-style: italic;
+  }
+}
+
+.pool-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--border-color-light);
+  margin-bottom: var(--spacing-4);
+
+  .detail-row {
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      font-size: var(--font-size-sm);
+
+      i {
+        width: var(--spacing-5);
+        color: var(--success-color);
+        flex-shrink: 0;
+      }
+
+      .detail-label {
+        color: var(--text-secondary);
+        font-weight: var(--font-weight-medium);
+      }
+
+      .detail-value {
+        color: var(--text-primary);
+        font-weight: var(--font-weight-semibold);
+
+        &.member-count {
+          background: var(--info-color-light);
+          color: var(--info-color-dark);
+          padding: var(--spacing-1) var(--spacing-3);
+          border-radius: var(--border-radius-full);
+          font-size: var(--font-size-xs);
+        }
+      }
+    }
+  }
+}
+
+// Members Section
+.members-section {
+  margin-top: var(--spacing-6);
+  padding-top: var(--spacing-6);
+  border-top: 2px solid var(--border-color-light);
+
+  h4 {
+    margin: 0 0 var(--spacing-4) 0;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+
+    i {
+      color: var(--success-color);
+    }
+  }
+
+  .members-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .member-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    background: var(--bg-primary);
+    border-radius: var(--border-radius-lg);
+    transition: var(--transition-fast);
+
+    &:hover {
+      background: var(--bg-secondary);
+    }
+
+    .member-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      min-width: 0;
+
+      i {
+        color: var(--success-color);
+        font-size: var(--font-size-xl);
+        flex-shrink: 0;
+      }
+
+      .member-name {
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-semibold);
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .member-email {
+        font-size: var(--font-size-xs);
+        color: var(--text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .btn-remove-member {
+      width: var(--spacing-8);
+      height: var(--spacing-8);
+      border-radius: var(--border-radius-md);
+      border: none;
+      background: var(--error-color-light);
+      color: var(--error-color-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: var(--transition-fast);
+
+      &:hover {
+        background: var(--error-color-bg);
+        transform: scale(1.05);
+      }
+
+      i {
+        font-size: var(--font-size-sm);
+      }
+    }
+  }
+}
+
+// Member Modal Specific Styles
+.member-selection {
+  .help-text {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4);
+    background: var(--info-color-light);
+    border-left: 4px solid var(--info-color);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: var(--spacing-6);
+    font-size: var(--font-size-sm);
+    color: var(--info-color-dark);
+
+    i {
+      color: var(--info-color);
+      font-size: var(--font-size-lg);
+    }
+  }
+
+  .no-available-users {
+    text-align: center;
+    padding: var(--spacing-12) var(--spacing-4);
+    color: var(--text-muted);
+
+    i {
+      font-size: var(--font-size-5xl);
+      margin-bottom: var(--spacing-4);
+      color: var(--border-color-dark);
+    }
+
+    p {
+      margin: 0;
+      font-size: var(--font-size-base);
+      color: var(--text-secondary);
+    }
+  }
+
+  .user-selection-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    max-height: 400px;
+    overflow-y: auto;
+    padding: var(--spacing-2) 0;
+  }
+
+  .user-selection-item {
+    .user-checkbox {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-4);
+      padding: var(--spacing-4);
+      border: 2px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      cursor: pointer;
+      transition: var(--transition-fast);
+
+      &:hover {
+        border-color: var(--success-color);
+        background: var(--success-color-light);
+      }
+
+      input[type="checkbox"] {
+        width: var(--spacing-5);
+        height: var(--spacing-5);
+        cursor: pointer;
+        flex-shrink: 0;
+        accent-color: var(--success-color);
+      }
+
+      input[type="checkbox"]:checked ~ .user-info {
+        color: var(--success-color-dark);
+      }
+
+      .user-info {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-3);
+        min-width: 0;
+
+        i {
+          color: var(--success-color);
+          font-size: var(--font-size-3xl);
+          flex-shrink: 0;
+        }
+
+        .user-name {
+          font-size: var(--font-size-sm);
+          font-weight: var(--font-weight-semibold);
+          color: var(--text-primary);
+          margin-bottom: var(--spacing-1);
+        }
+
+        .user-email {
+          font-size: var(--font-size-xs);
+          color: var(--text-secondary);
+        }
+      }
+    }
+  }
+}
+
+// Pool Form specific styles
+.pool-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+// Additional button style for info button
+.btn-info {
+  background: linear-gradient(135deg, var(--info-color), var(--info-color-dark));
+  color: white;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+// Delete confirm specific
+.pool-name-highlight {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: var(--spacing-4) 0;
+}
+
+// Search-based user selection styles
+.search-section {
+  margin-bottom: var(--spacing-6);
+}
+
+.selected-users-list {
+  margin-top: var(--spacing-6);
+
+  h4 {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-3);
+  }
+}
+
+.selected-user-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--primary-color);
+  color: white;
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-sm);
+  transition: var(--transition-fast);
+
+  &:hover {
+    background: var(--primary-color-dark);
+  }
+
+  .user-chip-name {
+    font-weight: var(--font-weight-medium);
+  }
+
+  .user-chip-code {
+    opacity: 0.9;
+  }
+
+  .chip-remove-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: var(--spacing-5);
+    height: var(--spacing-5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    i {
+      font-size: var(--font-size-xs);
+    }
+  }
+}
+
+.empty-selection {
+  text-align: center;
+  padding: var(--spacing-8);
+  color: var(--text-muted);
+
+  i {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--spacing-2);
+  }
+
+  p {
+    font-size: var(--font-size-sm);
+    margin: 0;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .resource-pool-management {
+    padding: var(--spacing-4);
+  }
+
+  .pools-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .members-section {
+    .members-list {
+      max-height: 200px;
+    }
+
+    .member-item {
+      .member-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-1);
+      }
+    }
+  }
+
+  .member-selection {
+    .user-selection-list {
+      max-height: 300px;
+    }
+  }
+}

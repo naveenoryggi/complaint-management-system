@@ -1,0 +1,36 @@
+﻿{
+    "Summary":  {
+                    "TotalTasks":  4,
+                    "Warnings":  [
+
+                                 ],
+                    "Successful":  1,
+                    "Failed":  3
+                },
+    "TaskResults":  [
+                        {
+                            "TaskName":  "Task 1: Create Test User",
+                            "Status":  "FAILED",
+                            "Timestamp":  "2025-11-10 15:48:18",
+                            "Details":  "Error creating user: The remote server returned an error: (400) Bad Request."
+                        },
+                        {
+                            "TaskName":  "Task 2: Verify Handler User",
+                            "Status":  "SUCCESS",
+                            "Timestamp":  "2025-11-10 15:48:23",
+                            "Details":  "Handler user found and verified:\n- User ID: 94c91ae3-72ef-4b53-8057-08de0e0582b5\n- Email: naveen.chandra@oryggitech.com\n- Full Name: NAVEEN CHANDRA\n- Employee Code: 218819771403\n- Is Active: True\n- Role Assignments:\n\n- Has Handler Role: NO - WARNING!"
+                        },
+                        {
+                            "TaskName":  "Task 3: Create Priority-Based SLA Policies",
+                            "Status":  "FAILED",
+                            "Timestamp":  "2025-11-10 15:48:23",
+                            "Details":  "Error creating priority-based SLA policies: Index operation failed; the array index evaluated to null."
+                        },
+                        {
+                            "TaskName":  "Task 4: Create Category-Based SLA Policies",
+                            "Status":  "FAILED",
+                            "Timestamp":  "2025-11-10 15:48:23",
+                            "Details":  "Error creating category-based SLA policies: Index operation failed; the array index evaluated to null."
+                        }
+                    ]
+}

@@ -1,0 +1,54 @@
+.virtual-scroll-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  background: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+  font-weight: 600;
+  padding: 12px;
+}
+
+.table-row {
+  display: flex;
+  border-bottom: 1px solid #e9ecef;
+  padding: 12px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: #f8f9fa;
+  }
+}
+
+.table-cell {
+  flex: 1;
+  padding: 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+  color: #6c757d;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+}
+
+// CRITICAL FIX: Virtual scroll viewport needs a height to display content
+.scroll-viewport, cdk-virtual-scroll-viewport {
+  height: 600px;
+  min-height: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+}

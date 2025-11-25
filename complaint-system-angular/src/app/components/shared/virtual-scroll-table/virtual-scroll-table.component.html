@@ -1,0 +1,173 @@
+<div class="virtual-scroll-table-container">
+  <!-- Search and Controls -->
+  <div class="table-controls" *ngIf="data.length > 0 || searchTerm">
+    <div class="search-box">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearch($event)"
+      >
+      <i class="bi bi-search search-icon"></i>
+    </div>
+
+    <div class="control-buttons">
+      <button
+        *ngIf="selectable && multiSelect && selectedItems.length > 0"
+        class="btn btn-sm btn-outline-secondary"
+        (click)="clearSelection()"
+        title="Clear selection"
+      >
+        <i class="bi bi-x-square"></i>
+        Clear ({{ selectedItems.length }})
+      </button>
+
+      <button
+        *ngIf="selectable && multiSelect"
+        class="btn btn-sm btn-outline-primary"
+        (click)="selectAll()"
+        title="Select all visible"
+      >
+        <i class="bi bi-check-all"></i>
+        Select All
+      </button>
+    </div>
+  </div>
+
+  <!-- Table Info Bar -->
+  <div class="table-info" *ngIf="searchTerm || selectedItems.length > 0">
+    <div class="info-text">
+      <span *ngIf="searchTerm" class="search-info">
+        Found {{ filteredData.length }} of {{ data.length }} items
+        <span *ngIf="searchTerm">matching "{{ searchTerm }}"</span>
+      </span>
+
+      <span *ngIf="selectedItems.length > 0" class="selection-info">
+        {{ selectedItems.length }} item{{ selectedItems.length !== 1 ? 's' : '' }} selected
+      </span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading data...</p>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredData.length === 0" class="empty-container">
+    <div class="empty-state">
+      <i class="bi bi-inbox empty-icon"></i>
+      <h5>{{ emptyMessage }}</h5>
+      <p *ngIf="searchTerm" class="text-muted">
+        No items found matching "{{ searchTerm }}"
+      </p>
+      <button *ngIf="searchTerm" class="btn btn-outline-primary" (click)="searchTerm = ''; onSearch($event)">
+        Clear Search
+      </button>
+    </div>
+  </div>
+
+  <!-- Virtual Scroll Table -->
+  <div *ngIf="!loading && filteredData.length > 0" class="virtual-scroll-wrapper">
+    <!-- Fixed Header -->
+    <div class="table-header">
+      <div class="table-row header-row">
+        <!-- Checkbox for multi-select -->
+        <div *ngIf="selectable && multiSelect" class="table-cell checkbox-cell">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            [checked]="selectedItems.length === filteredData.length && filteredData.length > 0"
+            [indeterminate]="selectedItems.length > 0 && selectedItems.length < filteredData.length"
+            (change)="selectAll()"
+          >
+        </div>
+
+        <!-- Column Headers -->
+        <div
+          *ngFor="let column of columns"
+          class="table-cell header-cell"
+          [class]="getHeaderClass(column)"
+          [style.width]="column.width || 'auto'"
+          (click)="sortData(column.key)"
+        >
+          <span class="header-text">{{ column.label }}</span>
+          <span *ngIf="sortable && column.sortable !== false" class="sort-indicator">
+            <i *ngIf="currentSort?.column === column.key && currentSort?.direction === 'asc'"
+               class="bi bi-arrow-up-short"></i>
+            <i *ngIf="currentSort?.column === column.key && currentSort?.direction === 'desc'"
+               class="bi bi-arrow-down-short"></i>
+            <i *ngIf="currentSort?.column !== column.key"
+               class="bi bi-arrow-down-up text-muted"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Virtual Scroll Content -->
+    <cdk-virtual-scroll-viewport
+      class="scroll-viewport"
+      [itemSize]="itemHeight"
+    >
+      <div
+        *cdkVirtualFor="let item of filteredData; trackBy: trackByItem"
+        class="table-row data-row"
+        [class.selected]="isSelected(item)"
+        [class.selectable]="selectable"
+        (click)="onRowClick(item)"
+      >
+        <!-- Checkbox for multi-select -->
+        <div *ngIf="selectable && multiSelect" class="table-cell checkbox-cell">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            [checked]="isSelected(item)"
+            (change)="$event.stopPropagation(); toggleSelection(item)"
+          >
+        </div>
+
+        <!-- Radio for single-select -->
+        <div *ngIf="selectable && !multiSelect" class="table-cell radio-cell">
+          <input
+            type="radio"
+            class="form-check-input"
+            [name]="'selection-' + randomId"
+            [checked]="isSelected(item)"
+            (change)="$event.stopPropagation(); toggleSelection(item)"
+          >
+        </div>
+
+        <!-- Data Cells -->
+        <div
+          *ngFor="let column of columns"
+          class="table-cell data-cell"
+          [class]="getCellClass(item, column)"
+          [style.width]="column.width || 'auto'"
+          [title]="getDisplayValue(item, column)"
+        >
+          {{ getDisplayValue(item, column) }}
+        </div>
+      </div>
+    </cdk-virtual-scroll-viewport>
+  </div>
+
+  <!-- Table Footer Info -->
+  <div *ngIf="!loading && filteredData.length > 0" class="table-footer">
+    <div class="footer-info">
+      <span class="total-count">
+        {{ getVisibleCount() }} item{{ getVisibleCount() !== 1 ? 's' : '' }}
+        <span *ngIf="searchTerm">of {{ data.length }} total</span>
+      </span>
+
+      <span *ngIf="selectedItems.length > 0" class="selected-count">
+        | {{ selectedItems.length }} selected
+      </span>
+    </div>
+  </div>
+</div>

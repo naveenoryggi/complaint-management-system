@@ -1,0 +1,171 @@
+<div class="complaint-list-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-navigation">
+        <button class="btn btn-secondary btn-sm" (click)="goHome()">
+          <i class="bi bi-house-door"></i>
+          <span>Home</span>
+        </button>
+        <button class="btn btn-outline btn-sm" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i>
+          <span>Back</span>
+        </button>
+      </div>
+      <div class="header-title">
+        <h2>All Complaints</h2>
+        <p class="subtitle">Manage and track all complaints</p>
+      </div>
+    </div>
+    <button class="btn btn-primary" (click)="createComplaint()">
+      <i class="bi bi-plus-circle"></i>
+      <span>Create New Complaint</span>
+    </button>
+  </div>
+
+  <!-- Filters Card -->
+  <div class="filters-card card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="bi bi-funnel"></i>
+        Filters
+      </h3>
+      <span *ngIf="statusFilter || priorityFilter" class="active-filters-badge">
+        {{ (statusFilter ? 1 : 0) + (priorityFilter ? 1 : 0) }} active
+      </span>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="loadingMasterData" class="alert alert-info">
+        <i class="bi bi-hourglass-split"></i>
+        <span>Loading filter options...</span>
+      </div>
+
+      <div class="filters-grid" *ngIf="!loadingMasterData">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-flag"></i>
+            Status
+          </label>
+          <select class="form-control" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+            <option [ngValue]="undefined">All Statuses</option>
+            <option *ngFor="let status of statusOptions" [value]="status.value">
+              {{ status.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-exclamation-triangle"></i>
+            Priority
+          </label>
+          <select class="form-control" [(ngModel)]="priorityFilter" (change)="onFilterChange()">
+            <option [ngValue]="undefined">All Priorities</option>
+            <option *ngFor="let priority of priorityOptions" [value]="priority.value">
+              {{ priority.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group filter-actions">
+          <label class="form-label">&nbsp;</label>
+          <div class="button-group">
+            <button class="btn btn-primary" (click)="onFilterChange()">
+              <i class="bi bi-search"></i>
+              <span>Apply</span>
+            </button>
+            <button class="btn btn-outline" (click)="clearFilters()">
+              <i class="bi bi-x-circle"></i>
+              <span>Clear</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Virtual Table Card -->
+  <div class="table-card card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="bi bi-table"></i>
+        Complaints List
+      </h3>
+      <div class="results-info" *ngIf="!loading">
+        <span class="badge badge-primary">{{ complaints?.length || 0 }} complaints</span>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="virtual-table-wrapper">
+        <app-virtual-scroll-table
+          [data]="complaints"
+          [columns]="tableColumns"
+          [loading]="loading"
+          [emptyMessage]="'No complaints found'"
+          [sortable]="true"
+          [selectable]="true"
+          [itemHeight]="60"
+          [trackBy]="trackComplaintBy"
+          (rowClick)="onRowClick($event)"
+          (sort)="onSort($event)"
+        ></app-virtual-scroll-table>
+      </div>
+    </div>
+
+    <!-- Active Filters Info -->
+    <div class="card-footer" *ngIf="statusFilter || priorityFilter">
+      <div class="active-filters-info">
+        <i class="bi bi-funnel-fill"></i>
+        <span class="filter-label">Active Filters:</span>
+        <span class="filter-tag" *ngIf="statusFilter">
+          Status: {{ getStatusLabel(statusFilter) }}
+          <i class="bi bi-x" (click)="statusFilter = undefined; onFilterChange()"></i>
+        </span>
+        <span class="filter-tag" *ngIf="priorityFilter">
+          Priority: {{ getPriorityLabel(priorityFilter) }}
+          <i class="bi bi-x" (click)="priorityFilter = undefined; onFilterChange()"></i>
+        </span>
+      </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="card-footer pagination-footer" *ngIf="totalPages > 1">
+      <div class="pagination-container">
+        <div class="pagination-controls">
+          <button
+            class="btn btn-sm btn-outline"
+            [disabled]="currentPage === 1"
+            (click)="onPageChange(currentPage - 1)">
+            <i class="bi bi-chevron-left"></i>
+            Previous
+          </button>
+
+          <div class="page-numbers">
+            <button
+              *ngFor="let page of pageNumbers"
+              class="btn btn-sm"
+              [class.btn-primary]="page === currentPage"
+              [class.btn-outline]="page !== currentPage"
+              (click)="onPageChange(page)">
+              {{ page }}
+            </button>
+          </div>
+
+          <button
+            class="btn btn-sm btn-outline"
+            [disabled]="currentPage === totalPages"
+            (click)="onPageChange(currentPage + 1)">
+            Next
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+
+        <div class="pagination-info">
+          <span>Page {{ currentPage }} of {{ totalPages }} • {{ totalCount }} total complaints</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

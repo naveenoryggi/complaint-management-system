@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Wizard Test - Static Demo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666;
+            --border-color: #ddd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 24px 32px;
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(74, 144, 226, 0.05));
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .content {
+            padding: 32px;
+        }
+
+        /* OAuth Information Banner */
+        .info-banner {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.05), rgba(40, 167, 69, 0.1));
+            border: 2px solid rgba(40, 167, 69, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .banner-icon {
+            font-size: 40px;
+            color: var(--success-color);
+        }
+
+        .banner-content h4 {
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .banner-content p {
+            margin: 8px 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .oauth-benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .benefit i {
+            color: var(--success-color);
+        }
+
+        /* Authentication Type Selector */
+        .auth-type-selector {
+            margin-bottom: 32px;
+        }
+
+        .auth-type-selector h3 {
+            margin-bottom: 16px;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .auth-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .auth-option {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .auth-option:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .auth-option.selected {
+            border-color: var(--primary-color);
+            background: rgba(74, 144, 226, 0.05);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .option-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .option-header i {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .option-header strong {
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning-color);
+            color: #333;
+        }
+
+        .option-features {
+            list-style: none;
+            margin-top: 12px;
+        }
+
+        .option-features li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .option-features i {
+            color: var(--success-color);
+            font-size: 14px;
+        }
+
+        /* OAuth Wizard */
+        .oauth-wizard {
+            margin-top: 32px;
+        }
+
+        .wizard-step {
+            display: flex;
+            gap: 20px;
+            padding: 24px;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .wizard-step.active {
+            background: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--border-color);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .wizard-step.active .step-number {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .wizard-step.completed .step-number {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .wizard-step.completed .step-number::after {
+            content: "✓";
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h4 {
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .step-content p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Provider Grid */
+        .provider-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .provider-card {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .provider-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .provider-card.selected {
+            border-color: var(--primary-color);
+            background: rgba(74, 144, 226, 0.05);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .provider-card i {
+            font-size: 40px;
+            color: var(--primary-color);
+        }
+
+        .provider-card strong {
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .provider-card small {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3a7bc8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+        }
+
+        .wizard-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 2px solid rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-envelope"></i>
+                Email Ticketing Configuration - OAuth Wizard
+            </h1>
+        </div>
+
+        <div class="content">
+            <!-- OAuth Information Banner -->
+            <div class="info-banner">
+                <div class="banner-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="banner-content">
+                    <h4><i class="fas fa-info-circle"></i> About Modern Email Authentication</h4>
+                    <p><strong>Important:</strong> Most email providers (Gmail, Outlook, Office 365) have <strong>disabled basic password authentication</strong> for security reasons.</p>
+                    <p><strong>You must use OAuth 2.0</strong> - a secure, modern authentication method where you authorize this application through your email provider's official login page.</p>
+                    <div class="oauth-benefits">
+                        <div class="benefit">
+                            <i class="fas fa-check-circle"></i>
+                            <span>No passwords stored in database</span>
+                        </div>
+                        <div class="benefit">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Automatic token refresh</span>
+                        </div>
+                        <div class="benefit">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Required for Office 365 & Gmail</span>
+                        </div>
+                        <div class="benefit">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Revoke access anytime</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authentication Type Selector -->
+            <div class="auth-type-selector">
+                <h3>Choose Authentication Method</h3>
+                <div class="auth-options">
+                    <div class="auth-option selected" onclick="selectAuth('oauth')">
+                        <div class="option-header">
+                            <i class="fas fa-shield-alt"></i>
+                            <strong>OAuth 2.0 (Recommended)</strong>
+                            <span class="badge badge-success">Secure</span>
+                        </div>
+                        <p>Modern, secure authentication for Gmail, Outlook, Office 365</p>
+                        <ul class="option-features">
+                            <li><i class="fas fa-check"></i> No passwords stored</li>
+                            <li><i class="fas fa-check"></i> Required for Office 365 & Gmail</li>
+                            <li><i class="fas fa-check"></i> Automatic token refresh</li>
+                        </ul>
+                    </div>
+                    <div class="auth-option" onclick="selectAuth('basic')">
+                        <div class="option-header">
+                            <i class="fas fa-key"></i>
+                            <strong>Basic Authentication</strong>
+                            <span class="badge badge-warning">Legacy</span>
+                        </div>
+                        <p>Traditional username/password authentication</p>
+                        <ul class="option-features">
+                            <li><i class="fas fa-times"></i> Being phased out by providers</li>
+                            <li><i class="fas fa-times"></i> Less secure than OAuth</li>
+                            <li><i class="fas fa-exclamation-triangle"></i> May not work for Gmail/Office 365</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OAuth Wizard Steps -->
+            <div class="oauth-wizard">
+                <h3>OAuth Setup Wizard</h3>
+
+                <!-- Step 1: Provider Selection -->
+                <div class="wizard-step completed">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Select Your Email Provider</h4>
+                        <p>Choose your email service provider to auto-fill server settings</p>
+                        <div class="provider-selector-grid">
+                            <div class="provider-card selected">
+                                <i class="fab fa-microsoft"></i>
+                                <strong>Office 365</strong>
+                                <small>Microsoft 365 Business & Enterprise</small>
+                            </div>
+                            <div class="provider-card">
+                                <i class="fab fa-google"></i>
+                                <strong>Gmail</strong>
+                                <small>Google Workspace & Gmail</small>
+                            </div>
+                            <div class="provider-card">
+                                <i class="fas fa-envelope"></i>
+                                <strong>Outlook.com</strong>
+                                <small>Personal Outlook accounts</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Email Configuration -->
+                <div class="wizard-step completed">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Email Configuration</h4>
+                        <p>Enter your email address and display name</p>
+                        <div style="display: grid; gap: 16px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Email Address *</label>
+                                <input type="email" value="support@company.com" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Display Name *</label>
+                                <input type="text" value="Company Support Team" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Setup Instructions -->
+                <div class="wizard-step active">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Setup Instructions</h4>
+                        <p>Follow these steps to configure OAuth in Azure Active Directory</p>
+                        <div style="background: rgba(74, 144, 226, 0.05); padding: 20px; border-radius: 8px; margin-top: 16px;">
+                            <h5 style="margin-bottom: 12px; color: var(--primary-color);">📋 Azure AD Configuration Steps:</h5>
+                            <ol style="line-height: 1.8; color: var(--text-secondary); padding-left: 20px;">
+                                <li>Go to <a href="https://portal.azure.com" target="_blank" style="color: var(--primary-color);">portal.azure.com</a></li>
+                                <li>Navigate to "Azure Active Directory" → "App registrations"</li>
+                                <li>Click "+ New registration"</li>
+                                <li>Enter name: <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">Complaint Management Email</code></li>
+                                <li>Copy the <strong>Application (client) ID</strong></li>
+                                <li>Copy the <strong>Directory (tenant) ID</strong></li>
+                                <li>Create a <strong>Client Secret</strong> and copy it</li>
+                                <li>Add API Permissions: <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">IMAP.AccessAsUser.All</code>, <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">SMTP.Send</code></li>
+                            </ol>
+                            <div style="margin-top: 16px; padding: 12px; background: white; border-radius: 6px; border: 1px solid rgba(74, 144, 226, 0.3);">
+                                <strong>Callback URL:</strong><br>
+                                <code style="display: inline-block; margin-top: 8px; padding: 8px 12px; background: #f8f9fa; border-radius: 4px; color: var(--primary-color); cursor: pointer;">
+                                    http://localhost:5000/api/oauth/callback
+                                    <i class="fas fa-copy" style="margin-left: 8px;"></i>
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: OAuth Credentials -->
+                <div class="wizard-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Enter OAuth Credentials</h4>
+                        <p>Paste the credentials from Azure AD</p>
+                    </div>
+                </div>
+
+                <!-- Step 5: Authorization -->
+                <div class="wizard-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>Authorize Email Access</h4>
+                        <p>Save configuration and authorize the application</p>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="wizard-navigation">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i>
+                        Back
+                    </button>
+                    <button class="btn btn-primary">
+                        Next
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectAuth(type) {
+            document.querySelectorAll('.auth-option').forEach(el => el.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+        }
+    </script>
+</body>
+</html>

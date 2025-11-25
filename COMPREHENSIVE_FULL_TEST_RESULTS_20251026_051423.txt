@@ -1,0 +1,423 @@
+[2025-10-26 05:14:23] [INFO] =============================================
+[2025-10-26 05:14:23] [INFO] COMPREHENSIVE FULL TEST SUITE - 245+ TESTS
+[2025-10-26 05:14:23] [INFO] =============================================
+[2025-10-26 05:14:23] [INFO] 
+[2025-10-26 05:14:23] [INFO] Testing all 26 controllers with complete coverage
+[2025-10-26 05:14:23] [INFO] 
+[2025-10-26 05:14:23] [INFO] Authenticating to get access token...
+[2025-10-26 05:14:24] [INFO] Authentication successful - Token obtained
+[2025-10-26 05:14:24] [INFO] 
+[2025-10-26 05:14:25] [INFO] [Setup] Get Categories
+[2025-10-26 05:14:25] [PASS] PASS: Get Categories
+[2025-10-26 05:14:25] [INFO] =============================================
+[2025-10-26 05:14:25] [INFO] CATEGORY 1: ORGANIZATION STRUCTURE (24 TESTS)
+[2025-10-26 05:14:25] [INFO] =============================================
+[2025-10-26 05:14:25] [INFO] --- Employee Types Management (6 tests) ---
+[2025-10-26 05:14:25] [INFO] [Org Structure] Get All Employee Types
+[2025-10-26 05:14:25] [PASS] PASS: Get All Employee Types
+[2025-10-26 05:14:25] [INFO] [Org Structure] Create Employee Type
+[2025-10-26 05:14:25] [PASS] PASS: Create Employee Type
+[2025-10-26 05:14:25] [INFO] [Org Structure] Get Employee Type by ID
+[2025-10-26 05:14:25] [PASS] PASS: Get Employee Type by ID
+[2025-10-26 05:14:25] [INFO] [Org Structure] Update Employee Type
+[2025-10-26 05:14:26] [PASS] PASS: Update Employee Type
+[2025-10-26 05:14:26] [INFO] [Org Structure] Delete Employee Type
+[2025-10-26 05:14:26] [PASS] PASS: Delete Employee Type
+[2025-10-26 05:14:26] [INFO] [Org Structure] Validation: Empty Employee Type Name
+[2025-10-26 05:14:26] [PASS] PASS: Validation: Empty Employee Type Name (Status 400 is expected)
+[2025-10-26 05:14:26] [INFO] --- Branch Management (6 tests) ---
+[2025-10-26 05:14:26] [INFO] [Org Structure] Testing Branch Management Page page accessibility
+[2025-10-26 05:14:30] [FAIL] FAIL: Branch Management Page - Unable to connect to the remote server
+[2025-10-26 05:14:30] [INFO] [Org Structure] Get All Branches
+[2025-10-26 05:14:30] [PASS] PASS: Get All Branches
+[2025-10-26 05:14:30] [INFO] [Org Structure] Create Branch
+[2025-10-26 05:14:31] [PASS] PASS: Create Branch
+[2025-10-26 05:14:31] [INFO] [Org Structure] Get Branch by ID
+[2025-10-26 05:14:31] [PASS] PASS: Get Branch by ID
+[2025-10-26 05:14:31] [INFO] [Org Structure] Update Branch
+[2025-10-26 05:14:31] [PASS] PASS: Update Branch
+[2025-10-26 05:14:31] [INFO] [Org Structure] Delete Branch
+[2025-10-26 05:14:31] [PASS] PASS: Delete Branch
+[2025-10-26 05:14:31] [INFO] --- Department Management (6 tests) ---
+[2025-10-26 05:14:31] [INFO] [Org Structure] Testing Department Management Page page accessibility
+[2025-10-26 05:14:35] [FAIL] FAIL: Department Management Page - Unable to connect to the remote server
+[2025-10-26 05:14:35] [INFO] [Org Structure] Get All Departments
+[2025-10-26 05:14:35] [PASS] PASS: Get All Departments
+[2025-10-26 05:14:35] [INFO] [Org Structure] Create Department
+[2025-10-26 05:14:35] [PASS] PASS: Create Department
+[2025-10-26 05:14:35] [INFO] [Org Structure] Get Department by ID
+[2025-10-26 05:14:36] [PASS] PASS: Get Department by ID
+[2025-10-26 05:14:36] [INFO] [Org Structure] Update Department
+[2025-10-26 05:14:36] [PASS] PASS: Update Department
+[2025-10-26 05:14:36] [INFO] [Org Structure] Delete Department
+[2025-10-26 05:14:36] [PASS] PASS: Delete Department
+[2025-10-26 05:14:36] [INFO] --- Section Management (6 tests) ---
+[2025-10-26 05:14:36] [INFO] [Org Structure] Testing Section Management Page page accessibility
+[2025-10-26 05:14:40] [FAIL] FAIL: Section Management Page - Unable to connect to the remote server
+[2025-10-26 05:14:40] [INFO] [Org Structure] Get All Sections
+[2025-10-26 05:14:40] [PASS] PASS: Get All Sections
+[2025-10-26 05:14:40] [INFO] [Org Structure] Create Section
+[2025-10-26 05:14:40] [PASS] PASS: Create Section
+[2025-10-26 05:14:40] [INFO] [Org Structure] Get Section by ID
+[2025-10-26 05:14:40] [PASS] PASS: Get Section by ID
+[2025-10-26 05:14:40] [INFO] [Org Structure] Update Section
+[2025-10-26 05:14:41] [PASS] PASS: Update Section
+[2025-10-26 05:14:41] [INFO] [Org Structure] Delete Section
+[2025-10-26 05:14:41] [PASS] PASS: Delete Section
+[2025-10-26 05:14:41] [INFO] 
+[2025-10-26 05:14:41] [INFO] =============================================
+[2025-10-26 05:14:41] [INFO] CATEGORY 2: ROLE MANAGEMENT (12 TESTS)
+[2025-10-26 05:14:41] [INFO] =============================================
+[2025-10-26 05:14:41] [INFO] [Role Management] Get All Roles
+[2025-10-26 05:14:41] [PASS] PASS: Get All Roles
+[2025-10-26 05:14:41] [INFO] [Role Management] Create Role
+[2025-10-26 05:14:41] [PASS] PASS: Create Role
+[2025-10-26 05:14:41] [INFO] [Role Management] Get Role by ID
+[2025-10-26 05:14:41] [PASS] PASS: Get Role by ID
+[2025-10-26 05:14:41] [INFO] [Role Management] Update Role
+[2025-10-26 05:14:41] [PASS] PASS: Update Role
+[2025-10-26 05:14:41] [INFO] [Role Management] Assign Permissions to Role
+[2025-10-26 05:14:41] [PASS] PASS: Assign Permissions to Role
+[2025-10-26 05:14:41] [INFO] [Role Management] Get Role Permissions
+[2025-10-26 05:14:41] [PASS] PASS: Get Role Permissions
+[2025-10-26 05:14:41] [INFO] [Role Management] Remove Permission from Role
+[2025-10-26 05:14:41] [PASS] PASS: Remove Permission from Role
+[2025-10-26 05:14:41] [INFO] [Role Management] Assign Role to User
+[2025-10-26 05:14:42] [PASS] PASS: Assign Role to User
+[2025-10-26 05:14:42] [INFO] [Role Management] Get Users by Role
+[2025-10-26 05:14:42] [PASS] PASS: Get Users by Role
+[2025-10-26 05:14:42] [INFO] [Role Management] Remove Role from User
+[2025-10-26 05:14:42] [PASS] PASS: Remove Role from User
+[2025-10-26 05:14:42] [INFO] [Role Management] Delete Role
+[2025-10-26 05:14:42] [PASS] PASS: Delete Role
+[2025-10-26 05:14:42] [INFO] [Role Management] Validation: Modify System Role
+[2025-10-26 05:14:42] [PASS] PASS: Validation: Modify System Role (Status 400 is expected)
+[2025-10-26 05:14:42] [INFO] 
+[2025-10-26 05:14:42] [INFO] =============================================
+[2025-10-26 05:14:42] [INFO] CATEGORY 3: CATEGORIES & MASTER DATA (21 TESTS)
+[2025-10-26 05:14:42] [INFO] =============================================
+[2025-10-26 05:14:42] [INFO] --- Categories Management (7 tests) ---
+[2025-10-26 05:14:42] [INFO] [Master Data] Testing Categories Management Page page accessibility
+[2025-10-26 05:14:46] [FAIL] FAIL: Categories Management Page - Unable to connect to the remote server
+[2025-10-26 05:14:46] [INFO] [Master Data] Get All Categories
+[2025-10-26 05:14:46] [PASS] PASS: Get All Categories
+[2025-10-26 05:14:46] [INFO] [Master Data] Create Category
+[2025-10-26 05:14:46] [PASS] PASS: Create Category
+[2025-10-26 05:14:46] [INFO] [Master Data] Update Category
+[2025-10-26 05:14:47] [PASS] PASS: Update Category
+[2025-10-26 05:14:47] [INFO] [Master Data] Delete Category
+[2025-10-26 05:14:47] [PASS] PASS: Delete Category
+[2025-10-26 05:14:47] [INFO] [Master Data] Validation: Empty Category Name
+[2025-10-26 05:14:47] [PASS] PASS: Validation: Empty Category Name (Status 400 is expected)
+[2025-10-26 05:14:47] [INFO] [Master Data] Get Active Categories Only
+[2025-10-26 05:14:47] [PASS] PASS: Get Active Categories Only
+[2025-10-26 05:14:47] [INFO] --- Complaint Status Master (7 tests) ---
+[2025-10-26 05:14:47] [INFO] [Master Data] Testing Status Master Management Page page accessibility
+[2025-10-26 05:14:51] [FAIL] FAIL: Status Master Management Page - Unable to connect to the remote server
+[2025-10-26 05:14:51] [INFO] [Master Data] Get All Statuses
+[2025-10-26 05:14:51] [PASS] PASS: Get All Statuses
+[2025-10-26 05:14:51] [INFO] [Master Data] Create Status
+[2025-10-26 05:14:51] [PASS] PASS: Create Status
+[2025-10-26 05:14:51] [INFO] [Master Data] Update Status
+[2025-10-26 05:14:51] [PASS] PASS: Update Status
+[2025-10-26 05:14:51] [INFO] [Master Data] Get Status by ID
+[2025-10-26 05:14:51] [PASS] PASS: Get Status by ID
+[2025-10-26 05:14:51] [INFO] [Master Data] Delete Status
+[2025-10-26 05:14:51] [PASS] PASS: Delete Status
+[2025-10-26 05:14:51] [INFO] [Master Data] Validation: Invalid Status Type
+[2025-10-26 05:14:51] [PASS] PASS: Validation: Invalid Status Type (Status 400 is expected)
+[2025-10-26 05:14:51] [INFO] --- Complaint Priority Master (7 tests) ---
+[2025-10-26 05:14:51] [INFO] [Master Data] Testing Priority Master Management Page page accessibility
+[2025-10-26 05:14:56] [FAIL] FAIL: Priority Master Management Page - Unable to connect to the remote server
+[2025-10-26 05:14:56] [INFO] [Master Data] Get All Priorities
+[2025-10-26 05:14:56] [PASS] PASS: Get All Priorities
+[2025-10-26 05:14:56] [INFO] [Master Data] Create Priority
+[2025-10-26 05:14:56] [PASS] PASS: Create Priority
+[2025-10-26 05:14:56] [INFO] [Master Data] Update Priority
+[2025-10-26 05:14:56] [PASS] PASS: Update Priority
+[2025-10-26 05:14:56] [INFO] [Master Data] Get Priority by ID
+[2025-10-26 05:14:56] [PASS] PASS: Get Priority by ID
+[2025-10-26 05:14:56] [INFO] [Master Data] Delete Priority
+[2025-10-26 05:14:56] [PASS] PASS: Delete Priority
+[2025-10-26 05:14:56] [INFO] [Master Data] Validation: Invalid Priority Level
+[2025-10-26 05:14:56] [PASS] PASS: Validation: Invalid Priority Level (Status 400 is expected)
+[2025-10-26 05:14:56] [INFO] 
+[2025-10-26 05:14:56] [INFO] =============================================
+[2025-10-26 05:14:56] [INFO] CATEGORY 4: USERS & AUTHENTICATION (18 TESTS)
+[2025-10-26 05:14:56] [INFO] =============================================
+[2025-10-26 05:14:56] [INFO] --- Users Management (12 tests) ---
+[2025-10-26 05:14:56] [INFO] [Users & Auth] Testing Users Management Page page accessibility
+[2025-10-26 05:15:00] [FAIL] FAIL: Users Management Page - Unable to connect to the remote server
+[2025-10-26 05:15:00] [INFO] [Users & Auth] Get All Users
+[2025-10-26 05:15:12] [PASS] PASS: Get All Users
+[2025-10-26 05:15:14] [INFO] [Users & Auth] Search Users
+[2025-10-26 05:15:14] [PASS] PASS: Search Users
+[2025-10-26 05:15:14] [INFO] [Users & Auth] Create User
+[2025-10-26 05:15:14] [PASS] PASS: Create User
+[2025-10-26 05:15:14] [INFO] [Users & Auth] Get User by ID
+[2025-10-26 05:15:15] [PASS] PASS: Get User by ID
+[2025-10-26 05:15:15] [INFO] [Users & Auth] Get User by Employee Code
+[2025-10-26 05:15:15] [PASS] PASS: Get User by Employee Code
+[2025-10-26 05:15:15] [INFO] [Users & Auth] Get Users by Company
+[2025-10-26 05:15:15] [PASS] PASS: Get Users by Company
+[2025-10-26 05:15:15] [INFO] [Users & Auth] Update User
+[2025-10-26 05:15:15] [PASS] PASS: Update User
+[2025-10-26 05:15:15] [INFO] [Users & Auth] Deactivate User
+[2025-10-26 05:15:15] [PASS] PASS: Deactivate User
+[2025-10-26 05:15:15] [INFO] [Users & Auth] Delete User
+[2025-10-26 05:15:15] [PASS] PASS: Delete User
+[2025-10-26 05:15:15] [INFO] [Users & Auth] Validation: Duplicate Email
+[2025-10-26 05:15:15] [PASS] PASS: Validation: Duplicate Email (Status 400 is expected)
+[2025-10-26 05:15:15] [INFO] [Users & Auth] Validation: Empty Required Fields
+[2025-10-26 05:15:15] [PASS] PASS: Validation: Empty Required Fields (Status 400 is expected)
+[2025-10-26 05:15:15] [INFO] --- Authentication (6 tests) ---
+[2025-10-26 05:15:15] [INFO] [Users & Auth] Login: Valid Credentials
+[2025-10-26 05:15:15] [PASS] PASS: Login: Valid Credentials
+[2025-10-26 05:15:15] [INFO] [Users & Auth] Login: Invalid Password
+[2025-10-26 05:15:16] [PASS] PASS: Login: Invalid Password (Status 401 is expected)
+[2025-10-26 05:15:16] [INFO] [Users & Auth] Login: Nonexistent User
+[2025-10-26 05:15:16] [PASS] PASS: Login: Nonexistent User (Status 401 is expected)
+[2025-10-26 05:15:16] [INFO] [Users & Auth] Get Current User Profile
+[2025-10-26 05:15:16] [PASS] PASS: Get Current User Profile
+[2025-10-26 05:15:16] [INFO] [Users & Auth] Validation: Empty Login Credentials
+[2025-10-26 05:15:16] [PASS] PASS: Validation: Empty Login Credentials (Status 400 is expected)
+[2025-10-26 05:15:16] [INFO] [Users & Auth] Unauthorized Access Without Token
+[2025-10-26 05:15:16] [PASS] PASS: Unauthorized Access Without Token (Status 401 is expected)
+[2025-10-26 05:15:16] [INFO] 
+[2025-10-26 05:15:16] [INFO] =============================================
+[2025-10-26 05:15:16] [INFO] CATEGORY 5: COMPLAINTS MANAGEMENT (24 TESTS)
+[2025-10-26 05:15:16] [INFO] =============================================
+[2025-10-26 05:15:16] [INFO] --- Complaints CRUD Operations (14 tests) ---
+[2025-10-26 05:15:16] [INFO] [Complaints] Testing Complaints List Page page accessibility
+[2025-10-26 05:15:20] [FAIL] FAIL: Complaints List Page - Unable to connect to the remote server
+[2025-10-26 05:15:20] [INFO] [Complaints] Testing Create Complaint Page page accessibility
+[2025-10-26 05:15:24] [FAIL] FAIL: Create Complaint Page - Unable to connect to the remote server
+[2025-10-26 05:15:24] [INFO] [Complaints] Get All Complaints
+[2025-10-26 05:15:26] [PASS] PASS: Get All Complaints
+[2025-10-26 05:15:26] [INFO] [Complaints] Create Complaint
+[2025-10-26 05:15:26] [FAIL] FAIL: Create Complaint - The remote server returned an error: (500) Internal Server Error.
+[2025-10-26 05:15:26] [INFO] [Complaints] Filter by Status
+[2025-10-26 05:15:27] [PASS] PASS: Filter by Status
+[2025-10-26 05:15:27] [INFO] [Complaints] Filter by Priority
+[2025-10-26 05:15:28] [PASS] PASS: Filter by Priority
+[2025-10-26 05:15:28] [INFO] [Complaints] Search Complaints
+[2025-10-26 05:15:29] [PASS] PASS: Search Complaints
+[2025-10-26 05:15:29] [INFO] [Complaints] Validation: Empty Complaint Title
+[2025-10-26 05:15:29] [PASS] PASS: Validation: Empty Complaint Title (Status 400 is expected)
+[2025-10-26 05:15:29] [INFO] --- Comments Management (10 tests) ---
+[2025-10-26 05:15:29] [INFO] 
+[2025-10-26 05:15:29] [INFO] =============================================
+[2025-10-26 05:15:29] [INFO] CATEGORY 6: COMMUNICATION SETTINGS (24 TESTS)
+[2025-10-26 05:15:29] [INFO] =============================================
+[2025-10-26 05:15:29] [INFO] --- Email Server Settings (8 tests) ---
+[2025-10-26 05:15:29] [INFO] [Communication] Testing Email Settings Page page accessibility
+[2025-10-26 05:15:33] [FAIL] FAIL: Email Settings Page - Unable to connect to the remote server
+[2025-10-26 05:15:33] [INFO] [Communication] Get All Email Settings
+[2025-10-26 05:15:33] [PASS] PASS: Get All Email Settings
+[2025-10-26 05:15:33] [INFO] [Communication] Create Email Setting
+[2025-10-26 05:15:33] [PASS] PASS: Create Email Setting
+[2025-10-26 05:15:33] [INFO] [Communication] Get Email Setting by ID
+[2025-10-26 05:15:33] [PASS] PASS: Get Email Setting by ID
+[2025-10-26 05:15:33] [INFO] [Communication] Update Email Setting
+[2025-10-26 05:15:33] [PASS] PASS: Update Email Setting
+[2025-10-26 05:15:33] [INFO] [Communication] Delete Email Setting
+[2025-10-26 05:15:33] [PASS] PASS: Delete Email Setting
+[2025-10-26 05:15:33] [INFO] [Communication] Get Inactive Email Settings
+[2025-10-26 05:15:34] [PASS] PASS: Get Inactive Email Settings
+[2025-10-26 05:15:34] [INFO] [Communication] Validation: Empty Email Host
+[2025-10-26 05:15:34] [PASS] PASS: Validation: Empty Email Host (Status 400 is expected)
+[2025-10-26 05:15:34] [INFO] [Communication] Validation: Invalid Port
+[2025-10-26 05:15:34] [PASS] PASS: Validation: Invalid Port (Status 400 is expected)
+[2025-10-26 05:15:34] [INFO] --- SMS Gateway Settings (8 tests) ---
+[2025-10-26 05:15:34] [INFO] [Communication] Testing SMS Settings Page page accessibility
+[2025-10-26 05:15:38] [FAIL] FAIL: SMS Settings Page - Unable to connect to the remote server
+[2025-10-26 05:15:38] [INFO] [Communication] Get All SMS Settings
+[2025-10-26 05:15:38] [PASS] PASS: Get All SMS Settings
+[2025-10-26 05:15:38] [INFO] [Communication] Create SMS Setting
+[2025-10-26 05:15:38] [PASS] PASS: Create SMS Setting
+[2025-10-26 05:15:38] [INFO] [Communication] Get SMS Setting by ID
+[2025-10-26 05:15:38] [PASS] PASS: Get SMS Setting by ID
+[2025-10-26 05:15:38] [INFO] [Communication] Update SMS Setting
+[2025-10-26 05:15:38] [PASS] PASS: Update SMS Setting
+[2025-10-26 05:15:38] [INFO] [Communication] Delete SMS Setting
+[2025-10-26 05:15:38] [PASS] PASS: Delete SMS Setting
+[2025-10-26 05:15:38] [INFO] [Communication] Get Inactive SMS Settings
+[2025-10-26 05:15:38] [PASS] PASS: Get Inactive SMS Settings
+[2025-10-26 05:15:38] [INFO] [Communication] Validation: Empty Provider
+[2025-10-26 05:15:38] [PASS] PASS: Validation: Empty Provider (Status 400 is expected)
+[2025-10-26 05:15:38] [INFO] [Communication] Validation: Empty API Key
+[2025-10-26 05:15:38] [PASS] PASS: Validation: Empty API Key (Status 400 is expected)
+[2025-10-26 05:15:38] [INFO] --- WhatsApp Settings (8 tests) ---
+[2025-10-26 05:15:38] [INFO] [Communication] Testing WhatsApp Settings Page page accessibility
+[2025-10-26 05:15:43] [FAIL] FAIL: WhatsApp Settings Page - Unable to connect to the remote server
+[2025-10-26 05:15:43] [INFO] [Communication] Get All WhatsApp Settings
+[2025-10-26 05:15:43] [PASS] PASS: Get All WhatsApp Settings
+[2025-10-26 05:15:43] [INFO] [Communication] Create WhatsApp Setting
+[2025-10-26 05:15:43] [PASS] PASS: Create WhatsApp Setting
+[2025-10-26 05:15:43] [INFO] [Communication] Get WhatsApp Setting by ID
+[2025-10-26 05:15:43] [PASS] PASS: Get WhatsApp Setting by ID
+[2025-10-26 05:15:43] [INFO] [Communication] Update WhatsApp Setting
+[2025-10-26 05:15:43] [PASS] PASS: Update WhatsApp Setting
+[2025-10-26 05:15:43] [INFO] [Communication] Delete WhatsApp Setting
+[2025-10-26 05:15:43] [PASS] PASS: Delete WhatsApp Setting
+[2025-10-26 05:15:43] [INFO] [Communication] Get Inactive WhatsApp Settings
+[2025-10-26 05:15:43] [PASS] PASS: Get Inactive WhatsApp Settings
+[2025-10-26 05:15:43] [INFO] [Communication] Validation: Empty Phone Number
+[2025-10-26 05:15:43] [PASS] PASS: Validation: Empty Phone Number (Status 400 is expected)
+[2025-10-26 05:15:43] [INFO] [Communication] Validation: Empty Business Account
+[2025-10-26 05:15:43] [PASS] PASS: Validation: Empty Business Account (Status 400 is expected)
+[2025-10-26 05:15:43] [INFO] 
+[2025-10-26 05:15:43] [INFO] =============================================
+[2025-10-26 05:15:43] [INFO] CATEGORY 7: TEMPLATES & RULES (18 TESTS)
+[2025-10-26 05:15:43] [INFO] =============================================
+[2025-10-26 05:15:43] [INFO] --- Communication Templates (8 tests) ---
+[2025-10-26 05:15:43] [INFO] [Templates] Testing Communication Templates Page page accessibility
+[2025-10-26 05:15:47] [FAIL] FAIL: Communication Templates Page - Unable to connect to the remote server
+[2025-10-26 05:15:47] [INFO] [Templates] Get All Templates
+[2025-10-26 05:15:47] [PASS] PASS: Get All Templates
+[2025-10-26 05:15:47] [INFO] [Templates] Create Template
+[2025-10-26 05:15:48] [PASS] PASS: Create Template
+[2025-10-26 05:15:48] [INFO] [Templates] Filter by Channel Type
+[2025-10-26 05:15:48] [PASS] PASS: Filter by Channel Type
+[2025-10-26 05:15:48] [INFO] [Templates] Get Active Templates Only
+[2025-10-26 05:15:48] [PASS] PASS: Get Active Templates Only
+[2025-10-26 05:15:48] [INFO] [Templates] Validation: Empty Template Name
+[2025-10-26 05:15:48] [PASS] PASS: Validation: Empty Template Name (Status 400 is expected)
+[2025-10-26 05:15:48] [INFO] --- Event Communication Rules (6 tests) ---
+[2025-10-26 05:15:48] [INFO] [Templates] Get All Event Rules
+[2025-10-26 05:15:48] [PASS] PASS: Get All Event Rules
+[2025-10-26 05:15:48] [INFO] [Templates] Create Event Rule
+[2025-10-26 05:15:48] [PASS] PASS: Create Event Rule (Status 400 is expected)
+[2025-10-26 05:15:48] [INFO] [Templates] Validation: Invalid Event Type
+[2025-10-26 05:15:48] [PASS] PASS: Validation: Invalid Event Type (Status 400 is expected)
+[2025-10-26 05:15:48] [INFO] --- Event Types (4 tests) ---
+[2025-10-26 05:15:48] [INFO] [Templates] Get All Event Types
+[2025-10-26 05:15:48] [PASS] PASS: Get All Event Types
+[2025-10-26 05:15:48] [INFO] [Templates] Get Event Type by ID
+[2025-10-26 05:15:48] [PASS] PASS: Get Event Type by ID
+[2025-10-26 05:15:48] [INFO] [Templates] Get Active Event Types
+[2025-10-26 05:15:48] [PASS] PASS: Get Active Event Types
+[2025-10-26 05:15:48] [INFO] [Templates] Get Event Types by Category
+[2025-10-26 05:15:48] [PASS] PASS: Get Event Types by Category
+[2025-10-26 05:15:48] [INFO] 
+[2025-10-26 05:15:48] [INFO] =============================================
+[2025-10-26 05:15:48] [INFO] CATEGORY 8: ESCALATION (15 TESTS)
+[2025-10-26 05:15:48] [INFO] =============================================
+[2025-10-26 05:15:48] [INFO] --- Escalation Management (15 tests) ---
+[2025-10-26 05:15:48] [INFO] [Escalation] Testing Escalation Management Page page accessibility
+[2025-10-26 05:15:53] [FAIL] FAIL: Escalation Management Page - Unable to connect to the remote server
+[2025-10-26 05:15:53] [INFO] [Escalation] Get All Escalations
+[2025-10-26 05:15:53] [PASS] PASS: Get All Escalations
+[2025-10-26 05:15:53] [INFO] [Escalation] Get All Escalation Matrices
+[2025-10-26 05:15:53] [PASS] PASS: Get All Escalation Matrices
+[2025-10-26 05:15:53] [INFO] [Escalation] Create Escalation Matrix
+[2025-10-26 05:15:53] [PASS] PASS: Create Escalation Matrix
+[2025-10-26 05:15:53] [INFO] [Escalation] Get Escalation Matrix by ID
+[2025-10-26 05:15:53] [PASS] PASS: Get Escalation Matrix by ID
+[2025-10-26 05:15:53] [INFO] [Escalation] Update Escalation Matrix
+[2025-10-26 05:15:53] [PASS] PASS: Update Escalation Matrix
+[2025-10-26 05:15:53] [INFO] [Escalation] Add Escalation Level
+[2025-10-26 05:15:54] [PASS] PASS: Add Escalation Level (Status 400 is expected)
+[2025-10-26 05:15:54] [INFO] [Escalation] Delete Escalation Matrix
+[2025-10-26 05:15:54] [PASS] PASS: Delete Escalation Matrix
+[2025-10-26 05:15:54] [INFO] [Escalation] Get Pending Escalations
+[2025-10-26 05:15:54] [PASS] PASS: Get Pending Escalations
+[2025-10-26 05:15:54] [INFO] [Escalation] Validation: Empty Matrix Name
+[2025-10-26 05:15:54] [PASS] PASS: Validation: Empty Matrix Name (Status 400 is expected)
+[2025-10-26 05:15:54] [INFO] --- Escalation Policy (3 tests) ---
+[2025-10-26 05:15:54] [INFO] [Escalation] Get All Escalation Policies
+[2025-10-26 05:15:54] [PASS] PASS: Get All Escalation Policies
+[2025-10-26 05:15:54] [INFO] [Escalation] Get Policy by Category
+[2025-10-26 05:15:54] [PASS] PASS: Get Policy by Category
+[2025-10-26 05:15:54] [INFO] [Escalation] Get Active Policies
+[2025-10-26 05:15:54] [PASS] PASS: Get Active Policies
+[2025-10-26 05:15:54] [INFO] 
+[2025-10-26 05:15:54] [INFO] =============================================
+[2025-10-26 05:15:54] [INFO] CATEGORY 9: COMPANY & SETTINGS (12 TESTS)
+[2025-10-26 05:15:54] [INFO] =============================================
+[2025-10-26 05:15:54] [INFO] --- Company Management (6 tests) ---
+[2025-10-26 05:15:54] [INFO] [Company] Testing Company Settings Page page accessibility
+[2025-10-26 05:15:58] [FAIL] FAIL: Company Settings Page - Unable to connect to the remote server
+[2025-10-26 05:15:58] [INFO] [Company] Get All Companies
+[2025-10-26 05:15:58] [PASS] PASS: Get All Companies
+[2025-10-26 05:15:58] [INFO] [Company] Get Company by ID
+[2025-10-26 05:15:59] [PASS] PASS: Get Company by ID
+[2025-10-26 05:15:59] [INFO] [Company] Update Company
+[2025-10-26 05:15:59] [PASS] PASS: Update Company
+[2025-10-26 05:15:59] [INFO] [Company] Get Company Settings
+[2025-10-26 05:15:59] [PASS] PASS: Get Company Settings
+[2025-10-26 05:15:59] [INFO] [Company] Get Active Companies
+[2025-10-26 05:15:59] [PASS] PASS: Get Active Companies
+[2025-10-26 05:15:59] [INFO] [Company] Validation: Invalid Company ID
+[2025-10-26 05:15:59] [PASS] PASS: Validation: Invalid Company ID (Status 404 is expected)
+[2025-10-26 05:15:59] [INFO] --- Complaint Info Settings (6 tests) ---
+[2025-10-26 05:15:59] [INFO] [Company] Get Complaint Info Settings
+[2025-10-26 05:15:59] [PASS] PASS: Get Complaint Info Settings
+[2025-10-26 05:15:59] [INFO] [Company] Create/Update Info Setting
+[2025-10-26 05:15:59] [PASS] PASS: Create/Update Info Setting
+[2025-10-26 05:15:59] [INFO] [Company] Get Info Settings by Company
+[2025-10-26 05:15:59] [PASS] PASS: Get Info Settings by Company
+[2025-10-26 05:15:59] [INFO] [Company] Toggle Anonymous Setting
+[2025-10-26 05:15:59] [PASS] PASS: Toggle Anonymous Setting
+[2025-10-26 05:15:59] [INFO] [Company] Toggle Attachments Setting
+[2025-10-26 05:15:59] [PASS] PASS: Toggle Attachments Setting
+[2025-10-26 05:15:59] [INFO] [Company] Validation: Invalid Max Attachments
+[2025-10-26 05:15:59] [PASS] PASS: Validation: Invalid Max Attachments (Status 400 is expected)
+[2025-10-26 05:15:59] [INFO] 
+[2025-10-26 05:15:59] [INFO] =============================================
+[2025-10-26 05:15:59] [INFO] CATEGORY 10: DASHBOARD & RESOURCES (9 TESTS)
+[2025-10-26 05:15:59] [INFO] =============================================
+[2025-10-26 05:15:59] [INFO] --- Dashboard (6 tests) ---
+[2025-10-26 05:15:59] [INFO] [Dashboard] Testing Dashboard Home Page page accessibility
+[2025-10-26 05:16:04] [FAIL] FAIL: Dashboard Home Page - Unable to connect to the remote server
+[2025-10-26 05:16:04] [INFO] [Dashboard] Get Dashboard Preferences
+[2025-10-26 05:16:04] [PASS] PASS: Get Dashboard Preferences
+[2025-10-26 05:16:04] [INFO] [Dashboard] Save Dashboard Preferences
+[2025-10-26 05:16:04] [PASS] PASS: Save Dashboard Preferences
+[2025-10-26 05:16:04] [INFO] [Dashboard] Get Dashboard Statistics
+[2025-10-26 05:16:04] [PASS] PASS: Get Dashboard Statistics
+[2025-10-26 05:16:04] [INFO] [Dashboard] Get Statistics with Date Range
+[2025-10-26 05:16:04] [PASS] PASS: Get Statistics with Date Range
+[2025-10-26 05:16:04] [INFO] [Dashboard] Reset Dashboard Preferences
+[2025-10-26 05:16:04] [PASS] PASS: Reset Dashboard Preferences
+[2025-10-26 05:16:04] [INFO] --- Resource Pool (3 tests) ---
+[2025-10-26 05:16:04] [INFO] [Resources] Get All Resources
+[2025-10-26 05:16:05] [PASS] PASS: Get All Resources
+[2025-10-26 05:16:05] [INFO] [Resources] Get Available Resources
+[2025-10-26 05:16:05] [PASS] PASS: Get Available Resources
+[2025-10-26 05:16:05] [INFO] [Resources] Get Resources by Department
+[2025-10-26 05:16:05] [PASS] PASS: Get Resources by Department
+[2025-10-26 05:16:05] [INFO] 
+[2025-10-26 05:16:05] [INFO] =============================================
+[2025-10-26 05:16:05] [INFO] TEST SUITE EXECUTION COMPLETED
+[2025-10-26 05:16:05] [INFO] =============================================
+[2025-10-26 05:16:05] [INFO] 
+[2025-10-26 05:16:05] [INFO] =============================================
+[2025-10-26 05:16:05] [INFO] FINAL TEST RESULTS SUMMARY
+[2025-10-26 05:16:05] [INFO] =============================================
+[2025-10-26 05:16:05] [INFO] Total Tests Executed: 159
+[2025-10-26 05:16:05] [PASS] Passed: 142
+[2025-10-26 05:16:05] [FAIL] Failed: 17
+[2025-10-26 05:16:05] [INFO] Success Rate: 89.31%
+[2025-10-26 05:16:05] [INFO] Duration: 
+[2025-10-26 05:16:05] [INFO] 
+[2025-10-26 05:16:05] [INFO] =============================================
+[2025-10-26 05:16:05] [INFO] RESULTS BY CATEGORY
+[2025-10-26 05:16:05] [INFO] =============================================
+[2025-10-26 05:16:05] [WARN] Communication : 24/27 (88.89%)
+[2025-10-26 05:16:05] [WARN] Company : 12/13 (92.31%)
+[2025-10-26 05:16:05] [WARN] Complaints : 5/8 (62.5%)
+[2025-10-26 05:16:05] [WARN] Dashboard : 5/6 (83.33%)
+[2025-10-26 05:16:05] [WARN] Escalation : 12/13 (92.31%)
+[2025-10-26 05:16:05] [WARN] Master Data : 18/21 (85.71%)
+[2025-10-26 05:16:06] [WARN] Org Structure : 21/24 (87.5%)
+[2025-10-26 05:16:06] [PASS] Resources : 3/3 (100%)
+[2025-10-26 05:16:06] [PASS] Role Management : 12/12 (100%)
+[2025-10-26 05:16:06] [PASS] Setup : 1/1 (100%)
+[2025-10-26 05:16:06] [WARN] Templates : 12/13 (92.31%)
+[2025-10-26 05:16:06] [WARN] Users & Auth : 17/18 (94.44%)
+[2025-10-26 05:16:06] [INFO] 
+[2025-10-26 05:16:06] [INFO] =============================================
+[2025-10-26 05:16:06] [INFO] DETAILED RESULTS SAVED TO: COMPREHENSIVE_FULL_TEST_RESULTS_20251026_051423.txt
+[2025-10-26 05:16:06] [INFO] =============================================
+[2025-10-26 05:16:06] [FAIL] SOME TESTS FAILED - REVIEW RESULTS ABOVE

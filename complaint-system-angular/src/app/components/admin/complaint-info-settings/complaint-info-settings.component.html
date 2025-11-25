@@ -1,0 +1,282 @@
+<div class="container-fluid mt-4">
+  <div class="row mb-3">
+    <div class="col">
+      <h2>Complaint Information Settings</h2>
+      <p class="text-muted">Configure what complainant information is visible to handlers, management, and in reports</p>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading settings...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error && !loading" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+    <button type="button" class="btn-close" (click)="error = null"></button>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle"></i> {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = null"></button>
+  </div>
+
+  <!-- Settings Form -->
+  <form [formGroup]="settingsForm" (ngSubmit)="onSave()" *ngIf="!loading">
+    <!-- Handler Visibility Settings -->
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="bi bi-people"></i> Handler Visibility Settings
+        </h5>
+        <div class="btn-group btn-group-sm">
+          <button type="button" class="btn btn-outline-primary" (click)="toggleAllHandlerSettings(true)">
+            Enable All
+          </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="toggleAllHandlerSettings(false)">
+            Disable All
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Control what complainant information complaint handlers can see</p>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="showEmployeeCodeToHandlers" formControlName="showEmployeeCodeToHandlers">
+              <label class="form-check-label" for="showEmployeeCodeToHandlers">
+                Show Employee Code
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="showEmailToHandlers" formControlName="showEmailToHandlers">
+              <label class="form-check-label" for="showEmailToHandlers">
+                Show Email Address
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="showPhoneToHandlers" formControlName="showPhoneToHandlers">
+              <label class="form-check-label" for="showPhoneToHandlers">
+                Show Phone Number
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="showBranchToHandlers" formControlName="showBranchToHandlers">
+              <label class="form-check-label" for="showBranchToHandlers">
+                Show Branch Information
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="showDepartmentToHandlers" formControlName="showDepartmentToHandlers">
+              <label class="form-check-label" for="showDepartmentToHandlers">
+                Show Department Information
+              </label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="showSectionToHandlers" formControlName="showSectionToHandlers">
+              <label class="form-check-label" for="showSectionToHandlers">
+                Show Section Information
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="showJobTitleToHandlers" formControlName="showJobTitleToHandlers">
+              <label class="form-check-label" for="showJobTitleToHandlers">
+                Show Job Title
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="showManagerDetailsToHandlers" formControlName="showManagerDetailsToHandlers">
+              <label class="form-check-label" for="showManagerDetailsToHandlers">
+                Show Manager Details
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="showPreviousComplaintsToHandlers" formControlName="showPreviousComplaintsToHandlers">
+              <label class="form-check-label" for="showPreviousComplaintsToHandlers">
+                Show Previous Complaints History
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Management Visibility Settings -->
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="bi bi-person-badge"></i> Management Visibility Settings
+        </h5>
+        <div class="btn-group btn-group-sm">
+          <button type="button" class="btn btn-outline-primary" (click)="toggleAllManagementSettings(true)">
+            Enable All
+          </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="toggleAllManagementSettings(false)">
+            Disable All
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Extended information visible only to management level users</p>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="showEmployeeAddressToManagement" formControlName="showEmployeeAddressToManagement">
+              <label class="form-check-label" for="showEmployeeAddressToManagement">
+                Show Employee Address
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="showEmergencyContactToManagement" formControlName="showEmergencyContactToManagement">
+              <label class="form-check-label" for="showEmergencyContactToManagement">
+                Show Emergency Contact
+              </label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="showPerformanceMetricsToManagement" formControlName="showPerformanceMetricsToManagement">
+              <label class="form-check-label" for="showPerformanceMetricsToManagement">
+                Show Performance Metrics
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Privacy Settings -->
+    <div class="card mb-3">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="bi bi-shield-lock"></i> Privacy & Data Retention Settings
+        </h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Configure how personal information is handled in the system</p>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="maskPersonalInfoInLogs" formControlName="maskPersonalInfoInLogs">
+              <label class="form-check-label" for="maskPersonalInfoInLogs">
+                Mask Personal Information in System Logs
+              </label>
+              <small class="text-muted d-block">Emails and phone numbers will be partially hidden in logs</small>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="redactInfoAfterClosure" formControlName="redactInfoAfterClosure">
+              <label class="form-check-label" for="redactInfoAfterClosure">
+                Redact Personal Info After Complaint Closure
+              </label>
+              <small class="text-muted d-block">Contact details will be removed after resolution</small>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="dataRetentionDays" class="form-label">
+                Data Retention Period (Days)
+              </label>
+              <input
+                type="number"
+                class="form-control"
+                id="dataRetentionDays"
+                formControlName="dataRetentionDays"
+                min="0"
+                placeholder="0 = Keep indefinitely">
+              <small class="text-muted">
+                Number of days to retain complaint data. 0 means keep indefinitely.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report Settings -->
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="bi bi-file-earmark-text"></i> Report Settings
+        </h5>
+        <div class="btn-group btn-group-sm">
+          <button type="button" class="btn btn-outline-primary" (click)="toggleAllReportSettings(true)">
+            Include All
+          </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="toggleAllReportSettings(false)">
+            Exclude All
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Configure what information to include in exported reports</p>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="includeEmployeeCodeInReports" formControlName="includeEmployeeCodeInReports">
+              <label class="form-check-label" for="includeEmployeeCodeInReports">
+                Include Employee Code
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="includeEmailInReports" formControlName="includeEmailInReports">
+              <label class="form-check-label" for="includeEmailInReports">
+                Include Email Address
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="includePhoneInReports" formControlName="includePhoneInReports">
+              <label class="form-check-label" for="includePhoneInReports">
+                Include Phone Number
+              </label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="maskEmailInReports" formControlName="maskEmailInReports">
+              <label class="form-check-label" for="maskEmailInReports">
+                Mask Email in Reports
+              </label>
+              <small class="text-muted d-block">Show as u***@example.com</small>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="maskPhoneInReports" formControlName="maskPhoneInReports">
+              <label class="form-check-label" for="maskPhoneInReports">
+                Mask Phone in Reports
+              </label>
+              <small class="text-muted d-block">Show as +1234***890</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted" *ngIf="hasChanges()">
+              <i class="bi bi-info-circle"></i> You have unsaved changes
+            </span>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-secondary" (click)="onReset()" [disabled]="saving || !hasChanges()">
+              <i class="bi bi-arrow-counterclockwise"></i> Reset
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="saving || !hasChanges()">
+              <span *ngIf="saving" class="spinner-border spinner-border-sm me-1"></span>
+              <i class="bi bi-save" *ngIf="!saving"></i> {{ saving ? 'Saving...' : 'Save Settings' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

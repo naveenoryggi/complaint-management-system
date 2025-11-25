@@ -1,0 +1,30 @@
+================================================================================
+OAuth WIZARD COMPREHENSIVE E2E TEST
+================================================================================
+
+
+📋 TEST 1: Login and Navigation
+--------------------------------------------------------------------------------
+❌ Test Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/login
+Call log:
+[2m  - navigating to "http://localhost:4200/login", waiting until "load"[22m
+
+[FAIL] Test Execution: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/login
+Call log:
+[2m  - navigating to "http://localhost:4200/login", waiting until "load"[22m
+
+
+
+================================================================================
+TEST RESULTS SUMMARY
+================================================================================
+Total Tests: 1
+✅ Passed: 0
+❌ Failed: 1
+📊 Pass Rate: 0.0%
+📸 Screenshots: 0
+📁 Screenshot Directory: .playwright-oauth-wizard
+================================================================================
+
+📄 Markdown report saved: .playwright-oauth-wizard/TEST-REPORT.md
+

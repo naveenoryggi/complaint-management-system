@@ -1,0 +1,154 @@
+{
+  "phase": "Phase 1 - Core Features",
+  "executionDate": "2025-11-11",
+  "startTime": "2025-11-11T14:31:50.398Z",
+  "testResults": [
+    {
+      "feature": "1.1 Login & Authentication",
+      "testCases": [
+        {
+          "id": "TC-1.1.1",
+          "name": "Admin login success",
+          "status": "PASS",
+          "screenshot": "01-admin-login-success.png",
+          "notes": "Redirected to: http://localhost:4200/dashboard. Token stored: No (but login successful)",
+          "actualResult": "Successfully logged in as admin and redirected to http://localhost:4200/dashboard"
+        },
+        {
+          "id": "TC-1.1.2",
+          "name": "Handler login success",
+          "status": "PASS",
+          "screenshot": "02-handler-login-success.png",
+          "notes": "Redirected to: http://localhost:4200/dashboard",
+          "actualResult": "Successfully logged in as handler and redirected to http://localhost:4200/dashboard"
+        },
+        {
+          "id": "TC-1.1.3",
+          "name": "Complainant login success",
+          "status": "PASS",
+          "screenshot": "03-complainant-login-success.png",
+          "notes": "Redirected to: http://localhost:4200/dashboard",
+          "actualResult": "Successfully logged in as complainant and redirected to http://localhost:4200/dashboard"
+        },
+        {
+          "id": "TC-1.1.4",
+          "name": "Login with invalid password",
+          "status": "PASS",
+          "screenshot": "04-login-invalid-password.png",
+          "notes": "Error indication found: true. Still on login page: true",
+          "actualResult": "Login rejected with invalid password"
+        },
+        {
+          "id": "TC-1.1.5",
+          "name": "Login with non-existent user",
+          "status": "PASS",
+          "screenshot": "05-login-nonexistent-user.png",
+          "notes": "Error indication found: true. Still on login page: true",
+          "actualResult": "Login rejected for non-existent user"
+        }
+      ],
+      "overallStatus": "PASS",
+      "issuesFound": []
+    },
+    {
+      "feature": "1.2 Role-Based Access Control",
+      "testCases": [
+        {
+          "id": "TC-1.2.1",
+          "name": "Admin can access admin routes",
+          "status": "PASS",
+          "screenshot": "06-admin-access-*.png",
+          "notes": "Admin routes accessible: 3/3. Results: [{\"route\":\"/admin/users\",\"accessible\":true,\"currentURL\":\"http://localhost:4200/admin/users\"},{\"route\":\"/admin/roles\",\"accessible\":true,\"currentURL\":\"http://localhost:4200/admin/roles\"},{\"route\":\"/admin/categories\",\"accessible\":true,\"currentURL\":\"http://localhost:4200/admin/categories\"}]",
+          "actualResult": "Admin can access 3/3 admin routes"
+        }
+      ],
+      "overallStatus": "PASS",
+      "issuesFound": []
+    },
+    {
+      "feature": "2.1 Dashboard Statistics",
+      "testCases": [
+        {
+          "id": "TC-2.1.1",
+          "name": "Admin dashboard shows all system statistics",
+          "status": "PASS",
+          "screenshot": "09-admin-dashboard-statistics.png",
+          "notes": "Statistics widgets found: true. Numbers on page: 11, 0, 0, 6, 100, 0, 0, 0, 0, 0",
+          "actualResult": "Dashboard displays statistics"
+        },
+        {
+          "id": "TC-2.1.2",
+          "name": "Handler dashboard shows only assigned complaints",
+          "status": "PASS",
+          "screenshot": "10-handler-dashboard-statistics.png",
+          "notes": "Handler dashboard loaded: true",
+          "actualResult": "Handler dashboard displays statistics"
+        },
+        {
+          "id": "TC-2.1.3",
+          "name": "Complainant dashboard shows only own complaints",
+          "status": "PASS",
+          "screenshot": "11-complainant-dashboard-statistics.png",
+          "notes": "Complainant dashboard loaded: true",
+          "actualResult": "Complainant dashboard displays statistics"
+        }
+      ],
+      "overallStatus": "PASS",
+      "issuesFound": []
+    },
+    {
+      "feature": "3.2 View Complaint List",
+      "testCases": [
+        {
+          "id": "TC-3.2.1",
+          "name": "Admin views all complaints",
+          "status": "PASS",
+          "screenshot": "15-admin-complaint-list.png",
+          "notes": "Complaints visible: true",
+          "actualResult": "Admin can view complaint list"
+        },
+        {
+          "id": "TC-3.2.2",
+          "name": "Handler views assigned complaints",
+          "status": "PASS",
+          "screenshot": "16-handler-complaint-list.png",
+          "notes": "Complaints page loaded: true",
+          "actualResult": "Handler can access complaint list"
+        },
+        {
+          "id": "TC-3.2.3",
+          "name": "Complainant views own complaints",
+          "status": "PASS",
+          "screenshot": "17-complainant-complaint-list.png",
+          "notes": "Complaints visible: true",
+          "actualResult": "Complainant can view own complaint list"
+        }
+      ],
+      "overallStatus": "PASS",
+      "issuesFound": []
+    },
+    {
+      "feature": "3.3 View Complaint Detail",
+      "testCases": [
+        {
+          "id": "TC-3.3.1",
+          "name": "View complaint detail",
+          "status": "PASS",
+          "screenshot": "20-complaint-detail-full-view.png",
+          "notes": "Detail page loaded: true",
+          "actualResult": "Complaint detail page loaded successfully"
+        }
+      ],
+      "overallStatus": "PASS",
+      "issuesFound": []
+    }
+  ],
+  "summary": {
+    "totalTests": 13,
+    "passed": 13,
+    "failed": 0,
+    "partial": 0,
+    "passRate": "100.00%"
+  },
+  "endTime": "2025-11-11T14:34:38.338Z"
+}

@@ -1,0 +1,35 @@
+[2025-10-25 15:11:10] [INFO] ==========================================
+[2025-10-25 15:11:10] [INFO] 100% SUCCESS RATE TEST SUITE
+[2025-10-25 15:11:10] [INFO] ==========================================
+[2025-10-25 15:11:10] [INFO] 
+[2025-10-25 15:11:11] [INFO] Test 1 : StatusMasterId Data Integrity
+[2025-10-25 15:11:11] [PASS] PASS
+[2025-10-25 15:11:11] [INFO] Test 2 : Status Master Records
+[2025-10-25 15:11:12] [PASS] PASS: 9 status masters found
+[2025-10-25 15:11:12] [INFO] Test 3 : Priority Master Records
+[2025-10-25 15:11:12] [PASS] PASS: 7 priority masters found
+[2025-10-25 15:11:12] [INFO] Test 4 : Frontend Accessibility
+[2025-10-25 15:11:12] [PASS] PASS
+[2025-10-25 15:11:12] [INFO] Test 5 : Backend API Health
+[2025-10-25 15:11:12] [FAIL] FAIL
+[2025-10-25 15:11:12] [INFO] 
+[2025-10-25 15:11:12] [INFO] Authenticating...
+[2025-10-25 15:11:13] [FAIL] FAIL: Authentication failed
+[2025-10-25 15:11:13] [INFO] Test 11 : UI - Dashboard
+[2025-10-25 15:11:13] [PASS] PASS
+[2025-10-25 15:11:13] [INFO] Test 12 : UI - Complaints
+[2025-10-25 15:11:13] [PASS] PASS
+[2025-10-25 15:11:13] [INFO] Test 13 : UI - Login
+[2025-10-25 15:11:13] [PASS] PASS
+[2025-10-25 15:11:13] [INFO] 
+[2025-10-25 15:11:13] [INFO] ==========================================
+[2025-10-25 15:11:13] [INFO] RESULTS
+[2025-10-25 15:11:13] [INFO] ==========================================
+[2025-10-25 15:11:13] [INFO] Total Tests: 13
+[2025-10-25 15:11:13] [INFO] Passed: 7
+[2025-10-25 15:11:13] [INFO] Failed: 6
+[2025-10-25 15:11:13] [INFO] Success Rate: 53.85%
+[2025-10-25 15:11:13] [INFO] 
+[2025-10-25 15:11:13] [FAIL] WARNING: 6 test(s) failed
+[2025-10-25 15:11:13] [INFO] 
+[2025-10-25 15:11:13] [INFO] Results: 100_PERCENT_SUCCESS_20251025_151110.txt

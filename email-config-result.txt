@@ -1,0 +1,74 @@
+===============================================
+Email Ticketing Configuration - Microsoft Domain
+===============================================
+
+[1/6] Logging in to get authentication token...
+バ Login successful -ForegroundColor Green
+        Write-Host  User:   -ForegroundColor Gray
+        Write-Host "
+    } else {
+        Write-Host  バ- Login failed: Login successful  -ForegroundColor Red
+        exit 1
+    }
+} catch {
+    Write-Host  バ- Login error:  -ForegroundColor Red
+    exit 1
+}
+
+# Step 2: Create email configuration for Microsoft domain
+Write-Host [2/6] Creating email configuration for marketing@oryggitech.com... -ForegroundColor Yellow
+
+ = @{
+    Authorization = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImY1NmQ4ZDAzLWUzODItNDU0Yi1iZjdkLWZhODIzNmMxMjVjMyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFkbWluQGNvbXBsYWludG1hbmFnZW1lbnQuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IlVwZGF0ZWQgQWRtaW4iLCJFbXBsb3llZUNvZGUiOiJBRE1JTjAwMSIsIkNvbXBhbnlJZCI6ImZlMjhjZDg1LTQyMjYtNGRhYS05ZTQ1LTY2YTNkNTE4NzdmYSIsIlBlcm1pc3Npb24iOlsiTWFuYWdlU0xBIiwiVmlld0NvbXBsYWludHMiLCJBZGRDb21tZW50IiwiRXNjYWxhdGVDb21wbGFpbnQiLCJNYW5hZ2VVc2VycyIsIlZpZXdBdWRpdExvZ3MiLCJFZGl0Q29tcGxhaW50IiwiQ3JlYXRlQ29tcGxhaW50IiwiVmlld0NvbW1lbnRzIiwiTWFuYWdlUm9sZXMiLCJNYW5hZ2VFc2NhbGF0aW9uIiwiVmlld0F0dGFjaG1lbnRzIiwiQ3JlYXRlU0xBIiwiVmlld0VzY2FsYXRpb24iLCJBc3NpZ25Db21wbGFpbnQiLCJWaWV3UmVwb3J0cyIsIlZpZXdTTEEiLCJEZWxldGVDb21wbGFpbnQiLCJVcGRhdGVTTEEiLCJBZGRBdHRhY2htZW50IiwiTWFuYWdlQ2F0ZWdvcmllcyIsIkNsb3NlQ29tcGxhaW50IiwiTWFuYWdlU2V0dGluZ3MiLCJEZWxldGVTTEEiLCJNYW5hZ2VDb21wYW55IiwiUmVvcGVuQ29tcGxhaW50Il0sImV4cCI6MTc2Mjk3Mjc3NCwiaXNzIjoiQ29tcGxhaW50TWFuYWdlbWVudFN5c3RlbSIsImF1ZCI6IkNvbXBsYWludE1hbmFnZW1lbnRBUEkifQ.QaJmqqm5klgSeJcACWxHaZyQ2cYnhGzgcsfkWt7mWOQ
+    Content-Type = application/json
+}
+
+ = @{
+    imapHost = outlook.office365.com
+    imapPort = 993
+    imapUseSsl = True
+    imapUsername = marketing@oryggitech.com
+    imapPassword = M%226099461497uf
+    imapFolder = INBOX
+    smtpHost = smtp.office365.com
+    smtpPort = 587
+    smtpUseSsl = True
+    smtpUsername = marketing@oryggitech.com
+    smtpPassword = M%226099461497uf
+    fromEmail = marketing@oryggitech.com
+    fromName = Oryggi Tech Support
+    pollingIntervalMinutes = 5
+    isEnabled = True
+    sendAutoAcknowledgement = True
+    enableThreading = True
+    threadTimeoutDays = 7
+    maxAttachmentSizeBytes = 10485760
+    allowedAttachmentExtensions = .pdf .doc .docx .txt .jpg .jpeg .png .gif .zip
+} | ConvertTo-Json
+
+try {
+     = Invoke-RestMethod -Uri http://localhost:5000/api/email-configuration -Method POST -Headers  -Body 
+
+    if (.isSuccess) {
+         = .data.id
+        Write-Host バ Email configuration created successfully
+  Configuration ID: 
+  Email: 
+  Polling Interval:  minutes
+
+[3/6] Testing IMAP connection to Outlook...
+バ- SMTP test error: The remote server returned an error: (404) Not Found.
+[5/6] Fetching configuration details...
+バ- Polling error: The remote server returned an error: (401) Unauthorized.
+===============================================
+Configuration Complete!
+===============================================
+
+Next Steps:
+  1. Send a test email to marketing@oryggitech.com
+  2. Wait 5 minutes for automatic polling
+  3. Or manually poll using the admin UI
+  4. Check complaints list for new email-based complaints
+
+Configuration ID: 
+

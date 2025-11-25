@@ -1,0 +1,230 @@
+<div class="complaint-form-container">
+  <div class="form-card">
+    <!-- Header -->
+    <div class="form-header">
+      <h1>Submit a New Complaint</h1>
+      <p>Fill out the form below to submit your complaint. All fields marked with * are required.</p>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Loading form...</p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="complaintForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+      <!-- Title -->
+      <div class="form-field">
+        <label for="title">Title *</label>
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          placeholder="Brief summary of your complaint"
+          [class.error]="title?.invalid && title?.touched"
+        />
+        <div class="error-messages" *ngIf="title?.invalid && title?.touched">
+          <span *ngIf="title?.errors?.['required']">Title is required</span>
+          <span *ngIf="title?.errors?.['minlength']">Title must be at least 5 characters</span>
+          <span *ngIf="title?.errors?.['maxlength']">Title cannot exceed 200 characters</span>
+        </div>
+        <div class="field-hint" *ngIf="title?.valid || !title?.touched">
+          {{ title?.value?.length || 0 }} / 200 characters
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-field">
+        <label for="description">Description *</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          rows="6"
+          placeholder="Provide detailed information about your complaint"
+          [class.error]="description?.invalid && description?.touched"
+        ></textarea>
+        <div class="error-messages" *ngIf="description?.invalid && description?.touched">
+          <span *ngIf="description?.errors?.['required']">Description is required</span>
+          <span *ngIf="description?.errors?.['minlength']">Description must be at least 20 characters</span>
+          <span *ngIf="description?.errors?.['maxlength']">Description cannot exceed 2000 characters</span>
+        </div>
+        <div class="field-hint" *ngIf="description?.valid || !description?.touched">
+          {{ description?.value?.length || 0 }} / 2000 characters
+        </div>
+      </div>
+
+      <!-- Category and Priority Row -->
+      <div class="form-row">
+        <div class="form-field">
+          <label for="categoryId">Category *</label>
+          <select
+            id="categoryId"
+            formControlName="categoryId"
+            [class.error]="categoryId?.invalid && categoryId?.touched"
+          >
+            <option value="">Select a category</option>
+            <option *ngFor="let category of categories" [value]="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+          <div class="error-messages" *ngIf="categoryId?.invalid && categoryId?.touched">
+            <span *ngIf="categoryId?.errors?.['required']">Category is required</span>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="priority">Priority *</label>
+          <select
+            id="priority"
+            formControlName="priority"
+            [class.error]="priority?.invalid && priority?.touched"
+          >
+            <option *ngFor="let option of priorityOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+          <div class="error-messages" *ngIf="priority?.invalid && priority?.touched">
+            <span *ngIf="priority?.errors?.['required']">Priority is required</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Branch and Department Row (Optional) -->
+      <div class="form-row">
+        <div class="form-field">
+          <label for="branchId">Branch ID (Optional)</label>
+          <input
+            id="branchId"
+            type="text"
+            formControlName="branchId"
+            placeholder="Enter branch ID if applicable"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="departmentId">Department ID (Optional)</label>
+          <input
+            id="departmentId"
+            type="text"
+            formControlName="departmentId"
+            placeholder="Enter department ID if applicable"
+          />
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="form-field">
+        <label for="tags">Tags (Optional)</label>
+        <input
+          id="tags"
+          type="text"
+          formControlName="tags"
+          placeholder="Enter tags separated by commas (e.g., urgent, technical, billing)"
+        />
+        <div class="field-hint">
+          Add relevant tags to help categorize your complaint
+        </div>
+      </div>
+
+      <!-- Is Anonymous -->
+      <div class="form-field checkbox-field">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="isAnonymous" />
+          <span>Submit anonymously</span>
+        </label>
+        <div class="field-hint">
+          Your identity will be hidden if you choose to submit anonymously
+        </div>
+      </div>
+
+      <!-- Attachments -->
+      <div class="form-field">
+        <label for="attachments">Attachments (Optional)</label>
+        <div class="file-upload-container">
+          <input
+            #fileInput
+            id="attachments"
+            type="file"
+            multiple
+            (change)="onFileSelect($event)"
+            accept="image/*,.pdf,.doc,.docx,.txt"
+            style="display: none"
+          />
+          <button
+            type="button"
+            class="file-upload-button"
+            (click)="fileInput.click()"
+            [disabled]="selectedFiles.length >= 10"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+              <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+            </svg>
+            Choose Files
+          </button>
+          <div class="field-hint">
+            Maximum 10 files, 5MB per file. Supported formats: Images, PDF, DOC, DOCX, TXT
+          </div>
+        </div>
+
+        <!-- Selected Files List -->
+        <div class="selected-files-list" *ngIf="selectedFiles.length > 0">
+          <div class="selected-files-header">
+            <span>Selected Files ({{ selectedFiles.length }}/10)</span>
+            <button type="button" class="clear-all-button" (click)="clearAllFiles()">
+              Clear All
+            </button>
+          </div>
+          <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
+            <div class="file-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M9.5 1.5A1.5 1.5 0 0 1 11 3v12a1.5 1.5 0 0 1-1.5 1.5H3.5A1.5 1.5 0 0 1 2 13.5V3a1.5 1.5 0 0 1 1.5-1.5h6zm-3 0v4.5l.5.5 1.5-.5V1.5h-2z"/>
+              </svg>
+            </div>
+            <div class="file-info">
+              <div class="file-name">{{ file.name }}</div>
+              <div class="file-size">{{ formatFileSize(file.size) }}</div>
+            </div>
+            <button
+              type="button"
+              class="remove-file-button"
+              (click)="removeFile(i)"
+              title="Remove file"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- File Upload Errors -->
+        <div class="error-messages" *ngIf="fileUploadError">
+          <span>{{ fileUploadError }}</span>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div class="form-error" *ngIf="errorMessage">
+        <strong>Error:</strong> {{ errorMessage }}
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="cancel-button" (click)="cancel()" [disabled]="submitting">
+          Cancel
+        </button>
+        <button type="submit" class="submit-button" [disabled]="complaintForm.invalid || submitting">
+          <span *ngIf="!submitting">Submit Complaint</span>
+          <span *ngIf="submitting">Submitting...</span>
+        </button>
+      </div>
+
+      <!-- Form Status -->
+      <div class="form-status" *ngIf="complaintForm.invalid && complaintForm.touched">
+        <p>Please fix the errors above before submitting.</p>
+      </div>
+    </form>
+  </div>
+</div>
