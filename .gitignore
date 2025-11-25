@@ -81,3 +81,6 @@ EMAIL_TICKETING_OAUTH_SETUP_GUIDE.md
 appsettings.json
 appsettings.*.json
 !appsettings.template.json
+
+# Git credentials (local only)
+.git-credentials
