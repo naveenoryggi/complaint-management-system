@@ -1,0 +1,299 @@
+﻿{
+    "configurationStatus":  {
+                                "notificationRules":  {
+                                                          "configured":  true,
+                                                          "itemCount":  22
+                                                      },
+                                "emailSettings":  {
+                                                      "configured":  true,
+                                                      "itemCount":  3
+                                                  },
+                                "slaSettings":  {
+                                                    "configured":  true,
+                                                    "itemCount":  1
+                                                },
+                                "categories":  {
+                                                   "configured":  true,
+                                                   "itemCount":  19
+                                               },
+                                "slaLevels":  {
+                                                  "configured":  true,
+                                                  "itemCount":  19
+                                              },
+                                "statuses":  {
+                                                 "configured":  true,
+                                                 "itemCount":  11
+                                             },
+                                "workflows":  {
+                                                  "configured":  true,
+                                                  "itemCount":  6
+                                              },
+                                "branches":  {
+                                                 "configured":  false,
+                                                 "itemCount":  0
+                                             },
+                                "departments":  {
+                                                    "configured":  false,
+                                                    "itemCount":  0
+                                                },
+                                "sections":  {
+                                                 "configured":  false,
+                                                 "itemCount":  0
+                                             },
+                                "escalationMatrices":  {
+                                                           "configured":  true,
+                                                           "itemCount":  8
+                                                       },
+                                "priorities":  {
+                                                   "configured":  true,
+                                                   "itemCount":  6
+                                               },
+                                "roles":  {
+                                              "configured":  true,
+                                              "itemCount":  17
+                                          }
+                            },
+    "recommendations":  [
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/communicationtemplates",
+                                "area":  "/api/communicationtemplates"
+                            },
+                            {
+                                "priority":  "HIGH",
+                                "action":  "Fix endpoint accessibility issue: /api/eventtypes",
+                                "area":  "/api/eventtypes"
+                            }
+                        ],
+    "baseUrl":  "http://localhost:5000",
+    "timestamp":  "2025-11-11 13:04:03",
+    "authentication":  {
+                           "userName":  "Updated Admin",
+                           "status":  "SUCCESS",
+                           "token_length":  1243,
+                           "message":  "Successfully authenticated as admin",
+                           "companyId":  "fe28cd85-4226-4daa-9e45-66a3d51877fa"
+                       },
+    "gaps":  [
+                 {
+                     "endpoint":  "/api/communicationtemplates",
+                     "message":  "Configuration endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 },
+                 {
+                     "endpoint":  "/api/eventtypes",
+                     "message":  "Configuration endpoint not accessible",
+                     "type":  "ENDPOINT_FAILURE",
+                     "severity":  "HIGH"
+                 }
+             ],
+    "summary":  {
+                    "successRate":  80,
+                    "failedTests":  4,
+                    "highGaps":  2,
+                    "passedTests":  16,
+                    "totalEndpointsTested":  20,
+                    "mediumGaps":  0,
+                    "criticalGaps":  0,
+                    "totalGaps":  2
+                },
+    "endpointTests":  [
+                          {
+                              "url":  "/api/complaints",
+                              "hasData":  true,
+                              "method":  "GET",
+                              "category":  "Core",
+                              "name":  "List Complaints",
+                              "itemCount":  5,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/dashboard/statistics",
+                              "hasData":  false,
+                              "method":  "GET",
+                              "category":  "Core",
+                              "name":  "Dashboard Statistics",
+                              "itemCount":  0,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/users",
+                              "hasData":  true,
+                              "method":  "GET",
+                              "category":  "Core",
+                              "name":  "User Management",
+                              "itemCount":  10614,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/sla/settings",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "name":  "SLA Settings",
+                              "itemCount":  1,
+                              "isConfigured":  true,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/sla/levels",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "name":  "SLA Levels",
+                              "itemCount":  19,
+                              "isConfigured":  true,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/event-communication-rules",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "name":  "Notification Rules",
+                              "itemCount":  22,
+                              "isConfigured":  true,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/workflows",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "name":  "Workflows",
+                              "itemCount":  6,
+                              "isConfigured":  true,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/escalation/matrices",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "name":  "Escalation Configuration",
+                              "itemCount":  8,
+                              "isConfigured":  true,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/email-settings",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "name":  "Email Settings",
+                              "itemCount":  3,
+                              "isConfigured":  true,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/categories",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "name":  "Complaint Categories",
+                              "itemCount":  19,
+                              "isConfigured":  true,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/roles",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "name":  "Role Definitions",
+                              "itemCount":  17,
+                              "isConfigured":  true,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/communicationtemplates",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "Communication Templates",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          },
+                          {
+                              "url":  "/api/eventtypes",
+                              "method":  "GET",
+                              "category":  "Configuration",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "Event Types",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          },
+                          {
+                              "url":  "/api/ComplaintPriorityMaster",
+                              "hasData":  true,
+                              "method":  "GET",
+                              "category":  "MasterData",
+                              "name":  "Priority Levels",
+                              "itemCount":  6,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/ComplaintStatusMaster",
+                              "hasData":  true,
+                              "method":  "GET",
+                              "category":  "MasterData",
+                              "name":  "Status Types",
+                              "itemCount":  11,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/branches",
+                              "hasData":  false,
+                              "method":  "GET",
+                              "category":  "Organization",
+                              "name":  "Branches",
+                              "itemCount":  0,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/departments",
+                              "hasData":  false,
+                              "method":  "GET",
+                              "category":  "Organization",
+                              "name":  "Departments",
+                              "itemCount":  0,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/sections",
+                              "hasData":  false,
+                              "method":  "GET",
+                              "category":  "Organization",
+                              "name":  "Sections",
+                              "itemCount":  0,
+                              "status":  "PASS",
+                              "statusCode":  200
+                          },
+                          {
+                              "url":  "/api/resourcepool",
+                              "method":  "GET",
+                              "category":  "Escalation",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "Resource Pools",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          },
+                          {
+                              "url":  "/api/escalationpolicy",
+                              "method":  "GET",
+                              "category":  "Escalation",
+                              "error":  "The remote server returned an error: (404) Not Found.",
+                              "name":  "Escalation Policies",
+                              "status":  "FAIL",
+                              "statusCode":  404
+                          }
+                      ]
+}

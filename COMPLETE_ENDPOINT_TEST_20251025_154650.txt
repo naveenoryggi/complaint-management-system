@@ -1,0 +1,6 @@
+[INFO] ==========================================
+[INFO] COMPLETE ENDPOINT TEST SUITE
+[INFO] ==========================================
+[INFO] Authenticating...
+[FAIL] Authentication failed: The remote server returned an error: (401) Unauthorized.
+[FAIL] Response: 

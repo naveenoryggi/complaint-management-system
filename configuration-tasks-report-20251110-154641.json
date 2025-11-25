@@ -1,0 +1,36 @@
+﻿{
+    "Summary":  {
+                    "TotalTasks":  4,
+                    "Warnings":  [
+
+                                 ],
+                    "Successful":  0,
+                    "Failed":  4
+                },
+    "TaskResults":  [
+                        {
+                            "TaskName":  "Task 1: Create Test User",
+                            "Status":  "FAILED",
+                            "Timestamp":  "2025-11-10 15:46:36",
+                            "Details":  "Error creating user: Complainant role not found. Available roles: "
+                        },
+                        {
+                            "TaskName":  "Task 2: Verify Handler User",
+                            "Status":  "FAILED",
+                            "Timestamp":  "2025-11-10 15:46:41",
+                            "Details":  "Handler user \u0027Naveen.chandra@oryggitech.com\u0027 not found in the system.\n\nAvailable users: "
+                        },
+                        {
+                            "TaskName":  "Task 3: Create Priority-Based SLA Policies",
+                            "Status":  "FAILED",
+                            "Timestamp":  "2025-11-10 15:46:41",
+                            "Details":  "Error creating priority-based SLA policies: Index operation failed; the array index evaluated to null."
+                        },
+                        {
+                            "TaskName":  "Task 4: Create Category-Based SLA Policies",
+                            "Status":  "FAILED",
+                            "Timestamp":  "2025-11-10 15:46:41",
+                            "Details":  "Error creating category-based SLA policies: Index operation failed; the array index evaluated to null."
+                        }
+                    ]
+}

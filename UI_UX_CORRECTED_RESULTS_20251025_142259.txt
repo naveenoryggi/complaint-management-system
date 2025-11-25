@@ -1,0 +1,180 @@
+[2025-10-25 14:22:59] [INFO] =============================================
+[2025-10-25 14:23:00] [INFO] CORRECTED COMPREHENSIVE UI/UX TEST SUITE
+[2025-10-25 14:23:00] [INFO] =============================================
+[2025-10-25 14:23:00] [INFO] 
+[2025-10-25 14:23:00] [INFO] Authenticating to get access token...
+[2025-10-25 14:23:01] [INFO] Authentication successful - Token obtained
+[2025-10-25 14:23:01] [INFO] 
+[2025-10-25 14:23:01] [INFO] [Setup] Get Categories for Testing
+[2025-10-25 14:23:02] [PASS] PASS: Get Categories for Testing
+[2025-10-25 14:23:02] [INFO] Using Category ID: fd7f5d67-1ccf-46d4-60fb-08de132d67b5
+[2025-10-25 14:23:02] [INFO] 
+[2025-10-25 14:23:02] [INFO] =============================================
+[2025-10-25 14:23:02] [INFO] MODULE 1: DASHBOARD TESTING
+[2025-10-25 14:23:02] [INFO] =============================================
+[2025-10-25 14:23:02] [INFO] [Dashboard] Testing Dashboard Main Page page accessibility
+[2025-10-25 14:23:02] [PASS] PASS: Dashboard Main Page accessible
+[2025-10-25 14:23:02] [INFO] [Dashboard] Get Dashboard Statistics
+[2025-10-25 14:23:03] [PASS] PASS: Get Dashboard Statistics
+[2025-10-25 14:23:03] [INFO] 
+[2025-10-25 14:23:03] [INFO] =============================================
+[2025-10-25 14:23:03] [INFO] MODULE 2: COMPLAINT MANAGEMENT TESTING
+[2025-10-25 14:23:03] [INFO] =============================================
+[2025-10-25 14:23:03] [INFO] [Complaints] Testing Complaint List Page page accessibility
+[2025-10-25 14:23:03] [PASS] PASS: Complaint List Page accessible
+[2025-10-25 14:23:03] [INFO] [Complaints] Testing Create Complaint Page page accessibility
+[2025-10-25 14:23:03] [PASS] PASS: Create Complaint Page accessible
+[2025-10-25 14:23:03] [INFO] [Complaints] Get All Complaints
+[2025-10-25 14:23:07] [PASS] PASS: Get All Complaints
+[2025-10-25 14:23:07] [INFO] [Complaints] Get Complaints (Paginated)
+[2025-10-25 14:23:08] [PASS] PASS: Get Complaints (Paginated)
+[2025-10-25 14:23:08] [INFO] [Complaints] Filter by Status
+[2025-10-25 14:23:09] [PASS] PASS: Filter by Status
+[2025-10-25 14:23:09] [INFO] [Complaints] Create Complaint (All Fields)
+[2025-10-25 14:23:17] [PASS] PASS: Create Complaint (All Fields)
+[2025-10-25 14:23:17] [INFO] [Complaints] Get Complaint by ID
+[2025-10-25 14:23:17] [PASS] PASS: Get Complaint by ID
+[2025-10-25 14:23:17] [INFO] [Complaints] Update Complaint
+[2025-10-25 14:23:18] [PASS] PASS: Update Complaint
+[2025-10-25 14:23:18] [INFO] [Complaints] Add Comment
+[2025-10-25 14:23:18] [PASS] PASS: Add Comment
+[2025-10-25 14:23:18] [INFO] [Complaints] Get Comments
+[2025-10-25 14:23:18] [PASS] PASS: Get Comments
+[2025-10-25 14:23:18] [INFO] [Complaints] Assign Complaint
+[2025-10-25 14:23:21] [PASS] PASS: Assign Complaint
+[2025-10-25 14:23:21] [INFO] [Complaints] Escalate Complaint
+[2025-10-25 14:23:21] [PASS] PASS: Escalate Complaint
+[2025-10-25 14:23:21] [INFO] [Complaints] Close Complaint
+[2025-10-25 14:23:23] [PASS] PASS: Close Complaint
+[2025-10-25 14:23:23] [INFO] [Complaints] Reopen Complaint
+[2025-10-25 14:23:23] [PASS] PASS: Reopen Complaint
+[2025-10-25 14:23:24] [INFO] [Complaints] Validation: Get Non-Existent Complaint
+[2025-10-25 14:23:24] [PASS] PASS: Validation: Get Non-Existent Complaint (Expected 404)
+[2025-10-25 14:23:24] [INFO] 
+[2025-10-25 14:23:24] [INFO] =============================================
+[2025-10-25 14:23:24] [INFO] MODULE 3: CATEGORY MANAGEMENT TESTING
+[2025-10-25 14:23:24] [INFO] =============================================
+[2025-10-25 14:23:24] [INFO] [Categories] Testing Category Management Page page accessibility
+[2025-10-25 14:23:24] [PASS] PASS: Category Management Page accessible
+[2025-10-25 14:23:24] [INFO] [Categories] Get All Categories
+[2025-10-25 14:23:24] [PASS] PASS: Get All Categories
+[2025-10-25 14:23:24] [INFO] [Categories] Get Active Categories
+[2025-10-25 14:23:24] [PASS] PASS: Get Active Categories
+[2025-10-25 14:23:24] [INFO] [Categories] Create Category (All Fields)
+[2025-10-25 14:23:24] [PASS] PASS: Create Category (All Fields)
+[2025-10-25 14:23:24] [INFO] [Categories] Delete Category
+[2025-10-25 14:23:25] [PASS] PASS: Delete Category
+[2025-10-25 14:23:25] [INFO] [Categories] Validation: Empty Name/Code
+[2025-10-25 14:23:25] [PASS] PASS: Validation: Empty Name/Code (Expected 400)
+[2025-10-25 14:23:25] [INFO] 
+[2025-10-25 14:23:25] [INFO] =============================================
+[2025-10-25 14:23:25] [INFO] MODULE 4: USER MANAGEMENT TESTING
+[2025-10-25 14:23:25] [INFO] =============================================
+[2025-10-25 14:23:25] [INFO] [Users] Testing User Management Page page accessibility
+[2025-10-25 14:23:25] [PASS] PASS: User Management Page accessible
+[2025-10-25 14:23:25] [INFO] [Users] Testing User Profile Page page accessibility
+[2025-10-25 14:23:25] [PASS] PASS: User Profile Page accessible
+[2025-10-25 14:23:25] [INFO] [Users] Get All Users
+[2025-10-25 14:23:30] [PASS] PASS: Get All Users
+[2025-10-25 14:23:31] [INFO] [Users] Search Users
+[2025-10-25 14:23:31] [PASS] PASS: Search Users
+[2025-10-25 14:23:31] [INFO] [Users] Get User by ID
+[2025-10-25 14:23:31] [PASS] PASS: Get User by ID
+[2025-10-25 14:23:31] [INFO] [Users] Create User (All Fields)
+[2025-10-25 14:23:32] [PASS] PASS: Create User (All Fields)
+[2025-10-25 14:23:32] [INFO] [Users] Update User
+[2025-10-25 14:23:32] [PASS] PASS: Update User
+[2025-10-25 14:23:32] [INFO] [Users] Deactivate User
+[2025-10-25 14:23:32] [FAIL] FAIL: Deactivate User - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:23:32] [INFO] [Users] Delete User
+[2025-10-25 14:23:32] [PASS] PASS: Delete User
+[2025-10-25 14:23:32] [INFO] [Users] Validation: Invalid Email
+[2025-10-25 14:23:32] [PASS] PASS: Validation: Invalid Email (Expected 400)
+[2025-10-25 14:23:32] [INFO] 
+[2025-10-25 14:23:32] [INFO] =============================================
+[2025-10-25 14:23:32] [INFO] MODULE 5: STATUS MASTER TESTING
+[2025-10-25 14:23:32] [INFO] =============================================
+[2025-10-25 14:23:32] [INFO] [Status Master] Testing Status Master Page page accessibility
+[2025-10-25 14:23:32] [PASS] PASS: Status Master Page accessible
+[2025-10-25 14:23:32] [INFO] [Status Master] Get All Status Masters
+[2025-10-25 14:23:32] [PASS] PASS: Get All Status Masters
+[2025-10-25 14:23:32] [INFO] [Status Master] Create Status Master
+[2025-10-25 14:23:33] [PASS] PASS: Create Status Master
+[2025-10-25 14:23:33] [INFO] [Status Master] Update Status Master
+[2025-10-25 14:23:33] [PASS] PASS: Update Status Master
+[2025-10-25 14:23:33] [INFO] [Status Master] Delete Status Master
+[2025-10-25 14:23:33] [PASS] PASS: Delete Status Master
+[2025-10-25 14:23:33] [INFO] 
+[2025-10-25 14:23:33] [INFO] =============================================
+[2025-10-25 14:23:33] [INFO] MODULE 6: PRIORITY MASTER TESTING
+[2025-10-25 14:23:33] [INFO] =============================================
+[2025-10-25 14:23:33] [INFO] [Priority Master] Testing Priority Master Page page accessibility
+[2025-10-25 14:23:33] [PASS] PASS: Priority Master Page accessible
+[2025-10-25 14:23:33] [INFO] [Priority Master] Get All Priority Masters
+[2025-10-25 14:23:33] [PASS] PASS: Get All Priority Masters
+[2025-10-25 14:23:33] [INFO] [Priority Master] Create Priority Master
+[2025-10-25 14:23:33] [PASS] PASS: Create Priority Master
+[2025-10-25 14:23:33] [INFO] [Priority Master] Update Priority Master
+[2025-10-25 14:23:34] [PASS] PASS: Update Priority Master
+[2025-10-25 14:23:34] [INFO] [Priority Master] Delete Priority Master
+[2025-10-25 14:23:34] [PASS] PASS: Delete Priority Master
+[2025-10-25 14:23:34] [INFO] 
+[2025-10-25 14:23:34] [INFO] =============================================
+[2025-10-25 14:23:34] [INFO] MODULE 7: ORGANIZATION STRUCTURE TESTING
+[2025-10-25 14:23:34] [INFO] =============================================
+[2025-10-25 14:23:34] [INFO] [Branches] Testing Branch Management Page page accessibility
+[2025-10-25 14:23:34] [PASS] PASS: Branch Management Page accessible
+[2025-10-25 14:23:34] [INFO] [Branches] Get All Branches
+[2025-10-25 14:23:34] [PASS] PASS: Get All Branches
+[2025-10-25 14:23:34] [INFO] [Departments] Testing Department Management Page page accessibility
+[2025-10-25 14:23:34] [PASS] PASS: Department Management Page accessible
+[2025-10-25 14:23:34] [INFO] [Departments] Get Departments
+[2025-10-25 14:23:34] [PASS] PASS: Get Departments
+[2025-10-25 14:23:34] [INFO] [Sections] Testing Section Management Page page accessibility
+[2025-10-25 14:23:34] [PASS] PASS: Section Management Page accessible
+[2025-10-25 14:23:35] [INFO] [Sections] Get Sections
+[2025-10-25 14:23:35] [PASS] PASS: Get Sections
+[2025-10-25 14:23:35] [INFO] 
+[2025-10-25 14:23:35] [INFO] =============================================
+[2025-10-25 14:23:35] [INFO] MODULE 8: ESCALATION MANAGEMENT TESTING
+[2025-10-25 14:23:35] [INFO] =============================================
+[2025-10-25 14:23:35] [INFO] [Escalation] Testing Escalation Policy Page page accessibility
+[2025-10-25 14:23:35] [PASS] PASS: Escalation Policy Page accessible
+[2025-10-25 14:23:35] [INFO] [Escalation] Testing Escalation Wizard Page page accessibility
+[2025-10-25 14:23:35] [PASS] PASS: Escalation Wizard Page accessible
+[2025-10-25 14:23:35] [INFO] [Escalation] Get Escalation Matrices
+[2025-10-25 14:23:36] [PASS] PASS: Get Escalation Matrices
+[2025-10-25 14:23:36] [INFO] 
+[2025-10-25 14:23:36] [INFO] =============================================
+[2025-10-25 14:23:36] [INFO] MODULE 9: NOTIFICATION SETTINGS TESTING
+[2025-10-25 14:23:36] [INFO] =============================================
+[2025-10-25 14:23:36] [INFO] [Notifications] Testing Email Settings Page page accessibility
+[2025-10-25 14:23:36] [PASS] PASS: Email Settings Page accessible
+[2025-10-25 14:23:36] [INFO] [Notifications] Testing SMS Gateway Page page accessibility
+[2025-10-25 14:23:36] [PASS] PASS: SMS Gateway Page accessible
+[2025-10-25 14:23:36] [INFO] [Notifications] Testing WhatsApp Settings Page page accessibility
+[2025-10-25 14:23:36] [PASS] PASS: WhatsApp Settings Page accessible
+[2025-10-25 14:23:36] [INFO] [Notifications] Testing Template Management Page page accessibility
+[2025-10-25 14:23:36] [PASS] PASS: Template Management Page accessible
+[2025-10-25 14:23:36] [INFO] [Notifications] Testing Notification Rules Page page accessibility
+[2025-10-25 14:23:36] [PASS] PASS: Notification Rules Page accessible
+[2025-10-25 14:23:36] [INFO] 
+[2025-10-25 14:23:36] [INFO] =============================================
+[2025-10-25 14:23:36] [INFO] MODULE 10: ORYGGI INTEGRATION TESTING
+[2025-10-25 14:23:36] [INFO] =============================================
+[2025-10-25 14:23:36] [INFO] [Oryggi] Testing Oryggi Sync Page page accessibility
+[2025-10-25 14:23:36] [PASS] PASS: Oryggi Sync Page accessible
+[2025-10-25 14:23:36] [INFO] 
+[2025-10-25 14:23:36] [INFO] =============================================
+[2025-10-25 14:23:36] [INFO] TEST EXECUTION COMPLETED
+[2025-10-25 14:23:36] [INFO] =============================================
+[2025-10-25 14:23:36] [INFO] 
+[2025-10-25 14:23:36] [INFO] Total Tests Executed: 59
+[2025-10-25 14:23:36] [INFO] Tests Passed: 58
+[2025-10-25 14:23:36] [INFO] Tests Failed: 1
+[2025-10-25 14:23:36] [INFO] Success Rate: 98.31%
+[2025-10-25 14:23:37] [INFO] 
+[2025-10-25 14:23:37] [FAIL] WARNING: 1 test(s) failed
+[2025-10-25 14:23:37] [FAIL] Review failed tests above for details
+[2025-10-25 14:23:37] [INFO] 
+[2025-10-25 14:23:37] [INFO] Detailed results saved to: UI_UX_CORRECTED_RESULTS_20251025_142259.txt

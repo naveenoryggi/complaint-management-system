@@ -1,0 +1,291 @@
+<!-- Theme Customizer Toggle Button -->
+<button
+  class="theme-customizer-toggle"
+  (click)="toggleCustomizer()"
+  title="Theme Settings"
+  aria-label="Open theme customizer">
+  <i class="bi bi-palette"></i>
+</button>
+
+<!-- Theme Customizer Panel -->
+<div class="theme-customizer-overlay"
+     [class.open]="isOpen()"
+     (click)="close()"></div>
+
+<div class="theme-customizer-panel" [class.open]="isOpen()">
+  <!-- Header -->
+  <div class="customizer-header">
+    <h3>
+      <i class="bi bi-palette"></i>
+      Theme Customizer
+    </h3>
+    <button class="btn-close" (click)="close()" aria-label="Close">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="customizer-tabs">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'colors'"
+      (click)="setActiveTab('colors')">
+      <i class="bi bi-palette-fill"></i>
+      Colors
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'typography'"
+      (click)="setActiveTab('typography')">
+      <i class="bi bi-fonts"></i>
+      Typography
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'layout'"
+      (click)="setActiveTab('layout')">
+      <i class="bi bi-grid-3x3-gap"></i>
+      Layout
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'accessibility'"
+      (click)="setActiveTab('accessibility')">
+      <i class="bi bi-universal-access"></i>
+      A11y
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="customizer-content">
+
+    <!-- Colors Tab -->
+    <div class="tab-content" *ngIf="activeTab() === 'colors'">
+      <div class="section">
+        <h4>Theme Presets</h4>
+        <div class="preset-grid">
+          <button
+            *ngFor="let preset of presetThemes"
+            class="preset-btn"
+            (click)="applyPreset(preset)"
+            [title]="preset.name">
+            <div class="preset-colors">
+              <span class="color-dot" [style.background-color]="preset.config.primaryColor"></span>
+              <span class="color-dot" [style.background-color]="preset.config.secondaryColor"></span>
+              <span class="color-dot" [style.background-color]="preset.config.successColor"></span>
+            </div>
+            <span class="preset-name">{{ preset.name }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h4>Custom Colors</h4>
+        <p class="section-desc">Customize any color to match your brand</p>
+
+        <div class="color-grid">
+          <div
+            *ngFor="let colorItem of colorPalette"
+            class="color-item">
+            <label class="color-label">
+              <span class="label-text">{{ colorItem.label }}</span>
+              <div class="color-input-wrapper">
+                <input
+                  type="color"
+                  [value]="colorItem.value"
+                  (change)="onColorChange(colorItem.key, $any($event.target).value)"
+                  class="color-picker">
+                <input
+                  type="text"
+                  [value]="colorItem.value"
+                  (change)="onColorChange(colorItem.key, $any($event.target).value)"
+                  class="color-text"
+                  placeholder="#000000"
+                  pattern="^#[0-9A-Fa-f]{6}$">
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typography Tab -->
+    <div class="tab-content" *ngIf="activeTab() === 'typography'">
+      <div class="section">
+        <h4>Font Size</h4>
+        <div class="option-grid">
+          <label
+            *ngFor="let option of fontSizeOptions"
+            class="option-card"
+            [class.selected]="config.fontSize === option.value">
+            <input
+              type="radio"
+              name="fontSize"
+              [value]="option.value"
+              [checked]="config.fontSize === option.value"
+              (change)="onFontSizeChange(option.value)">
+            <div class="option-content">
+              <strong>{{ option.label }}</strong>
+              <small>{{ option.description }}</small>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="section">
+        <h4>Font Family</h4>
+        <div class="option-grid">
+          <label
+            *ngFor="let option of fontFamilyOptions"
+            class="option-card"
+            [class.selected]="config.fontFamily === option.value">
+            <input
+              type="radio"
+              name="fontFamily"
+              [value]="option.value"
+              [checked]="config.fontFamily === option.value"
+              (change)="onFontFamilyChange(option.value)">
+            <div class="option-content">
+              <strong>{{ option.label }}</strong>
+              <small>{{ option.description }}</small>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout Tab -->
+    <div class="tab-content" *ngIf="activeTab() === 'layout'">
+      <div class="section">
+        <h4>Layout Density</h4>
+        <div class="option-grid">
+          <label
+            *ngFor="let option of layoutOptions"
+            class="option-card"
+            [class.selected]="config.layout === option.value">
+            <input
+              type="radio"
+              name="layout"
+              [value]="option.value"
+              [checked]="config.layout === option.value"
+              (change)="onLayoutChange(option.value)">
+            <div class="option-content">
+              <strong>{{ option.label }}</strong>
+              <small>{{ option.description }}</small>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="section">
+        <h4>Border Radius</h4>
+        <div class="option-grid">
+          <label
+            *ngFor="let option of borderRadiusOptions"
+            class="option-card"
+            [class.selected]="config.borderRadius === option.value">
+            <input
+              type="radio"
+              name="borderRadius"
+              [value]="option.value"
+              [checked]="config.borderRadius === option.value"
+              (change)="onBorderRadiusChange(option.value)">
+            <div class="option-content">
+              <strong>{{ option.label }}</strong>
+              <small>{{ option.cssValue }}</small>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="section">
+        <h4>Theme Mode</h4>
+        <div class="theme-mode-btns">
+          <button
+            class="mode-btn"
+            [class.active]="config.theme === 'light'"
+            (click)="setTheme('light')">
+            <i class="bi bi-sun"></i>
+            Light
+          </button>
+          <button
+            class="mode-btn"
+            [class.active]="config.theme === 'dark'"
+            (click)="setTheme('dark')">
+            <i class="bi bi-moon"></i>
+            Dark
+          </button>
+          <button
+            class="mode-btn"
+            [class.active]="config.theme === 'auto'"
+            (click)="setTheme('auto')">
+            <i class="bi bi-circle-half"></i>
+            Auto
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accessibility Tab -->
+    <div class="tab-content" *ngIf="activeTab() === 'accessibility'">
+      <div class="section">
+        <h4>Accessibility Options</h4>
+
+        <div class="toggle-option">
+          <div class="toggle-label">
+            <i class="bi bi-lightning"></i>
+            <div>
+              <strong>Enable Animations</strong>
+              <small>Smooth transitions and effects</small>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              [checked]="config.animationsEnabled"
+              (change)="toggleAnimations()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-option">
+          <div class="toggle-label">
+            <i class="bi bi-eye"></i>
+            <div>
+              <strong>High Contrast</strong>
+              <small>Improved visibility for better readability</small>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              [checked]="config.highContrast"
+              (change)="toggleHighContrast()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="customizer-footer">
+    <button class="btn btn-outline-secondary btn-sm" (click)="resetToDefaults()">
+      <i class="bi bi-arrow-counterclockwise"></i>
+      Reset
+    </button>
+    <button class="btn btn-outline-primary btn-sm" (click)="exportTheme()">
+      <i class="bi bi-download"></i>
+      Export
+    </button>
+    <label class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-upload"></i>
+      Import
+      <input
+        type="file"
+        accept=".json"
+        (change)="importTheme($event)"
+        style="display: none;">
+    </label>
+  </div>
+</div>

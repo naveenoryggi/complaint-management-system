@@ -1,0 +1,164 @@
+<div class="email-composer-modal" *ngIf="isVisible" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+  <div class="modal-backdrop" (click)="onClose()"></div>
+
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2 id="modal-title" class="modal-title">
+        <i class="fas fa-envelope"></i>
+        Compose Email
+      </h2>
+      <button
+        type="button"
+        class="close-button"
+        (click)="onClose()"
+        aria-label="Close modal"
+        [disabled]="isSending">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <form [formGroup]="emailForm" (ngSubmit)="onSend()" class="modal-body">
+      <!-- Success Message -->
+      <div class="alert alert-success" *ngIf="sendSuccess" role="alert">
+        <i class="fas fa-check-circle"></i>
+        Email sent successfully!
+      </div>
+
+      <!-- Error Message -->
+      <div class="alert alert-danger" *ngIf="sendError" role="alert">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ sendError }}
+      </div>
+
+      <!-- To Field -->
+      <div class="form-group" [class.has-error]="hasError('to')">
+        <label for="to-field" class="form-label">
+          To <span class="required">*</span>
+        </label>
+        <input
+          id="to-field"
+          type="email"
+          class="form-control"
+          formControlName="to"
+          placeholder="recipient@example.com"
+          [attr.aria-invalid]="hasError('to')"
+          [attr.aria-describedby]="hasError('to') ? 'to-error' : null">
+        <span id="to-error" class="error-message" *ngIf="hasError('to')">
+          {{ getErrorMessage('to') }}
+        </span>
+      </div>
+
+      <!-- CC/BCC Toggle Buttons -->
+      <div class="toggle-buttons">
+        <button
+          type="button"
+          class="toggle-btn"
+          (click)="toggleCc()"
+          [class.active]="showCc">
+          CC
+        </button>
+        <button
+          type="button"
+          class="toggle-btn"
+          (click)="toggleBcc()"
+          [class.active]="showBcc">
+          BCC
+        </button>
+      </div>
+
+      <!-- CC Field -->
+      <div class="form-group" *ngIf="showCc" [class.has-error]="hasError('cc')">
+        <label for="cc-field" class="form-label">CC</label>
+        <input
+          id="cc-field"
+          type="text"
+          class="form-control"
+          formControlName="cc"
+          placeholder="cc1@example.com, cc2@example.com">
+        <span class="error-message" *ngIf="hasError('cc')">
+          {{ getErrorMessage('cc') }}
+        </span>
+      </div>
+
+      <!-- BCC Field -->
+      <div class="form-group" *ngIf="showBcc" [class.has-error]="hasError('bcc')">
+        <label for="bcc-field" class="form-label">BCC</label>
+        <input
+          id="bcc-field"
+          type="text"
+          class="form-control"
+          formControlName="bcc"
+          placeholder="bcc1@example.com, bcc2@example.com">
+        <span class="error-message" *ngIf="hasError('bcc')">
+          {{ getErrorMessage('bcc') }}
+        </span>
+      </div>
+
+      <!-- Subject Field -->
+      <div class="form-group" [class.has-error]="hasError('subject')">
+        <label for="subject-field" class="form-label">
+          Subject <span class="required">*</span>
+        </label>
+        <input
+          id="subject-field"
+          type="text"
+          class="form-control"
+          formControlName="subject"
+          placeholder="Email subject"
+          [attr.aria-invalid]="hasError('subject')"
+          [attr.aria-describedby]="hasError('subject') ? 'subject-error' : null">
+        <span id="subject-error" class="error-message" *ngIf="hasError('subject')">
+          {{ getErrorMessage('subject') }}
+        </span>
+      </div>
+
+      <!-- Body Field -->
+      <div class="form-group" [class.has-error]="hasError('body')">
+        <label for="body-field" class="form-label">
+          Message <span class="required">*</span>
+        </label>
+        <textarea
+          id="body-field"
+          class="form-control message-body"
+          formControlName="body"
+          rows="10"
+          placeholder="Type your message here..."
+          [attr.aria-invalid]="hasError('body')"
+          [attr.aria-describedby]="hasError('body') ? 'body-error' : null"></textarea>
+        <span id="body-error" class="error-message" *ngIf="hasError('body')">
+          {{ getErrorMessage('body') }}
+        </span>
+      </div>
+
+      <!-- HTML Toggle -->
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            formControlName="isHtml"
+            class="checkbox-input">
+          <span class="checkbox-text">Send as HTML</span>
+        </label>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="onClose()"
+          [disabled]="isSending">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isSending || emailForm.invalid">
+          <i class="fas" [class.fa-spinner]="isSending" [class.fa-spin]="isSending" [class.fa-paper-plane]="!isSending"></i>
+          {{ isSending ? 'Sending...' : 'Send Email' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

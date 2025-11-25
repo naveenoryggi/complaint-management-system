@@ -1,0 +1,82 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/**",
+          "/*.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-freshness",
+      "urls": [
+        "/api/**"
+      ],
+      "cacheConfig": {
+        "maxSize": 100,
+        "maxAge": "0m",
+        "timeout": "10s",
+        "strategy": "freshness"
+      }
+    },
+    {
+      "name": "api-performance",
+      "urls": [
+        "/api/dashboard/**",
+        "/api/statuses",
+        "/api/priorities",
+        "/api/categories"
+      ],
+      "cacheConfig": {
+        "maxSize": 100,
+        "maxAge": "5m",
+        "timeout": "10s",
+        "strategy": "performance"
+      }
+    },
+    {
+      "name": "static-content",
+      "urls": [
+        "https://fonts.googleapis.com/**",
+        "https://fonts.gstatic.com/**",
+        "https://cdn.jsdelivr.net/**"
+      ],
+      "cacheConfig": {
+        "maxSize": 300,
+        "maxAge": "30d",
+        "timeout": "10s",
+        "strategy": "performance"
+      }
+    }
+  ],
+  "navigationUrls": [
+    "/dashboard",
+    "/complaints",
+    "/complaints/new",
+    "/admin/users",
+    "/admin/categories",
+    "/admin/email-settings"
+  ],
+  "navigationRequestStrategy": "performance"
+}

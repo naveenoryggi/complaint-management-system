@@ -1,0 +1,81 @@
+[2025-10-25 20:07:04] [INFO] =============================================
+[2025-10-25 20:07:04] [INFO] COMPREHENSIVE FULL TEST SUITE - 245+ TESTS
+[2025-10-25 20:07:05] [INFO] =============================================
+[2025-10-25 20:07:05] [INFO] 
+[2025-10-25 20:07:05] [INFO] Testing all 26 controllers with complete coverage
+[2025-10-25 20:07:05] [INFO] 
+[2025-10-25 20:07:05] [INFO] Authenticating to get access token...
+[2025-10-25 20:07:05] [INFO] Authentication successful - Token obtained
+[2025-10-25 20:07:05] [INFO] 
+[2025-10-25 20:07:05] [INFO] [Setup] Get Categories
+[2025-10-25 20:07:05] [PASS] PASS: Get Categories
+[2025-10-25 20:07:05] [INFO] =============================================
+[2025-10-25 20:07:05] [INFO] CATEGORY 1: ORGANIZATION STRUCTURE (24 TESTS)
+[2025-10-25 20:07:05] [INFO] =============================================
+[2025-10-25 20:07:05] [INFO] --- Employee Types Management (6 tests) ---
+[2025-10-25 20:07:05] [INFO] [Org Structure] Get All Employee Types
+[2025-10-25 20:07:05] [PASS] PASS: Get All Employee Types
+[2025-10-25 20:07:05] [INFO] [Org Structure] Create Employee Type
+[2025-10-25 20:07:05] [PASS] PASS: Create Employee Type
+[2025-10-25 20:07:05] [INFO] [Org Structure] Get Employee Type by ID
+[2025-10-25 20:07:05] [PASS] PASS: Get Employee Type by ID
+[2025-10-25 20:07:05] [INFO] [Org Structure] Update Employee Type
+[2025-10-25 20:07:05] [PASS] PASS: Update Employee Type
+[2025-10-25 20:07:05] [INFO] [Org Structure] Delete Employee Type
+[2025-10-25 20:07:05] [PASS] PASS: Delete Employee Type
+[2025-10-25 20:07:05] [INFO] [Org Structure] Validation: Empty Employee Type Name
+[2025-10-25 20:07:05] [PASS] PASS: Validation: Empty Employee Type Name (Expected failure - 400)
+[2025-10-25 20:07:05] [INFO] --- Branch Management (6 tests) ---
+[2025-10-25 20:07:05] [INFO] [Org Structure] Testing Branch Management Page page accessibility
+[2025-10-25 20:07:05] [PASS] PASS: Branch Management Page accessible
+[2025-10-25 20:07:05] [INFO] [Org Structure] Get All Branches
+[2025-10-25 20:07:06] [PASS] PASS: Get All Branches
+[2025-10-25 20:07:06] [INFO] [Org Structure] Create Branch
+[2025-10-25 20:07:06] [PASS] PASS: Create Branch
+[2025-10-25 20:07:06] [INFO] [Org Structure] Get Branch by ID
+[2025-10-25 20:07:06] [PASS] PASS: Get Branch by ID
+[2025-10-25 20:07:06] [INFO] [Org Structure] Update Branch
+[2025-10-25 20:07:06] [PASS] PASS: Update Branch
+[2025-10-25 20:07:06] [INFO] [Org Structure] Delete Branch
+[2025-10-25 20:07:06] [PASS] PASS: Delete Branch
+[2025-10-25 20:07:06] [INFO] --- Department Management (6 tests) ---
+[2025-10-25 20:07:06] [INFO] [Org Structure] Testing Department Management Page page accessibility
+[2025-10-25 20:07:06] [PASS] PASS: Department Management Page accessible
+[2025-10-25 20:07:06] [INFO] [Org Structure] Get All Departments
+[2025-10-25 20:07:06] [PASS] PASS: Get All Departments
+[2025-10-25 20:07:06] [INFO] [Org Structure] Create Department
+[2025-10-25 20:07:06] [PASS] PASS: Create Department
+[2025-10-25 20:07:06] [INFO] [Org Structure] Get Department by ID
+[2025-10-25 20:07:06] [PASS] PASS: Get Department by ID
+[2025-10-25 20:07:06] [INFO] [Org Structure] Update Department
+[2025-10-25 20:07:06] [PASS] PASS: Update Department
+[2025-10-25 20:07:06] [INFO] [Org Structure] Delete Department
+[2025-10-25 20:07:07] [PASS] PASS: Delete Department
+[2025-10-25 20:07:07] [INFO] --- Section Management (6 tests) ---
+[2025-10-25 20:07:07] [INFO] [Org Structure] Testing Section Management Page page accessibility
+[2025-10-25 20:07:07] [PASS] PASS: Section Management Page accessible
+[2025-10-25 20:07:07] [INFO] [Org Structure] Get All Sections
+[2025-10-25 20:07:07] [PASS] PASS: Get All Sections
+[2025-10-25 20:07:07] [INFO] [Org Structure] Create Section
+[2025-10-25 20:07:07] [PASS] PASS: Create Section
+[2025-10-25 20:07:07] [INFO] [Org Structure] Get Section by ID
+[2025-10-25 20:07:07] [PASS] PASS: Get Section by ID
+[2025-10-25 20:07:07] [INFO] [Org Structure] Update Section
+[2025-10-25 20:07:07] [PASS] PASS: Update Section
+[2025-10-25 20:07:07] [INFO] [Org Structure] Delete Section
+[2025-10-25 20:07:07] [PASS] PASS: Delete Section
+[2025-10-25 20:07:07] [INFO] 
+[2025-10-25 20:07:07] [INFO] =============================================
+[2025-10-25 20:07:07] [INFO] CATEGORY 2: ROLE MANAGEMENT (12 TESTS)
+[2025-10-25 20:07:07] [INFO] =============================================
+[2025-10-25 20:07:07] [INFO] [Role Management] Get All Roles
+[2025-10-25 20:07:07] [PASS] PASS: Get All Roles
+[2025-10-25 20:07:07] [INFO] [Role Management] Create Role
+[2025-10-25 20:07:07] [FAIL] FAIL: Create Role - The remote server returned an error: (400) Bad Request.
+[2025-10-25 20:07:07] [INFO] [Role Management] Validation: Modify System Role
+[2025-10-25 20:07:07] [FAIL] FAIL: Validation: Modify System Role - Unexpected status 200
+[2025-10-25 20:07:07] [INFO] 
+[2025-10-25 20:07:07] [INFO] =============================================
+[2025-10-25 20:07:07] [INFO] TEST SUITE PART 1 COMPLETED
+[2025-10-25 20:07:07] [INFO] =============================================
+[2025-10-25 20:07:07] [INFO] Continuing with remaining categories...

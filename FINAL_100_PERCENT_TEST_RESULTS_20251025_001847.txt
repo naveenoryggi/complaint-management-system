@@ -1,0 +1,61 @@
+[2025-10-25 00:18:47] [INFO] ========================================
+[2025-10-25 00:18:47] [INFO] FINAL 100% SUCCESS RATE TEST SUITE
+[2025-10-25 00:18:47] [INFO] ========================================
+[2025-10-25 00:18:47] [INFO] 
+[2025-10-25 00:18:47] [INFO] Getting valid test data from database...
+[2025-10-25 00:18:48] [INFO] Using Category ID: 24D8D766-82CC-4F81-E646-08DE11EEA5A9  (1 rows affected)
+[2025-10-25 00:18:48] [INFO] === SECTION 1: DATA INTEGRITY TESTS ===
+[2025-10-25 00:18:48] [INFO] Test 1 : Verify All Complaints Have StatusMasterId
+[2025-10-25 00:18:48] [PASS] PASS: All complaints have valid StatusMasterId
+[2025-10-25 00:18:48] [INFO] Test 2 : Verify Master Data Completeness
+[2025-10-25 00:18:48] [FAIL] FAIL: Master data incomplete (Status: , Priority: )
+[2025-10-25 00:18:48] [INFO] 
+[2025-10-25 00:18:48] [INFO] === SECTION 2: UI/UX ACCESSIBILITY TESTS ===
+[2025-10-25 00:18:48] [INFO] Test 3 : Dashboard Page Load
+[2025-10-25 00:18:48] [PASS] PASS: Dashboard loaded successfully
+[2025-10-25 00:18:48] [INFO] Test 4 : Complaints List Page Load
+[2025-10-25 00:18:48] [PASS] PASS: Complaints List loaded successfully
+[2025-10-25 00:18:48] [INFO] Test 5 : Login Page Page Load
+[2025-10-25 00:18:48] [PASS] PASS: Login Page loaded successfully
+[2025-10-25 00:18:48] [INFO] Test 6 : Category Management Page Load
+[2025-10-25 00:18:48] [PASS] PASS: Category Management loaded successfully
+[2025-10-25 00:18:48] [INFO] Test 7 : User Management Page Load
+[2025-10-25 00:18:48] [PASS] PASS: User Management loaded successfully
+[2025-10-25 00:18:48] [INFO] Test 8 : Status Master Page Load
+[2025-10-25 00:18:48] [PASS] PASS: Status Master loaded successfully
+[2025-10-25 00:18:48] [INFO] Test 9 : Priority Master Page Load
+[2025-10-25 00:18:48] [PASS] PASS: Priority Master loaded successfully
+[2025-10-25 00:18:48] [INFO] 
+[2025-10-25 00:18:48] [INFO] === SECTION 3: COMPLETE COMPLAINT LIFECYCLE ===
+[2025-10-25 00:18:48] [INFO] Test 10 : Create New Complaint
+[2025-10-25 00:18:48] [FAIL] FAIL: Create complaint error: The remote server returned an error: (400) Bad Request.
+[2025-10-25 00:18:48] [INFO] 
+[2025-10-25 00:18:48] [INFO] === SECTION 4: MASTER DATA CRUD OPERATIONS ===
+[2025-10-25 00:18:48] [INFO] Test 11 : Create Status Master
+[2025-10-25 00:18:48] [PASS] PASS: Status Master created with ID: 587e5c75-ad41-4a4b-9162-a9f4b8ae61fa
+[2025-10-25 00:18:48] [INFO] Test 12 : Update Status Master
+[2025-10-25 00:18:49] [PASS] PASS: Status Master updated successfully
+[2025-10-25 00:18:49] [INFO] Test 13 : Delete Status Master
+[2025-10-25 00:18:49] [PASS] PASS: Status Master deleted successfully
+[2025-10-25 00:18:49] [INFO] Test 14 : Create Priority Master
+[2025-10-25 00:18:49] [PASS] PASS: Priority Master created with ID: bfa95294-21df-4c00-8c94-2bfdce1b35ce
+[2025-10-25 00:18:49] [INFO] Test 15 : Delete Priority Master
+[2025-10-25 00:18:49] [PASS] PASS: Priority Master deleted successfully
+[2025-10-25 00:18:49] [INFO] 
+[2025-10-25 00:18:49] [INFO] === SECTION 5: ERROR HANDLING & VALIDATION ===
+[2025-10-25 00:18:49] [INFO] Test 16 : Access Non-Existent Complaint (Should Return 404)
+[2025-10-25 00:18:49] [PASS] PASS: Correctly returned 404 for non-existent complaint
+[2025-10-25 00:18:49] [INFO] Test 17 : Attempt to Reopen Non-Closed Complaint (Should Reject)
+[2025-10-25 00:18:49] [WARN] WARN: Could not create temp complaint for reopen validation test
+[2025-10-25 00:18:49] [INFO] 
+[2025-10-25 00:18:49] [INFO] ========================================
+[2025-10-25 00:18:49] [INFO] TEST SUITE COMPLETED
+[2025-10-25 00:18:49] [INFO] ========================================
+[2025-10-25 00:18:49] [INFO] Total Tests: 17
+[2025-10-25 00:18:49] [INFO] Passed: 15
+[2025-10-25 00:18:49] [INFO] Failed: 2
+[2025-10-25 00:18:49] [INFO] Success Rate: 88.24%
+[2025-10-25 00:18:49] [INFO] 
+[2025-10-25 00:18:49] [FAIL] WARNING: 2 test(s) failed - Success rate: 88.24%
+[2025-10-25 00:18:49] [INFO] 
+[2025-10-25 00:18:49] [INFO] Results saved to: FINAL_100_PERCENT_TEST_RESULTS_20251025_001847.txt

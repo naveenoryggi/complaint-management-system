@@ -1,0 +1,388 @@
+<div class="department-management-container">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title-row">
+        <button class="btn-back" (click)="navigateBack()">
+          <i class="fas fa-arrow-left"></i>
+          Back to Dashboard
+        </button>
+        <h1>
+          <i class="fas fa-sitemap"></i>
+          Department Management
+        </h1>
+      </div>
+      <p class="header-description">Manage organizational departments within branches</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateModal()" [disabled]="!selectedBranchId">
+      <i class="fas fa-plus"></i>
+      Add Department
+    </button>
+  </div>
+
+  <!-- Info Banner -->
+  <div class="info-banner">
+    <div class="info-icon">
+      <i class="fas fa-info-circle"></i>
+    </div>
+    <div class="info-content">
+      <h3>About Department Management</h3>
+      <p>
+        <strong>Departments</strong> represent business units or functional divisions within a branch.
+        Each department can contain multiple sections and users.
+      </p>
+      <ul>
+        <li><strong>Structure:</strong> Branch → Department → Section</li>
+        <li><strong>Manager:</strong> Each department can have a designated manager</li>
+        <li><strong>Benefits:</strong> Department-based routing, reporting, and access control</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage && !showModal" class="alert alert-danger">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Branch Selection -->
+  <div class="branch-selector">
+    <label for="branchSelect">Select Branch:</label>
+    <select
+      id="branchSelect"
+      [(ngModel)]="selectedBranchId"
+      (change)="onBranchChange()"
+      class="form-control"
+    >
+      <option value="">-- Select a Branch --</option>
+      <option *ngFor="let branch of branches; trackBy: trackByBranchId" [value]="branch.id">
+        {{ branch.name }} ({{ branch.code }})
+      </option>
+    </select>
+  </div>
+
+  <!-- Search and Filter -->
+  <div *ngIf="selectedBranchId" class="filter-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Search departments by name, code..."
+        class="search-input"
+      />
+    </div>
+    <div class="filter-buttons">
+      <button
+        class="filter-btn"
+        [class.active]="statusFilter === 'all'"
+        (click)="setStatusFilter('all')"
+      >
+        <i class="fas fa-list"></i>
+        All
+      </button>
+      <button
+        class="filter-btn"
+        [class.active]="statusFilter === 'active'"
+        (click)="setStatusFilter('active')"
+      >
+        <i class="fas fa-check-circle"></i>
+        Active
+      </button>
+      <button
+        class="filter-btn"
+        [class.active]="statusFilter === 'inactive'"
+        (click)="setStatusFilter('inactive')"
+      >
+        <i class="fas fa-times-circle"></i>
+        Inactive
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading && departments.length === 0" class="loading-state">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading departments...</p>
+  </div>
+
+  <!-- No Branch Selected -->
+  <div *ngIf="!selectedBranchId && !loading" class="empty-state">
+    <i class="fas fa-sitemap"></i>
+    <h3>Select a Branch</h3>
+    <p>Please select a branch to view and manage its departments</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="selectedBranchId && !loading && filteredDepartments.length === 0" class="empty-state">
+    <i class="fas fa-sitemap"></i>
+    <h3>No Departments Found</h3>
+    <p *ngIf="searchTerm">Try adjusting your search criteria</p>
+    <p *ngIf="!searchTerm">Get started by creating your first department in {{ getSelectedBranchName() }}</p>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      Add Department
+    </button>
+  </div>
+
+  <!-- Departments Grid -->
+  <div *ngIf="selectedBranchId && !loading && filteredDepartments.length > 0" class="departments-grid">
+    <div *ngFor="let department of filteredDepartments; trackBy: trackByDepartmentId" class="department-card" [class.inactive]="!department.isActive">
+      <div class="card-header">
+        <div class="department-info">
+          <h3>{{ department.name }}</h3>
+          <span class="department-code">{{ department.code }}</span>
+          <span class="status-badge" [class.active]="department.isActive" [class.inactive]="!department.isActive">
+            {{ department.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+        <div class="card-actions">
+          <button
+            class="btn-icon"
+            (click)="openEditModal(department)"
+            title="Edit Department"
+          >
+            <i class="fas fa-edit"></i>
+          </button>
+          <button
+            class="btn-icon"
+            (click)="toggleDepartmentStatus(department)"
+            [title]="department.isActive ? 'Deactivate' : 'Activate'"
+          >
+            <i [class]="department.isActive ? 'fas fa-toggle-on' : 'fas fa-toggle-off'"></i>
+          </button>
+          <button
+            class="btn-icon btn-delete"
+            (click)="openDeleteModal(department)"
+            title="Delete Department"
+          >
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div *ngIf="department.description" class="department-description">
+          <p>{{ department.description }}</p>
+        </div>
+
+        <div class="department-details">
+          <div *ngIf="department.managerName" class="detail-item">
+            <i class="fas fa-user-tie"></i>
+            <span>Manager: <strong>{{ department.managerName }}</strong></span>
+          </div>
+
+          <div *ngIf="department.secondaryManagerName" class="detail-item">
+            <i class="fas fa-user-shield"></i>
+            <span>Secondary: <strong>{{ department.secondaryManagerName }}</strong></span>
+          </div>
+
+          <div *ngIf="department.hrResponsibleName" class="detail-item">
+            <i class="fas fa-user-friends"></i>
+            <span>HR: <strong>{{ department.hrResponsibleName }}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <small>
+          Created: {{ department.createdAt | utcToLocal:'medium' }}
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div *ngIf="selectedBranchId && departments.length > 0" class="summary-stats">
+    <div class="stat-item">
+      <span class="stat-label">Total Departments:</span>
+      <span class="stat-value">{{ departments.length }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Active:</span>
+      <span class="stat-value stat-active">{{ getActiveDepartmentsCount() }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Inactive:</span>
+      <span class="stat-value stat-inactive">{{ getInactiveDepartmentsCount() }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-sitemap"></i>
+        {{ isEditMode ? 'Edit Department' : 'Create New Department' }}
+      </h2>
+      <button class="btn-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Error Message in Modal -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <form (ngSubmit)="saveDepartment()">
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="departmentName" class="required">Department Name</label>
+              <input
+                id="departmentName"
+                type="text"
+                [(ngModel)]="departmentForm.name"
+                name="name"
+                class="form-control"
+                placeholder="e.g., IT Department, HR Department"
+                required
+              />
+              <small class="form-help-text">The official name of the department</small>
+            </div>
+
+            <div class="form-group">
+              <label for="departmentCode" class="required">Department Code</label>
+              <input
+                id="departmentCode"
+                type="text"
+                [(ngModel)]="departmentForm.code"
+                name="code"
+                class="form-control"
+                placeholder="e.g., IT, HR, FIN"
+                maxlength="20"
+                required
+              />
+              <small class="form-help-text">A unique identifier or abbreviation (max 20 characters)</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="departmentDescription">Description</label>
+            <textarea
+              id="departmentDescription"
+              [(ngModel)]="departmentForm.description"
+              name="description"
+              class="form-control"
+              rows="3"
+              placeholder="Brief description of the department..."
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Department Management -->
+        <div class="form-section">
+          <h3>Department Management (Optional)</h3>
+          <p class="form-help-text">Assign managers and HR responsible for this department. Search for users by name, email, or employee code.</p>
+
+          <app-user-autocomplete
+            label="Primary Manager"
+            placeholder="Search by name, email, or employee code..."
+            [selectedUserId]="managerId"
+            [selectedUserName]="managerName"
+            (userSelected)="onManagerSelected($event)"
+          ></app-user-autocomplete>
+          <small class="form-help-text">Assign a primary manager/head of the department</small>
+
+          <app-user-autocomplete
+            label="Secondary Manager"
+            placeholder="Search by name, email, or employee code..."
+            [selectedUserId]="secondaryManagerId"
+            [selectedUserName]="secondaryManagerName"
+            (userSelected)="onSecondaryManagerSelected($event)"
+          ></app-user-autocomplete>
+          <small class="form-help-text">Assign a backup/deputy manager for the department</small>
+
+          <app-user-autocomplete
+            label="HR Responsible"
+            placeholder="Search by name, email, or employee code..."
+            [selectedUserId]="hrResponsibleId"
+            [selectedUserName]="hrResponsibleName"
+            (userSelected)="onHrResponsibleSelected($event)"
+          ></app-user-autocomplete>
+          <small class="form-help-text">Assign a dedicated HR contact for this department</small>
+        </div>
+
+        <!-- Status -->
+        <div class="form-section">
+          <h3>Status</h3>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="departmentForm.isActive"
+                name="isActive"
+              />
+              Active
+            </label>
+            <small class="form-help-text">Inactive departments won't be available for selection</small>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="loading">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+            <i *ngIf="!loading" [class]="isEditMode ? 'fas fa-save' : 'fas fa-plus'"></i>
+            {{ isEditMode ? 'Update Department' : 'Create Department' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+  <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-exclamation-triangle"></i>
+        Confirm Deletion
+      </h2>
+      <button class="btn-close" (click)="closeDeleteModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <p>Are you sure you want to delete the department <strong>{{ departmentToDelete?.name }}</strong>?</p>
+      <p class="warning-text">
+        <i class="fas fa-exclamation-triangle"></i>
+        This action cannot be undone. Make sure the department has no sections or users assigned before deleting.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="loading">
+        Cancel
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="loading">
+        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+        <i *ngIf="!loading" class="fas fa-trash"></i>
+        Delete Department
+      </button>
+    </div>
+  </div>
+</div>

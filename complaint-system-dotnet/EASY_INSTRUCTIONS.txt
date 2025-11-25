@@ -1,0 +1,35 @@
+============================================
+  EASY SETUP INSTRUCTIONS
+============================================
+
+STEP 1: Run Setup
+-----------------
+Double-click on:  setup-simple.bat
+
+
+STEP 2: Wait
+------------
+Wait 2-5 minutes while it creates the solution.
+
+
+STEP 3: Notepad Opens Automatically
+------------------------------------
+A Notepad window will open with the file: setup-result.txt
+
+
+STEP 4: Share Results With Me
+------------------------------
+In Notepad:
+1. Press Ctrl+A (select all text)
+2. Press Ctrl+C (copy)
+3. Paste in chat
+
+I'll read the results and tell you if it succeeded or fix any errors!
+
+
+============================================
+  THAT'S IT!
+============================================
+
+Just run: setup-simple.bat
+(It will do everything automatically)

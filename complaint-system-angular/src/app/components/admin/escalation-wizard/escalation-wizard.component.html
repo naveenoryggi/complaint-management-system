@@ -1,0 +1,597 @@
+<div class="escalation-wizard-container">
+  <!-- Page Header -->
+  <div class="wizard-header">
+    <div class="header-content">
+      <h1>
+        <i class="fas fa-magic"></i>
+        Escalation Setup Wizard
+      </h1>
+      <p class="header-description">Create escalation workflows in minutes with our step-by-step guide</p>
+    </div>
+    <button class="btn btn-secondary" (click)="cancel()">
+      <i class="fas fa-times"></i>
+      Cancel
+    </button>
+  </div>
+
+  <!-- Step Indicator -->
+  <div class="step-indicator">
+    <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1" (click)="goToStep(1)">
+      <div class="step-number">
+        <i *ngIf="currentStep > 1" class="fas fa-check"></i>
+        <span *ngIf="currentStep <= 1">1</span>
+      </div>
+      <div class="step-label">Choose Template</div>
+    </div>
+
+    <div class="step-connector" [class.completed]="currentStep > 1"></div>
+
+    <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2" (click)="goToStep(2)">
+      <div class="step-number">
+        <i *ngIf="currentStep > 2" class="fas fa-check"></i>
+        <span *ngIf="currentStep <= 2">2</span>
+      </div>
+      <div class="step-label">Configure Levels</div>
+    </div>
+
+    <div class="step-connector" [class.completed]="currentStep > 2"></div>
+
+    <div class="step" [class.active]="currentStep === 3" [class.completed]="currentStep > 3" (click)="goToStep(3)">
+      <div class="step-number">
+        <i *ngIf="currentStep > 3" class="fas fa-check"></i>
+        <span *ngIf="currentStep <= 3">3</span>
+      </div>
+      <div class="step-label">Set Scope</div>
+    </div>
+
+    <div class="step-connector" [class.completed]="currentStep > 3"></div>
+
+    <div class="step" [class.active]="currentStep === 4" [class.completed]="currentStep > 4">
+      <div class="step-number">4</div>
+      <div class="step-label">Review & Create</div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Step Content -->
+  <div class="wizard-content">
+
+    <!-- STEP 1: Template Selection -->
+    <div *ngIf="currentStep === 1" class="step-content step-1">
+      <div class="step-title">
+        <h2>Choose an Escalation Template</h2>
+        <p>Select a pre-configured template or start from scratch</p>
+      </div>
+
+      <div class="template-grid">
+        <div *ngFor="let template of templates"
+             class="template-card"
+             [class.selected]="selectedTemplate?.id === template.id"
+             (click)="selectTemplate(template)">
+          <div class="template-icon">
+            <i class="fas" [ngClass]="template.icon"></i>
+          </div>
+          <h3>{{ template.name }}</h3>
+          <p>{{ template.description }}</p>
+          <div class="template-levels">
+            <span class="badge">{{ template.levels.length }} Levels</span>
+          </div>
+          <div *ngIf="selectedTemplate?.id === template.id" class="selected-indicator">
+            <i class="fas fa-check-circle"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Configure Levels -->
+    <div *ngIf="currentStep === 2" class="step-content step-2">
+      <div class="step-title">
+        <h2>Configure Escalation Levels</h2>
+        <p>Customize the escalation workflow to match your needs</p>
+      </div>
+
+      <form [formGroup]="matrixForm">
+        <!-- Matrix Name & Description -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="matrixName" class="required">Matrix Name</label>
+              <input
+                id="matrixName"
+                type="text"
+                formControlName="name"
+                class="form-control"
+                placeholder="e.g., Fast Response Matrix"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="matrixDescription">Description</label>
+              <input
+                id="matrixDescription"
+                type="text"
+                formControlName="description"
+                class="form-control"
+                placeholder="Brief description of this escalation matrix"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="isDefault" />
+              Set as default matrix for the company
+            </label>
+          </div>
+        </div>
+
+        <!-- Escalation Levels -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3>Escalation Levels</h3>
+            <button type="button" class="btn btn-sm btn-primary" (click)="addLevel()">
+              <i class="fas fa-plus"></i>
+              Add Level
+            </button>
+          </div>
+
+          <div formArrayName="levels" class="levels-list">
+            <div *ngFor="let level of levels.controls; let i = index"
+                 [formGroupName]="i"
+                 class="level-card">
+              <div class="level-header">
+                <div class="level-number">
+                  <span>Level {{ i + 1 }}</span>
+                </div>
+                <button type="button"
+                        class="btn-icon btn-delete"
+                        (click)="removeLevel(i)"
+                        [disabled]="levels.length <= 1"
+                        title="Remove Level">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+
+              <div class="level-body">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="required">Level Name</label>
+                    <input
+                      type="text"
+                      formControlName="name"
+                      class="form-control"
+                      placeholder="e.g., First Response"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label>Description</label>
+                    <input
+                      type="text"
+                      formControlName="description"
+                      class="form-control"
+                      placeholder="Optional description"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="required">Trigger After</label>
+                    <div class="input-group">
+                      <input
+                        type="number"
+                        formControlName="triggerAfterValue"
+                        class="form-control"
+                        min="1"
+                      />
+                      <select formControlName="triggerTimeUnit" class="form-control">
+                        <option *ngFor="let unit of timeUnits" [value]="unit.value">
+                          {{ unit.label }}
+                        </option>
+                      </select>
+                    </div>
+                    <small class="form-help-text">When to escalate to this level</small>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="required">Assignment Strategy</label>
+                    <select formControlName="assignmentStrategy"
+                            class="form-control"
+                            (change)="onAssignmentStrategyChange(i)">
+                      <option *ngFor="let strategy of assignmentStrategies" [value]="strategy.value">
+                        {{ strategy.label }}
+                      </option>
+                    </select>
+                    <small class="form-help-text">How to assign complaints at this level</small>
+                  </div>
+                </div>
+
+                <!-- Conditional Fields: Branch Selector (for BranchContacts) -->
+                <div class="form-row" *ngIf="needsBranchSelector(getLevelStrategy(i))">
+                  <div class="form-group">
+                    <label class="required">Branch</label>
+                    <select formControlName="branchId" class="form-control">
+                      <option [value]="''">Select a branch</option>
+                      <option *ngFor="let branch of branches" [value]="branch.id">
+                        {{ branch.name }}
+                      </option>
+                    </select>
+                    <small class="form-help-text">Select the branch where contacts should be assigned</small>
+                  </div>
+                </div>
+
+                <!-- Conditional Fields: Department Selector (for DepartmentContacts) -->
+                <div class="form-row" *ngIf="needsDepartmentSelector(getLevelStrategy(i))">
+                  <div class="form-group">
+                    <label class="required">Department</label>
+                    <select formControlName="departmentId" class="form-control">
+                      <option [value]="''">Select a department</option>
+                      <option *ngFor="let dept of departments" [value]="dept.id">
+                        {{ dept.name }}
+                      </option>
+                    </select>
+                    <small class="form-help-text">Select the department where contacts should be assigned</small>
+                  </div>
+                </div>
+
+                <!-- Conditional Fields: Contact Hierarchy (for SectionIncharge, BranchContacts, DepartmentContacts) -->
+                <div *ngIf="needsContactHierarchy(getLevelStrategy(i))">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <app-user-autocomplete
+                        [label]="'Primary Contact'"
+                        [placeholder]="'Search by name, email, phone, or employee code...'"
+                        (userSelected)="onPrimaryContactSelected($event)"
+                      ></app-user-autocomplete>
+                      <small class="form-help-text">First person to receive escalation</small>
+                    </div>
+
+                    <div class="form-group">
+                      <app-user-autocomplete
+                        [label]="'Secondary Contact'"
+                        [placeholder]="'Search by name, email, phone, or employee code...'"
+                        (userSelected)="onSecondaryContactSelected($event)"
+                      ></app-user-autocomplete>
+                      <small class="form-help-text">Backup if primary is unavailable</small>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <app-user-autocomplete
+                        [label]="'HR Contact'"
+                        [placeholder]="'Search by name, email, phone, or employee code...'"
+                        (userSelected)="onHRContactSelected($event)"
+                      ></app-user-autocomplete>
+                      <small class="form-help-text">Final fallback contact</small>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Conditional Fields: Resource Pool (for ResourcePool strategy) -->
+                <div *ngIf="needsResourcePool(getLevelStrategy(i))">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="required">Resource Pool</label>
+                      <select formControlName="resourcePoolId" class="form-control">
+                        <option [value]="''">Select a resource pool</option>
+                        <option *ngFor="let pool of resourcePools" [value]="pool.id">
+                          {{ pool.name }} ({{ pool.memberCount }} members)
+                        </option>
+                      </select>
+                      <small class="form-help-text">Pool of users to assign complaints</small>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="required">Assignment Method</label>
+                      <div class="radio-group">
+                        <label class="radio-label" *ngFor="let method of poolAssignmentMethods">
+                          <input
+                            type="radio"
+                            [value]="method.value"
+                            formControlName="resourcePoolAssignmentMethod"
+                          />
+                          <span>{{ method.label }}</span>
+                        </label>
+                      </div>
+                      <small class="form-help-text">How to distribute complaints within the pool</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" formControlName="sendNotification" />
+                      Send notification when escalating
+                    </label>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" formControlName="notifyPreviousHandler" />
+                      Notify previous handler
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- STEP 3: Set Scope & Policy -->
+    <div *ngIf="currentStep === 3" class="step-content step-3">
+      <div class="step-title">
+        <h2>Set Scope and Rules</h2>
+        <p>Define where this escalation workflow applies</p>
+      </div>
+
+      <form [formGroup]="policyForm">
+        <!-- Policy Name & Description -->
+        <div class="form-section">
+          <h3>Policy Information</h3>
+
+          <div class="form-group">
+            <label for="policyName" class="required">Policy Name</label>
+            <input
+              id="policyName"
+              type="text"
+              formControlName="name"
+              class="form-control"
+              placeholder="e.g., Fast Response Policy"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="policyDescription">Description</label>
+            <textarea
+              id="policyDescription"
+              formControlName="description"
+              class="form-control"
+              rows="3"
+              placeholder="Brief description of when this policy applies"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Scope Selection -->
+        <div class="form-section">
+          <h3>Application Scope</h3>
+          <p class="section-help">Choose where this escalation workflow should be applied</p>
+
+          <div class="scope-selector">
+            <label class="scope-option">
+              <input type="radio" formControlName="scope" value="company" (change)="onScopeChange()" />
+              <div class="scope-card">
+                <i class="fas fa-building"></i>
+                <h4>Company-wide</h4>
+                <p>Apply to all complaints across the entire company</p>
+              </div>
+            </label>
+
+            <label class="scope-option">
+              <input type="radio" formControlName="scope" value="branch" (change)="onScopeChange()" />
+              <div class="scope-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h4>Specific Branch</h4>
+                <p>Apply only to a specific branch</p>
+              </div>
+            </label>
+
+            <label class="scope-option">
+              <input type="radio" formControlName="scope" value="department" (change)="onScopeChange()" />
+              <div class="scope-card">
+                <i class="fas fa-sitemap"></i>
+                <h4>Specific Department</h4>
+                <p>Apply only to a specific department</p>
+              </div>
+            </label>
+
+            <label class="scope-option">
+              <input type="radio" formControlName="scope" value="category" (change)="onScopeChange()" />
+              <div class="scope-card">
+                <i class="fas fa-tag"></i>
+                <h4>Specific Category</h4>
+                <p>Apply only to a complaint category</p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Note: Actual dropdowns for branch/department/category would be added here when scope is selected -->
+          <div *ngIf="policyForm.get('scope')?.value !== 'company'" class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            Note: Specific selection will be available after wizard completion. You can edit the policy later to select specific branches, departments, or categories.
+          </div>
+        </div>
+
+        <!-- Auto-Escalation Settings -->
+        <div class="form-section">
+          <h3>Escalation Settings</h3>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="enableAutoEscalation" />
+              Enable automatic escalation
+            </label>
+            <small class="form-help-text">Automatically escalate complaints based on time triggers</small>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="requireManualApproval" />
+              Require manual approval before escalating
+            </label>
+            <small class="form-help-text">A manager must approve before automatic escalation occurs</small>
+          </div>
+
+          <div class="form-group">
+            <label for="priority">Policy Priority</label>
+            <input
+              id="priority"
+              type="number"
+              formControlName="priority"
+              class="form-control"
+              min="0"
+              max="100"
+            />
+            <small class="form-help-text">Higher numbers = higher priority (0-100). Used when multiple policies match.</small>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- STEP 4: Review & Create -->
+    <div *ngIf="currentStep === 4" class="step-content step-4">
+      <div class="step-title">
+        <h2>Review Your Configuration</h2>
+        <p>Please review the escalation setup before creating</p>
+      </div>
+
+      <div class="review-container">
+        <!-- Matrix Review -->
+        <div class="review-section">
+          <h3>
+            <i class="fas fa-layer-group"></i>
+            Escalation Matrix
+          </h3>
+          <div class="review-card">
+            <div class="review-row">
+              <span class="review-label">Name:</span>
+              <span class="review-value">{{ previewData?.matrix?.name }}</span>
+            </div>
+            <div class="review-row">
+              <span class="review-label">Description:</span>
+              <span class="review-value">{{ previewData?.matrix?.description || 'N/A' }}</span>
+            </div>
+            <div class="review-row">
+              <span class="review-label">Default Matrix:</span>
+              <span class="review-value">
+                <span class="badge" [class.badge-success]="previewData?.matrix?.isDefault" [class.badge-secondary]="!previewData?.matrix?.isDefault">
+                  {{ previewData?.matrix?.isDefault ? 'Yes' : 'No' }}
+                </span>
+              </span>
+            </div>
+          </div>
+
+          <h4>Escalation Levels ({{ previewData?.matrix?.levels?.length }})</h4>
+          <div class="levels-preview">
+            <div *ngFor="let level of previewData?.matrix?.levels" class="level-preview-card">
+              <div class="level-preview-header">
+                <span class="level-badge">Level {{ level.level }}</span>
+                <h5>{{ level.name }}</h5>
+              </div>
+              <div class="level-preview-details">
+                <div class="detail-item">
+                  <i class="fas fa-clock"></i>
+                  <span>Trigger: {{ level.triggerDisplay }}</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-user-tag"></i>
+                  <span>Assignment: {{ level.assignmentDisplay }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Policy Review -->
+        <div class="review-section">
+          <h3>
+            <i class="fas fa-shield-alt"></i>
+            Escalation Policy
+          </h3>
+          <div class="review-card">
+            <div class="review-row">
+              <span class="review-label">Name:</span>
+              <span class="review-value">{{ previewData?.policy?.name }}</span>
+            </div>
+            <div class="review-row">
+              <span class="review-label">Description:</span>
+              <span class="review-value">{{ previewData?.policy?.description || 'N/A' }}</span>
+            </div>
+            <div class="review-row">
+              <span class="review-label">Scope:</span>
+              <span class="review-value">
+                <span class="badge badge-info">{{ previewData?.policy?.scope | titlecase }}</span>
+              </span>
+            </div>
+            <div class="review-row">
+              <span class="review-label">Auto-Escalation:</span>
+              <span class="review-value">
+                <span class="badge" [class.badge-success]="previewData?.policy?.enableAutoEscalation" [class.badge-secondary]="!previewData?.policy?.enableAutoEscalation">
+                  {{ previewData?.policy?.enableAutoEscalation ? 'Enabled' : 'Disabled' }}
+                </span>
+              </span>
+            </div>
+            <div class="review-row">
+              <span class="review-label">Manual Approval:</span>
+              <span class="review-value">
+                <span class="badge" [class.badge-warning]="previewData?.policy?.requireManualApproval" [class.badge-secondary]="!previewData?.policy?.requireManualApproval">
+                  {{ previewData?.policy?.requireManualApproval ? 'Required' : 'Not Required' }}
+                </span>
+              </span>
+            </div>
+            <div class="review-row">
+              <span class="review-label">Priority:</span>
+              <span class="review-value">{{ previewData?.policy?.priority }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        Once created, you can further customize the escalation matrix and policy in their respective management pages.
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="wizard-footer">
+    <button type="button"
+            class="btn btn-secondary"
+            (click)="previousStep()"
+            [disabled]="currentStep === 1 || loading">
+      <i class="fas fa-arrow-left"></i>
+      Previous
+    </button>
+
+    <div class="footer-spacer"></div>
+
+    <button type="button"
+            *ngIf="currentStep < totalSteps"
+            class="btn btn-primary"
+            (click)="nextStep()"
+            [disabled]="loading">
+      Next
+      <i class="fas fa-arrow-right"></i>
+    </button>
+
+    <button type="button"
+            *ngIf="currentStep === totalSteps"
+            class="btn btn-success"
+            (click)="createEscalation()"
+            [disabled]="loading">
+      <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+      <i *ngIf="!loading" class="fas fa-check"></i>
+      Create Escalation Setup
+    </button>
+  </div>
+</div>

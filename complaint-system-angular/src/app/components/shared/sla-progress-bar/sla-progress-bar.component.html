@@ -1,0 +1,41 @@
+<div [class]="containerClass">
+  <!-- Header: Label and Percentage -->
+  <div class="sla-progress-header" *ngIf="showHeader">
+    <span class="sla-label">
+      {{ label }}
+      <span class="sla-urgency-badge" [attr.data-urgency]="urgency">
+        {{ urgencyLabel }}
+      </span>
+    </span>
+    <span [class]="percentageClass">{{ safePercentComplete }}%</span>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress">
+    <div
+      class="progress-bar"
+      [ngClass]="progressClass"
+      [style.width.%]="safePercentComplete"
+      role="progressbar"
+      [attr.aria-valuenow]="safePercentComplete"
+      [attr.aria-valuemin]="0"
+      [attr.aria-valuemax]="100"
+      [attr.aria-label]="label + ': ' + safePercentComplete + '%'">
+      <span class="progress-bar-label" *ngIf="!compact && safePercentComplete > 15">
+        {{ safePercentComplete }}%
+      </span>
+    </div>
+  </div>
+
+  <!-- Footer: Time Details -->
+  <div class="sla-progress-footer" *ngIf="showFooter">
+    <span class="time-elapsed" *ngIf="elapsedTime">
+      <i class="bi bi-clock-history"></i>
+      {{ elapsedTime }} elapsed
+    </span>
+    <span class="time-remaining" *ngIf="remainingTime" [attr.data-urgency]="urgency">
+      <i class="bi bi-hourglass-split"></i>
+      {{ remainingTime }} left
+    </span>
+  </div>
+</div>

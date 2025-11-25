@@ -1,0 +1,398 @@
+<div class="workflow-management-container">
+  <div class="page-header">
+    <h2><i class="bi bi-diagram-3"></i> Workflow Management</h2>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="bi bi-plus-circle"></i> Create Workflow
+    </button>
+  </div>
+
+  <!-- Alert Messages -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+    <button type="button" class="btn-close" (click)="error = null"></button>
+  </div>
+
+  <div *ngIf="success" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle"></i> {{ success }}
+    <button type="button" class="btn-close" (click)="success = null"></button>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Workflow List and Details -->
+  <div *ngIf="!loading" class="row">
+    <!-- Workflow List -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h5>Workflows</h5>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="workflows.length === 0" class="text-center py-4 text-muted">
+            <i class="bi bi-inbox fs-1"></i>
+            <p class="mt-2">No workflows configured</p>
+            <button class="btn btn-sm btn-outline-primary" (click)="openCreateModal()">
+              Create First Workflow
+            </button>
+          </div>
+          <div class="list-group list-group-flush">
+            <button
+              *ngFor="let workflow of workflows"
+              class="list-group-item list-group-item-action"
+              [class.active]="selectedWorkflow?.id === workflow.id"
+              (click)="selectWorkflow(workflow)">
+              <div class="d-flex w-100 justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-1">{{ workflow.name }}</h6>
+                  <small class="text-muted">{{ workflow.categoryName }}</small>
+                </div>
+                <span class="badge" [class.bg-success]="workflow.isActive" [class.bg-secondary]="!workflow.isActive">
+                  {{ workflow.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workflow Details -->
+    <div class="col-md-8">
+      <div *ngIf="!selectedWorkflow" class="card">
+        <div class="card-body text-center py-5">
+          <i class="bi bi-diagram-3 fs-1 text-muted"></i>
+          <p class="mt-3 text-muted">Select a workflow to view details</p>
+        </div>
+      </div>
+
+      <div *ngIf="selectedWorkflow" class="workflow-details">
+        <!-- Workflow Info Card -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <h5>Workflow Information</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Name:</strong> {{ selectedWorkflow.name }}</p>
+                <p><strong>Category:</strong> {{ selectedWorkflow.categoryName }}</p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Status:</strong>
+                  <span class="badge" [class.bg-success]="selectedWorkflow.isActive" [class.bg-secondary]="!selectedWorkflow.isActive">
+                    {{ selectedWorkflow.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </p>
+                <p><strong>Default:</strong>
+                  <span class="badge" [class.bg-primary]="selectedWorkflow.isDefault" [class.bg-secondary]="!selectedWorkflow.isDefault">
+                    {{ selectedWorkflow.isDefault ? 'Yes' : 'No' }}
+                  </span>
+                </p>
+              </div>
+            </div>
+            <p *ngIf="selectedWorkflow.description"><strong>Description:</strong> {{ selectedWorkflow.description }}</p>
+          </div>
+        </div>
+
+        <!-- Workflow Statuses Card -->
+        <div class="card mb-3">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>Workflow Statuses ({{ selectedWorkflow.workflowStatuses.length }})</h5>
+            <button class="btn btn-sm btn-primary" (click)="openStatusModal()">
+              <i class="bi bi-plus"></i> Add Status
+            </button>
+          </div>
+          <div class="card-body">
+            <div *ngIf="selectedWorkflow.workflowStatuses.length === 0" class="text-center py-3 text-muted">
+              No statuses configured. Add your first status to get started.
+            </div>
+            <div class="table-responsive" *ngIf="selectedWorkflow.workflowStatuses.length > 0">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Status</th>
+                    <th>SLA (hours)</th>
+                    <th>Initial</th>
+                    <th>Approval Required</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let status of selectedWorkflow.workflowStatuses">
+                    <td>{{ status.displayOrder }}</td>
+                    <td>
+                      <span class="badge" [style.background-color]="status.statusColorCode || '#6c757d'">
+                        {{ status.statusName }}
+                      </span>
+                    </td>
+                    <td>{{ status.defaultSLAHours || '-' }}</td>
+                    <td>
+                      <i *ngIf="status.isInitialStatus" class="bi bi-check-circle text-success"></i>
+                    </td>
+                    <td>
+                      <i *ngIf="status.requiresApproval" class="bi bi-shield-check text-warning"></i>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workflow Transitions Card -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>Workflow Transitions ({{ selectedWorkflow.transitions.length }})</h5>
+            <button class="btn btn-sm btn-primary" (click)="openTransitionModal()">
+              <i class="bi bi-plus"></i> Add Transition
+            </button>
+          </div>
+          <div class="card-body">
+            <div *ngIf="selectedWorkflow.transitions.length === 0" class="text-center py-3 text-muted">
+              No transitions configured. Add statuses first, then create transitions.
+            </div>
+            <div class="table-responsive" *ngIf="selectedWorkflow.transitions.length > 0">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>From Status</th>
+                    <th></th>
+                    <th>To Status</th>
+                    <th>Name</th>
+                    <th>Comment Required</th>
+                    <th>Approval Required</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let transition of selectedWorkflow.transitions">
+                    <td>{{ transition.fromStatusName }}</td>
+                    <td class="text-center">
+                      <i class="bi bi-arrow-right"></i>
+                    </td>
+                    <td>{{ transition.toStatusName }}</td>
+                    <td>{{ transition.transitionName }}</td>
+                    <td>
+                      <i *ngIf="transition.requiresComment" class="bi bi-chat-text text-info"></i>
+                    </td>
+                    <td>
+                      <i *ngIf="transition.requiresApproval" class="bi bi-shield-check text-warning"></i>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Workflow Modal -->
+<div class="modal fade" [class.show]="showCreateModal" [style.display]="showCreateModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create New Workflow</h5>
+        <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+      </div>
+      <form [formGroup]="workflowForm" (ngSubmit)="createWorkflow()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Category *</label>
+            <select class="form-select" formControlName="categoryId" required>
+              <option value="">Select Category</option>
+              <option *ngFor="let category of categories" [value]="category.id">
+                {{ category.name }}
+              </option>
+            </select>
+            <div class="form-text text-danger" *ngIf="workflowForm.get('categoryId')?.invalid && workflowForm.get('categoryId')?.touched">
+              Category is required
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Workflow Name *</label>
+            <input type="text" class="form-control" formControlName="name" placeholder="Enter workflow name" required>
+            <div class="form-text text-danger" *ngIf="workflowForm.get('name')?.invalid && workflowForm.get('name')?.touched">
+              Name must be at least 3 characters
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" formControlName="description" rows="3" placeholder="Enter workflow description"></textarea>
+          </div>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" formControlName="isActive" id="isActive">
+            <label class="form-check-label" for="isActive">
+              Active
+            </label>
+          </div>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" formControlName="isDefault" id="isDefault">
+            <label class="form-check-label" for="isDefault">
+              Set as Default Workflow
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeCreateModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="workflowForm.invalid || loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            Create Workflow
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Status Modal -->
+<div class="modal fade" [class.show]="showStatusModal" [style.display]="showStatusModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Status to Workflow</h5>
+        <button type="button" class="btn-close" (click)="closeStatusModal()"></button>
+      </div>
+      <form [formGroup]="statusForm" (ngSubmit)="addStatus()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Status *</label>
+            <select class="form-select" formControlName="statusMasterId" required>
+              <option value="">Select Status</option>
+              <option *ngFor="let status of statusMasters" [value]="status.id">
+                {{ status.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Display Order *</label>
+            <input type="number" class="form-control" formControlName="displayOrder" min="0" required>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Default SLA (hours)</label>
+              <input type="number" class="form-control" formControlName="defaultSLAHours" min="1">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Escalation Hours</label>
+              <input type="number" class="form-control" formControlName="escalationHours" min="1">
+            </div>
+          </div>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" formControlName="isInitialStatus" id="isInitialStatus">
+            <label class="form-check-label" for="isInitialStatus">
+              Set as Initial Status
+            </label>
+          </div>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" formControlName="requiresApproval" id="requiresApproval">
+            <label class="form-check-label" for="requiresApproval">
+              Requires Approval
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeStatusModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="statusForm.invalid || loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            Add Status
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Transition Modal -->
+<div class="modal fade" [class.show]="showTransitionModal" [style.display]="showTransitionModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Transition Rule</h5>
+        <button type="button" class="btn-close" (click)="closeTransitionModal()"></button>
+      </div>
+      <form [formGroup]="transitionForm" (ngSubmit)="addTransition()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">From Status *</label>
+            <select class="form-select" formControlName="fromStatusId" required>
+              <option value="">Select Status</option>
+              <option *ngFor="let status of selectedWorkflow?.workflowStatuses" [value]="status.statusMasterId">
+                {{ status.statusName }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">To Status *</label>
+            <select class="form-select" formControlName="toStatusId" required>
+              <option value="">Select Status</option>
+              <option *ngFor="let status of selectedWorkflow?.workflowStatuses" [value]="status.statusMasterId">
+                {{ status.statusName }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Transition Name *</label>
+            <input type="text" class="form-control" formControlName="transitionName" placeholder="e.g., Start Work, Resolve, Close" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" formControlName="description" rows="2" placeholder="Optional description"></textarea>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Button Color</label>
+              <input type="color" class="form-control form-control-color" formControlName="buttonColor">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Display Order</label>
+              <input type="number" class="form-control" formControlName="displayOrder" min="0">
+            </div>
+          </div>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" formControlName="requiresComment" id="requiresComment">
+            <label class="form-check-label" for="requiresComment">
+              Requires Comment
+            </label>
+          </div>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" formControlName="requiresApproval" id="requiresApprovalTrans">
+            <label class="form-check-label" for="requiresApprovalTrans">
+              Requires Approval
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeTransitionModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="transitionForm.invalid || loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            Add Transition
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop fade" [class.show]="showCreateModal || showStatusModal || showTransitionModal" *ngIf="showCreateModal || showStatusModal || showTransitionModal"></div>

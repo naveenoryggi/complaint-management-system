@@ -1,0 +1,36 @@
+﻿{
+    "Summary":  {
+                    "TotalTasks":  4,
+                    "Warnings":  [
+                                     "User nav_nainital@yahoo.com already exists"
+                                 ],
+                    "Successful":  3,
+                    "Failed":  0
+                },
+    "TaskResults":  [
+                        {
+                            "TaskName":  "Task 1: Create Test User",
+                            "Status":  "WARNING",
+                            "Timestamp":  "2025-11-10 16:00:24",
+                            "Details":  "User already exists:\n- User ID: fd0073b8-fc95-4a49-867c-6ffb38b7d177\n- Email: nav_nainital@yahoo.com\n- Full Name: Nav Nainital\n- Employee Code: NAV001\n- Is Active: True\n- Role IDs: "
+                        },
+                        {
+                            "TaskName":  "Task 2: Verify Handler User",
+                            "Status":  "SUCCESS",
+                            "Timestamp":  "2025-11-10 16:00:36",
+                            "Details":  "Handler user found and verified:\n- User ID: 94c91ae3-72ef-4b53-8057-08de0e0582b5\n- Email: naveen.chandra@oryggitech.com\n- Full Name: NAVEEN CHANDRA\n- Employee Code: 218819771403\n- Is Active: True\n- Role Assignments:\n\n- Has Handler Role: NO - WARNING!"
+                        },
+                        {
+                            "TaskName":  "Task 3: Create Priority-Based SLA Policies",
+                            "Status":  "SUCCESS",
+                            "Timestamp":  "2025-11-10 16:00:39",
+                            "Details":  "Priority-Based SLA Policies Created/Verified:\n\nSuccessfully Created/Existing (10):\n- Low Priority Level (ID: b057b2c6-35e0-4241-9943-cc892c7238af) - Response: 48h, Resolution: 120h\n- Normal Priority Level (ID: 07c5a003-aead-4ac7-8a5d-b11a63bbfff2) - Response: 24h, Resolution: 72h\n- High Priority Level (ID: 56b63c38-92bb-45fd-a7b6-fc6f59576248) - Response: 8h, Resolution: 24h\n- Critical Priority Level (ID: ce3fd160-85ae-4b4a-8961-74153bfa4493) - Response: 4h, Resolution: 12h\n- Urgent Priority Level (ID: 0d11c840-e006-4027-9ee9-d3f2bb3a46d7) - Response: 2h, Resolution: 8h\n- Low -\u003e Low Priority Level\n- Normal -\u003e Normal Priority Level\n- High -\u003e High Priority Level\n- Critical -\u003e Critical Priority Level\n- Urgent -\u003e Urgent Priority Level\n\nNo failures"
+                        },
+                        {
+                            "TaskName":  "Task 4: Create Category-Based SLA Policies",
+                            "Status":  "SUCCESS",
+                            "Timestamp":  "2025-11-10 16:00:39",
+                            "Details":  "Category-Based SLA Policies Created/Verified:\n\nSuccessfully Created/Existing (2):\n- Technical Issues -\u003e High Priority Level (Response: 4h, Resolution: 16h)\n- Billing Problems -\u003e Normal Priority Level (Response: 6h, Resolution: 24h)\n\nNo failures\n\nNote: If categories don\u0027t exist with exact names, the script attempts partial matching."
+                        }
+                    ]
+}

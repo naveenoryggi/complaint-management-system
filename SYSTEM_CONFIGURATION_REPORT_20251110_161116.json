@@ -1,0 +1,119 @@
+﻿{
+    "Errors":  [
+                   "Policy 1 Error: The remote server returned an error: (404) Not Found.",
+                   "Policy 2 Error: The remote server returned an error: (404) Not Found."
+               ],
+    "Workflows":  [
+                      {
+                          "Categories":  [
+                                             "Attendance Issues"
+                                         ],
+                          "Status":  "Success",
+                          "Name":  "Standard Complaint Workflow",
+                          "Id":  "3f2ca1d4-e1cd-4166-8ea5-64c24bcd8428"
+                      },
+                      {
+                          "Categories":  [
+                                             "Service Delays"
+                                         ],
+                          "Status":  "Success",
+                          "Name":  "Fast Track Workflow",
+                          "Id":  "fb3f8bb1-7928-4f2b-a5dd-984812949946"
+                      },
+                      {
+                          "Categories":  [
+                                             "Technical Issues"
+                                         ],
+                          "Status":  "Success",
+                          "Name":  "Escalation Required Workflow",
+                          "Id":  "c33a4602-9140-4c98-847b-759ef856744d"
+                      }
+                  ],
+    "NotificationRules":  [
+                              {
+                                  "Status":  "Failed",
+                                  "Error":  "The remote server returned an error: (400) Bad Request.",
+                                  "Name":  "Complaint Created Notification",
+                                  "EventCode":  "COMPLAINT_CREATED"
+                              },
+                              {
+                                  "Status":  "Failed",
+                                  "Error":  "The remote server returned an error: (400) Bad Request.",
+                                  "Name":  "Complaint Assigned Notification",
+                                  "EventCode":  "COMPLAINT_ASSIGNED"
+                              },
+                              {
+                                  "Status":  "Failed",
+                                  "Error":  "The remote server returned an error: (400) Bad Request.",
+                                  "Name":  "Complaint Closed Notification",
+                                  "EventCode":  "COMPLAINT_CLOSED"
+                              },
+                              {
+                                  "Status":  "Failed",
+                                  "Error":  "The remote server returned an error: (400) Bad Request.",
+                                  "Name":  "Complaint Escalated Notification",
+                                  "EventCode":  "COMPLAINT_ESCALATED"
+                              },
+                              {
+                                  "Status":  "Failed",
+                                  "Error":  "The remote server returned an error: (400) Bad Request.",
+                                  "Name":  "Complaint Overdue Notification",
+                                  "EventCode":  "COMPLAINT_OVERDUE"
+                              },
+                              {
+                                  "Status":  "Failed",
+                                  "Error":  "The remote server returned an error: (400) Bad Request.",
+                                  "Name":  "Status Changed Notification",
+                                  "EventCode":  "COMPLAINT_STATUS_CHANGED"
+                              },
+                              {
+                                  "Status":  "Failed",
+                                  "Error":  "The remote server returned an error: (400) Bad Request.",
+                                  "Name":  "Comment Added Notification",
+                                  "EventCode":  "COMPLAINT_COMMENTED"
+                              }
+                          ],
+    "Success":  true,
+    "Summary":  {
+                    "TotalErrors":  2,
+                    "MatrixMappingsCreated":  5,
+                    "EscalationPoliciesCreated":  0,
+                    "WorkflowsCreated":  3,
+                    "NotificationRulesCreated":  0
+                },
+    "EscalationMatrices":  [
+                               {
+                                   "Priority":  "URGENT",
+                                   "Status":  "Configured",
+                                   "PolicyName":  "Critical Issues Escalation",
+                                   "PolicyId":  null
+                               },
+                               {
+                                   "Priority":  "CRITICAL",
+                                   "Status":  "Configured",
+                                   "PolicyName":  "Critical Issues Escalation",
+                                   "PolicyId":  null
+                               },
+                               {
+                                   "Priority":  "HIGH",
+                                   "Status":  "Configured",
+                                   "PolicyName":  "Standard Escalation",
+                                   "PolicyId":  null
+                               },
+                               {
+                                   "Priority":  "NORMAL",
+                                   "Status":  "Configured",
+                                   "PolicyName":  "Standard Escalation",
+                                   "PolicyId":  null
+                               },
+                               {
+                                   "Priority":  "LOW",
+                                   "Status":  "Configured",
+                                   "PolicyName":  "Standard Escalation",
+                                   "PolicyId":  null
+                               }
+                           ],
+    "EscalationPolicies":  [
+
+                           ]
+}

@@ -1,0 +1,5 @@
+[INFO] ==========================================
+[INFO] COMPLETE ENDPOINT TEST SUITE
+[INFO] ==========================================
+[INFO] Authenticating...
+[FAIL] Authentication failed - Cannot continue

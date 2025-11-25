@@ -1,0 +1,45 @@
+<div class="status-widget" [style.border-left-color]="widget.colorCode">
+  <div class="widget-header">
+    <div class="widget-icon" [style.background-color]="widget.colorCode + '20'">
+      <i class="bi" [ngClass]="widget.iconClass" [style.color]="widget.colorCode"></i>
+    </div>
+    <div class="widget-info">
+      <h3 class="widget-title">{{ widget.name }}</h3>
+      <p class="widget-description" *ngIf="widget.description">{{ widget.description }}</p>
+    </div>
+  </div>
+
+  <div class="widget-body">
+    <div class="count-section">
+      <div class="current-count">
+        <span class="count-number">{{ widget.currentCount }}</span>
+        <span class="count-label">Current</span>
+      </div>
+
+      <div class="trend-indicator" *ngIf="showTrends && widget.trend !== 'stable'">
+        <i class="bi trend-icon" [ngClass]="[getTrendIcon(), getTrendClass()]"></i>
+        <span class="trend-percentage" [ngClass]="getTrendClass()" *ngIf="showPercentages">
+          {{ getFormattedPercentage() }}
+        </span>
+      </div>
+    </div>
+
+    <div class="widget-stats" *ngIf="widget.averageTimeInStatus">
+      <div class="stat-item">
+        <i class="bi bi-clock"></i>
+        <span class="stat-label">Avg Time:</span>
+        <span class="stat-value">{{ getFormattedAverageTime() }}</span>
+      </div>
+    </div>
+
+    <div class="widget-footer">
+      <span class="previous-count">
+        Previous: {{ widget.previousCount }}
+      </span>
+      <span class="status-badge" *ngIf="widget.isFinal">
+        <i class="bi bi-check-circle"></i>
+        Final
+      </span>
+    </div>
+  </div>
+</div>

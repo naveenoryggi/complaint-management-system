@@ -1,0 +1,174 @@
+<div class="modal-backdrop" *ngIf="show" (click)="onClose()"></div>
+
+<div class="customizer-modal" *ngIf="show" [@slideIn]>
+  <div class="modal-header">
+    <h2>
+      <i class="bi bi-sliders"></i>
+      Customize Dashboard
+    </h2>
+    <button class="close-btn" (click)="onClose()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <!-- Error Message -->
+    <div class="alert alert-error" *ngIf="error">
+      <i class="bi bi-exclamation-triangle"></i>
+      {{ error }}
+    </div>
+
+    <!-- Status Selection -->
+    <div class="section">
+      <div class="section-header">
+        <h3>
+          <i class="bi bi-circle"></i>
+          Status Widgets
+        </h3>
+        <div class="section-actions">
+          <button class="link-btn" (click)="selectAllStatuses()">Select All</button>
+          <span class="separator">|</span>
+          <button class="link-btn" (click)="clearAllStatuses()">Clear</button>
+          <span class="selected-count">{{ getSelectedCount() }} selected</span>
+        </div>
+      </div>
+
+      <div class="status-grid" *ngIf="!loading">
+        <div
+          class="status-card"
+          *ngFor="let status of availableStatuses"
+          [class.selected]="isStatusSelected(status.id)"
+          (click)="toggleStatus(status.id)">
+          <div class="status-indicator" [style.background-color]="status.colorCode"></div>
+          <i class="bi status-icon" [ngClass]="status.iconClass" [style.color]="status.colorCode"></i>
+          <div class="status-info">
+            <div class="status-name">{{ status.name }}</div>
+            <div class="status-code">{{ status.code }}</div>
+          </div>
+          <i class="bi check-icon" [class.show]="isStatusSelected(status.id)" [ngClass]="'bi-check-circle-fill'"></i>
+        </div>
+      </div>
+
+      <div class="loading-spinner" *ngIf="loading">
+        <i class="bi bi-arrow-repeat spin"></i>
+        Loading statuses...
+      </div>
+    </div>
+
+    <!-- Layout Selection -->
+    <div class="section">
+      <div class="section-header">
+        <h3>
+          <i class="bi bi-grid-3x3-gap"></i>
+          Layout
+        </h3>
+      </div>
+
+      <div class="layout-grid">
+        <div
+          class="layout-option"
+          *ngFor="let option of layoutOptions"
+          [class.selected]="layout === option.value"
+          (click)="layout = option.value">
+          <i class="bi" [ngClass]="option.icon"></i>
+          <span>{{ option.label }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Display Options -->
+    <div class="section">
+      <div class="section-header">
+        <h3>
+          <i class="bi bi-eye"></i>
+          Display Options
+        </h3>
+      </div>
+
+      <div class="options-list">
+        <label class="option-item">
+          <input type="checkbox" [(ngModel)]="showTrends" />
+          <span class="option-label">
+            <i class="bi bi-graph-up"></i>
+            Show trend indicators
+          </span>
+        </label>
+
+        <label class="option-item">
+          <input type="checkbox" [(ngModel)]="showPercentages" />
+          <span class="option-label">
+            <i class="bi bi-percent"></i>
+            Show percentage changes
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Date Range -->
+    <div class="section">
+      <div class="section-header">
+        <h3>
+          <i class="bi bi-calendar-range"></i>
+          Date Range
+        </h3>
+      </div>
+
+      <select class="form-select" [(ngModel)]="dateRangeDays">
+        <option *ngFor="let option of dateRangeOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Auto Refresh -->
+    <div class="section">
+      <div class="section-header">
+        <h3>
+          <i class="bi bi-arrow-clockwise"></i>
+          Auto Refresh
+        </h3>
+      </div>
+
+      <select class="form-select" [(ngModel)]="autoRefreshInterval">
+        <option *ngFor="let option of refreshIntervalOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Theme -->
+    <div class="section">
+      <div class="section-header">
+        <h3>
+          <i class="bi bi-palette"></i>
+          Theme
+        </h3>
+      </div>
+
+      <div class="theme-grid">
+        <div
+          class="theme-option"
+          *ngFor="let option of themeOptions"
+          [class.selected]="theme === option.value"
+          (click)="theme = option.value">
+          <i class="bi" [ngClass]="option.icon"></i>
+          <span>{{ option.label }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-secondary" (click)="resetToDefaults()">
+      <i class="bi bi-arrow-counterclockwise"></i>
+      Reset to Defaults
+    </button>
+    <div class="footer-actions">
+      <button class="btn btn-outline" (click)="onClose()">Cancel</button>
+      <button class="btn btn-primary" (click)="onSave()">
+        <i class="bi bi-check-lg"></i>
+        Save Preferences
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,1108 @@
+<div class="email-settings-container">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title-row">
+        <button class="btn-back" (click)="navigateBack()">
+          <i class="fas fa-arrow-left"></i>
+          Back to Dashboard
+        </button>
+        <h1>
+          <i class="fas fa-envelope-open-text"></i>
+          Email Server Settings
+        </h1>
+      </div>
+      <p class="header-description">Configure email servers for sending notifications</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      Add Email Server
+    </button>
+  </div>
+
+  <!-- Info Banner -->
+  <div class="info-banner">
+    <div class="info-icon">
+      <i class="fas fa-info-circle"></i>
+    </div>
+    <div class="info-content">
+      <h3>About Email Server Settings</h3>
+      <p>
+        <strong>Email servers</strong> are used to send automated notifications such as complaint updates,
+        assignments, escalations, and status changes to users.
+      </p>
+      <ul>
+        <li><strong>SMTP Configuration:</strong> Standard email protocol for sending messages</li>
+        <li><strong>Default Server:</strong> One server can be marked as default for all notifications</li>
+        <li><strong>Testing:</strong> Test your configuration before activating</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage && !showModal" class="alert alert-danger">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Search and Filter -->
+  <div class="filter-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="filterItems()"
+        placeholder="Search by name, host, email, or username..."
+        class="search-input"
+      />
+    </div>
+    <div class="filter-buttons">
+      <button
+        class="filter-btn"
+        [class.active]="statusFilter === 'all'"
+        (click)="setStatusFilter('all')"
+      >
+        <i class="fas fa-list"></i>
+        All
+      </button>
+      <button
+        class="filter-btn"
+        [class.active]="statusFilter === 'active'"
+        (click)="setStatusFilter('active')"
+      >
+        <i class="fas fa-check-circle"></i>
+        Active
+      </button>
+      <button
+        class="filter-btn"
+        [class.active]="statusFilter === 'inactive'"
+        (click)="setStatusFilter('inactive')"
+      >
+        <i class="fas fa-times-circle"></i>
+        Inactive
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading && items.length === 0" class="loading-state">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading email settings...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredItems.length === 0" class="empty-state">
+    <i class="fas fa-envelope-open-text"></i>
+    <h3>No Email Servers Found</h3>
+    <p *ngIf="searchTerm">Try adjusting your search criteria</p>
+    <p *ngIf="!searchTerm">Get started by configuring your first email server</p>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      Add Email Server
+    </button>
+  </div>
+
+  <!-- Email Settings Grid -->
+  <div *ngIf="!loading && filteredItems.length > 0" class="settings-grid">
+    <div *ngFor="let settings of filteredItems; trackBy: trackBySettingsId" class="settings-card" [class.inactive]="!settings.isActive">
+      <div class="card-header">
+        <div class="settings-info">
+          <h3>{{ settings.name }}</h3>
+          <span class="status-badge" [class.active]="settings.isActive" [class.inactive]="!settings.isActive">
+            {{ settings.isActive ? 'Active' : 'Inactive' }}
+          </span>
+          <span *ngIf="settings.isDefault" class="default-badge">
+            <i class="fas fa-star"></i> Default
+          </span>
+        </div>
+        <div class="card-actions">
+          <button
+            class="btn-icon btn-test"
+            (click)="testEmailConnection(settings)"
+            title="Test Connection"
+            [disabled]="isTestingEmail"
+          >
+            <i [class]="isTestingEmail ? 'fas fa-spinner fa-spin' : 'fas fa-vial'"></i>
+          </button>
+          <button
+            class="btn-icon"
+            (click)="openEditModal(settings)"
+            title="Edit Settings"
+          >
+            <i class="fas fa-edit"></i>
+          </button>
+          <button
+            class="btn-icon"
+            (click)="toggleSettingsStatus(settings)"
+            [title]="settings.isActive ? 'Deactivate' : 'Activate'"
+          >
+            <i [class]="settings.isActive ? 'fas fa-toggle-on' : 'fas fa-toggle-off'"></i>
+          </button>
+          <button
+            *ngIf="!settings.isDefault && settings.isActive"
+            class="btn-icon btn-default"
+            (click)="setAsDefault(settings)"
+            title="Set as Default"
+          >
+            <i class="fas fa-star"></i>
+          </button>
+          <button
+            class="btn-icon btn-delete"
+            (click)="confirmDelete(settings)"
+            title="Delete Settings"
+          >
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="settings-details">
+          <div class="detail-item">
+            <i class="fas fa-server"></i>
+            <span><strong>Host:</strong> {{ settings.host }}:{{ settings.port }}</span>
+          </div>
+
+          <div class="detail-item">
+            <i class="fas fa-shield-alt"></i>
+            <span>
+              <strong>SSL:</strong> {{ settings.useSsl ? 'Enabled' : 'Disabled' }}
+              <span *ngIf="settings.useSsl" class="ssl-badge"><i class="fas fa-lock"></i> Secure</span>
+            </span>
+          </div>
+
+          <div class="detail-item">
+            <i class="fas fa-user"></i>
+            <span><strong>Username:</strong> {{ settings.username }}</span>
+          </div>
+
+          <div class="detail-item">
+            <i class="fas fa-envelope"></i>
+            <span><strong>From Email:</strong> {{ settings.fromEmail }}</span>
+          </div>
+
+          <div class="detail-item">
+            <i class="fas fa-signature"></i>
+            <span><strong>From Name:</strong> {{ settings.fromName }}</span>
+          </div>
+
+          <div *ngIf="settings.maxEmailsPerHour" class="detail-item">
+            <i class="fas fa-tachometer-alt"></i>
+            <span><strong>Rate Limit:</strong> {{ settings.maxEmailsPerHour }} emails/hour</span>
+          </div>
+
+          <div class="detail-item">
+            <i class="fas fa-clock"></i>
+            <span><strong>Timeout:</strong> {{ settings.timeoutSeconds }}s</span>
+          </div>
+
+          <div *ngIf="settings.lastTestedAt" class="detail-item">
+            <i class="fas fa-check-circle"></i>
+            <span><strong>Last Tested:</strong> {{ settings.lastTestedAt | utcToLocal:'medium' }}</span>
+          </div>
+
+          <div *ngIf="settings.testNotes" class="detail-item test-notes">
+            <i class="fas fa-comment-alt"></i>
+            <span><strong>Test Notes:</strong> {{ settings.testNotes }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <small>
+          Created: {{ settings.createdAt | utcToLocal:'medium' }}
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div *ngIf="items.length > 0" class="summary-stats">
+    <div class="stat-item">
+      <span class="stat-label">Total Servers:</span>
+      <span class="stat-value">{{ items.length }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Active:</span>
+      <span class="stat-value stat-active">{{ getActiveSettingsCount() }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Inactive:</span>
+      <span class="stat-value stat-inactive">{{ getInactiveSettingsCount() }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal(); showProviderDropdown = false;">
+  <div class="modal-content large-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-envelope-open-text"></i>
+        {{ modalMode === 'edit' ? 'Edit Email Server Settings' : 'Create New Email Server' }}
+      </h2>
+      <button class="btn-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Progress Indicator -->
+      <div class="form-progress-indicator">
+        <div class="progress-header">
+          <span class="progress-label">Form Completion</span>
+          <span class="progress-percentage" [class.complete]="getFormCompletionPercentage() === 100">
+            {{ getFormCompletionPercentage() }}%
+          </span>
+        </div>
+        <div class="progress-steps">
+          <div class="progress-step" [class.complete]="isBasicInfoComplete()">
+            <div class="step-icon">
+              <i class="fas" [class.fa-check-circle]="isBasicInfoComplete()" [class.fa-circle]="!isBasicInfoComplete()"></i>
+            </div>
+            <span class="step-label">Basic</span>
+          </div>
+          <div class="progress-connector" [class.complete]="isBasicInfoComplete()"></div>
+          <div class="progress-step" [class.complete]="isAuthComplete()">
+            <div class="step-icon">
+              <i class="fas" [class.fa-check-circle]="isAuthComplete()" [class.fa-shield-alt]="!isAuthComplete()"></i>
+            </div>
+            <span class="step-label">Auth</span>
+          </div>
+          <div class="progress-connector" [class.complete]="isAuthComplete()"></div>
+          <div class="progress-step" [class.complete]="isSenderInfoComplete()">
+            <div class="step-icon">
+              <i class="fas" [class.fa-check-circle]="isSenderInfoComplete()" [class.fa-envelope]="!isSenderInfoComplete()"></i>
+            </div>
+            <span class="step-label">Sender</span>
+          </div>
+          <div class="progress-connector" [class.complete]="isSenderInfoComplete()"></div>
+          <div class="progress-step" [class.complete]="isAdvancedConfigured()">
+            <div class="step-icon">
+              <i class="fas" [class.fa-check-circle]="isAdvancedConfigured()" [class.fa-cog]="!isAdvancedConfigured()"></i>
+            </div>
+            <span class="step-label">Advanced</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message in Modal -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Test Result -->
+      <div *ngIf="testResult" class="alert" [class.alert-success]="testResult.success" [class.alert-danger]="!testResult.success">
+        <i [class]="testResult.success ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'"></i>
+        {{ testResult.message }}
+      </div>
+
+      <form (ngSubmit)="save()">
+        <!-- Basic Information -->
+        <div class="form-section collapsible" [class.collapsed]="collapsedSections.basic">
+          <div class="section-header" (click)="toggleSection('basic')">
+            <h3>
+              <i class="fas fa-info-circle"></i>
+              Basic Information
+            </h3>
+            <div class="section-controls">
+              <span class="completion-badge" *ngIf="isBasicInfoComplete()">
+                <i class="fas fa-check-circle"></i>
+              </span>
+              <i class="fas toggle-icon"
+                 [class.fa-chevron-down]="!collapsedSections.basic"
+                 [class.fa-chevron-right]="collapsedSections.basic"></i>
+            </div>
+          </div>
+
+          <div class="section-content" *ngIf="!collapsedSections.basic">
+
+          <!-- Email Provider Selection -->
+          <div class="form-group">
+            <label>Email Provider</label>
+            <div class="provider-selector" [class.show-dropdown]="showProviderDropdown">
+              <div class="provider-selected" (click)="showProviderDropdown = !showProviderDropdown">
+                <i [class]="selectedProvider.icon"></i>
+                <span>{{ selectedProvider.name }}</span>
+                <i class="fas fa-chevron-down dropdown-arrow"></i>
+              </div>
+
+              <div class="provider-dropdown" *ngIf="showProviderDropdown">
+                <div
+                  *ngFor="let provider of emailProviders; trackBy: trackByProviderName"
+                  class="provider-option"
+                  (click)="selectEmailProvider(provider)"
+                  [class.selected]="provider.name === selectedProvider.name"
+                >
+                  <div class="provider-info">
+                    <i [class]="provider.icon"></i>
+                    <div class="provider-details">
+                      <strong>{{ provider.name }}</strong>
+                      <small>{{ provider.description }}</small>
+                    </div>
+                  </div>
+                  <div class="provider-notes" *ngIf="provider.notes">
+                    <i class="fas fa-info-circle"></i>
+                    <span>{{ provider.notes }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="form-help-text">Select a pre-configured email provider or choose Custom SMTP</small>
+          </div>
+
+          <div class="form-group">
+            <label for="settingsName" class="required">Configuration Name</label>
+            <input
+              id="settingsName"
+              type="text"
+              [(ngModel)]="formName"
+              name="name"
+              class="form-control"
+              placeholder="e.g., Production SMTP, Office 365, Gmail"
+              required
+            />
+            <small class="form-help-text">A friendly name to identify this email server</small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-3">
+              <label for="host" class="required">SMTP Host</label>
+              <input
+                id="host"
+                type="text"
+                [(ngModel)]="host"
+                name="host"
+                class="form-control"
+                placeholder="e.g., smtp.gmail.com, smtp.office365.com"
+                required
+              />
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="port" class="required">Port</label>
+              <input
+                id="port"
+                type="number"
+                [(ngModel)]="port"
+                name="port"
+                class="form-control"
+                placeholder="587"
+                min="1"
+                max="65535"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input
+                id="useSsl"
+                type="checkbox"
+                [(ngModel)]="useSsl"
+                name="useSsl"
+              />
+              <label for="useSsl">
+                <i class="fas fa-lock"></i>
+                Use SSL/TLS (Recommended for secure connections)
+              </label>
+            </div>
+            <small class="form-help-text">Enable for secure encrypted connection. Common ports: 587 (TLS), 465 (SSL), 25 (Non-SSL)</small>
+          </div>
+          </div>
+        </div>
+
+        <!-- Authentication -->
+        <div class="form-section collapsible" [class.collapsed]="collapsedSections.auth">
+          <div class="section-header" (click)="toggleSection('auth')">
+            <h3>
+              <i class="fas fa-shield-alt"></i>
+              Authentication
+            </h3>
+            <div class="section-controls">
+              <span class="completion-badge" *ngIf="isAuthComplete()">
+                <i class="fas fa-check-circle"></i>
+              </span>
+              <i class="fas toggle-icon"
+                 [class.fa-chevron-down]="!collapsedSections.auth"
+                 [class.fa-chevron-right]="collapsedSections.auth"></i>
+            </div>
+          </div>
+
+          <div class="section-content" *ngIf="!collapsedSections.auth">
+
+          <!-- Authentication Type Selector -->
+          <div class="form-group">
+            <label>Authentication Method</label>
+            <div class="auth-type-selector">
+              <div class="radio-group">
+                <label class="radio-option" [class.selected]="authenticationType == 1">
+                  <input type="radio" [(ngModel)]="authenticationType" name="authenticationType" value="1" />
+                  <div class="option-content">
+                    <div class="option-header">
+                      <i class="fas fa-key"></i>
+                      <strong>Basic Authentication (Legacy)</strong>
+                    </div>
+                    <p>Username and password (deprecated by Microsoft 365 & Gmail)</p>
+                  </div>
+                </label>
+                <label class="radio-option" [class.selected]="authenticationType == 2">
+                  <input type="radio" [(ngModel)]="authenticationType" name="authenticationType" value="2" />
+                  <div class="option-content">
+                    <div class="option-header">
+                      <i class="fas fa-shield-alt"></i>
+                      <strong>OAuth 2.0 (Recommended)</strong>
+                      <span class="badge badge-success">Secure</span>
+                    </div>
+                    <p>Modern authentication for Microsoft 365, Gmail, etc.</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="username" class="required">Username / Email Address</label>
+            <input
+              id="username"
+              type="text"
+              [(ngModel)]="username"
+              name="username"
+              class="form-control"
+              placeholder="your-email@company.com"
+              required
+            />
+            <small class="form-help-text">Your full email address for SMTP authentication</small>
+          </div>
+
+          <!-- Basic Authentication Fields -->
+          <div *ngIf="authenticationType == 1" class="form-group">
+            <label for="password" [class.required]="modalMode === 'create'">Password</label>
+            <input
+              id="password"
+              type="password"
+              [(ngModel)]="password"
+              name="password"
+              class="form-control"
+              placeholder="SMTP password or app-specific password"
+              [required]="modalMode === 'create' && authenticationType == 1"
+            />
+            <small *ngIf="modalMode === 'edit'" class="form-help-text">Leave blank to keep existing password</small>
+            <div class="alert alert-warning" style="margin-top: 10px;">
+              <i class="fas fa-exclamation-triangle"></i>
+              <strong>Note:</strong> Microsoft 365 and Gmail have deprecated basic authentication. Use OAuth 2.0 instead.
+            </div>
+          </div>
+
+          <!-- OAuth 2.0 Configuration Fields -->
+          <div *ngIf="authenticationType == 2" class="oauth-config-section">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              <strong>OAuth 2.0 Setup:</strong> If you already have OAuth configured for Email Ticketing, you can reuse those credentials here.
+            </div>
+
+            <!-- Expandable OAuth Instructions -->
+            <div class="oauth-instructions-expander">
+              <button type="button"
+                      class="btn-expand-instructions"
+                      (click)="showOAuthHelp = !showOAuthHelp">
+                <i class="fas fa-graduation-cap"></i>
+                <span>{{ showOAuthHelp ? 'Hide' : 'Show' }} OAuth Setup Guide</span>
+                <i class="fas" [class.fa-chevron-down]="!showOAuthHelp" [class.fa-chevron-up]="showOAuthHelp"></i>
+              </button>
+            </div>
+
+            <!-- OAuth Instructions Panel (Collapsible) -->
+            <div *ngIf="showOAuthHelp" class="oauth-instructions-panel">
+              <div class="instructions-header">
+                <i class="fas fa-book-open"></i>
+                <strong>Step-by-Step OAuth Configuration Guide</strong>
+              </div>
+
+              <div class="instructions-tabs">
+                <button type="button"
+                        class="tab-button"
+                        [class.active]="oauthHelpTab === 'office365'"
+                        (click)="oauthHelpTab = 'office365'">
+                  <i class="fab fa-microsoft"></i> Office 365 / Outlook
+                </button>
+                <button type="button"
+                        class="tab-button"
+                        [class.active]="oauthHelpTab === 'gmail'"
+                        (click)="oauthHelpTab = 'gmail'">
+                  <i class="fab fa-google"></i> Gmail
+                </button>
+              </div>
+
+              <!-- Office 365 Instructions -->
+              <div *ngIf="oauthHelpTab === 'office365'" class="instructions-content">
+                <div class="instruction-step">
+                  <div class="step-number">1</div>
+                  <div class="step-details">
+                    <strong>Go to Azure Portal</strong>
+                    <p>Visit <a href="https://portal.azure.com" target="_blank">portal.azure.com</a> and sign in with your admin account</p>
+                  </div>
+                </div>
+
+                <div class="instruction-step">
+                  <div class="step-number">2</div>
+                  <div class="step-details">
+                    <strong>Register New Application</strong>
+                    <ol>
+                      <li>Search for "Azure Active Directory"</li>
+                      <li>Click "App registrations" → "+ New registration"</li>
+                      <li>Enter name: <code>Complaint Management Email</code></li>
+                      <li>Select "Accounts in this organizational directory only"</li>
+                      <li>Redirect URI (Web): <code class="copyable" (click)="copyToClipboard(getOAuthCallbackUrl())">{{ getOAuthCallbackUrl() }}</code></li>
+                      <li>Click "Register"</li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div class="instruction-step">
+                  <div class="step-number">3</div>
+                  <div class="step-details">
+                    <strong>Copy Application (Client) ID</strong>
+                    <p>On the app Overview page, copy the "Application (client) ID" value</p>
+                  </div>
+                </div>
+
+                <div class="instruction-step">
+                  <div class="step-number">4</div>
+                  <div class="step-details">
+                    <strong>Copy Directory (Tenant) ID</strong>
+                    <p>Also copy the "Directory (tenant) ID" from the same page</p>
+                  </div>
+                </div>
+
+                <div class="instruction-step">
+                  <div class="step-number">5</div>
+                  <div class="step-details">
+                    <strong>Create Client Secret</strong>
+                    <ol>
+                      <li>Click "Certificates & secrets" → "+ New client secret"</li>
+                      <li>Enter description: "Email Integration"</li>
+                      <li>Set expiration (recommended: 24 months)</li>
+                      <li>Click "Add"</li>
+                      <li><strong class="warning-text">IMPORTANT: Copy the "Value" immediately!</strong> It won't be shown again</li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div class="instruction-step">
+                  <div class="step-number">6</div>
+                  <div class="step-details">
+                    <strong>Add API Permissions</strong>
+                    <ol>
+                      <li>Click "API permissions" → "+ Add a permission"</li>
+                      <li>Select "Office 365 Exchange Online"</li>
+                      <li>Select "Delegated permissions"</li>
+                      <li>Add: <code>SMTP.Send</code>, <code>offline_access</code></li>
+                      <li>Click "Add permissions"</li>
+                      <li><strong>Click "Grant admin consent"</strong> and confirm</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gmail Instructions -->
+              <div *ngIf="oauthHelpTab === 'gmail'" class="instructions-content">
+                <div class="instruction-step">
+                  <div class="step-number">1</div>
+                  <div class="step-details">
+                    <strong>Go to Google Cloud Console</strong>
+                    <p>Visit <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> and sign in</p>
+                  </div>
+                </div>
+
+                <div class="instruction-step">
+                  <div class="step-number">2</div>
+                  <div class="step-details">
+                    <strong>Create New Project</strong>
+                    <ol>
+                      <li>Click the project dropdown at the top</li>
+                      <li>Click "New Project"</li>
+                      <li>Name: "Complaint Management Email"</li>
+                      <li>Click "Create"</li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div class="instruction-step">
+                  <div class="step-number">3</div>
+                  <div class="step-details">
+                    <strong>Enable Gmail API</strong>
+                    <ol>
+                      <li>Go to "APIs & Services" > "Library"</li>
+                      <li>Search for "Gmail API"</li>
+                      <li>Click on it and click "Enable"</li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div class="instruction-step">
+                  <div class="step-number">4</div>
+                  <div class="step-details">
+                    <strong>Create OAuth Credentials</strong>
+                    <ol>
+                      <li>Go to "APIs & Services" > "Credentials"</li>
+                      <li>Click "Create Credentials" > "OAuth client ID"</li>
+                      <li>Select "Web application"</li>
+                      <li>Name: "Complaint Management"</li>
+                      <li>Add Authorized redirect URI: <code class="copyable" (click)="copyToClipboard(getOAuthCallbackUrl())">{{ getOAuthCallbackUrl() }}</code></li>
+                      <li>Click "Create"</li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div class="instruction-step">
+                  <div class="step-number">5</div>
+                  <div class="step-details">
+                    <strong>Copy Credentials</strong>
+                    <p>Copy the "Client ID" and "Client Secret" that appear</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="oauthClientId" class="required">OAuth Client ID</label>
+              <input
+                id="oauthClientId"
+                type="text"
+                [(ngModel)]="oauthClientId"
+                name="oauthClientId"
+                class="form-control"
+                placeholder="From Azure AD App Registration"
+                [required]="authenticationType == 2"
+              />
+              <small class="form-help-text">Application (client) ID from your Azure AD app registration</small>
+            </div>
+
+            <div class="form-group">
+              <label for="oauthClientSecret" class="required">OAuth Client Secret</label>
+              <input
+                id="oauthClientSecret"
+                type="password"
+                [(ngModel)]="oauthClientSecret"
+                name="oauthClientSecret"
+                class="form-control"
+                placeholder="Client secret value from Azure AD"
+                [required]="authenticationType == 2 && modalMode === 'create'"
+              />
+              <small *ngIf="modalMode === 'edit'" class="form-help-text">Leave blank to keep existing secret</small>
+              <small *ngIf="modalMode === 'create'" class="form-help-text">Client secret value from your Azure AD app</small>
+            </div>
+
+            <div class="form-group">
+              <label for="oauthTenantId" class="required">OAuth Tenant ID</label>
+              <input
+                id="oauthTenantId"
+                type="text"
+                [(ngModel)]="oauthTenantId"
+                name="oauthTenantId"
+                class="form-control"
+                placeholder="Directory (tenant) ID from Azure AD"
+                [required]="authenticationType == 2"
+              />
+              <small class="form-help-text">Directory (tenant) ID from your Azure AD</small>
+            </div>
+
+            <!-- OAuth Token Refresh Interval -->
+            <div class="form-group">
+              <label for="oauthTokenRefreshIntervalMinutes">
+                <i class="fas fa-clock"></i> OAuth Token Refresh Interval (Optional)
+              </label>
+              <select
+                id="oauthTokenRefreshIntervalMinutes"
+                [(ngModel)]="oauthTokenRefreshIntervalMinutes"
+                name="oauthTokenRefreshIntervalMinutes"
+                class="form-control"
+              >
+                <option [ngValue]="undefined">Use System Default (60 minutes)</option>
+                <option [ngValue]="15">15 minutes (Very Frequent)</option>
+                <option [ngValue]="30">30 minutes (Recommended for 1-hour tokens)</option>
+                <option [ngValue]="45">45 minutes</option>
+                <option [ngValue]="60">60 minutes (Standard)</option>
+                <option [ngValue]="90">90 minutes</option>
+                <option [ngValue]="120">120 minutes (2 hours)</option>
+              </select>
+              <small class="form-help-text">
+                <i class="fas fa-info-circle"></i>
+                How often to refresh OAuth access tokens for THIS email account. Leave as "Use System Default" unless you need a custom interval for this account.
+              </small>
+            </div>
+
+            <!-- OAuth Authorization Button (only shown in edit mode after saving OAuth credentials) -->
+            <div *ngIf="modalMode === 'edit' && formId" class="oauth-authorization-section">
+              <div class="alert alert-info-alt">
+                <i class="fas fa-key"></i>
+                <strong>Step 3: Authorize Email Account</strong>
+                <p>After saving your OAuth credentials above, click the button below to authorize this email account and obtain access tokens.</p>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-primary btn-authorize-oauth"
+                (click)="initiateOAuthFlow()"
+                [disabled]="!oauthClientId || !oauthTenantId || loading">
+                <i class="fab fa-microsoft"></i>
+                <span>Authorize with Microsoft</span>
+              </button>
+
+              <small class="form-help-text">
+                <i class="fas fa-info-circle"></i>
+                This will open a Microsoft login page where you'll grant permission for the app to send emails on your behalf.
+              </small>
+            </div>
+
+            <div class="oauth-help">
+              <div class="help-header">
+                <i class="fas fa-question-circle"></i>
+                <strong>Where to find OAuth credentials?</strong>
+              </div>
+              <ol>
+                <li>Check your Email Ticketing configuration at <a href="/admin/email-ticketing-config" target="_blank">Email Ticketing Config</a> - you can reuse the same credentials</li>
+                <li>Or register a new app at <a href="https://portal.azure.com" target="_blank">portal.azure.com</a> → Azure Active Directory → App registrations</li>
+                <li>Required API permissions: <code>SMTP.Send</code>, <code>offline_access</code></li>
+              </ol>
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <!-- Sender Information -->
+        <div class="form-section collapsible" [class.collapsed]="collapsedSections.sender">
+          <div class="section-header" (click)="toggleSection('sender')">
+            <h3>
+              <i class="fas fa-envelope"></i>
+              Sender Information
+            </h3>
+            <div class="section-controls">
+              <span class="completion-badge" *ngIf="isSenderInfoComplete()">
+                <i class="fas fa-check-circle"></i>
+              </span>
+              <i class="fas toggle-icon"
+                 [class.fa-chevron-down]="!collapsedSections.sender"
+                 [class.fa-chevron-right]="collapsedSections.sender"></i>
+            </div>
+          </div>
+
+          <div class="section-content" *ngIf="!collapsedSections.sender">
+
+          <div class="form-group from-email-group" [class.has-error]="errorMessage && errorMessage.includes('From Email')">
+            <label for="fromEmail" class="required">
+              <i class="fas fa-envelope"></i>From Email Address
+            </label>
+            <div class="field-wrapper" style="position: relative;">
+              <input
+                id="fromEmail"
+                type="email"
+                [(ngModel)]="fromEmail"
+                name="fromEmail"
+                class="form-control"
+                placeholder="noreply@company.com"
+                required
+                #fromEmailField="ngModel"
+                [class.ng-invalid]="fromEmailField.invalid && fromEmailField.touched"
+                [class.ng-touched]="fromEmailField.touched"
+              />
+              <div class="field-error-icon" *ngIf="fromEmailField.invalid && fromEmailField.touched"></div>
+            </div>
+            <small class="form-help-text">
+              <i class="fas fa-info-circle"></i>
+              The email address that will appear as sender. Must be a valid email format.
+            </small>
+
+            <!-- Enhanced error message for From Email field -->
+            <div class="field-error email-error" *ngIf="fromEmailField.invalid && fromEmailField.touched">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>Please enter a valid From Email address (e.g., noreply@company.com)</span>
+            </div>
+
+            <!-- Validation summary when email field has errors -->
+            <div class="email-validation-summary" *ngIf="errorMessage && errorMessage.includes('From Email')">
+              <div class="validation-icon">
+                <i class="fas fa-exclamation-circle"></i>
+              </div>
+              <div class="validation-content">
+                <h4>Email Validation Required</h4>
+                <p>{{ errorMessage }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="fromName" class="required">From Name</label>
+            <input
+              id="fromName"
+              type="text"
+              [(ngModel)]="fromName"
+              name="fromName"
+              class="form-control"
+              placeholder="Complaint Management System"
+              required
+            />
+            <small class="form-help-text">The display name that will appear as sender</small>
+          </div>
+          </div>
+        </div>
+
+        <!-- Advanced Settings -->
+        <div class="form-section collapsible" [class.collapsed]="collapsedSections.advanced">
+          <div class="section-header" (click)="toggleSection('advanced')">
+            <h3>
+              <i class="fas fa-cog"></i>
+              Advanced Settings
+            </h3>
+            <div class="section-controls">
+              <span class="completion-badge" *ngIf="isAdvancedConfigured()">
+                <i class="fas fa-check-circle"></i>
+              </span>
+              <i class="fas toggle-icon"
+                 [class.fa-chevron-down]="!collapsedSections.advanced"
+                 [class.fa-chevron-right]="collapsedSections.advanced"></i>
+            </div>
+          </div>
+
+          <div class="section-content" *ngIf="!collapsedSections.advanced">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="timeoutSeconds">Timeout (seconds)</label>
+              <input
+                id="timeoutSeconds"
+                type="number"
+                [(ngModel)]="timeoutSeconds"
+                name="timeoutSeconds"
+                class="form-control"
+                placeholder="30"
+                min="10"
+                max="300"
+              />
+              <small class="form-help-text">Connection timeout (10-300 seconds)</small>
+            </div>
+
+            <div class="form-group">
+              <label for="maxEmailsPerHour">Rate Limit (emails/hour)</label>
+              <input
+                id="maxEmailsPerHour"
+                type="number"
+                [(ngModel)]="maxEmailsPerHour"
+                name="maxEmailsPerHour"
+                class="form-control"
+                placeholder="Optional"
+                min="1"
+              />
+              <small class="form-help-text">Optional: Limit emails per hour</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input
+                id="isDefault"
+                type="checkbox"
+                [(ngModel)]="isDefault"
+                name="isDefault"
+              />
+              <label for="isDefault">
+                <i class="fas fa-star"></i>
+                Set as Default Email Server
+              </label>
+            </div>
+            <small class="form-help-text">The default server will be used for all automated notifications</small>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input
+                id="isActive"
+                type="checkbox"
+                [(ngModel)]="formIsActive"
+                name="isActive"
+              />
+              <label for="isActive">
+                Active
+              </label>
+            </div>
+          </div>
+
+          <div *ngIf="modalMode === 'edit'" class="form-group">
+            <label for="testNotes">Test Notes</label>
+            <textarea
+              id="testNotes"
+              [(ngModel)]="testNotes"
+              name="testNotes"
+              class="form-control"
+              rows="2"
+              placeholder="Notes from connection testing..."
+            ></textarea>
+          </div>
+          </div>
+        </div>
+
+        <!-- Test Email Section -->
+        <div class="form-section test-section">
+          <h3>Test Configuration</h3>
+          <p class="section-description">Send a test email to verify your settings before saving</p>
+
+          <div class="form-row">
+            <div class="form-group flex-3">
+              <label for="testEmail">Test Email Address</label>
+              <input
+                id="testEmail"
+                type="email"
+                [(ngModel)]="testEmail"
+                name="testEmail"
+                class="form-control"
+                placeholder="your-email@example.com"
+              />
+            </div>
+            <div class="form-group flex-1 test-button-group">
+              <button
+                *ngIf="modalMode === 'edit'"
+                type="button"
+                class="btn btn-secondary btn-test-full"
+                (click)="testEmailConnection()"
+                [disabled]="isTestingEmail || !testEmail"
+              >
+                <i [class]="isTestingEmail ? 'fas fa-spinner fa-spin' : 'fas fa-paper-plane'"></i>
+                {{ isTestingEmail ? 'Sending...' : 'Send Test' }}
+              </button>
+            </div>
+          </div>
+          <small class="form-help-text">
+            <i class="fas fa-info-circle"></i>
+            Testing is only available after initial creation. Save first, then test.
+          </small>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i [class]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-save'"></i>
+            {{ loading ? 'Saving...' : 'Save' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteConfirm" class="modal-overlay" (click)="cancelDelete()">
+  <div class="modal-content small-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-exclamation-triangle"></i>
+        Confirm Delete
+      </h2>
+      <button class="btn-close" (click)="cancelDelete()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p>Are you sure you want to delete this email server configuration?</p>
+      <p><strong>{{ itemToDelete?.name }}</strong></p>
+      <p class="warning-text">
+        <i class="fas fa-exclamation-triangle"></i>
+        This action cannot be undone.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="cancelDelete()">
+        Cancel
+      </button>
+      <button type="button" class="btn btn-danger" (click)="executeDelete()" [disabled]="loading">
+        <i [class]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-trash'"></i>
+        {{ loading ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Test Email Dialog -->
+<div class="modal-overlay" *ngIf="showTestDialog" (click)="closeTestDialog()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-vial"></i>
+        Test Email Connection
+      </h2>
+      <button class="btn-close" (click)="closeTestDialog()" [disabled]="isTestingEmail">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="test-dialog-info" *ngIf="testingSettings">
+        <div class="info-row">
+          <span class="info-label">Server:</span>
+          <span class="info-value">{{ testingSettings.name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Host:</span>
+          <span class="info-value">{{ testingSettings.host }}:{{ testingSettings.port }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">From:</span>
+          <span class="info-value">{{ testingSettings.fromEmail }}</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="testEmailInput">
+          <i class="fas fa-envelope"></i>
+          Recipient Email Address
+        </label>
+        <input
+          id="testEmailInput"
+          type="email"
+          class="form-control"
+          placeholder="Enter email address to receive test email"
+          [(ngModel)]="testEmail"
+          [disabled]="isTestingEmail"
+          (keyup.enter)="testEmailConnection()"
+        />
+        <small class="form-text">A test email will be sent to this address to verify SMTP configuration</small>
+      </div>
+
+      <!-- Error Message -->
+      <div class="alert alert-danger" *ngIf="errorMessage && !testResult">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Test Result -->
+      <div class="alert" *ngIf="testResult" [class.alert-success]="testResult.success" [class.alert-danger]="!testResult.success">
+        <i [class]="testResult.success ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+        {{ testResult.message }}
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeTestDialog()" [disabled]="isTestingEmail">
+        <i class="fas fa-times"></i>
+        Cancel
+      </button>
+      <button type="button" class="btn btn-primary" (click)="testEmailConnection()" [disabled]="isTestingEmail || !testEmail">
+        <i [class]="isTestingEmail ? 'fas fa-spinner fa-spin' : 'fas fa-paper-plane'"></i>
+        {{ isTestingEmail ? 'Sending...' : 'Send Test Email' }}
+      </button>
+    </div>
+  </div>
+</div>

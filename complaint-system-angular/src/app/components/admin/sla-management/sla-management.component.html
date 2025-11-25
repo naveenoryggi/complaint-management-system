@@ -1,0 +1,689 @@
+<div class="sla-management-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2><i class="bi bi-clock-history"></i> SLA Management</h2>
+      <p class="text-muted">Configure Service Level Agreements for your complaint system</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline-secondary" (click)="setupService.markStepCompleted('global-sla-settings')">
+        <i class="bi bi-check-circle"></i> Mark as Configured
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-navigation">
+    <button class="tab-button" [class.active]="activeTab() === 'global'" (click)="setActiveTab('global')">
+      <i class="bi bi-gear-fill"></i> Global Settings
+    </button>
+    <button class="tab-button" [class.active]="activeTab() === 'levels'" (click)="setActiveTab('levels')">
+      <i class="bi bi-bar-chart-steps"></i> SLA Levels
+    </button>
+    <button class="tab-button" [class.active]="activeTab() === 'category'" (click)="setActiveTab('category')">
+      <i class="bi bi-tags-fill"></i> Category SLA
+    </button>
+    <button class="tab-button" [class.active]="activeTab() === 'priority'" (click)="setActiveTab('priority')">
+      <i class="bi bi-flag-fill"></i> Priority SLA
+    </button>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+
+    <!-- Global Settings Tab -->
+    @if (activeTab() === 'global') {
+      <div class="settings-panel">
+        <form [formGroup]="globalSLAForm">
+          <div class="settings-section">
+            <h3>Basic Configuration</h3>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="enableSLA">
+                <span>Enable SLA System</span>
+              </label>
+              <p class="help-text">When enabled, all complaints will be tracked against SLA targets</p>
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="workingHoursOnly">
+                <span>Calculate SLA During Working Hours Only</span>
+              </label>
+              <p class="help-text">SLA timer will pause outside of working hours and weekends</p>
+            </div>
+
+            @if (globalSLAForm.get('workingHoursOnly')?.value) {
+              <div class="working-hours-config">
+                <div class="time-inputs">
+                  <div class="form-group">
+                    <label>Working Hours Start</label>
+                    <input type="time" class="form-control" formControlName="workingHoursStart">
+                  </div>
+                  <div class="form-group">
+                    <label>Working Hours End</label>
+                    <input type="time" class="form-control" formControlName="workingHoursEnd">
+                  </div>
+                </div>
+
+                <div class="working-days">
+                  <label>Working Days</label>
+                  <div class="day-selector">
+                    @for (day of weekDays; track day.value) {
+                      <button type="button"
+                              class="day-button"
+                              [class.selected]="isWorkingDay(day.value)"
+                              (click)="toggleWorkingDay(day.value)">
+                        {{ day.label.substring(0, 3) }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="settings-section">
+            <h3>Auto-Escalation Settings</h3>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="autoEscalateOnBreach">
+                <span>Automatically Escalate on SLA Breach</span>
+              </label>
+              <p class="help-text">Trigger escalation automatically when SLA is breached</p>
+            </div>
+
+            <div class="form-group">
+              <label>Escalation Warning Threshold</label>
+              <div class="input-group">
+                <input type="number"
+                       class="form-control"
+                       formControlName="escalationThresholdPercent"
+                       min="0"
+                       max="100">
+                <span class="input-addon">% of SLA time</span>
+              </div>
+              <p class="help-text">Trigger warning and escalation when this percentage of SLA time has elapsed</p>
+              @if (isFieldInvalid(globalSLAForm, 'escalationThresholdPercent')) {
+                <span class="error-text">{{ getFieldError(globalSLAForm, 'escalationThresholdPercent') }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Notification Settings</h3>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="notifyBeforeBreach">
+                <span>Send Warning Before SLA Breach</span>
+              </label>
+              <p class="help-text">Notify stakeholders before SLA is breached</p>
+            </div>
+
+            @if (globalSLAForm.get('notifyBeforeBreach')?.value) {
+              <div class="form-group">
+                <label>Warning Time</label>
+                <div class="input-group">
+                  <input type="number"
+                         class="form-control"
+                         formControlName="notifyBeforeBreachMinutes"
+                         min="1">
+                  <span class="input-addon">minutes before breach</span>
+                </div>
+                @if (isFieldInvalid(globalSLAForm, 'notifyBeforeBreachMinutes')) {
+                  <span class="error-text">{{ getFieldError(globalSLAForm, 'notifyBeforeBreachMinutes') }}</span>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="settings-section">
+            <h3>SLA Pause Conditions</h3>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="pauseSLAOnPendingInfo">
+                <span>Pause SLA When Status is "Pending Info"</span>
+              </label>
+              <p class="help-text">Stop SLA timer when waiting for customer response</p>
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="excludeHolidays">
+                <span>Exclude Holidays from SLA Calculation</span>
+              </label>
+              <p class="help-text">SLA timer will not count holiday days</p>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-primary" (click)="saveGlobalSettings()">
+              <i class="bi bi-save"></i> Save Global Settings
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- SLA Levels Tab -->
+    @if (activeTab() === 'levels') {
+      <div class="levels-panel">
+        <div class="panel-header">
+          <h3>SLA Level Tiers</h3>
+          <button class="btn btn-primary" (click)="openLevelForm()">
+            <i class="bi bi-plus-circle"></i> Add SLA Level
+          </button>
+        </div>
+
+        <div class="levels-grid">
+          @for (level of slaLevels(); track level.id) {
+            <div class="level-card" [style.border-left-color]="level.colorCode">
+              <div class="level-header">
+                <div class="level-title">
+                  <span class="level-color" [style.background-color]="level.colorCode"></span>
+                  <h4>{{ level.name }}</h4>
+                  <span class="status-badge" [class.active]="level.isActive">
+                    {{ getStatusDot(level.isActive) }} {{ level.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </div>
+                <div class="level-actions">
+                  <button class="btn-icon" (click)="moveLevelUp(level)" title="Move Up">
+                    <i class="bi bi-arrow-up"></i>
+                  </button>
+                  <button class="btn-icon" (click)="moveLevelDown(level)" title="Move Down">
+                    <i class="bi bi-arrow-down"></i>
+                  </button>
+                  <button class="btn-icon" (click)="openLevelForm(level)" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn-icon btn-danger" (click)="deleteSLALevel(level)" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+
+              <p class="level-description">{{ level.description }}</p>
+
+              <div class="level-metrics">
+                <div class="metric">
+                  <i class="bi bi-clock"></i>
+                  <div>
+                    <span class="metric-label">Response Time</span>
+                    <span class="metric-value">{{ formatTimeDisplay(level.defaultResponseTime, level.responseTimeUnit) }}</span>
+                  </div>
+                </div>
+                <div class="metric">
+                  <i class="bi bi-check-circle"></i>
+                  <div>
+                    <span class="metric-label">Resolution Time</span>
+                    <span class="metric-value">{{ formatTimeDisplay(level.defaultResolutionTime, level.resolutionTimeUnit) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="level-order">
+                Order: {{ level.order }}
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- SLA Level Form Modal -->
+        @if (showLevelForm()) {
+          <div class="modal-overlay" (click)="closeLevelForm()">
+            <div class="modal-dialog" (click)="$event.stopPropagation()">
+              <div class="modal-header">
+                <h3>{{ editingLevel() ? 'Edit' : 'Create' }} SLA Level</h3>
+                <button class="btn-close" (click)="closeLevelForm()">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+
+              <form [formGroup]="slaLevelForm" (ngSubmit)="saveSLALevel()">
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label>Level Name *</label>
+                    <input type="text" class="form-control" formControlName="name" placeholder="e.g., Premium">
+                    @if (isFieldInvalid(slaLevelForm, 'name')) {
+                      <span class="error-text">{{ getFieldError(slaLevelForm, 'name') }}</span>
+                    }
+                  </div>
+
+                  <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="form-control" formControlName="description" rows="2" placeholder="Describe this SLA level..."></textarea>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Order *</label>
+                      <input type="number" class="form-control" formControlName="order" min="1">
+                      @if (isFieldInvalid(slaLevelForm, 'order')) {
+                        <span class="error-text">{{ getFieldError(slaLevelForm, 'order') }}</span>
+                      }
+                    </div>
+
+                    <div class="form-group">
+                      <label>Color *</label>
+                      <div class="color-picker">
+                        <input type="color" class="form-control color-input" formControlName="colorCode">
+                        <div class="color-presets">
+                          @for (color of predefinedColors; track color) {
+                            <button type="button"
+                                    class="color-preset"
+                                    [style.background-color]="color"
+                                    (click)="slaLevelForm.patchValue({colorCode: color})">
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-section">
+                    <h4>Response Time Target</h4>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label>Time Value *</label>
+                        <input type="number" class="form-control" formControlName="defaultResponseTime" min="1">
+                        @if (isFieldInvalid(slaLevelForm, 'defaultResponseTime')) {
+                          <span class="error-text">{{ getFieldError(slaLevelForm, 'defaultResponseTime') }}</span>
+                        }
+                      </div>
+                      <div class="form-group">
+                        <label>Unit *</label>
+                        <select class="form-control" formControlName="responseTimeUnit">
+                          @for (unit of timeUnits; track unit.value) {
+                            <option [value]="unit.value">{{ unit.label }}</option>
+                          }
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-section">
+                    <h4>Resolution Time Target</h4>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label>Time Value *</label>
+                        <input type="number" class="form-control" formControlName="defaultResolutionTime" min="1">
+                        @if (isFieldInvalid(slaLevelForm, 'defaultResolutionTime')) {
+                          <span class="error-text">{{ getFieldError(slaLevelForm, 'defaultResolutionTime') }}</span>
+                        }
+                      </div>
+                      <div class="form-group">
+                        <label>Unit *</label>
+                        <select class="form-control" formControlName="resolutionTimeUnit">
+                          @for (unit of timeUnits; track unit.value) {
+                            <option [value]="unit.value">{{ unit.label }}</option>
+                          }
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" formControlName="isActive">
+                      <span>Active</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" (click)="closeLevelForm()">Cancel</button>
+                  <button type="submit" class="btn btn-primary" [disabled]="slaLevelForm.invalid">
+                    <i class="bi bi-save"></i> {{ editingLevel() ? 'Update' : 'Create' }} Level
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Category SLA Tab -->
+    @if (activeTab() === 'category') {
+      <div class="mapping-panel">
+        <div class="info-banner">
+          <i class="bi bi-info-circle"></i>
+          <div>
+            <strong>Category SLA Configuration</strong>
+            <p>Assign SLA levels to each complaint category. When a complaint is created with a specific category, it will automatically use the configured SLA times. You can override response/resolution times per category.</p>
+          </div>
+        </div>
+
+        <div class="panel-header">
+          <h3>Category SLA Mappings</h3>
+          <button class="btn btn-primary" (click)="openCategoryMappingForm()">
+            <i class="bi bi-plus-circle"></i> Add Category Mapping
+          </button>
+        </div>
+
+        @if (loading()) {
+          <div class="loading-state">
+            <i class="bi bi-hourglass-split"></i> Loading mappings...
+          </div>
+        } @else if (categoryMappings().length === 0) {
+          <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h4>No Category Mappings</h4>
+            <p>Create your first category SLA mapping to assign SLA levels to categories</p>
+            <button class="btn btn-primary" (click)="openCategoryMappingForm()">
+              <i class="bi bi-plus-circle"></i> Create First Mapping
+            </button>
+          </div>
+        } @else {
+          <div class="mappings-table">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>SLA Level</th>
+                  <th>Response Time</th>
+                  <th>Resolution Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (mapping of categoryMappings(); track mapping.id) {
+                  <tr>
+                    <td>
+                      <strong>{{ mapping.categoryName }}</strong>
+                    </td>
+                    <td>
+                      <span class="sla-badge" [style.background-color]="mapping.slaLevelColorCode">
+                        {{ mapping.slaLevelName }}
+                      </span>
+                    </td>
+                    <td>
+                      {{ mapping.effectiveResponseTimeDisplay }}
+                      @if (mapping.overrideResponseTime) {
+                        <span class="override-badge" title="Override applied">
+                          <i class="bi bi-pencil-square"></i>
+                        </span>
+                      }
+                    </td>
+                    <td>
+                      {{ mapping.effectiveResolutionTimeDisplay }}
+                      @if (mapping.overrideResolutionTime) {
+                        <span class="override-badge" title="Override applied">
+                          <i class="bi bi-pencil-square"></i>
+                        </span>
+                      }
+                    </td>
+                    <td>
+                      <span class="status-badge" [class.active]="mapping.isActive">
+                        {{ getStatusDot(mapping.isActive) }} {{ mapping.isActive ? 'Active' : 'Inactive' }}
+                      </span>
+                    </td>
+                    <td class="action-buttons">
+                      <button class="btn-icon" (click)="openCategoryMappingForm(mapping)" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button class="btn-icon btn-danger" (click)="deleteCategoryMapping(mapping)" title="Delete">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        <!-- Category Mapping Form Modal -->
+        @if (showCategoryMappingForm()) {
+          <div class="modal-overlay" (click)="closeCategoryMappingForm()">
+            <div class="modal-dialog" (click)="$event.stopPropagation()">
+              <div class="modal-header">
+                <h3>{{ editingCategoryMapping() ? 'Edit' : 'Create' }} Category SLA Mapping</h3>
+                <button class="btn-close" (click)="closeCategoryMappingForm()">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+
+              <form [formGroup]="categoryMappingForm" (ngSubmit)="saveCategoryMapping()">
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label>Category *</label>
+                    <select class="form-control" formControlName="categoryId" [disabled]="!!editingCategoryMapping()">
+                      <option value="">Select category...</option>
+                      @for (category of categories(); track category.id) {
+                        <option [value]="category.id">{{ category.name }}</option>
+                      }
+                    </select>
+                    @if (isFieldInvalid(categoryMappingForm, 'categoryId')) {
+                      <span class="error-text">{{ getFieldError(categoryMappingForm, 'categoryId') }}</span>
+                    }
+                  </div>
+
+                  <div class="form-group">
+                    <label>SLA Level *</label>
+                    <select class="form-control" formControlName="slaLevelId">
+                      <option value="">Select SLA level...</option>
+                      @for (level of slaLevels(); track level.id) {
+                        <option [value]="level.id">{{ level.name }} - Response: {{ formatTimeDisplay(level.defaultResponseTime, level.responseTimeUnit) }}, Resolution: {{ formatTimeDisplay(level.defaultResolutionTime, level.resolutionTimeUnit) }}</option>
+                      }
+                    </select>
+                    @if (isFieldInvalid(categoryMappingForm, 'slaLevelId')) {
+                      <span class="error-text">{{ getFieldError(categoryMappingForm, 'slaLevelId') }}</span>
+                    }
+                  </div>
+
+                  <div class="form-section">
+                    <h4>Override Times (Optional)</h4>
+                    <p class="help-text">Leave blank to use the SLA level's default times</p>
+
+                    <div class="form-group">
+                      <label>Override Response Time (minutes)</label>
+                      <input type="number" class="form-control" formControlName="overrideResponseTime" min="1" placeholder="Leave empty for default">
+                    </div>
+
+                    <div class="form-group">
+                      <label>Override Resolution Time (minutes)</label>
+                      <input type="number" class="form-control" formControlName="overrideResolutionTime" min="1" placeholder="Leave empty for default">
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" formControlName="isActive">
+                      <span>Active</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" (click)="closeCategoryMappingForm()">Cancel</button>
+                  <button type="submit" class="btn btn-primary" [disabled]="categoryMappingForm.invalid || savingCategoryMapping()">
+                    @if (savingCategoryMapping()) {
+                      <i class="bi bi-hourglass-split"></i> Saving...
+                    } @else {
+                      <i class="bi bi-save"></i> {{ editingCategoryMapping() ? 'Update' : 'Create' }} Mapping
+                    }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Priority SLA Tab -->
+    @if (activeTab() === 'priority') {
+      <div class="mapping-panel">
+        <div class="info-banner">
+          <i class="bi bi-info-circle"></i>
+          <div>
+            <strong>Priority SLA Configuration</strong>
+            <p>Assign SLA levels to each priority. Critical priorities get faster response times. The system will use the shortest SLA time between category and priority mappings. You can override response/resolution times per priority.</p>
+          </div>
+        </div>
+
+        <div class="panel-header">
+          <h3>Priority SLA Mappings</h3>
+          <button class="btn btn-primary" (click)="openPriorityMappingForm()">
+            <i class="bi bi-plus-circle"></i> Add Priority Mapping
+          </button>
+        </div>
+
+        @if (loading()) {
+          <div class="loading-state">
+            <i class="bi bi-hourglass-split"></i> Loading mappings...
+          </div>
+        } @else if (priorityMappings().length === 0) {
+          <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h4>No Priority Mappings</h4>
+            <p>Create your first priority SLA mapping to assign SLA levels to priorities</p>
+            <button class="btn btn-primary" (click)="openPriorityMappingForm()">
+              <i class="bi bi-plus-circle"></i> Create First Mapping
+            </button>
+          </div>
+        } @else {
+          <div class="mappings-table">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Priority</th>
+                  <th>SLA Level</th>
+                  <th>Response Time</th>
+                  <th>Resolution Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (mapping of priorityMappings(); track mapping.id) {
+                  <tr>
+                    <td>
+                      <strong>{{ mapping.priorityName }}</strong>
+                    </td>
+                    <td>
+                      <span class="sla-badge" [style.background-color]="mapping.slaLevelColorCode">
+                        {{ mapping.slaLevelName }}
+                      </span>
+                    </td>
+                    <td>
+                      {{ mapping.effectiveResponseTimeDisplay }}
+                      @if (mapping.overrideResponseTime) {
+                        <span class="override-badge" title="Override applied">
+                          <i class="bi bi-pencil-square"></i>
+                        </span>
+                      }
+                    </td>
+                    <td>
+                      {{ mapping.effectiveResolutionTimeDisplay }}
+                      @if (mapping.overrideResolutionTime) {
+                        <span class="override-badge" title="Override applied">
+                          <i class="bi bi-pencil-square"></i>
+                        </span>
+                      }
+                    </td>
+                    <td>
+                      <span class="status-badge" [class.active]="mapping.isActive">
+                        {{ getStatusDot(mapping.isActive) }} {{ mapping.isActive ? 'Active' : 'Inactive' }}
+                      </span>
+                    </td>
+                    <td class="action-buttons">
+                      <button class="btn-icon" (click)="openPriorityMappingForm(mapping)" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button class="btn-icon btn-danger" (click)="deletePriorityMapping(mapping)" title="Delete">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        <!-- Priority Mapping Form Modal -->
+        @if (showPriorityMappingForm()) {
+          <div class="modal-overlay" (click)="closePriorityMappingForm()">
+            <div class="modal-dialog" (click)="$event.stopPropagation()">
+              <div class="modal-header">
+                <h3>{{ editingPriorityMapping() ? 'Edit' : 'Create' }} Priority SLA Mapping</h3>
+                <button class="btn-close" (click)="closePriorityMappingForm()">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+
+              <form [formGroup]="priorityMappingForm" (ngSubmit)="savePriorityMapping()">
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label>Priority *</label>
+                    <select class="form-control" formControlName="priorityId" [disabled]="!!editingPriorityMapping()">
+                      <option value="">Select priority...</option>
+                      @for (priority of priorities(); track priority.id) {
+                        <option [value]="priority.id">{{ priority.name }}</option>
+                      }
+                    </select>
+                    @if (isFieldInvalid(priorityMappingForm, 'priorityId')) {
+                      <span class="error-text">{{ getFieldError(priorityMappingForm, 'priorityId') }}</span>
+                    }
+                  </div>
+
+                  <div class="form-group">
+                    <label>SLA Level *</label>
+                    <select class="form-control" formControlName="slaLevelId">
+                      <option value="">Select SLA level...</option>
+                      @for (level of slaLevels(); track level.id) {
+                        <option [value]="level.id">{{ level.name }} - Response: {{ formatTimeDisplay(level.defaultResponseTime, level.responseTimeUnit) }}, Resolution: {{ formatTimeDisplay(level.defaultResolutionTime, level.resolutionTimeUnit) }}</option>
+                      }
+                    </select>
+                    @if (isFieldInvalid(priorityMappingForm, 'slaLevelId')) {
+                      <span class="error-text">{{ getFieldError(priorityMappingForm, 'slaLevelId') }}</span>
+                    }
+                  </div>
+
+                  <div class="form-section">
+                    <h4>Override Times (Optional)</h4>
+                    <p class="help-text">Leave blank to use the SLA level's default times</p>
+
+                    <div class="form-group">
+                      <label>Override Response Time (minutes)</label>
+                      <input type="number" class="form-control" formControlName="overrideResponseTime" min="1" placeholder="Leave empty for default">
+                    </div>
+
+                    <div class="form-group">
+                      <label>Override Resolution Time (minutes)</label>
+                      <input type="number" class="form-control" formControlName="overrideResolutionTime" min="1" placeholder="Leave empty for default">
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" formControlName="isActive">
+                      <span>Active</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" (click)="closePriorityMappingForm()">Cancel</button>
+                  <button type="submit" class="btn btn-primary" [disabled]="priorityMappingForm.invalid || savingPriorityMapping()">
+                    @if (savingPriorityMapping()) {
+                      <i class="bi bi-hourglass-split"></i> Saving...
+                    } @else {
+                      <i class="bi bi-save"></i> {{ editingPriorityMapping() ? 'Update' : 'Create' }} Mapping
+                    }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

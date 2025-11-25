@@ -1,0 +1,7 @@
+Changed database context to 'ComplaintManagementDB'.
+Msg 207, Level 16, State 1, Server LAPTOP-NF9BTG7Q\SQLEXPRESS, Line 38
+Invalid column name 'RoleId'.
+Msg 207, Level 16, State 1, Server LAPTOP-NF9BTG7Q\SQLEXPRESS, Line 40
+Invalid column name 'RoleId'.
+Msg 207, Level 16, State 1, Server LAPTOP-NF9BTG7Q\SQLEXPRESS, Line 48
+Invalid column name 'RoleId'.

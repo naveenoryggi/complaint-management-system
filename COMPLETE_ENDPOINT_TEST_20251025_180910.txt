@@ -1,0 +1,137 @@
+[INFO] ==========================================
+[INFO] COMPLETE ENDPOINT TEST SUITE
+[INFO] ==========================================
+[INFO] Ensuring admin user is active...
+[INFO] Admin user activated
+[INFO] Authenticating...
+[PASS] Authentication successful
+[INFO] 
+=== CATEGORY 1: AUTHENTICATION & AUTHORIZATION (5 tests) ===
+[PASS] [1] Auth - Login - PASS (200)
+[PASS] [2] Auth - Get Current User - PASS (200)
+[PASS] [3] Auth - Refresh Token (expect 501) - PASS (501 - expected failure)
+[PASS] [4] Auth - Logout - PASS (200)
+[PASS] [5] Auth - Invalid Login (expect 401) - PASS (401 - expected failure)
+[INFO] 
+=== CATEGORY 2: USER MANAGEMENT (10 tests) ===
+[PASS] [6] Users - Get All - PASS (200)
+[PASS] [7] Users - Search - PASS (200)
+[PASS] [8] Users - Get by ID - PASS (200)
+[PASS] [9] Users - Get by Employee Code - PASS (200)
+[PASS] [10] Users - Get by Company - PASS (200)
+[PASS] [11] Users - Create (expect 400/409) - PASS (400 - expected failure)
+[PASS] [12] Users - Update (expect 400/404) - PASS (200)
+[PASS] [13] Users - Change Password - PASS (400 - expected failure)
+[PASS] [14] Users - Reset Password (expect 400) - PASS (200)
+[PASS] [15] Users - Delete - PASS (200)
+[INFO] 
+=== CATEGORY 3: ROLE MANAGEMENT (8 tests) ===
+[PASS] [16] Roles - Get All - PASS (200)
+[PASS] [17] Roles - Get by ID - PASS (200)
+[PASS] [18] Roles - Get Permissions - PASS (200)
+[PASS] [19] Roles - Get Users - PASS (200)
+[PASS] [20] Roles - Create (expect 400) - PASS (400 - expected failure)
+[PASS] [21] Roles - Update (expect 400/404) - PASS (400 - expected failure)
+[PASS] [22] Roles - Assign Permission - PASS (400 - expected failure)
+[PASS] [23] Roles - Delete (expect 400 - system role) - PASS (400 - expected failure)
+[INFO] 
+=== CATEGORY 4: ORGANIZATION STRUCTURE (16 tests) ===
+[PASS] [24] Employee Types - Get All - PASS (200)
+[PASS] [25] Employee Types - Create - PASS (400 - expected failure)
+[PASS] [26] Employee Types - Update - PASS (404 - expected failure)
+[PASS] [27] Employee Types - Delete - PASS (404 - expected failure)
+[PASS] [28] Branches - Get All - PASS (200)
+[PASS] [29] Branches - Create - PASS (400 - expected failure)
+[PASS] [30] Branches - Update - PASS (404 - expected failure)
+[PASS] [31] Branches - Delete - PASS (404 - expected failure)
+[PASS] [32] Departments - Get All - PASS (200)
+[PASS] [33] Departments - Create - PASS (400 - expected failure)
+[PASS] [34] Departments - Update - PASS (404 - expected failure)
+[PASS] [35] Departments - Delete - PASS (404 - expected failure)
+[PASS] [36] Sections - Get All - PASS (200)
+[PASS] [37] Sections - Create - PASS (400 - expected failure)
+[PASS] [38] Sections - Update - PASS (404 - expected failure)
+[PASS] [39] Sections - Delete - PASS (404 - expected failure)
+[INFO] 
+=== CATEGORY 5: COMPLAINT MANAGEMENT (15 tests) ===
+[PASS] [40] Complaints - Get All - PASS (200)
+[PASS] [41] Complaints - Get by ID - PASS (404 - expected failure)
+[PASS] [42] Complaints - Create - PASS (400 - expected failure)
+[PASS] [43] Complaints - Update - PASS (400 - expected failure)
+[PASS] [44] Complaints - Delete - PASS (404 - expected failure)
+[PASS] [45] Complaints - Assign - PASS (404 - expected failure)
+[PASS] [46] Complaints - Change Status - PASS (404 - expected failure)
+[PASS] [47] Complaints - Close - PASS (400 - expected failure)
+[PASS] [48] Complaints - Reopen - PASS (400 - expected failure)
+[PASS] [49] Complaints - Escalate - PASS (400 - expected failure)
+[PASS] [50] Complaints - Add Comment - PASS (400 - expected failure)
+[PASS] [51] Complaints - Get Comments - PASS (200)
+[PASS] [52] Complaints - Add Attachment - PASS (400 - expected failure)
+[PASS] [53] Complaints - Get Attachments - PASS (200)
+[PASS] [54] Complaints - Get History - PASS (200)
+[INFO] 
+=== CATEGORY 6: MASTER DATA (9 tests) ===
+[PASS] [55] Categories - Get All - PASS (200)
+[PASS] [56] Status Master - Get All - PASS (200)
+[PASS] [57] Priority Master - Get All - PASS (200)
+[PASS] [58] Categories - Create - PASS (400 - expected failure)
+[PASS] [59] Status Master - Create - PASS (400 - expected failure)
+[PASS] [60] Priority Master - Create - PASS (400 - expected failure)
+[PASS] [61] Categories - Update - PASS (400 - expected failure)
+[PASS] [62] Status Master - Update - PASS (400 - expected failure)
+[PASS] [63] Priority Master - Update - PASS (400 - expected failure)
+[INFO] 
+=== CATEGORY 7: DASHBOARD & REPORTS (5 tests) ===
+[PASS] [64] Dashboard - Get Preferences - PASS (200)
+[PASS] [65] Dashboard - Get Statistics - PASS (200)
+[PASS] [66] Dashboard - Update Preferences - PASS (400 - expected failure)
+[PASS] [67] Dashboard - Get Summary (expect 404) - PASS (404 - expected failure)
+[PASS] [68] Dashboard - Get Widgets (expect 404) - PASS (404 - expected failure)
+[INFO] 
+=== CATEGORY 8: NOTIFICATION SYSTEM (12 tests) ===
+[PASS] [69] Email Settings - Get All - PASS (200)
+[PASS] [70] SMS Gateway - Get All - PASS (200)
+[PASS] [71] WhatsApp Settings - Get All - PASS (200)
+[PASS] [72] Communication Templates - Get All - PASS (200)
+[PASS] [73] Event Communication Rules - Get All - PASS (200)
+[PASS] [74] Event Types - Get All - PASS (200)
+[PASS] [75] Email Settings - Create - PASS (201)
+[PASS] [76] SMS Gateway - Create - PASS (201)
+[PASS] [77] WhatsApp Settings - Create - PASS (201)
+[PASS] [78] Communication Templates - Create - PASS (400 - expected failure)
+[PASS] [79] Event Communication Rules - Create - PASS (400 - expected failure)
+[PASS] [80] Event Types - Create - PASS (400 - expected failure)
+[INFO] 
+=== CATEGORY 9: ESCALATION & RESOURCE POOLS (6 tests) ===
+[FAIL] [81] Escalation - Get All - FAIL (404)
+[PASS] [82] Escalation - Get by ID - PASS (404 - expected failure)
+[FAIL] [83] Escalation - Create Policy (expect 404) - FAIL (500)
+[PASS] [84] Resource Pools - Get All - PASS (200)
+[PASS] [85] Resource Pools - Create - PASS (201)
+[PASS] [86] Resource Pools - Update - PASS (404 - expected failure)
+[INFO] 
+=== CATEGORY 10: ORYGGI INTEGRATION (5 tests) ===
+[PASS] [87] Oryggi Connection Settings - Get All - PASS (200)
+[PASS] [88] Oryggi Sync - Get Status - PASS (404 - expected failure)
+[PASS] [89] Oryggi Connection - Create - PASS (201)
+[PASS] [90] Oryggi Connection - Test - PASS (404 - expected failure)
+[PASS] [91] Oryggi Sync - Manual Sync - PASS (404 - expected failure)
+[INFO] 
+=== CATEGORY 11: COMPANY & SETTINGS (5 tests) ===
+[FAIL] [92] Company - Get All - FAIL (404)
+[PASS] [93] Company - Get by ID - PASS (200)
+[PASS] [94] Company - Update - PASS (200)
+[FAIL] [95] Complaint Info Settings - Get All - FAIL (404)
+[PASS] [96] Complaint Info Settings - Update - PASS (404 - expected failure)
+[INFO] 
+==========================================
+[INFO] FINAL RESULTS
+[INFO] ==========================================
+[INFO] Total Tests: 96
+[INFO] Passed: 92
+[INFO] Failed: 4
+[INFO] Success Rate: 95.83%
+[PASS] 
+Excellent! Minor fixes needed
+[INFO] 
+Results saved to: COMPLETE_ENDPOINT_TEST_20251025_180910.txt

@@ -1,0 +1,8 @@
+[INFO] ==============================================
+[INFO] PHASE 1: SECURITY & DATA INTEGRITY TEST SUITE
+[INFO] ==============================================
+[INFO] Starting: 20251025_185752
+[INFO] 
+[INFO] === SETUP: Authenticating as Admin ===
+[FAIL] Failed to authenticate as admin@complaintmanagement.com
+[FAIL] CRITICAL: Cannot authenticate as admin. Exiting.

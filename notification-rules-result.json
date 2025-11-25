@@ -1,0 +1,27 @@
+[
+  {
+    "success": true,
+    "id": "ed4ff244-9c1a-4ac5-9864-3a61c2be11a6",
+    "rule": "Complaint Created - Notify Complainant"
+  },
+  {
+    "success": true,
+    "id": "d9599096-015c-48ae-bb0e-14b272da5b11",
+    "rule": "Complaint Assigned - Notify Handler"
+  },
+  {
+    "success": true,
+    "id": "3e9b0651-3e72-4f25-be01-0ac2ff526394",
+    "rule": "Complaint Closed - Notify Complainant"
+  },
+  {
+    "success": true,
+    "id": "312297ea-959c-4f62-82fb-8de3573dfe54",
+    "rule": "Complaint Closed - Notify Handler"
+  },
+  {
+    "success": true,
+    "id": "89589127-5828-4236-9d55-ae5d8292ead5",
+    "rule": "Complaint Escalated - Notify Handler"
+  }
+]

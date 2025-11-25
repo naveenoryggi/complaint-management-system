@@ -1,0 +1,5 @@
+[19:55:51] [INFO] ========================================
+[19:55:51] [INFO] COMPREHENSIVE SLA E2E TESTING STARTING
+[19:55:51] [INFO] ========================================
+[19:55:51] [INFO] Getting authentication token...
+[19:55:51] [FAIL] No token found. Please run get-sla-token.ps1 first!

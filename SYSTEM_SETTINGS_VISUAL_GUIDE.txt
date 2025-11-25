@@ -1,0 +1,298 @@
+================================================================================
+                    SYSTEM SETTINGS BUTTON - VISUAL GUIDE
+================================================================================
+
+WHERE THE BUTTON WILL APPEAR AFTER FIX
+=======================================
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Email Ticketing Configuration                                            │
+│ Configure email settings for automatic ticket creation.                  │
+│ Emails sent to your inbox will automatically create complaints.          │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│  ACTION BAR (This is where the button is located)                        │
+│                                                                           │
+│  ┌──────────────────────┐  ┌─────────────┐  ┌──────────────────┐        │
+│  │ [+] Add Email        │  │ [⟳] Refresh │  │ [⚙] System      │        │
+│  │     Configuration    │  │             │  │     Settings     │ ← HERE!│
+│  └──────────────────────┘  └─────────────┘  └──────────────────┘        │
+│                                                                           │
+└──────────────────────────────────────────────────────────────────────────┘
+
+                                    ↓
+                          (When you click this button)
+                                    ↓
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ ╔════════════════════════════════════════════════════════════════════╗  │
+│ ║  [⚙] System Settings                                          [X]  ║  │
+│ ╠════════════════════════════════════════════════════════════════════╣  │
+│ ║                                                                     ║  │
+│ ║  [🔑] OAuth Token Management                                       ║  │
+│ ║  ─────────────────────────────────────────────────────────────────  ║  │
+│ ║  Configure how often OAuth tokens are checked and refreshed.       ║  │
+│ ║  Recommended: Set refresh interval to half your token's expiry.    ║  │
+│ ║                                                                     ║  │
+│ ║  [🕐] Token Refresh Interval    [⚠] Token Expiry Warning          ║  │
+│ ║  ┌─────────────────────────┐    ┌─────────────────────────┐       ║  │
+│ ║  │ 30 minutes             │    │ 7 days                 │       ║  │
+│ ║  └─────────────────────────┘    └─────────────────────────┘       ║  │
+│ ║  Current: 30 minutes             Current: 7 days                   ║  │
+│ ║                                                                     ║  │
+│ ║  [📥] Email Polling Settings                                       ║  │
+│ ║  ─────────────────────────────────────────────────────────────────  ║  │
+│ ║  Default settings for new email configurations.                    ║  │
+│ ║                                                                     ║  │
+│ ║  [🔄] Default Polling Interval  [📧] Max Emails Per Poll          ║  │
+│ ║  ┌─────────────────────────┐    ┌─────────────────────────┐       ║  │
+│ ║  │ 120 seconds            │    │ 50 emails              │       ║  │
+│ ║  └─────────────────────────┘    └─────────────────────────┘       ║  │
+│ ║  Current: 2 minutes              Current: 50 emails                ║  │
+│ ║                                                                     ║  │
+│ ║  ┌──────────────┐  ┌────────────────────┐  ┌──────────┐          ║  │
+│ ║  │ [💾] Save    │  │ [↺] Reset to       │  │ [X]      │          ║  │
+│ ║  │     Settings │  │     Defaults       │  │  Cancel  │          ║  │
+│ ║  └──────────────┘  └────────────────────┘  └──────────┘          ║  │
+│ ╚════════════════════════════════════════════════════════════════════╝  │
+└──────────────────────────────────────────────────────────────────────────┘
+
+Below the panel: Email Configuration Cards
+┌──────────────────────────────────────────────────────────────────────────┐
+│  ┌──────────────────────────────────────────────────────────────────┐   │
+│  │ [Enabled] support@company.com                    [✎] [⚡] [🗑]  │   │
+│  │ [🔐 OAuth 2.0 - Authorized]                                      │   │
+│  │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │   │
+│  │ 📧 support@company.com                                           │   │
+│  │ 🖥️ IMAP: outlook.office365.com:993                              │   │
+│  │ 📤 SMTP: smtp.office365.com:587                                 │   │
+│  │ 🕐 Poll every 2 minutes                                         │   │
+│  │ 📅 Last polled: 2025-11-16 10:30 AM IST                        │   │
+│  │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │   │
+│  │ [Poll Now]  [Refresh OAuth]                                      │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
+│                                                                           │
+│  (More email configuration cards appear here...)                         │
+└──────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                          BUTTON SPECIFICATIONS
+================================================================================
+
+Button Text:        "System Settings"
+Icon:              ⚙ (fas fa-cog) - Gear icon
+Color:             Gray (btn-settings class)
+Location:          Action bar, third button from left
+Visibility:        Shown when !isLoading && !showForm
+Click Action:      toggleSystemSettings() method
+HTML Line:         152-155 in email-ticketing-config.component.html
+
+
+================================================================================
+                          PANEL SPECIFICATIONS
+================================================================================
+
+Panel Title:       "System Settings"
+Visibility:        Shown when showSystemSettings && systemConfig
+Width:             Full width of page
+Position:          Below action bar, above email configuration cards
+Background:        System settings panel (glassmorphism design)
+Close Button:      X in top right corner
+
+Sections:
+  1. OAuth Token Management
+     - Token Refresh Interval (5-120 minutes)
+     - Token Expiry Warning (1-30 days)
+
+  2. Email Polling Settings
+     - Default Polling Interval (60-3600 seconds)
+     - Max Emails Per Poll (10-500)
+
+Action Buttons:
+  - Save Settings (blue, primary)
+  - Reset to Defaults (gray, secondary)
+  - Cancel (gray, cancel)
+
+
+================================================================================
+                     CURRENT STATE vs EXPECTED STATE
+================================================================================
+
+CURRENT STATE (Before Fix):
+───────────────────────────────────────────────────────────────────────────
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Email Ticketing Configuration                                            │
+│ Configure email settings for automatic ticket creation.                  │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│  ACTION BAR                                                               │
+│                                                                           │
+│  ┌──────────────────────┐  ┌─────────────┐                              │
+│  │ [+] Add Email        │  │ [⟳] Refresh │                              │
+│  │     Configuration    │  │             │                              │
+│  └──────────────────────┘  └─────────────┘                              │
+│                                                                           │
+│  ❌ System Settings button MISSING (due to compilation errors)           │
+└──────────────────────────────────────────────────────────────────────────┘
+
+[Error in browser console: Angular compilation failed]
+[dist folder is empty or contains old broken code]
+
+
+EXPECTED STATE (After Fix):
+───────────────────────────────────────────────────────────────────────────
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Email Ticketing Configuration                                            │
+│ Configure email settings for automatic ticket creation.                  │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│  ACTION BAR                                                               │
+│                                                                           │
+│  ┌──────────────────────┐  ┌─────────────┐  ┌──────────────────┐        │
+│  │ [+] Add Email        │  │ [⟳] Refresh │  │ [⚙] System      │        │
+│  │     Configuration    │  │             │  │     Settings     │        │
+│  └──────────────────────┘  └─────────────┘  └──────────────────┘        │
+│                                                                           │
+│  ✅ System Settings button VISIBLE and clickable                         │
+└──────────────────────────────────────────────────────────────────────────┘
+
+[No errors in browser console]
+[dist folder contains successfully built application]
+
+
+================================================================================
+                          USER INTERACTION FLOW
+================================================================================
+
+Step 1: Navigate to Page
+  User: Clicks "Email Ticketing Config" in admin menu
+  App:  Loads email-ticketing-config component
+  API:  Calls GET /api/EmailConfiguration and GET /api/SystemConfiguration
+  UI:   Shows action bar with three buttons
+
+Step 2: Click System Settings Button
+  User: Clicks the [⚙] System Settings button
+  App:  Executes toggleSystemSettings() method
+  State: showSystemSettings = true
+  UI:   Panel slides down from below action bar
+
+Step 3: Modify Settings
+  User: Changes "Token Refresh Interval" from 30 to 45 minutes
+  App:  Updates systemConfig.oAuthTokenRefreshIntervalMinutes = 45
+  UI:   Shows new value in "Current: 45 minutes"
+
+Step 4: Save Changes
+  User: Clicks [💾] Save Settings button
+  App:  Executes saveSystemConfiguration() method
+  API:  Calls PUT /api/SystemConfiguration with updated config
+  DB:   Updates SystemConfiguration table
+  UI:   Shows success message: "System configuration saved successfully!"
+
+Step 5: Close Panel
+  User: Clicks [X] close button or Cancel
+  App:  Executes toggleSystemSettings() method
+  State: showSystemSettings = false
+  UI:   Panel closes, returning to normal view
+
+
+================================================================================
+                          TESTING THE FIX
+================================================================================
+
+Visual Inspection Test:
+  1. Open browser to http://localhost:4200
+  2. Login as admin@complaintmanagement.com
+  3. Navigate to "Email Ticketing Config"
+  4. VERIFY: You see THREE buttons in the action bar
+     - First button: "Add Email Configuration" (blue, with + icon)
+     - Second button: "Refresh" (gray, with refresh icon)
+     - Third button: "System Settings" (gray, with gear icon) ✓
+
+Functional Test:
+  1. Click the "System Settings" button
+  2. VERIFY: Panel opens below the action bar ✓
+  3. VERIFY: Panel shows "OAuth Token Management" section ✓
+  4. VERIFY: Panel shows "Email Polling Settings" section ✓
+  5. Change "Token Refresh Interval" to 45
+  6. Click "Save Settings"
+  7. VERIFY: Success message appears ✓
+  8. Reload the page
+  9. Click "System Settings" again
+  10. VERIFY: Value is still 45 (persisted to database) ✓
+
+Browser Console Test:
+  1. Open DevTools (F12)
+  2. Go to Console tab
+  3. VERIFY: No red errors ✓
+  4. VERIFY: Log shows "Loaded email configurations and system configuration" ✓
+
+Network Test:
+  1. Open DevTools (F12)
+  2. Go to Network tab
+  3. Reload page
+  4. VERIFY: GET /api/SystemConfiguration returns 200 OK ✓
+  5. VERIFY: Response contains systemConfig object ✓
+
+
+================================================================================
+                          TROUBLESHOOTING GUIDE
+================================================================================
+
+Problem: Button still not visible after applying fix
+Solution:
+  1. Verify npm run build completed successfully
+  2. Hard refresh browser (Ctrl+Shift+R)
+  3. Clear browser cache
+  4. Check if ng serve is running
+  5. Restart ng serve
+
+Problem: Panel doesn't open when button is clicked
+Solution:
+  1. Open browser console (F12)
+  2. Check for JavaScript errors
+  3. Verify systemConfig is loaded
+  4. Check if toggleSystemSettings() is being called
+
+Problem: API returns 401 Unauthorized
+Solution:
+  1. Verify user is logged in as Admin
+  2. Check if token contains CompanyId claim
+  3. Verify backend is running on port 5000
+  4. Check authorization header format
+
+Problem: Changes don't save
+Solution:
+  1. Check if user has Admin role
+  2. Verify validation passes
+  3. Check network tab for API response
+  4. Verify database connection
+
+
+================================================================================
+                          SUPPORT & DOCUMENTATION
+================================================================================
+
+For detailed fix instructions, see:
+  📄 FIX_SYSTEM_SETTINGS_BUTTON.md
+
+For full technical analysis, see:
+  📄 SYSTEM_SETTINGS_DIAGNOSTIC_REPORT.md
+
+For quick summary, see:
+  📄 SYSTEM_SETTINGS_EXECUTIVE_SUMMARY.txt
+
+For backend API details, see:
+  📄 SystemConfigurationController.cs (line 1-219)
+
+For frontend component details, see:
+  📄 email-ticketing-config.component.ts (line 1-757)
+  📄 email-ticketing-config.component.html (line 1-943)
+
+
+================================================================================

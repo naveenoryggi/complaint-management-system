@@ -1,0 +1,317 @@
+{
+  "phase": "Phase 1 - Core Features",
+  "executionDate": "2025-11-11",
+  "startTime": "2025-11-11T08:08:54.115Z",
+  "testResults": [
+    {
+      "feature": "1.1 Login & Authentication",
+      "testCases": [
+        {
+          "id": "TC-1.1.1",
+          "name": "Admin login success",
+          "status": "FAIL",
+          "screenshot": "01-admin-login-success.png",
+          "notes": "Redirected to: http://localhost:4200/dashboard. Token stored: No",
+          "actualResult": "Successfully logged in as admin and redirected to http://localhost:4200/dashboard",
+          "error": null
+        },
+        {
+          "id": "TC-1.1.2",
+          "name": "Handler login success",
+          "status": "FAIL",
+          "screenshot": "error-TC-1.1.2.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "id": "TC-1.1.3",
+          "name": "Complainant login success",
+          "status": "FAIL",
+          "screenshot": "error-TC-1.1.3.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "id": "TC-1.1.4",
+          "name": "Login with invalid password",
+          "status": "FAIL",
+          "screenshot": "error-TC-1.1.4.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "id": "TC-1.1.5",
+          "name": "Login with non-existent user",
+          "status": "FAIL",
+          "screenshot": "error-TC-1.1.5.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        }
+      ],
+      "overallStatus": "FAIL",
+      "issuesFound": [
+        {
+          "testId": "TC-1.1.1",
+          "testName": "Admin login success",
+          "issue": "Successfully logged in as admin and redirected to http://localhost:4200/dashboard"
+        },
+        {
+          "testId": "TC-1.1.2",
+          "testName": "Handler login success",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "testId": "TC-1.1.3",
+          "testName": "Complainant login success",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "testId": "TC-1.1.4",
+          "testName": "Login with invalid password",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "testId": "TC-1.1.5",
+          "testName": "Login with non-existent user",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        }
+      ]
+    },
+    {
+      "feature": "1.2 Role-Based Access Control",
+      "testCases": [
+        {
+          "id": "TC-1.2.1",
+          "name": "Admin can access admin routes",
+          "status": "FAIL",
+          "screenshot": "error-TC-1.2.1.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        }
+      ],
+      "overallStatus": "FAIL",
+      "issuesFound": [
+        {
+          "testId": "TC-1.2.1",
+          "testName": "Admin can access admin routes",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        }
+      ]
+    },
+    {
+      "feature": "2.1 Dashboard Statistics",
+      "testCases": [
+        {
+          "id": "TC-2.1.1",
+          "name": "Admin dashboard shows all system statistics",
+          "status": "FAIL",
+          "screenshot": "error-TC-2.1.1.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "id": "TC-2.1.2",
+          "name": "Handler dashboard shows only assigned complaints",
+          "status": "FAIL",
+          "screenshot": "error-TC-2.1.2.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "id": "TC-2.1.3",
+          "name": "Complainant dashboard shows only own complaints",
+          "status": "FAIL",
+          "screenshot": "error-TC-2.1.3.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        }
+      ],
+      "overallStatus": "FAIL",
+      "issuesFound": [
+        {
+          "testId": "TC-2.1.1",
+          "testName": "Admin dashboard shows all system statistics",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "testId": "TC-2.1.2",
+          "testName": "Handler dashboard shows only assigned complaints",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "testId": "TC-2.1.3",
+          "testName": "Complainant dashboard shows only own complaints",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        }
+      ]
+    },
+    {
+      "feature": "3.1 Create Complaint",
+      "testCases": [
+        {
+          "id": "TC-3.1.1",
+          "name": "Create complaint with all fields",
+          "status": "FAIL",
+          "screenshot": "error-TC-3.1.1.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "id": "TC-3.1.2",
+          "name": "Form validation for required fields",
+          "status": "PASS",
+          "screenshot": "14-create-complaint-validation.png",
+          "notes": "Validation messages: ErrorFailed to create complaint",
+          "actualResult": "Validation errors shown: ErrorFailed to create complaint",
+          "error": null
+        }
+      ],
+      "overallStatus": "PARTIAL",
+      "issuesFound": [
+        {
+          "testId": "TC-3.1.1",
+          "testName": "Create complaint with all fields",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        }
+      ]
+    },
+    {
+      "feature": "3.2 View Complaint List",
+      "testCases": [
+        {
+          "id": "TC-3.2.1",
+          "name": "Admin views all complaints",
+          "status": "FAIL",
+          "screenshot": "error-TC-3.2.1.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "id": "TC-3.2.2",
+          "name": "Handler views assigned complaints",
+          "status": "FAIL",
+          "screenshot": "error-TC-3.2.2.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "id": "TC-3.2.3",
+          "name": "Complainant views own complaints",
+          "status": "FAIL",
+          "screenshot": "error-TC-3.2.3.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        }
+      ],
+      "overallStatus": "FAIL",
+      "issuesFound": [
+        {
+          "testId": "TC-3.2.1",
+          "testName": "Admin views all complaints",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "testId": "TC-3.2.2",
+          "testName": "Handler views assigned complaints",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "testId": "TC-3.2.3",
+          "testName": "Complainant views own complaints",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        }
+      ]
+    },
+    {
+      "feature": "3.3 View Complaint Detail",
+      "testCases": [
+        {
+          "id": "TC-3.3.1",
+          "name": "View complaint detail",
+          "status": "FAIL",
+          "screenshot": "error-TC-3.3.1.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "id": "TC-3.3.2",
+          "name": "SLA badge and progress bar visible",
+          "status": "FAIL",
+          "screenshot": "21-complaint-detail-sla-info.png",
+          "notes": "SLA element found: false, SLA in text: false",
+          "actualResult": "No SLA information found",
+          "error": null
+        }
+      ],
+      "overallStatus": "FAIL",
+      "issuesFound": [
+        {
+          "testId": "TC-3.3.1",
+          "testName": "View complaint detail",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "testId": "TC-3.3.2",
+          "testName": "SLA badge and progress bar visible",
+          "issue": "No SLA information found"
+        }
+      ]
+    },
+    {
+      "feature": "3.4 Edit/Update Complaint",
+      "testCases": [
+        {
+          "id": "TC-3.4.1",
+          "name": "Admin/Handler updates complaint status",
+          "status": "FAIL",
+          "screenshot": "error-TC-3.4.1.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "id": "TC-3.4.2",
+          "name": "Complainant adds comment",
+          "status": "FAIL",
+          "screenshot": "error-TC-3.4.2.png",
+          "notes": "",
+          "actualResult": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n",
+          "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        }
+      ],
+      "overallStatus": "FAIL",
+      "issuesFound": [
+        {
+          "testId": "TC-3.4.1",
+          "testName": "Admin/Handler updates complaint status",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        },
+        {
+          "testId": "TC-3.4.2",
+          "testName": "Complainant adds comment",
+          "issue": "Error: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[formControlName=\"email\"]')\u001b[22m\n"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "totalTests": 18,
+    "passed": 1,
+    "failed": 17,
+    "passRate": "5.56%"
+  },
+  "endTime": "2025-11-11T08:18:47.575Z"
+}

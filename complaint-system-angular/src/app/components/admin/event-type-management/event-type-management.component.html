@@ -1,0 +1,299 @@
+<div class="container-fluid mt-4">
+  <!-- Header -->
+  <div class="row mb-3">
+    <div class="col">
+      <h2>Event Type Management</h2>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <i class="bi bi-plus-circle"></i> Create Event Type
+      </button>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle"></i> {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = null"></button>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Search</label>
+          <input type="text" class="form-control" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" placeholder="Search by name, code...">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Entity Type</label>
+          <select class="form-select" [(ngModel)]="filterEntityType" (ngModelChange)="onFilterChange()">
+            <option value="">All Entity Types</option>
+            <option *ngFor="let type of entityTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Category</label>
+          <select class="form-select" [(ngModel)]="filterCategory" (ngModelChange)="onFilterChange()">
+            <option value="">All Categories</option>
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label d-block">&nbsp;</label>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" [(ngModel)]="filterIncludeInactive" (ngModelChange)="onFilterChange()" id="includeInactive">
+            <label class="form-check-label" for="includeInactive">
+              Include Inactive
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !showCreateModal && !showEditModal" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <!-- Event Types Table -->
+  <div *ngIf="!loading" class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Code</th>
+              <th>Entity Type</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>System</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="filteredEventTypes.length === 0">
+              <td colspan="8" class="text-center text-muted">No event types found</td>
+            </tr>
+            <tr *ngFor="let eventType of filteredEventTypes">
+              <td>
+                <i *ngIf="eventType.iconClass" [class]="eventType.iconClass + ' me-2'"></i>
+                {{ eventType.name }}
+              </td>
+              <td><code>{{ eventType.code }}</code></td>
+              <td>{{ eventType.entityType }}</td>
+              <td>{{ eventType.category || '-' }}</td>
+              <td>
+                <span [class]="eventType.isActive ? 'badge bg-success' : 'badge bg-secondary'">
+                  {{ eventType.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <span *ngIf="eventType.isSystem" class="badge bg-info">System</span>
+                <span *ngIf="!eventType.isSystem" class="text-muted">-</span>
+              </td>
+              <td>{{ formatDate(eventType.createdAt) }}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="openEditModal(eventType)" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="openDeleteModal(eventType)" [disabled]="eventType.isSystem" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="text-muted small mt-2">
+        Showing {{ filteredEventTypes.length }} of {{ eventTypes.length }} event types
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal" [class.show]="showCreateModal" [style.display]="showCreateModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create Event Type</h5>
+        <button type="button" class="btn-close" (click)="closeModals()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="error" class="alert alert-danger" role="alert">
+          {{ error }}
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="formData.name" placeholder="e.g., Complaint Created">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Code <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="formData.code" placeholder="e.g., COMPLAINT_CREATED">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Entity Type <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="formData.entityType" placeholder="e.g., Complaint" list="entityTypesList">
+            <datalist id="entityTypesList">
+              <option *ngFor="let type of entityTypes" [value]="type">
+            </datalist>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Category</label>
+            <input type="text" class="form-control" [(ngModel)]="formData.category" placeholder="e.g., Lifecycle" list="categoriesList">
+            <datalist id="categoriesList">
+              <option *ngFor="let cat of categories" [value]="cat">
+            </datalist>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Icon Class</label>
+            <input type="text" class="form-control" [(ngModel)]="formData.iconClass" placeholder="e.g., bi bi-plus-circle">
+            <small class="text-muted">Bootstrap Icons class</small>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">&nbsp;</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" [(ngModel)]="formData.isActive" id="createIsActive">
+              <label class="form-check-label" for="createIsActive">
+                Active
+              </label>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="formData.description" placeholder="Describe when this event occurs"></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Available Fields (JSON)</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="formData.availableFields" placeholder='{"complaintNumber": "string", "status": "string"}'></textarea>
+            <small class="text-muted">JSON object defining available fields for this event</small>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModals()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="createEventType()" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" [class.show]="showEditModal" [style.display]="showEditModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Event Type</h5>
+        <button type="button" class="btn-close" (click)="closeModals()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="error" class="alert alert-danger" role="alert">
+          {{ error }}
+        </div>
+
+        <div *ngIf="currentEventType?.isSystem" class="alert alert-warning" role="alert">
+          <i class="bi bi-exclamation-triangle"></i> This is a system event type. Exercise caution when editing.
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="formData.name" placeholder="e.g., Complaint Created">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Code <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="formData.code" placeholder="e.g., COMPLAINT_CREATED">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Entity Type <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="formData.entityType" placeholder="e.g., Complaint" list="entityTypesList">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Category</label>
+            <input type="text" class="form-control" [(ngModel)]="formData.category" placeholder="e.g., Lifecycle" list="categoriesList">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Icon Class</label>
+            <input type="text" class="form-control" [(ngModel)]="formData.iconClass" placeholder="e.g., bi bi-plus-circle">
+            <small class="text-muted">Bootstrap Icons class</small>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">&nbsp;</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" [(ngModel)]="formData.isActive" id="editIsActive">
+              <label class="form-check-label" for="editIsActive">
+                Active
+              </label>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="formData.description" placeholder="Describe when this event occurs"></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Available Fields (JSON)</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="formData.availableFields" placeholder='{"complaintNumber": "string", "status": "string"}'></textarea>
+            <small class="text-muted">JSON object defining available fields for this event</small>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModals()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="updateEventType()" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+          Update
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal" [class.show]="showDeleteModal" [style.display]="showDeleteModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Event Type</h5>
+        <button type="button" class="btn-close" (click)="closeModals()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="error" class="alert alert-danger" role="alert">
+          {{ error }}
+        </div>
+        <p>Are you sure you want to delete this event type?</p>
+        <div *ngIf="currentEventType" class="alert alert-warning">
+          <strong>{{ currentEventType.name }}</strong> ({{ currentEventType.code }})
+        </div>
+        <p class="text-danger small">
+          <i class="bi bi-exclamation-triangle"></i> This action cannot be undone. Any communication rules using this event type may be affected.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModals()">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="deleteEventType()" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop fade" [class.show]="showCreateModal || showEditModal || showDeleteModal" *ngIf="showCreateModal || showEditModal || showDeleteModal"></div>

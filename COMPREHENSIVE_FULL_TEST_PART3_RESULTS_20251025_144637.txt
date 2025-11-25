@@ -1,0 +1,264 @@
+[2025-10-25 14:46:37] [INFO] =============================================
+[2025-10-25 14:46:37] [INFO] COMPREHENSIVE TEST SUITE - PART 3
+[2025-10-25 14:46:37] [INFO] Categories 8-13 (120+ tests)
+[2025-10-25 14:46:37] [INFO] =============================================
+[2025-10-25 14:46:37] [INFO] 
+[2025-10-25 14:46:37] [INFO] Authenticating...
+[2025-10-25 14:46:37] [INFO] Authentication successful
+[2025-10-25 14:46:37] [INFO] 
+[2025-10-25 14:46:37] [INFO] =============================================
+[2025-10-25 14:46:38] [INFO] CATEGORY 8: NOTIFICATION SYSTEM (30 TESTS)
+[2025-10-25 14:46:38] [INFO] =============================================
+[2025-10-25 14:46:38] [INFO] --- Email Server Settings (6 tests) ---
+[2025-10-25 14:46:38] [INFO] [Notifications] Testing Email Settings Page page accessibility
+[2025-10-25 14:46:38] [PASS] PASS: Email Settings Page accessible
+[2025-10-25 14:46:38] [INFO] [Notifications] Get Email Settings
+[2025-10-25 14:46:38] [FAIL] FAIL: Get Email Settings - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:38] [INFO] [Notifications] Create/Update Email Settings
+[2025-10-25 14:46:38] [FAIL] FAIL: Create/Update Email Settings - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:38] [INFO] [Notifications] Test Email Connection
+[2025-10-25 14:46:38] [FAIL] FAIL: Test Email Connection - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:38] [INFO] [Notifications] Send Test Email
+[2025-10-25 14:46:38] [FAIL] FAIL: Send Test Email - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:38] [INFO] [Notifications] Validation: Invalid SMTP Config
+[2025-10-25 14:46:39] [PASS] PASS: Validation: Invalid SMTP Config (Expected failure - 404)
+[2025-10-25 14:46:39] [INFO] --- SMS Gateway Settings (6 tests) ---
+[2025-10-25 14:46:39] [INFO] [Notifications] Testing SMS Gateway Page page accessibility
+[2025-10-25 14:46:39] [PASS] PASS: SMS Gateway Page accessible
+[2025-10-25 14:46:39] [INFO] [Notifications] Get SMS Settings
+[2025-10-25 14:46:39] [FAIL] FAIL: Get SMS Settings - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:40] [INFO] [Notifications] Create/Update SMS Settings
+[2025-10-25 14:46:40] [FAIL] FAIL: Create/Update SMS Settings - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:40] [INFO] [Notifications] Test SMS Connection
+[2025-10-25 14:46:40] [FAIL] FAIL: Test SMS Connection - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:40] [INFO] [Notifications] Send Test SMS
+[2025-10-25 14:46:40] [FAIL] FAIL: Send Test SMS - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:40] [INFO] [Notifications] Validation: Invalid Gateway Config
+[2025-10-25 14:46:40] [PASS] PASS: Validation: Invalid Gateway Config (Expected failure - 404)
+[2025-10-25 14:46:41] [INFO] --- WhatsApp Settings (6 tests) ---
+[2025-10-25 14:46:41] [INFO] [Notifications] Testing WhatsApp Settings Page page accessibility
+[2025-10-25 14:46:41] [PASS] PASS: WhatsApp Settings Page accessible
+[2025-10-25 14:46:41] [INFO] [Notifications] Get WhatsApp Settings
+[2025-10-25 14:46:41] [FAIL] FAIL: Get WhatsApp Settings - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:41] [INFO] [Notifications] Create/Update WhatsApp Settings
+[2025-10-25 14:46:41] [FAIL] FAIL: Create/Update WhatsApp Settings - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:41] [INFO] [Notifications] Test WhatsApp Connection
+[2025-10-25 14:46:41] [FAIL] FAIL: Test WhatsApp Connection - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:41] [INFO] [Notifications] Send Test WhatsApp
+[2025-10-25 14:46:41] [FAIL] FAIL: Send Test WhatsApp - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:41] [INFO] [Notifications] Validation: Invalid API Credentials
+[2025-10-25 14:46:41] [PASS] PASS: Validation: Invalid API Credentials (Expected failure - 404)
+[2025-10-25 14:46:41] [INFO] --- Communication Templates (6 tests) ---
+[2025-10-25 14:46:42] [INFO] [Notifications] Testing Template Management Page page accessibility
+[2025-10-25 14:46:42] [PASS] PASS: Template Management Page accessible
+[2025-10-25 14:46:42] [INFO] [Notifications] Get All Templates
+[2025-10-25 14:46:42] [FAIL] FAIL: Get All Templates - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:42] [INFO] [Notifications] Create Template
+[2025-10-25 14:46:42] [FAIL] FAIL: Create Template - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:43] [INFO] [Notifications] Preview Template Variables
+[2025-10-25 14:46:43] [FAIL] FAIL: Preview Template Variables - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:43] [INFO] --- Notification Rules (6 tests) ---
+[2025-10-25 14:46:43] [INFO] [Notifications] Testing Notification Rules Page page accessibility
+[2025-10-25 14:46:43] [PASS] PASS: Notification Rules Page accessible
+[2025-10-25 14:46:43] [INFO] [Notifications] Get All Rules
+[2025-10-25 14:46:43] [FAIL] FAIL: Get All Rules - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:43] [INFO] [Notifications] Create Notification Rule
+[2025-10-25 14:46:43] [FAIL] FAIL: Create Notification Rule - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:43] [INFO] [Notifications] Test Rule Trigger
+[2025-10-25 14:46:43] [FAIL] FAIL: Test Rule Trigger - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:44] [INFO] 
+[2025-10-25 14:46:44] [INFO] =============================================
+[2025-10-25 14:46:44] [INFO] CATEGORY 9: ESCALATION SYSTEM (15 TESTS)
+[2025-10-25 14:46:44] [INFO] =============================================
+[2025-10-25 14:46:44] [INFO] --- Escalation Policy (8 tests) ---
+[2025-10-25 14:46:44] [INFO] [Escalation] Testing Escalation Policy Page page accessibility
+[2025-10-25 14:46:44] [PASS] PASS: Escalation Policy Page accessible
+[2025-10-25 14:46:44] [INFO] [Escalation] Testing Escalation Wizard Page page accessibility
+[2025-10-25 14:46:44] [PASS] PASS: Escalation Wizard Page accessible
+[2025-10-25 14:46:44] [INFO] [Escalation] Get Escalation Matrices
+[2025-10-25 14:46:44] [PASS] PASS: Get Escalation Matrices
+[2025-10-25 14:46:44] [INFO] [Escalation] Create Escalation Policy
+[2025-10-25 14:46:44] [FAIL] FAIL: Create Escalation Policy - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:45] [INFO] [Escalation] Add Escalation Level
+[2025-10-25 14:46:45] [FAIL] FAIL: Add Escalation Level - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:45] [INFO] [Escalation] Remove Escalation Level
+[2025-10-25 14:46:45] [FAIL] FAIL: Remove Escalation Level - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:46] [INFO] --- Escalation Workflows (7 tests) ---
+[2025-10-25 14:46:46] [INFO] [Escalation] Get Complaints for Testing
+[2025-10-25 14:46:48] [PASS] PASS: Get Complaints for Testing
+[2025-10-25 14:46:48] [INFO] [Escalation] Manual Escalation
+[2025-10-25 14:46:48] [FAIL] FAIL: Manual Escalation - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:46:48] [INFO] [Escalation] Get Escalation History
+[2025-10-25 14:46:48] [FAIL] FAIL: Get Escalation History - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:48] [INFO] [Escalation] Cancel Escalation
+[2025-10-25 14:46:48] [FAIL] FAIL: Cancel Escalation - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:48] [INFO] [Escalation] Reassign Escalated Complaint
+[2025-10-25 14:46:51] [PASS] PASS: Reassign Escalated Complaint
+[2025-10-25 14:46:51] [INFO] [Escalation] SLA Tracking
+[2025-10-25 14:46:51] [FAIL] FAIL: SLA Tracking - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:51] [INFO] 
+[2025-10-25 14:46:51] [INFO] =============================================
+[2025-10-25 14:46:52] [INFO] CATEGORY 10: ADVANCED WORKFLOWS (20 TESTS)
+[2025-10-25 14:46:52] [INFO] =============================================
+[2025-10-25 14:46:52] [INFO] --- Advanced Complaint Operations (10 tests) ---
+[2025-10-25 14:46:52] [INFO] [Workflows] Get Categories for Testing
+[2025-10-25 14:46:52] [PASS] PASS: Get Categories for Testing
+[2025-10-25 14:46:52] [INFO] [Workflows] Create Test Complaint 1
+[2025-10-25 14:46:52] [FAIL] FAIL: Create Test Complaint 1 - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:46:52] [INFO] [Workflows] Create Test Complaint 2
+[2025-10-25 14:46:52] [FAIL] FAIL: Create Test Complaint 2 - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:46:52] [INFO] [Workflows] Get Complaint Attachments
+[2025-10-25 14:46:52] [PASS] PASS: Get Complaint Attachments
+[2025-10-25 14:46:52] [INFO] [Workflows] Get Complaint Timeline
+[2025-10-25 14:46:52] [FAIL] FAIL: Get Complaint Timeline - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:53] [INFO] [Workflows] Get Related Complaints
+[2025-10-25 14:46:53] [FAIL] FAIL: Get Related Complaints - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:53] [INFO] --- Integration Workflows (10 tests) ---
+[2025-10-25 14:46:53] [INFO] [Workflows] Auto-Assignment Rule Test
+[2025-10-25 14:46:53] [FAIL] FAIL: Auto-Assignment Rule Test - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:53] [INFO] [Workflows] SLA Breach Check
+[2025-10-25 14:46:53] [FAIL] FAIL: SLA Breach Check - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:53] [INFO] [Workflows] Pending Escalations
+[2025-10-25 14:46:53] [FAIL] FAIL: Pending Escalations - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:53] [INFO] [Workflows] Approval Workflow Start
+[2025-10-25 14:46:53] [FAIL] FAIL: Approval Workflow Start - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:53] [INFO] [Workflows] Approval Workflow Approve
+[2025-10-25 14:46:53] [FAIL] FAIL: Approval Workflow Approve - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:53] [INFO] [Workflows] Approval Workflow Reject
+[2025-10-25 14:46:53] [FAIL] FAIL: Approval Workflow Reject - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:53] [INFO] [Workflows] Notification Queue Status
+[2025-10-25 14:46:53] [FAIL] FAIL: Notification Queue Status - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:53] [INFO] [Workflows] Failed Notifications
+[2025-10-25 14:46:54] [FAIL] FAIL: Failed Notifications - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:54] [INFO] [Workflows] Retry Failed Notification
+[2025-10-25 14:46:54] [FAIL] FAIL: Retry Failed Notification - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:54] [INFO] [Workflows] Workflow Metrics
+[2025-10-25 14:46:54] [FAIL] FAIL: Workflow Metrics - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:54] [INFO] 
+[2025-10-25 14:46:54] [INFO] =============================================
+[2025-10-25 14:46:54] [INFO] CATEGORY 11: ORYGGI INTEGRATION (12 TESTS)
+[2025-10-25 14:46:54] [INFO] =============================================
+[2025-10-25 14:46:54] [INFO] [Oryggi] Testing Oryggi Sync Page page accessibility
+[2025-10-25 14:46:54] [PASS] PASS: Oryggi Sync Page accessible
+[2025-10-25 14:46:54] [INFO] --- Oryggi Connection (6 tests) ---
+[2025-10-25 14:46:54] [INFO] [Oryggi] Get Oryggi Settings
+[2025-10-25 14:46:54] [FAIL] FAIL: Get Oryggi Settings - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:54] [INFO] [Oryggi] Update Oryggi Connection
+[2025-10-25 14:46:54] [FAIL] FAIL: Update Oryggi Connection - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:54] [INFO] [Oryggi] Test Oryggi Connection
+[2025-10-25 14:46:55] [FAIL] FAIL: Test Oryggi Connection - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:55] [INFO] [Oryggi] Get Connection Status
+[2025-10-25 14:46:55] [FAIL] FAIL: Get Connection Status - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:55] [INFO] [Oryggi] Save API Credentials
+[2025-10-25 14:46:55] [FAIL] FAIL: Save API Credentials - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:55] [INFO] [Oryggi] Validation: Invalid Credentials
+[2025-10-25 14:46:55] [PASS] PASS: Validation: Invalid Credentials (Expected failure - 404)
+[2025-10-25 14:46:55] [INFO] --- Oryggi Sync Operations (6 tests) ---
+[2025-10-25 14:46:55] [INFO] [Oryggi] Manual Sync Trigger
+[2025-10-25 14:46:55] [FAIL] FAIL: Manual Sync Trigger - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:56] [INFO] [Oryggi] Get Sync Status
+[2025-10-25 14:46:56] [FAIL] FAIL: Get Sync Status - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:56] [INFO] [Oryggi] Get Sync History
+[2025-10-25 14:46:56] [FAIL] FAIL: Get Sync History - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:56] [INFO] [Oryggi] Get Sync Logs
+[2025-10-25 14:46:56] [FAIL] FAIL: Get Sync Logs - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:56] [INFO] [Oryggi] Sync Schedule Configuration
+[2025-10-25 14:46:56] [FAIL] FAIL: Sync Schedule Configuration - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:56] [INFO] [Oryggi] Cancel Running Sync
+[2025-10-25 14:46:57] [FAIL] FAIL: Cancel Running Sync - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:57] [INFO] 
+[2025-10-25 14:46:57] [INFO] =============================================
+[2025-10-25 14:46:57] [INFO] CATEGORY 12: FILE ATTACHMENTS (10 TESTS)
+[2025-10-25 14:46:57] [INFO] =============================================
+[2025-10-25 14:46:57] [INFO] [Attachments] Get Complaint Attachments
+[2025-10-25 14:46:57] [PASS] PASS: Get Complaint Attachments
+[2025-10-25 14:46:58] [INFO] [Attachments] Get Attachment Metadata
+[2025-10-25 14:46:58] [FAIL] FAIL: Get Attachment Metadata - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:58] [INFO] [Attachments] Delete Attachment
+[2025-10-25 14:46:58] [FAIL] FAIL: Delete Attachment - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:58] [INFO] [Attachments] Get Attachment Download URL
+[2025-10-25 14:46:58] [FAIL] FAIL: Get Attachment Download URL - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:58] [INFO] [Attachments] Validate File Type
+[2025-10-25 14:46:58] [FAIL] FAIL: Validate File Type - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:58] [INFO] [Attachments] Validate File Size
+[2025-10-25 14:46:58] [FAIL] FAIL: Validate File Size - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:58] [INFO] [Attachments] Get Upload Limit Config
+[2025-10-25 14:46:59] [FAIL] FAIL: Get Upload Limit Config - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:59] [INFO] [Attachments] Get Allowed File Types
+[2025-10-25 14:46:59] [FAIL] FAIL: Get Allowed File Types - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:59] [INFO] [Attachments] Get Attachment Statistics
+[2025-10-25 14:46:59] [FAIL] FAIL: Get Attachment Statistics - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:59] [INFO] [Attachments] Cleanup Orphaned Attachments
+[2025-10-25 14:46:59] [FAIL] FAIL: Cleanup Orphaned Attachments - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:59] [INFO] 
+[2025-10-25 14:46:59] [INFO] =============================================
+[2025-10-25 14:46:59] [INFO] CATEGORY 13: ADDITIONAL CRUD OPERATIONS (30 TESTS)
+[2025-10-25 14:46:59] [INFO] =============================================
+[2025-10-25 14:46:59] [INFO] --- Resource Pool Management (8 tests) ---
+[2025-10-25 14:46:59] [INFO] [Additional CRUD] Get All Resource Pools
+[2025-10-25 14:46:59] [FAIL] FAIL: Get All Resource Pools - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:46:59] [INFO] [Additional CRUD] Create Resource Pool
+[2025-10-25 14:46:59] [FAIL] FAIL: Create Resource Pool - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:00] [INFO] --- Company Settings (8 tests) ---
+[2025-10-25 14:47:00] [INFO] [Additional CRUD] Get Company Settings
+[2025-10-25 14:47:00] [PASS] PASS: Get Company Settings
+[2025-10-25 14:47:00] [INFO] [Additional CRUD] Get All Companies
+[2025-10-25 14:47:00] [FAIL] FAIL: Get All Companies - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:00] [INFO] [Additional CRUD] Create Company
+[2025-10-25 14:47:00] [FAIL] FAIL: Create Company - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:01] [INFO] [Additional CRUD] Update Company
+[2025-10-25 14:47:01] [PASS] PASS: Update Company
+[2025-10-25 14:47:01] [INFO] [Additional CRUD] Update Company Logo
+[2025-10-25 14:47:01] [FAIL] FAIL: Update Company Logo - The remote server returned an error: (400) Bad Request.
+[2025-10-25 14:47:01] [INFO] [Additional CRUD] Get Company Logo
+[2025-10-25 14:47:01] [FAIL] FAIL: Get Company Logo - The remote server returned an error: (405) Method Not Allowed.
+[2025-10-25 14:47:01] [INFO] [Additional CRUD] Delete Company Logo
+[2025-10-25 14:47:01] [PASS] PASS: Delete Company Logo
+[2025-10-25 14:47:01] [INFO] [Additional CRUD] Multi-Tenant Isolation Test
+[2025-10-25 14:47:02] [PASS] PASS: Multi-Tenant Isolation Test (Expected failure - 404)
+[2025-10-25 14:47:02] [INFO] --- Event Types (5 tests) ---
+[2025-10-25 14:47:02] [INFO] [Additional CRUD] Get All Event Types
+[2025-10-25 14:47:02] [FAIL] FAIL: Get All Event Types - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:02] [INFO] [Additional CRUD] Create Event Type
+[2025-10-25 14:47:02] [FAIL] FAIL: Create Event Type - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:02] [INFO] --- Complaint Info Settings (6 tests) ---
+[2025-10-25 14:47:02] [INFO] [Additional CRUD] Get Complaint Info Settings
+[2025-10-25 14:47:02] [FAIL] FAIL: Get Complaint Info Settings - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:02] [INFO] [Additional CRUD] Update General Settings
+[2025-10-25 14:47:02] [FAIL] FAIL: Update General Settings - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:02] [INFO] [Additional CRUD] Update Form Settings
+[2025-10-25 14:47:02] [FAIL] FAIL: Update Form Settings - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:03] [INFO] [Additional CRUD] Update Workflow Settings
+[2025-10-25 14:47:03] [FAIL] FAIL: Update Workflow Settings - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:03] [INFO] [Additional CRUD] Reset Settings to Default
+[2025-10-25 14:47:03] [FAIL] FAIL: Reset Settings to Default - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:03] [INFO] [Additional CRUD] Validation: Settings Constraints
+[2025-10-25 14:47:03] [PASS] PASS: Validation: Settings Constraints (Expected failure - 404)
+[2025-10-25 14:47:03] [INFO] --- Audit Logs (3 tests) ---
+[2025-10-25 14:47:03] [INFO] [Additional CRUD] Get Audit Logs
+[2025-10-25 14:47:03] [FAIL] FAIL: Get Audit Logs - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:03] [INFO] [Additional CRUD] Get User Audit Trail
+[2025-10-25 14:47:03] [FAIL] FAIL: Get User Audit Trail - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:03] [INFO] [Additional CRUD] Get Entity Audit Trail
+[2025-10-25 14:47:03] [FAIL] FAIL: Get Entity Audit Trail - The remote server returned an error: (404) Not Found.
+[2025-10-25 14:47:04] [INFO] 
+[2025-10-25 14:47:04] [INFO] =============================================
+[2025-10-25 14:47:04] [INFO] PART 3 TEST EXECUTION COMPLETED
+[2025-10-25 14:47:04] [INFO] =============================================
+[2025-10-25 14:47:04] [INFO] 
+[2025-10-25 14:47:04] [INFO] Total Tests Executed: 98
+[2025-10-25 14:47:04] [INFO] Tests Passed: 23
+[2025-10-25 14:47:04] [INFO] Tests Failed: 75
+[2025-10-25 14:47:04] [INFO] Success Rate: 23.47%
+[2025-10-25 14:47:04] [INFO] 
+[2025-10-25 14:47:04] [INFO] Results by Category:
+[2025-10-25 14:47:04] [INFO]   Additional CRUD: 5/21 passed (23.81%)
+[2025-10-25 14:47:04] [INFO]   Attachments: 1/10 passed (10%)
+[2025-10-25 14:47:04] [INFO]   Escalation: 5/12 passed (41.67%)
+[2025-10-25 14:47:04] [INFO]   Notifications: 8/26 passed (30.77%)
+[2025-10-25 14:47:04] [INFO]   Oryggi: 2/13 passed (15.38%)
+[2025-10-25 14:47:04] [INFO]   Workflows: 2/16 passed (12.5%)
+[2025-10-25 14:47:04] [INFO] 
+[2025-10-25 14:47:04] [INFO] Detailed results saved to: COMPREHENSIVE_FULL_TEST_PART3_RESULTS_20251025_144637.txt
+[2025-10-25 14:47:04] [WARN] WARNING: 75 test(s) failed
+[2025-10-25 14:47:04] [WARN] Review failed tests above for details

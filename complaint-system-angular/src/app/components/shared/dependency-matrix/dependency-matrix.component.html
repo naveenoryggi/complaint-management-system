@@ -1,0 +1,225 @@
+<div class="dependency-matrix">
+  <!-- Header -->
+  <div class="matrix-header">
+    <h3><i class="bi bi-diagram-3"></i> Setup Dependency Matrix</h3>
+    <p class="text-muted">Visual guide showing which features need to be configured first</p>
+  </div>
+
+  <!-- Progress Overview -->
+  <div class="progress-overview">
+    <div class="progress-stats">
+      <div class="stat">
+        <div class="stat-value">{{ setupService.completedSteps().length }}/{{ setupService.totalSteps() }}</div>
+        <div class="stat-label">Steps Complete</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ setupService.overallProgress() }}%</div>
+        <div class="stat-label">Overall Progress</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ setupService.getEstimatedTimeRemaining() }} min</div>
+        <div class="stat-label">Time Remaining</div>
+      </div>
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" [style.width.%]="setupService.overallProgress()"></div>
+    </div>
+  </div>
+
+  <!-- Phase Cards -->
+  <div class="phases-container">
+    @for (phase of phases(); track phase.phase) {
+      <div class="phase-card"
+           [class.phase-completed]="phase.completed"
+           [class.phase-expanded]="selectedPhase() === phase.phase"
+           [style.border-left-color]="getPhaseColor(phase.phase)">
+
+        <!-- Phase Header -->
+        <div class="phase-header" (click)="selectPhase(phase.phase)">
+          <div class="phase-info">
+            <div class="phase-title">
+              <span class="phase-number">Phase {{ phase.phase }}</span>
+              <h4>{{ phase.name }}</h4>
+              @if (phase.completed) {
+                <i class="bi bi-check-circle-fill text-success"></i>
+              }
+            </div>
+            <p class="phase-description">{{ phase.description }}</p>
+          </div>
+          <div class="phase-stats">
+            <div class="phase-progress">
+              <div class="progress-circle">
+                <svg width="60" height="60">
+                  <circle cx="30" cy="30" r="26" class="progress-bg"></circle>
+                  <circle cx="30" cy="30" r="26" class="progress-fill"
+                          [style.stroke-dasharray]="163.28"
+                          [style.stroke-dashoffset]="163.28 - (163.28 * phase.progress / 100)"></circle>
+                </svg>
+                <div class="progress-text">{{ phase.progress }}%</div>
+              </div>
+            </div>
+            <div class="expand-icon">
+              <i [class]="selectedPhase() === phase.phase ? 'bi bi-chevron-up' : 'bi bi-chevron-down'"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase Steps (Expanded) -->
+        @if (selectedPhase() === phase.phase) {
+          <div class="phase-steps">
+            <div class="steps-grid">
+              @for (step of phase.steps; track step.id) {
+                <div class="step-card"
+                     [class]="getStepStatusClass(step)"
+                     [class.step-highlighted]="highlightStep === step.id"
+                     [class.step-selected]="selectedStep()?.id === step.id"
+                     (click)="selectStep(step)">
+
+                  <div class="step-icon">
+                    <i [class]="'bi ' + getStepStatusIcon(step)"></i>
+                  </div>
+
+                  <div class="step-content">
+                    <div class="step-title">
+                      <span>{{ step.label }}</span>
+                      @if (step.required) {
+                        <span class="badge badge-required">Required</span>
+                      }
+                    </div>
+                    <div class="step-description">{{ step.description }}</div>
+                    <div class="step-meta">
+                      <span class="step-time">
+                        <i class="bi bi-clock"></i> {{ step.estimatedMinutes }} min
+                      </span>
+                      @if (step.dependsOn.length > 0) {
+                        <span class="step-deps">
+                          <i class="bi bi-link-45deg"></i> {{ step.dependsOn.length }} dependencies
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  @if (setupService.validateDependencies(step.id).canProceed && !step.completed) {
+                    <div class="step-action">
+                      <button class="btn btn-sm btn-primary" (click)="navigateToStep(step); $event.stopPropagation()">
+                        <i class="bi bi-arrow-right-circle"></i> Setup
+                      </button>
+                    </div>
+                  }
+
+                  @if (step.completed) {
+                    <div class="step-status-badge">
+                      <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Selected Step Details -->
+  @if (selectedStep(); as step) {
+    <div class="step-details-panel">
+      <div class="panel-header">
+        <h4>{{ step.label }}</h4>
+        <button class="btn-close" (click)="selectedStep.set(null)">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="panel-body">
+        <div class="detail-section">
+          <h5>Description</h5>
+          <p>{{ step.description }}</p>
+        </div>
+
+        @if (step.dependsOn.length > 0) {
+          <div class="detail-section">
+            <h5><i class="bi bi-arrow-left-circle"></i> Dependencies ({{ step.dependsOn.length }})</h5>
+            <p class="text-muted">This feature requires the following to be configured first:</p>
+            <div class="dependency-list">
+              @for (depId of step.dependsOn; track depId) {
+                @if (setupService.getStepById(depId); as dep) {
+                  <div class="dependency-item" [class.dep-completed]="dep.completed">
+                    <i [class]="dep.completed ? 'bi bi-check-circle-fill text-success' : 'bi bi-circle'"></i>
+                    <span>{{ dep.label }}</span>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        }
+
+        @if (getDependentSteps(step.id).length > 0) {
+          <div class="detail-section">
+            <h5><i class="bi bi-arrow-right-circle"></i> Enables ({{ getDependentSteps(step.id).length }})</h5>
+            <p class="text-muted">Configuring this will unlock:</p>
+            <div class="dependency-list">
+              @for (dependent of getDependentSteps(step.id); track dependent.id) {
+                <div class="dependency-item" [class.dep-completed]="dependent.completed">
+                  <i [class]="dependent.completed ? 'bi bi-check-circle-fill text-success' : 'bi bi-circle'"></i>
+                  <span>{{ dependent.label }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="detail-section">
+          <h5>Status</h5>
+          @if (step.completed) {
+            <div class="status-message status-success">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Completed</span>
+            </div>
+          } @else if (setupService.validateDependencies(step.id).canProceed) {
+            <div class="status-message status-ready">
+              <i class="bi bi-arrow-right-circle"></i>
+              <span>Ready to configure</span>
+            </div>
+          } @else {
+            <div class="status-message status-locked">
+              <i class="bi bi-lock-fill"></i>
+              <span>{{ setupService.validateDependencies(step.id).message }}</span>
+            </div>
+          }
+        </div>
+
+        @if (setupService.validateDependencies(step.id).canProceed && !step.completed) {
+          <div class="panel-actions">
+            <button class="btn btn-primary" (click)="navigateToStep(step)">
+              <i class="bi bi-gear-fill"></i> Configure {{ step.label }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Legend -->
+  <div class="matrix-legend">
+    <h5>Legend</h5>
+    <div class="legend-items">
+      <div class="legend-item">
+        <i class="bi bi-check-circle-fill text-success"></i>
+        <span>Completed</span>
+      </div>
+      <div class="legend-item">
+        <i class="bi bi-circle status-required"></i>
+        <span>Required & Available</span>
+      </div>
+      <div class="legend-item">
+        <i class="bi bi-circle status-optional"></i>
+        <span>Optional & Available</span>
+      </div>
+      <div class="legend-item">
+        <i class="bi bi-lock-fill status-locked"></i>
+        <span>Locked (dependencies needed)</span>
+      </div>
+    </div>
+  </div>
+</div>

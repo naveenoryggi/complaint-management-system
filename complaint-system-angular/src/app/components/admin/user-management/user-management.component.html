@@ -1,0 +1,513 @@
+<div class="user-management">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>
+        <i class="fas fa-users"></i>
+        User Management
+      </h1>
+      <p class="page-description">View and manage system users, roles, and permissions</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn-secondary" (click)="openImportModal()">
+        <i class="fas fa-download"></i> Import from Oryggi
+      </button>
+      <button class="btn-primary" (click)="openCreateModal()">
+        <i class="fas fa-user-plus"></i> Add User
+      </button>
+    </div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    <i class="fas fa-check-circle"></i> {{ successMessage }}
+  </div>
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <i class="fas fa-users"></i>
+      <div class="stat-info">
+        <span class="stat-label">Total Users</span>
+        <span class="stat-value">{{ totalUsers }}</span>
+      </div>
+    </div>
+    <div class="stat-card" *ngIf="searchTerm">
+      <i class="fas fa-filter"></i>
+      <div class="stat-info">
+        <span class="stat-label">Filtered Results</span>
+        <span class="stat-value">{{ filteredUsers.length }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <i class="fas fa-search"></i>
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="onSearchChange()"
+      placeholder="Search users by name, email, employee code, or job title..."
+      class="search-input"
+    />
+    <span class="search-hint" *ngIf="searchTerm">
+      Showing {{ filteredUsers.length }} of {{ users.length }} users
+    </span>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading users...</p>
+  </div>
+
+  <!-- Users Table -->
+  <div class="users-table-container" *ngIf="!loading && paginatedUsers.length > 0">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Employee Code</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Job Title</th>
+          <th>Primary Role</th>
+          <th>Phone</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of paginatedUsers">
+          <td>
+            <span class="employee-code">{{ user.employeeCode }}</span>
+          </td>
+          <td>
+            <div class="user-name">
+              <div class="avatar">{{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}</div>
+              <strong>{{ user.fullName }}</strong>
+            </div>
+          </td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.jobTitle || '-' }}</td>
+          <td>
+            <span class="role-badge">{{ getPrimaryRole(user) }}</span>
+          </td>
+          <td>{{ user.phone || '-' }}</td>
+          <td>
+            <button class="btn-view" (click)="viewUserDetails(user.id)" title="View User Details">
+              <i class="fas fa-eye"></i>
+              <span>View</span>
+            </button>
+            <button class="btn-edit" (click)="openEditModal(user)" title="Edit User">
+              <i class="fas fa-edit"></i>
+              <span>Edit</span>
+            </button>
+            <button class="btn-delete" (click)="deleteUser(user)" title="Delete User">
+              <i class="fas fa-trash-alt"></i>
+              <span>Delete</span>
+            </button>
+            <button class="btn-sync" (click)="syncFromOryggi(user)" title="Sync from Oryggi" *ngIf="user.employeeCode">
+              <i class="fas fa-sync"></i>
+              <span>Sync</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button
+        class="pagination-btn"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+        title="Previous Page"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <button
+        *ngFor="let page of pageNumbers"
+        class="pagination-btn"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+
+      <button
+        class="pagination-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+        title="Next Page"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * pageSize + 1 }}-{{ Math.min(currentPage * pageSize, totalUsers) }} of {{ totalUsers }}
+      </div>
+    </div>
+  </div>
+
+  <!-- No Results -->
+  <div class="no-results" *ngIf="!loading && filteredUsers.length === 0">
+    <i class="fas fa-user-slash"></i>
+    <h3>No Users Found</h3>
+    <p *ngIf="searchTerm">Try adjusting your search criteria</p>
+  </div>
+
+  <!-- User Details Modal -->
+  <div class="modal-overlay" *ngIf="selectedUser" (click)="closeUserDetails()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="fas fa-user-circle"></i>
+          User Details
+        </h2>
+        <button class="btn-close" (click)="closeUserDetails()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" *ngIf="!detailLoading && selectedUser">
+        <!-- User Info Section -->
+        <div class="detail-section">
+          <h3>Personal Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="label">Full Name:</span>
+              <span class="value">{{ selectedUser.fullName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Employee Code:</span>
+              <span class="value">{{ selectedUser.employeeCode }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Email:</span>
+              <span class="value">{{ selectedUser.email }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Phone:</span>
+              <span class="value">{{ selectedUser.phone || 'Not provided' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Job Title:</span>
+              <span class="value">{{ selectedUser.jobTitle || 'Not provided' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Company:</span>
+              <span class="value">{{ selectedUser.companyName }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Organizational Structure Section -->
+        <div class="detail-section">
+          <h3>Organizational Structure</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="label">Branch:</span>
+              <span class="value">{{ selectedUser.branchName || 'Not assigned' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Department:</span>
+              <span class="value">{{ selectedUser.departmentName || 'Not assigned' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Section:</span>
+              <span class="value">{{ selectedUser.sectionName || 'Not assigned' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Employee Type:</span>
+              <span class="value">{{ selectedUser.employeeTypeName || 'Not assigned' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Manager:</span>
+              <span class="value">{{ selectedUser.managerName || 'No manager assigned' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roles Section -->
+        <div class="detail-section">
+          <h3>Roles & Permissions</h3>
+          <div class="roles-list" *ngIf="selectedUser.roles && selectedUser.roles.length > 0">
+            <div *ngFor="let role of selectedUser.roles" class="role-item">
+              <div class="role-header">
+                <span class="role-name">{{ role.roleName }}</span>
+                <span class="role-badge primary" *ngIf="role.isPrimary">Primary</span>
+                <span class="role-badge">{{ role.roleType }}</span>
+              </div>
+              <div class="role-details">
+                <span class="role-detail">Code: {{ role.roleCode }}</span>
+                <span class="role-detail">Escalation Level: {{ role.escalationLevel }}</span>
+              </div>
+            </div>
+          </div>
+          <p class="no-data" *ngIf="!selectedUser.roles || selectedUser.roles.length === 0">
+            No roles assigned to this user
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-loading" *ngIf="detailLoading">
+        <div class="spinner"></div>
+        <p>Loading user details...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create/Edit User Modal -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content modal-form" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="fas" [ngClass]="isEditMode ? 'fa-user-edit' : 'fa-user-plus'"></i>
+          {{ isEditMode ? 'Edit User' : 'Add New User' }}
+        </h2>
+        <button class="btn-close" (click)="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" *ngIf="userForm">
+        <!-- Error Message -->
+        <div class="alert alert-error" *ngIf="errorMessage">
+          <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+        </div>
+
+        <form>
+          <!-- Basic Information Section -->
+          <div class="form-section">
+            <h3>Basic Information</h3>
+            <div class="form-grid">
+              <div class="form-group" *ngIf="!isEditMode">
+                <label for="employeeCode">Employee Code <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="employeeCode"
+                  [(ngModel)]="userForm.employeeCode"
+                  name="employeeCode"
+                  placeholder="Enter employee code"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="firstName">First Name <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="firstName"
+                  [(ngModel)]="userForm.firstName"
+                  name="firstName"
+                  placeholder="Enter first name"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="lastName">Last Name <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="lastName"
+                  [(ngModel)]="userForm.lastName"
+                  name="lastName"
+                  placeholder="Enter last name"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input
+                  type="email"
+                  id="email"
+                  [(ngModel)]="userForm.email"
+                  name="email"
+                  placeholder="Enter email address"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="phone">Phone</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  [(ngModel)]="userForm.phone"
+                  name="phone"
+                  placeholder="Enter phone number"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="jobTitle">Job Title</label>
+                <input
+                  type="text"
+                  id="jobTitle"
+                  [(ngModel)]="userForm.jobTitle"
+                  name="jobTitle"
+                  placeholder="Enter job title"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Organizational Structure Section -->
+          <div class="form-section">
+            <h3>Organizational Structure</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="branchId">Branch</label>
+                <select
+                  id="branchId"
+                  [(ngModel)]="userForm.branchId"
+                  name="branchId"
+                  (change)="onBranchChange(userForm.branchId)"
+                >
+                  <option [ngValue]="undefined">Select Branch</option>
+                  <option *ngFor="let branch of branches" [ngValue]="branch.id">
+                    {{ branch.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="departmentId">Department</label>
+                <select
+                  id="departmentId"
+                  [(ngModel)]="userForm.departmentId"
+                  name="departmentId"
+                  (change)="onDepartmentChange(userForm.departmentId)"
+                  [disabled]="!userForm.branchId || departments.length === 0"
+                >
+                  <option [ngValue]="undefined">Select Department</option>
+                  <option *ngFor="let department of departments" [ngValue]="department.id">
+                    {{ department.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="sectionId">Section</label>
+                <select
+                  id="sectionId"
+                  [(ngModel)]="userForm.sectionId"
+                  name="sectionId"
+                  [disabled]="!userForm.departmentId || sections.length === 0"
+                >
+                  <option [ngValue]="undefined">Select Section</option>
+                  <option *ngFor="let section of sections" [ngValue]="section.id">
+                    {{ section.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="employeeTypeId">Employee Type</label>
+                <select
+                  id="employeeTypeId"
+                  [(ngModel)]="userForm.employeeTypeId"
+                  name="employeeTypeId"
+                >
+                  <option [ngValue]="undefined">Select Employee Type</option>
+                  <option *ngFor="let type of employeeTypes" [ngValue]="type.id">
+                    {{ type.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="managerId">Manager</label>
+                <app-user-search-autocomplete
+                  [config]="{
+                    placeholder: 'Search manager by name, email, phone, or user ID...',
+                    minSearchLength: 2,
+                    maxResults: 10,
+                    showUserDetails: true,
+                    showMatchType: true,
+                    excludeUserId: userForm.id,
+                    includeInactive: false
+                  }"
+                  [selectedUser]="selectedManager"
+                  (userSelected)="onManagerSelected($event)"
+                  (searchCleared)="onManagerSearchCleared()"
+                ></app-user-search-autocomplete>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()" [disabled]="loading">
+          Cancel
+        </button>
+        <button class="btn-primary" (click)="saveUser()" [disabled]="loading">
+          <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : (isEditMode ? 'fa-save' : 'fa-plus')"></i>
+          {{ loading ? 'Saving...' : (isEditMode ? 'Update User' : 'Create User') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import User Modal -->
+  <div class="modal-overlay" *ngIf="showImportModal" (click)="closeImportModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="fas fa-download"></i>
+          Import User from Oryggi
+        </h2>
+        <button class="close-button" (click)="closeImportModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="alert alert-error" *ngIf="errorMessage">
+          <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+        </div>
+
+        <div class="form-section">
+          <p class="info-text">
+            <i class="fas fa-info-circle"></i>
+            Enter the Employee Code (Corp Emp Code) to import the employee from Oryggi database.
+            The system will create both Employee and User records automatically.
+          </p>
+
+          <div class="form-group">
+            <label for="importEmployeeCode" class="form-label required">Employee Code</label>
+            <input
+              id="importEmployeeCode"
+              type="text"
+              [(ngModel)]="importEmployeeCode"
+              class="form-control"
+              placeholder="Enter employee code (e.g., EMP001)"
+              (keyup.enter)="importUserFromOryggi()"
+              autofocus
+            />
+            <span class="helper-text">
+              <i class="fas fa-lightbulb"></i>
+              This must match the CorpEmpCode in the Oryggi database
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeImportModal()" [disabled]="loading">
+          Cancel
+        </button>
+        <button class="btn-primary" (click)="importUserFromOryggi()" [disabled]="loading || !importEmployeeCode.trim()">
+          <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-download'"></i>
+          {{ loading ? 'Importing...' : 'Import User' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

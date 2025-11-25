@@ -1,0 +1,5 @@
+<span [class]="badgeClass" [title]="tooltip">
+  <i *ngIf="showIcon" class="bi" [ngClass]="iconClass"></i>
+  <span class="sla-name" *ngIf="slaLevel">{{ slaLevel }}</span>
+  <span class="sla-time" *ngIf="timeDisplay">{{ timeDisplay }}</span>
+</span>

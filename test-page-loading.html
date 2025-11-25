@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Angular App Test</title>
+</head>
+<body>
+    <h1>Testing Angular Application Loading</h1>
+    <div id="test-results">
+        <p>Test 1: Checking if Angular server responds...</p>
+        <p>Test 2: Checking if JavaScript loads...</p>
+        <p>Test 3: Checking if Angular initializes...</p>
+        <p>Test 4: Checking if login component loads...</p>
+    </div>
+
+    <script>
+        console.log('Test page loaded');
+
+        // Test 1: Check if Angular server responds
+        fetch('http://localhost:4203')
+            .then(response => {
+                console.log('Test 1 PASSED: Angular server responds with status:', response.status);
+                document.getElementById('test-results').innerHTML += '<p><strong>Test 1 PASSED:</strong> Angular server responds</p>';
+
+                // Test 2: Check if main.js loads
+                return fetch('http://localhost:4203/main.js');
+            })
+            .then(response => {
+                console.log('Test 2 PASSED: main.js loads with status:', response.status);
+                document.getElementById('test-results').innerHTML += '<p><strong>Test 2 PASSED:</strong> main.js loads</p>';
+
+                // Create an iframe to test Angular initialization
+                const iframe = document.createElement('iframe');
+                iframe.src = 'http://localhost:4203';
+                iframe.style.width = '100%';
+                iframe.style.height = '500px';
+                iframe.style.border = '2px solid #ccc';
+
+                iframe.onload = function() {
+                    console.log('Test 3: iframe loaded');
+                    document.getElementById('test-results').innerHTML += '<p><strong>Test 3:</strong> iframe loaded (checking Angular initialization...)</p>';
+
+                    // Wait a moment for Angular to bootstrap
+                    setTimeout(() => {
+                        try {
+                            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                            const appRoot = iframeDoc.querySelector('app-root');
+
+                            if (appRoot) {
+                                const hasContent = appRoot.innerHTML.trim().length > 0;
+                                console.log('Test 3:', hasContent ? 'PASSED' : 'FAILED', '- app-root has content:', hasContent);
+                                document.getElementById('test-results').innerHTML += '<p><strong>Test 3 ' + (hasContent ? 'PASSED' : 'FAILED') + ':</strong> app-root has content</p>';
+
+                                // Check for login component
+                                const loginElement = iframeDoc.querySelector('app-login, .login-form, .login-container');
+                                if (loginElement) {
+                                    console.log('Test 4 PASSED: Login component detected');
+                                    document.getElementById('test-results').innerHTML += '<p><strong>Test 4 PASSED:</strong> Login component detected</p>';
+                                } else {
+                                    console.log('Test 4 FAILED: Login component not found');
+                                    document.getElementById('test-results').innerHTML += '<p><strong>Test 4 FAILED:</strong> Login component not found</p>';
+                                }
+
+                                // Get the actual HTML content
+                                console.log('App root content:', appRoot.innerHTML.substring(0, 200) + '...');
+
+                            } else {
+                                console.log('Test 3 FAILED: app-root not found');
+                                document.getElementById('test-results').innerHTML += '<p><strong>Test 3 FAILED:</strong> app-root not found</p>';
+                            }
+                        } catch (e) {
+                            console.log('Test 3 FAILED: Cannot access iframe content due to CORS');
+                            document.getElementById('test-results').innerHTML += '<p><strong>Test 3 FAILED:</strong> Cannot access iframe content (CORS)</p>';
+                        }
+                    }, 3000);
+                };
+
+                iframe.onerror = function() {
+                    console.log('Test 3 FAILED: iframe failed to load');
+                    document.getElementById('test-results').innerHTML += '<p><strong>Test 3 FAILED:</strong> iframe failed to load</p>';
+                };
+
+                document.body.appendChild(iframe);
+            })
+            .catch(error => {
+                console.error('Test FAILED:', error);
+                document.getElementById('test-results').innerHTML += '<p><strong>TEST FAILED:</strong> ' + error.message + '</p>';
+            });
+    </script>
+</body>
+</html>

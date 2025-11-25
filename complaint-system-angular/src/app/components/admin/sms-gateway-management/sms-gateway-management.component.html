@@ -1,0 +1,588 @@
+<div class="sms-gateway-container">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title-row">
+        <button class="btn-back" (click)="navigateBack()">
+          <i class="fas fa-arrow-left"></i>
+          Back to Dashboard
+        </button>
+        <h1>
+          <i class="bi bi-phone"></i>
+          SMS Gateway Settings
+        </h1>
+      </div>
+      <p class="header-description">Configure SMS gateways for sending text message notifications</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      Add SMS Gateway
+    </button>
+  </div>
+
+  <!-- Info Banner -->
+  <div class="info-banner">
+    <div class="info-icon">
+      <i class="fas fa-info-circle"></i>
+    </div>
+    <div class="info-content">
+      <h3>About SMS Gateway Settings</h3>
+      <p>
+        <strong>SMS gateways</strong> are used to send automated text message notifications such as complaint updates,
+        urgent escalations, and status changes to users via SMS.
+      </p>
+      <ul>
+        <li><strong>Providers:</strong> Supports Twilio, AWS SNS, MessageBird, Nexmo, and custom gateways</li>
+        <li><strong>Default Gateway:</strong> One gateway can be marked as default for all SMS notifications</li>
+        <li><strong>Testing:</strong> Test your configuration before activating</li>
+        <li><strong>Cost Tracking:</strong> Monitor SMS costs per message</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage && !showModal" class="alert alert-danger">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Search and Filter -->
+  <div class="filter-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="filterItems()"
+        placeholder="Search by name, provider, phone number, or sender name..."
+        class="search-input"
+      />
+    </div>
+    <div class="filter-buttons">
+      <button
+        class="filter-btn"
+        [class.active]="statusFilter === 'all'"
+        (click)="setStatusFilter('all')"
+      >
+        <i class="fas fa-list"></i>
+        All
+      </button>
+      <button
+        class="filter-btn"
+        [class.active]="statusFilter === 'active'"
+        (click)="setStatusFilter('active')"
+      >
+        <i class="fas fa-check-circle"></i>
+        Active
+      </button>
+      <button
+        class="filter-btn"
+        [class.active]="statusFilter === 'inactive'"
+        (click)="setStatusFilter('inactive')"
+      >
+        <i class="fas fa-times-circle"></i>
+        Inactive
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading && items.length === 0" class="loading-state">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading SMS gateway settings...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredItems.length === 0" class="empty-state">
+    <i class="bi bi-phone"></i>
+    <h3>No SMS Gateways Found</h3>
+    <p *ngIf="searchTerm">Try adjusting your search criteria</p>
+    <p *ngIf="!searchTerm">Get started by configuring your first SMS gateway</p>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      Add SMS Gateway
+    </button>
+  </div>
+
+  <!-- SMS Gateway Settings Grid -->
+  <div *ngIf="!loading && filteredItems.length > 0" class="settings-grid">
+    <div *ngFor="let settings of filteredItems" class="settings-card" [class.inactive]="!settings.isActive">
+      <div class="card-header">
+        <div class="settings-info">
+          <h3>{{ settings.name }}</h3>
+          <span class="status-badge" [class.active]="settings.isActive" [class.inactive]="!settings.isActive">
+            {{ settings.isActive ? 'Active' : 'Inactive' }}
+          </span>
+          <span *ngIf="settings.isDefault" class="default-badge">
+            <i class="fas fa-star"></i> Default
+          </span>
+        </div>
+        <div class="card-actions">
+          <button
+            class="btn-icon btn-test"
+            (click)="testSmsConnection(settings)"
+            title="Test Connection"
+            [disabled]="isTestingSms"
+          >
+            <i [class]="isTestingSms ? 'fas fa-spinner fa-spin' : 'fas fa-vial'"></i>
+          </button>
+          <button
+            class="btn-icon"
+            (click)="openEditModal(settings)"
+            title="Edit Settings"
+          >
+            <i class="fas fa-edit"></i>
+          </button>
+          <button
+            class="btn-icon"
+            (click)="toggleSettingsStatus(settings)"
+            [title]="settings.isActive ? 'Deactivate' : 'Activate'"
+          >
+            <i [class]="settings.isActive ? 'fas fa-toggle-on' : 'fas fa-toggle-off'"></i>
+          </button>
+          <button
+            *ngIf="!settings.isDefault && settings.isActive"
+            class="btn-icon btn-default"
+            (click)="setAsDefault(settings)"
+            title="Set as Default"
+          >
+            <i class="fas fa-star"></i>
+          </button>
+          <button
+            class="btn-icon btn-delete"
+            (click)="confirmDelete(settings)"
+            title="Delete Settings"
+          >
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="settings-details">
+          <div class="detail-item">
+            <i class="fas fa-building"></i>
+            <span><strong>Provider:</strong> {{ settings.provider }}</span>
+          </div>
+
+          <div class="detail-item">
+            <i class="fas fa-link"></i>
+            <span><strong>API URL:</strong> {{ settings.apiUrl }}</span>
+          </div>
+
+          <div class="detail-item">
+            <i class="bi bi-phone"></i>
+            <span><strong>From Number:</strong> {{ settings.fromNumber }}</span>
+          </div>
+
+          <div class="detail-item">
+            <i class="fas fa-signature"></i>
+            <span><strong>Sender Name:</strong> {{ settings.senderName }}</span>
+          </div>
+
+          <div *ngIf="settings.maxSmsPerHour" class="detail-item">
+            <i class="fas fa-tachometer-alt"></i>
+            <span><strong>Rate Limit:</strong> {{ settings.maxSmsPerHour }} SMS/hour</span>
+          </div>
+
+          <div *ngIf="settings.costPerSms" class="detail-item">
+            <i class="fas fa-dollar-sign"></i>
+            <span><strong>Cost per SMS:</strong> ${{ settings.costPerSms }}</span>
+          </div>
+
+          <div class="detail-item">
+            <i class="fas fa-clock"></i>
+            <span><strong>Timeout:</strong> {{ settings.timeoutSeconds }}s</span>
+          </div>
+
+          <div *ngIf="settings.lastTestedAt" class="detail-item">
+            <i class="fas fa-check-circle"></i>
+            <span><strong>Last Tested:</strong> {{ settings.lastTestedAt | utcToLocal:'medium' }}</span>
+          </div>
+
+          <div *ngIf="settings.testNotes" class="detail-item test-notes">
+            <i class="fas fa-comment-alt"></i>
+            <span><strong>Test Notes:</strong> {{ settings.testNotes }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <small>
+          Created: {{ settings.createdAt | utcToLocal:'medium' }}
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div *ngIf="items.length > 0" class="summary-stats">
+    <div class="stat-item">
+      <span class="stat-label">Total Gateways:</span>
+      <span class="stat-value">{{ items.length }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Active:</span>
+      <span class="stat-value stat-active">{{ getActiveSettingsCount() }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Inactive:</span>
+      <span class="stat-value stat-inactive">{{ getInactiveSettingsCount() }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content large-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="bi bi-phone"></i>
+        {{ modalMode === 'edit' ? 'Edit SMS Gateway Settings' : 'Create New SMS Gateway' }}
+      </h2>
+      <button class="btn-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Error Message in Modal -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Test Result -->
+      <div *ngIf="testResult" class="alert" [class.alert-success]="testResult.success" [class.alert-danger]="!testResult.success">
+        <i [class]="testResult.success ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'"></i>
+        {{ testResult.message }}
+      </div>
+
+      <form (ngSubmit)="save()">
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+
+          <div class="form-group">
+            <label for="settingsName" class="required">Configuration Name</label>
+            <input
+              id="settingsName"
+              type="text"
+              [(ngModel)]="formName"
+              name="name"
+              class="form-control"
+              placeholder="e.g., Production SMS, Twilio Primary, AWS SNS"
+              required
+            />
+            <small class="form-help-text">A friendly name to identify this SMS gateway</small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label for="provider" class="required">Provider</label>
+              <select
+                id="provider"
+                [(ngModel)]="provider"
+                name="provider"
+                class="form-control"
+                (ngModelChange)="onProviderChange()"
+                required
+              >
+                <option value="">Select Provider</option>
+                <option *ngFor="let p of providers" [value]="p.value">{{ p.label }}</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-2">
+              <label for="apiUrl" class="required">API URL</label>
+              <input
+                id="apiUrl"
+                type="url"
+                [(ngModel)]="apiUrl"
+                name="apiUrl"
+                class="form-control"
+                placeholder="e.g., https://api.twilio.com/2010-04-01"
+                required
+              />
+            </div>
+          </div>
+
+          <small class="form-help-text">
+            <i class="fas fa-info-circle"></i>
+            Selecting a provider will auto-fill the API URL
+          </small>
+        </div>
+
+        <!-- Authentication -->
+        <div class="form-section">
+          <h3>Authentication</h3>
+
+          <div class="form-group">
+            <label for="accountSid" class="required">Account SID / API Key</label>
+            <input
+              id="accountSid"
+              type="text"
+              [(ngModel)]="accountSid"
+              name="accountSid"
+              class="form-control"
+              placeholder="Your account SID or API key"
+              required
+            />
+            <small class="form-help-text">Account identifier from your SMS provider</small>
+          </div>
+
+          <div class="form-group">
+            <label for="authToken" [class.required]="modalMode === 'create'">Auth Token / Secret</label>
+            <input
+              id="authToken"
+              type="password"
+              [(ngModel)]="authToken"
+              name="authToken"
+              class="form-control"
+              placeholder="Your authentication token or secret"
+              [required]="modalMode === 'create'"
+            />
+            <small *ngIf="modalMode === 'edit'" class="form-help-text">Leave blank to keep existing token</small>
+            <small *ngIf="modalMode === 'create'" class="form-help-text">Authentication token or API secret from your provider</small>
+          </div>
+        </div>
+
+        <!-- Sender Information -->
+        <div class="form-section">
+          <h3>Sender Information</h3>
+
+          <div class="form-group">
+            <label for="fromNumber" class="required">From Phone Number</label>
+            <input
+              id="fromNumber"
+              type="tel"
+              [(ngModel)]="fromNumber"
+              name="fromNumber"
+              class="form-control"
+              placeholder="+1234567890"
+              required
+            />
+            <small class="form-help-text">Phone number in E.164 format (e.g., +1234567890)</small>
+          </div>
+
+          <div class="form-group">
+            <label for="senderName" class="required">Sender Name</label>
+            <input
+              id="senderName"
+              type="text"
+              [(ngModel)]="senderName"
+              name="senderName"
+              class="form-control"
+              placeholder="Complaint System"
+              required
+              maxlength="11"
+            />
+            <small class="form-help-text">Alphanumeric sender ID (max 11 characters, may not be supported by all carriers)</small>
+          </div>
+        </div>
+
+        <!-- Advanced Settings -->
+        <div class="form-section">
+          <h3>Advanced Settings</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="timeoutSeconds">Timeout (seconds)</label>
+              <input
+                id="timeoutSeconds"
+                type="number"
+                [(ngModel)]="timeoutSeconds"
+                name="timeoutSeconds"
+                class="form-control"
+                placeholder="30"
+                min="10"
+                max="300"
+              />
+              <small class="form-help-text">Connection timeout (10-300 seconds)</small>
+            </div>
+
+            <div class="form-group">
+              <label for="maxSmsPerHour">Rate Limit (SMS/hour)</label>
+              <input
+                id="maxSmsPerHour"
+                type="number"
+                [(ngModel)]="maxSmsPerHour"
+                name="maxSmsPerHour"
+                class="form-control"
+                placeholder="Optional"
+                min="1"
+              />
+              <small class="form-help-text">Optional: Limit SMS messages per hour</small>
+            </div>
+
+            <div class="form-group">
+              <label for="costPerSms">Cost per SMS ($)</label>
+              <input
+                id="costPerSms"
+                type="number"
+                [(ngModel)]="costPerSms"
+                name="costPerSms"
+                class="form-control"
+                placeholder="0.0075"
+                min="0"
+                step="0.0001"
+              />
+              <small class="form-help-text">Optional: Cost tracking per SMS</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="additionalConfig">Additional Configuration (JSON)</label>
+            <textarea
+              id="additionalConfig"
+              [(ngModel)]="additionalConfig"
+              name="additionalConfig"
+              class="form-control"
+              rows="3"
+              placeholder='{"region": "us-east-1", "customField": "value"}'
+            ></textarea>
+            <small class="form-help-text">Optional: Provider-specific configuration in JSON format</small>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input
+                id="isDefault"
+                type="checkbox"
+                [(ngModel)]="isDefault"
+                name="isDefault"
+              />
+              <label for="isDefault">
+                <i class="fas fa-star"></i>
+                Set as Default SMS Gateway
+              </label>
+            </div>
+            <small class="form-help-text">The default gateway will be used for all automated SMS notifications</small>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input
+                id="isActive"
+                type="checkbox"
+                [(ngModel)]="formIsActive"
+                name="isActive"
+              />
+              <label for="isActive">
+                Active
+              </label>
+            </div>
+          </div>
+
+          <div *ngIf="modalMode === 'edit'" class="form-group">
+            <label for="testNotes">Test Notes</label>
+            <textarea
+              id="testNotes"
+              [(ngModel)]="testNotes"
+              name="testNotes"
+              class="form-control"
+              rows="2"
+              placeholder="Notes from connection testing..."
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Test SMS Section -->
+        <div *ngIf="modalMode === 'edit'" class="form-section test-section">
+          <h3>Test Configuration</h3>
+          <p class="section-description">Send a test SMS to verify your settings</p>
+
+          <div class="form-group">
+            <label for="testPhoneNumber">Test Phone Number</label>
+            <input
+              id="testPhoneNumber"
+              type="tel"
+              [(ngModel)]="testPhoneNumber"
+              name="testPhoneNumber"
+              class="form-control"
+              placeholder="+1234567890"
+            />
+            <small class="form-help-text">Phone number in E.164 format</small>
+          </div>
+
+          <div class="form-group">
+            <label for="testMessage">Test Message</label>
+            <textarea
+              id="testMessage"
+              [(ngModel)]="testMessage"
+              name="testMessage"
+              class="form-control"
+              rows="2"
+              placeholder="Test message content..."
+            ></textarea>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="testSmsConnectionFromModal()"
+            [disabled]="isTestingSms || !testPhoneNumber || !testMessage"
+          >
+            <i [class]="isTestingSms ? 'fas fa-spinner fa-spin' : 'fas fa-paper-plane'"></i>
+            {{ isTestingSms ? 'Sending...' : 'Send Test SMS' }}
+          </button>
+
+          <small class="form-help-text">
+            <i class="fas fa-info-circle"></i>
+            Testing is only available after initial creation. Save first, then test.
+          </small>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i [class]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-save'"></i>
+            {{ loading ? 'Saving...' : 'Save' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteConfirm" class="modal-overlay" (click)="cancelDelete()">
+  <div class="modal-content small-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-exclamation-triangle"></i>
+        Confirm Delete
+      </h2>
+      <button class="btn-close" (click)="cancelDelete()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p>Are you sure you want to delete this SMS gateway configuration?</p>
+      <p><strong>{{ itemToDelete?.name }}</strong></p>
+      <p class="warning-text">
+        <i class="fas fa-exclamation-triangle"></i>
+        This action cannot be undone.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="cancelDelete()">
+        Cancel
+      </button>
+      <button type="button" class="btn btn-danger" (click)="executeDelete()" [disabled]="loading">
+        <i [class]="loading ? 'fas fa-spinner fa-spin' : 'fas fa-trash'"></i>
+        {{ loading ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>

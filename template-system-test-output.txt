@@ -1,0 +1,13 @@
+🚀 Starting Complete Template System Test
+═══════════════════════════════════════════════════════════════
+
+📝 STEP 1: Logging in to get authentication token...
+❌ ERROR: page.fill: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('input[type="email"]')[22m
+
+page.fill: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('input[type="email"]')[22m
+
+    at testCompleteTemplateSystem (C:\Users\Navin Chandra\Pictures\Complaint management system\test-template-system-complete.js:21:20)

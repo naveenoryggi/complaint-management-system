@@ -1,0 +1,139 @@
+{
+  "testResults": [
+    {
+      "role": "Complainant",
+      "email": "nav_nainital@yahoo.com",
+      "tests": [
+        {
+          "name": "Login and Dashboard Load",
+          "status": "PASS",
+          "message": "Successfully logged in and dashboard loaded"
+        },
+        {
+          "name": "Statistics Count Verification",
+          "status": "PASS",
+          "message": "Expected 5 complaints, found 5"
+        },
+        {
+          "name": "Complaint List Verification",
+          "status": "PASS",
+          "message": "Complaint list shows 5 items as expected"
+        }
+      ],
+      "screenshots": [
+        ".playwright-mcp/dashboard-e2e-final/complainant-01-login-page.png",
+        ".playwright-mcp/dashboard-e2e-final/complainant-02-login-form-filled.png",
+        ".playwright-mcp/dashboard-e2e-final/complainant-03-dashboard-loaded.png",
+        ".playwright-mcp/dashboard-e2e-final/complainant-04-dashboard-with-statistics.png"
+      ],
+      "dashboardStats": {
+        "test": 0,
+        "submitted": 5,
+        "underReview": 0,
+        "inProgress": 0,
+        "escalated": 0,
+        "pendingInfo": 0,
+        "resolved": 0,
+        "closed": 0,
+        "rejected": 0,
+        "reopened": 0,
+        "total": 5
+      },
+      "complaintListCount": 5,
+      "roleIndicator": null
+    },
+    {
+      "role": "Admin",
+      "email": "admin@complaintmanagement.com",
+      "tests": [
+        {
+          "name": "Login and Dashboard Load",
+          "status": "PASS",
+          "message": "Successfully logged in and dashboard loaded"
+        },
+        {
+          "name": "Statistics Count Verification",
+          "status": "PASS",
+          "message": "Expected 5 complaints, found 5"
+        },
+        {
+          "name": "Complaint List Verification",
+          "status": "PASS",
+          "message": "Complaint list shows 5 items as expected"
+        }
+      ],
+      "screenshots": [
+        ".playwright-mcp/dashboard-e2e-final/admin-01-login-page.png",
+        ".playwright-mcp/dashboard-e2e-final/admin-02-login-form-filled.png",
+        ".playwright-mcp/dashboard-e2e-final/admin-03-dashboard-loaded.png",
+        ".playwright-mcp/dashboard-e2e-final/admin-04-dashboard-with-statistics.png"
+      ],
+      "dashboardStats": {
+        "test": 0,
+        "submitted": 5,
+        "underReview": 0,
+        "inProgress": 0,
+        "escalated": 0,
+        "pendingInfo": 0,
+        "resolved": 0,
+        "closed": 0,
+        "rejected": 0,
+        "reopened": 0,
+        "total": 5
+      },
+      "complaintListCount": 5,
+      "roleIndicator": null
+    },
+    {
+      "role": "Handler",
+      "email": "naveen.chandra@oryggitech.com",
+      "tests": [
+        {
+          "name": "Login and Dashboard Load",
+          "status": "PASS",
+          "message": "Successfully logged in and dashboard loaded"
+        },
+        {
+          "name": "Statistics Count Verification",
+          "status": "PASS",
+          "message": "Expected 0 complaints, found 0"
+        },
+        {
+          "name": "Complaint List Verification",
+          "status": "PASS",
+          "message": "Complaint list shows 0 items as expected"
+        }
+      ],
+      "screenshots": [
+        ".playwright-mcp/dashboard-e2e-final/handler-01-login-page.png",
+        ".playwright-mcp/dashboard-e2e-final/handler-02-login-form-filled.png",
+        ".playwright-mcp/dashboard-e2e-final/handler-03-dashboard-loaded.png",
+        ".playwright-mcp/dashboard-e2e-final/handler-04-dashboard-with-statistics.png"
+      ],
+      "dashboardStats": {
+        "test": 0,
+        "submitted": 0,
+        "underReview": 0,
+        "inProgress": 0,
+        "escalated": 0,
+        "pendingInfo": 0,
+        "resolved": 0,
+        "closed": 0,
+        "rejected": 0,
+        "reopened": 0,
+        "total": 0
+      },
+      "complaintListCount": 0,
+      "roleIndicator": null
+    }
+  ],
+  "apiResults": {},
+  "timestamp": "2025-11-11T05:29:38.698Z",
+  "summary": {
+    "totalTests": 9,
+    "passed": 9,
+    "failed": 0,
+    "warnings": 0,
+    "errors": 0
+  }
+}

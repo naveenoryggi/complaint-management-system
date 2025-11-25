@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-11-13T10:11:39.913Z",
+  "tests": [
+    {
+      "name": "Test Execution",
+      "status": "FAIL",
+      "message": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4200/login\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4200/login\", waiting until \"load\"\u001b[22m\n",
+      "timestamp": "2025-11-13T10:11:43.255Z",
+      "screenshot": null
+    }
+  ],
+  "totalTests": 1,
+  "passedTests": 0,
+  "failedTests": 1,
+  "screenshots": []
+}

@@ -1,0 +1,11 @@
+<!-- PWA Install Banner -->
+<app-pwa-install-banner></app-pwa-install-banner>
+
+<!-- Breadcrumb Navigation (shown on all pages except login) -->
+<app-breadcrumb *ngIf="!isLoginPage()"></app-breadcrumb>
+
+<!-- Theme Customizer (shown on all pages except login) -->
+<app-theme-customizer *ngIf="!isLoginPage()"></app-theme-customizer>
+
+<!-- Main Application Content -->
+<router-outlet />

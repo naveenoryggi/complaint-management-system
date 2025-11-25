@@ -1,0 +1,310 @@
+{
+  "testMetadata": {
+    "testDate": "2025-11-15",
+    "testTime": "08:40:00 UTC",
+    "testDuration": "~10 minutes",
+    "tester": "Claude (Playwright MCP Automation)",
+    "environment": {
+      "backend": "http://localhost:5000",
+      "frontend": "http://localhost:4200",
+      "browser": "Chromium (Playwright)",
+      "angularVersion": "20.3.7",
+      "dotnetVersion": "ASP.NET Core"
+    }
+  },
+
+  "testResults": {
+    "overallStatus": "PASSED",
+    "totalTests": 4,
+    "passed": 4,
+    "failed": 0,
+    "passRate": "100%"
+  },
+
+  "userDataFromSessionStorage": {
+    "id": "f56d8d03-e382-454b-bf7d-fa8236c125c3",
+    "employeeCode": "ADMIN001",
+    "firstName": "Updated",
+    "lastName": "Admin",
+    "fullName": "Updated Admin",
+    "email": "admin@complaintmanagement.com",
+    "phone": "+1234567890",
+    "jobTitle": "System Administrator",
+    "companyId": "fe28cd85-4226-4daa-9e45-66a3d51877fa",
+    "companyName": "Updated Company Name",
+    "branchId": null,
+    "branchName": null,
+    "departmentId": null,
+    "departmentName": null,
+    "sectionId": null,
+    "sectionName": null,
+    "employeeTypeId": null,
+    "employeeTypeName": null,
+    "managerId": null,
+    "managerName": null,
+    "isActive": true,
+    "timeZone": "Asia/Kolkata",
+    "preferredTimeZone": null,
+    "preferredLocale": null,
+    "preferredDateFormat": null,
+    "preferredTimeFormat": null,
+    "roles": [
+      {
+        "roleId": "728e95e4-ab64-446f-9fe3-7b356943adad",
+        "roleName": "System Administrator",
+        "roleCode": "SYSTEM_ADMIN",
+        "roleType": "SystemAdmin",
+        "escalationLevel": 0,
+        "isPrimary": true
+      }
+    ],
+    "permissions": [
+      "ManageSLA",
+      "ViewComplaints",
+      "AddComment",
+      "EscalateComplaint",
+      "ManageUsers",
+      "ViewAuditLogs",
+      "EditComplaint",
+      "CreateComplaint",
+      "ViewComments",
+      "ManageRoles",
+      "ManageEscalation",
+      "ViewAttachments",
+      "CreateSLA",
+      "ViewEscalation",
+      "AssignComplaint",
+      "ViewReports",
+      "ViewSLA",
+      "DeleteComplaint",
+      "UpdateSLA",
+      "AddAttachment",
+      "ManageCategories",
+      "CloseComplaint",
+      "ManageSettings",
+      "DeleteSLA",
+      "ManageCompany",
+      "ReopenComplaint"
+    ]
+  },
+
+  "timezoneFieldsVerification": {
+    "timeZone": {
+      "expected": "Asia/Kolkata",
+      "actual": "Asia/Kolkata",
+      "status": "PASS",
+      "source": "Company.DefaultTimeZone"
+    },
+    "preferredTimeZone": {
+      "expected": "null (for existing users)",
+      "actual": null,
+      "status": "PASS",
+      "note": "User has not set a personal timezone preference"
+    },
+    "preferredLocale": {
+      "expected": "null",
+      "actual": null,
+      "status": "PASS"
+    },
+    "preferredDateFormat": {
+      "expected": "null",
+      "actual": null,
+      "status": "PASS"
+    },
+    "preferredTimeFormat": {
+      "expected": "null",
+      "actual": null,
+      "status": "PASS"
+    }
+  },
+
+  "dateDisplayExamples": {
+    "format": "DD/MM/YYYY, hh:mm a",
+    "timezone": "Asia/Kolkata (UTC+5:30)",
+    "samples": [
+      "14/11/2025, 10:54 pm",
+      "14/11/2025, 10:43 pm",
+      "14/11/2025, 10:34 pm",
+      "14/11/2025, 10:32 pm",
+      "14/11/2025, 10:18 pm",
+      "14/11/2025, 07:59 pm",
+      "14/11/2025, 02:29 am"
+    ],
+    "note": "All dates displayed consistently using the resolved timezone"
+  },
+
+  "browserTimezoneFallback": {
+    "sessionStorageCleared": true,
+    "browserTimezone": "Asia/Calcutta",
+    "equivalentTo": "Asia/Kolkata",
+    "utcOffset": "+5:30",
+    "status": "PASS",
+    "note": "Asia/Calcutta and Asia/Kolkata are the same timezone, different IANA naming"
+  },
+
+  "apiEndpointsVerified": [
+    {
+      "endpoint": "/api/auth/login",
+      "method": "POST",
+      "status": 200,
+      "responseTime": "< 1s",
+      "verified": true
+    },
+    {
+      "endpoint": "/api/dashboard/statistics",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "< 500ms",
+      "verified": true
+    },
+    {
+      "endpoint": "/api/complaints",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "< 500ms",
+      "verified": true
+    },
+    {
+      "endpoint": "/api/complaintstatusmaster",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "< 200ms",
+      "verified": true
+    },
+    {
+      "endpoint": "/api/complaintprioritymaster",
+      "method": "GET",
+      "status": 200,
+      "responseTime": "< 200ms",
+      "verified": true
+    }
+  ],
+
+  "dashboardStatistics": {
+    "totalComplaints": 480,
+    "complaintsPerPage": 10,
+    "totalPages": 48,
+    "statusDistribution": {
+      "ticketReceived": 0,
+      "submitted": 478,
+      "underReview": 0,
+      "inProgress": 1,
+      "escalated": 0,
+      "pendingInfo": 0,
+      "resolved": 1,
+      "closed": 0,
+      "rejected": 0,
+      "reopened": 0
+    }
+  },
+
+  "timezoneResolutionHierarchy": {
+    "step1": {
+      "check": "User.PreferredTimeZone",
+      "value": null,
+      "action": "Continue to next step"
+    },
+    "step2": {
+      "check": "Company.DefaultTimeZone",
+      "value": "Asia/Kolkata",
+      "action": "Use this timezone ✓"
+    },
+    "step3": {
+      "check": "Browser timezone (fallback)",
+      "value": "Asia/Calcutta",
+      "action": "Only used when user not logged in"
+    },
+    "finalResolution": "Asia/Kolkata"
+  },
+
+  "evidenceScreenshots": [
+    {
+      "filename": "timezone-e2e-01-login-page.png",
+      "description": "Login page before authentication",
+      "path": ".playwright-mcp/.playwright-mcp/timezone-e2e-01-login-page.png"
+    },
+    {
+      "filename": "timezone-e2e-02-dashboard-after-login.png",
+      "description": "Dashboard after successful login with timezone data",
+      "path": ".playwright-mcp/.playwright-mcp/timezone-e2e-02-dashboard-after-login.png"
+    },
+    {
+      "filename": "timezone-e2e-03-complaints-list-with-dates.png",
+      "description": "Complaints list showing date displays",
+      "path": ".playwright-mcp/.playwright-mcp/timezone-e2e-03-complaints-list-with-dates.png"
+    },
+    {
+      "filename": "timezone-e2e-04-complaints-with-timestamps.png",
+      "description": "Detailed view of complaint timestamps",
+      "path": ".playwright-mcp/.playwright-mcp/timezone-e2e-04-complaints-with-timestamps.png"
+    },
+    {
+      "filename": "timezone-e2e-05-after-sessionstorage-cleared.png",
+      "description": "Browser timezone fallback verification",
+      "path": ".playwright-mcp/.playwright-mcp/timezone-e2e-05-after-sessionstorage-cleared.png"
+    }
+  ],
+
+  "individualTestResults": [
+    {
+      "testNumber": 1,
+      "testName": "Login and Timezone Resolution",
+      "status": "PASSED",
+      "verified": [
+        "Admin login successful",
+        "API response: 200 OK",
+        "Navigation to dashboard",
+        "Login endpoint working"
+      ]
+    },
+    {
+      "testNumber": 2,
+      "testName": "SessionStorage Timezone Data",
+      "status": "PASSED",
+      "verified": [
+        "User data stored in sessionStorage",
+        "timeZone field = 'Asia/Kolkata'",
+        "preferredTimeZone field = null",
+        "preferredLocale field = null",
+        "preferredDateFormat field = null",
+        "preferredTimeFormat field = null"
+      ]
+    },
+    {
+      "testNumber": 3,
+      "testName": "Date Display Verification",
+      "status": "PASSED",
+      "verified": [
+        "Dates displayed on dashboard",
+        "Format: DD/MM/YYYY, hh:mm a",
+        "Timezone applied: Asia/Kolkata",
+        "Consistent formatting across UI"
+      ]
+    },
+    {
+      "testNumber": 4,
+      "testName": "Browser Timezone Fallback",
+      "status": "PASSED",
+      "verified": [
+        "SessionStorage cleared successfully",
+        "Fallback timezone detected: Asia/Calcutta",
+        "Application remains functional",
+        "Fallback mechanism working"
+      ]
+    }
+  ],
+
+  "conclusion": {
+    "overallStatus": "PASSED",
+    "readyForProduction": true,
+    "criticalIssues": 0,
+    "minorIssues": 0,
+    "recommendations": [
+      "User settings UI for timezone preference (optional)",
+      "Visual indicator showing active timezone (optional)",
+      "Relative time display (optional)",
+      "Multiple timezone support for global teams (optional)"
+    ],
+    "finalVerdict": "The timezone implementation is fully functional and ready for production use. All core features are working as expected with proper fallback mechanisms in place."
+  }
+}

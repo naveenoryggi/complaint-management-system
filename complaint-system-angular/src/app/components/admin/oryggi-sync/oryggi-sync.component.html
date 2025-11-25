@@ -1,0 +1,577 @@
+<div class="oryggi-sync-container">
+  <div class="page-header">
+    <h2>Oryggi Database Sync</h2>
+    <p class="subtitle">Synchronize employee data from Oryggi HRMS database</p>
+  </div>
+
+  <!-- Alert Messages -->
+  <div *ngIf="error" class="alert alert-error">
+    <div class="alert-content">
+      <span class="alert-icon">⚠️</span>
+      <span class="alert-message">{{ error }}</span>
+      <button class="alert-close" (click)="dismissMessage()">×</button>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    <div class="alert-content">
+      <span class="alert-icon">✓</span>
+      <span class="alert-message">{{ successMessage }}</span>
+      <button class="alert-close" (click)="dismissMessage()">×</button>
+    </div>
+  </div>
+
+  <!-- Sync Actions Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Manual Sync</h3>
+    </div>
+    <div class="card-body">
+      <p class="description">
+        Trigger a manual synchronization to import the latest data from the Oryggi database.
+        This will sync companies, branches, departments, sections, and employees.
+      </p>
+      <button
+        class="btn btn-primary"
+        (click)="triggerSync()"
+        [disabled]="syncing || loading">
+        <span *ngIf="!syncing">🔄 Trigger Sync</span>
+        <span *ngIf="syncing" class="spinner">⏳ Syncing...</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-container" *ngIf="showProgress">
+    <div class="progress-header">
+      <span class="progress-label">{{ syncProgressMessage }}</span>
+      <span class="progress-percentage">{{ syncProgress }}%</span>
+    </div>
+    <div class="progress-bar-wrapper">
+      <div class="progress-bar" [style.width.%]="syncProgress">
+        <div class="progress-bar-animation"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SQL Diagnostics Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3>SQL Diagnostics & Health</h3>
+      <button class="btn btn-sm btn-secondary" (click)="toggleDiagnostics()">
+        {{ showDiagnostics ? '▼ Hide' : '▶ Show' }}
+      </button>
+    </div>
+
+    <div class="card-body" *ngIf="showDiagnostics">
+      <!-- Diagnostics Error -->
+      <div *ngIf="diagnosticsError" class="alert alert-error">
+        <div class="alert-content">
+          <span class="alert-icon">⚠️</span>
+          <span class="alert-message">{{ diagnosticsError }}</span>
+          <button class="alert-close" (click)="diagnosticsError = null">×</button>
+        </div>
+      </div>
+
+      <!-- Health Check Dashboard -->
+      <div class="health-dashboard" *ngIf="healthCheck">
+        <div class="health-header">
+          <div class="health-status-indicator" [ngClass]="getHealthStatusClass(healthCheck.overallStatus)">
+            <div class="health-icon">
+              <span *ngIf="healthCheck.overallStatus === 'Healthy'">✓</span>
+              <span *ngIf="healthCheck.overallStatus === 'Warning'">⚠</span>
+              <span *ngIf="healthCheck.overallStatus === 'Critical'">✕</span>
+            </div>
+            <div class="health-label">{{ healthCheck.overallStatus }}</div>
+          </div>
+          <div class="health-timestamp">
+            Last checked: {{ formatDate(healthCheck.checkTime) }}
+          </div>
+        </div>
+
+        <div class="health-metrics">
+          <div class="health-metric">
+            <div class="metric-value">{{ healthCheck.blockedProcessCount }}</div>
+            <div class="metric-label">Blocked Processes</div>
+          </div>
+          <div class="health-metric">
+            <div class="metric-value">{{ healthCheck.longRunningQueryCount }}</div>
+            <div class="metric-label">Long Running Queries</div>
+          </div>
+          <div class="health-metric">
+            <div class="metric-value">{{ healthCheck.openTransactionCount }}</div>
+            <div class="metric-label">Open Transactions</div>
+          </div>
+          <div class="health-metric">
+            <div class="metric-value">{{ healthCheck.stuckSyncCount }}</div>
+            <div class="metric-label">Stuck Syncs</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Diagnostics Actions -->
+      <div class="diagnostics-actions">
+        <button class="btn btn-sm btn-primary" (click)="refreshDiagnostics()" [disabled]="diagnosticsLoading">
+          🔄 Refresh
+        </button>
+        <button class="btn btn-sm"
+                [class.btn-success]="!autoRefreshEnabled"
+                [class.btn-warning]="autoRefreshEnabled"
+                (click)="toggleAutoRefresh()">
+          {{ autoRefreshEnabled ? '⏸ Stop Auto-refresh' : '▶ Auto-refresh (30s)' }}
+        </button>
+        <button class="btn btn-sm btn-danger"
+                (click)="cleanupStuckSyncs()"
+                [disabled]="diagnosticsLoading || !healthCheck || healthCheck.stuckSyncCount === 0">
+          🧹 Cleanup Stuck Syncs
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="diagnosticsLoading && !diagnostics" class="loading-state">
+        Loading diagnostics...
+      </div>
+
+      <!-- Diagnostics Details -->
+      <div *ngIf="diagnostics && !diagnosticsLoading">
+        <!-- Blocked Processes -->
+        <div class="diagnostics-section" *ngIf="diagnostics.blockedProcesses && diagnostics.blockedProcesses.length > 0">
+          <h4>🚫 Blocked Processes ({{ diagnostics.blockedProcesses.length }})</h4>
+          <div class="table-responsive">
+            <table class="diagnostics-table">
+              <thead>
+                <tr>
+                  <th>Blocked Session</th>
+                  <th>Blocking Session</th>
+                  <th>Wait Time</th>
+                  <th>Wait Type</th>
+                  <th>Blocked Query</th>
+                  <th>Blocking Query</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let process of diagnostics.blockedProcesses">
+                  <td>
+                    <strong>{{ process.blockedSessionId }}</strong>
+                    <br><small>{{ process.blockedUser }}</small>
+                  </td>
+                  <td>
+                    <strong>{{ process.blockingSessionId }}</strong>
+                    <br><small>{{ process.blockingUser }}</small>
+                  </td>
+                  <td><span class="badge badge-warning">{{ formatTime(process.waitTimeSeconds) }}</span></td>
+                  <td>{{ process.waitType }}</td>
+                  <td class="query-text" [title]="process.blockedQuery">
+                    {{ formatQueryText(process.blockedQuery) }}
+                  </td>
+                  <td class="query-text" [title]="process.blockingQuery">
+                    {{ formatQueryText(process.blockingQuery) }}
+                  </td>
+                  <td>
+                    <button class="btn btn-xs btn-danger" (click)="openKillSessionModal(process.blockingSessionId)">
+                      Kill Session
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Long Running Queries -->
+        <div class="diagnostics-section" *ngIf="diagnostics.longRunningQueries && diagnostics.longRunningQueries.length > 0">
+          <h4>⏱️ Long Running Queries ({{ diagnostics.longRunningQueries.length }})</h4>
+          <div class="table-responsive">
+            <table class="diagnostics-table">
+              <thead>
+                <tr>
+                  <th>Session</th>
+                  <th>User</th>
+                  <th>Program</th>
+                  <th>Elapsed Time</th>
+                  <th>Status</th>
+                  <th>Reads/Writes</th>
+                  <th>Query</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let query of diagnostics.longRunningQueries">
+                  <td><strong>{{ query.sessionId }}</strong></td>
+                  <td>{{ query.loginName }}</td>
+                  <td><small>{{ query.programName }}</small></td>
+                  <td><span class="badge badge-info">{{ formatTime(query.elapsedTimeSeconds) }}</span></td>
+                  <td>{{ query.status }}</td>
+                  <td><small>R: {{ query.reads }}<br>W: {{ query.writes }}</small></td>
+                  <td class="query-text" [title]="query.queryText">
+                    {{ formatQueryText(query.queryText) }}
+                  </td>
+                  <td>
+                    <button class="btn btn-xs btn-danger" (click)="openKillSessionModal(query.sessionId)">
+                      Kill
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Open Transactions -->
+        <div class="diagnostics-section" *ngIf="diagnostics.openTransactions && diagnostics.openTransactions.length > 0">
+          <h4>📝 Open Transactions ({{ diagnostics.openTransactions.length }})</h4>
+          <div class="table-responsive">
+            <table class="diagnostics-table">
+              <thead>
+                <tr>
+                  <th>Session</th>
+                  <th>User</th>
+                  <th>Transaction ID</th>
+                  <th>Duration</th>
+                  <th>State</th>
+                  <th>Query</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let transaction of diagnostics.openTransactions">
+                  <td><strong>{{ transaction.sessionId }}</strong></td>
+                  <td>{{ transaction.loginName }}</td>
+                  <td>{{ transaction.transactionId }}</td>
+                  <td><span class="badge badge-info">{{ formatTime(transaction.durationSeconds) }}</span></td>
+                  <td>{{ transaction.transactionState }}</td>
+                  <td class="query-text" [title]="transaction.queryText">
+                    {{ formatQueryText(transaction.queryText) }}
+                  </td>
+                  <td>
+                    <button class="btn btn-xs btn-danger" (click)="openKillSessionModal(transaction.sessionId)">
+                      Kill
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- No Issues -->
+        <div class="empty-state" *ngIf="diagnostics.blockedProcesses.length === 0 &&
+                                        diagnostics.longRunningQueries.length === 0 &&
+                                        diagnostics.openTransactions.length === 0">
+          ✓ No SQL issues detected. All systems running smoothly.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kill Session Modal -->
+  <div class="modal-overlay" *ngIf="showKillSessionModal" (click)="closeKillSessionModal()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Kill SQL Session</h3>
+        <button class="modal-close" (click)="closeKillSessionModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p>You are about to kill session <strong>{{ sessionToKill }}</strong>.</p>
+        <p class="warning-text">⚠️ This action will terminate the session immediately and cannot be undone.</p>
+
+        <div class="form-group">
+          <label>Reason (required):</label>
+          <textarea
+            [(ngModel)]="killSessionReason"
+            class="form-control"
+            rows="3"
+            placeholder="Enter reason for killing this session..."
+            required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeKillSessionModal()" [disabled]="diagnosticsLoading">
+          Cancel
+        </button>
+        <button class="btn btn-danger" (click)="confirmKillSession()" [disabled]="diagnosticsLoading || !killSessionReason.trim()">
+          Kill Session
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Latest Sync Status Card -->
+  <div class="card" *ngIf="latestSync">
+    <div class="card-header">
+      <h3>Latest Sync Status</h3>
+    </div>
+    <div class="card-body">
+      <div class="status-grid">
+        <div class="status-item">
+          <span class="status-label">Status:</span>
+          <span [class]="getStatusClass(latestSync.status)">{{ latestSync.status }}</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Type:</span>
+          <span class="status-value">{{ latestSync.syncType }}</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Started:</span>
+          <span class="status-value">{{ formatDate(latestSync.startedAt) }}</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Duration:</span>
+          <span class="status-value">{{ formatDuration(latestSync.duration) }}</span>
+        </div>
+      </div>
+
+      <div class="sync-stats" *ngIf="latestSync.status === 'SUCCESS'">
+        <h4>Sync Results</h4>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Companies</div>
+            <div class="stat-value">{{ latestSync.companies.total }}</div>
+            <div class="stat-details">
+              +{{ latestSync.companies.created }} created,
+              {{ latestSync.companies.updated }} updated
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Branches</div>
+            <div class="stat-value">{{ latestSync.branches.total }}</div>
+            <div class="stat-details">
+              +{{ latestSync.branches.created }} created,
+              {{ latestSync.branches.updated }} updated
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Departments</div>
+            <div class="stat-value">{{ latestSync.departments.total }}</div>
+            <div class="stat-details">
+              +{{ latestSync.departments.created }} created,
+              {{ latestSync.departments.updated }} updated
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Sections</div>
+            <div class="stat-value">{{ latestSync.sections.total }}</div>
+            <div class="stat-details">
+              +{{ latestSync.sections.created }} created,
+              {{ latestSync.sections.updated }} updated
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Employees</div>
+            <div class="stat-value">{{ latestSync.employees.total }}</div>
+            <div class="stat-details">
+              +{{ latestSync.employees.created }} created,
+              {{ latestSync.employees.updated }} updated
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="error-details" *ngIf="latestSync.error">
+        <h4>Error Details</h4>
+        <pre>{{ latestSync.error }}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sync Schedules Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Sync Schedules</h3>
+      <button class="btn btn-sm btn-primary" (click)="openScheduleForm()" *ngIf="!showScheduleForm">
+        + Add Schedule
+      </button>
+    </div>
+    <div class="card-body">
+      <!-- Schedule Form -->
+      <div *ngIf="showScheduleForm" class="schedule-form">
+        <h4>{{ editingSchedule ? 'Edit Schedule' : 'New Schedule' }}</h4>
+
+        <div class="form-group">
+          <label>Schedule Type</label>
+          <select [(ngModel)]="scheduleForm.scheduleType" class="form-control">
+            <option value="Daily">Daily</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Monthly">Monthly</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Time of Day (UTC)</label>
+          <input type="time" [(ngModel)]="scheduleForm.timeOfDay" class="form-control" required>
+          <small class="form-hint">24-hour format (HH:mm)</small>
+        </div>
+
+        <div class="form-group" *ngIf="scheduleForm.scheduleType === 'Weekly'">
+          <label>Day of Week</label>
+          <select [(ngModel)]="scheduleForm.dayValue" class="form-control">
+            <option [value]="0">Sunday</option>
+            <option [value]="1">Monday</option>
+            <option [value]="2">Tuesday</option>
+            <option [value]="3">Wednesday</option>
+            <option [value]="4">Thursday</option>
+            <option [value]="5">Friday</option>
+            <option [value]="6">Saturday</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="scheduleForm.scheduleType === 'Monthly'">
+          <label>Day of Month</label>
+          <input type="number" [(ngModel)]="scheduleForm.dayValue" class="form-control" min="1" max="31" required>
+          <small class="form-hint">Enter a day between 1 and 31</small>
+        </div>
+
+        <div class="form-group">
+          <label>Description (Optional)</label>
+          <input type="text" [(ngModel)]="scheduleForm.description" class="form-control" placeholder="e.g., Nightly sync">
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="scheduleForm.isEnabled">
+            <span>Enabled</span>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" (click)="saveSchedule()">
+            {{ editingSchedule ? 'Update' : 'Create' }} Schedule
+          </button>
+          <button class="btn btn-secondary" (click)="cancelScheduleForm()">
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Schedules List -->
+      <div *ngIf="!showScheduleForm">
+        <div *ngIf="schedules.length === 0" class="empty-state">
+          No schedules configured. Click "Add Schedule" to create one.
+        </div>
+
+        <div *ngIf="schedules.length > 0" class="schedules-list">
+          <div class="schedule-item" *ngFor="let schedule of schedules">
+            <div class="schedule-info">
+              <div class="schedule-header">
+                <span class="schedule-type-badge" [class.badge-enabled]="schedule.isEnabled" [class.badge-disabled]="!schedule.isEnabled">
+                  {{ schedule.scheduleType }}
+                </span>
+                <span class="schedule-status">
+                  {{ schedule.isEnabled ? 'Enabled' : 'Disabled' }}
+                </span>
+              </div>
+              <div class="schedule-description">
+                {{ getScheduleDescription(schedule) }}
+              </div>
+              <div class="schedule-details">
+                <span *ngIf="schedule.description" class="schedule-note">{{ schedule.description }}</span>
+                <span *ngIf="schedule.nextRunAt" class="schedule-next-run">
+                  Next run: {{ formatDate(schedule.nextRunAt) }}
+                </span>
+                <span *ngIf="schedule.lastRunAt" class="schedule-last-run">
+                  Last run: {{ formatDate(schedule.lastRunAt) }}
+                </span>
+              </div>
+            </div>
+            <div class="schedule-actions">
+              <button class="btn btn-sm btn-secondary" (click)="editSchedule(schedule)" title="Edit">
+                ✏️
+              </button>
+              <button class="btn btn-sm"
+                      [class.btn-success]="!schedule.isEnabled"
+                      [class.btn-warning]="schedule.isEnabled"
+                      (click)="toggleSchedule(schedule)"
+                      [title]="schedule.isEnabled ? 'Disable' : 'Enable'">
+                {{ schedule.isEnabled ? '⏸️' : '▶️' }}
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="deleteSchedule(schedule)" title="Delete">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sync History Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Sync History</h3>
+    </div>
+    <div class="card-body">
+      <div *ngIf="loading && syncHistory.length === 0" class="loading-state">
+        Loading sync history...
+      </div>
+
+      <div *ngIf="!loading && syncHistory.length === 0" class="empty-state">
+        No sync history available
+      </div>
+
+      <div *ngIf="syncHistory.length > 0" class="table-responsive">
+        <table class="sync-table">
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Duration</th>
+              <th>Companies</th>
+              <th>Branches</th>
+              <th>Departments</th>
+              <th>Sections</th>
+              <th>Employees</th>
+              <th>Users</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sync of syncHistory">
+              <td>{{ formatDate(sync.startedAt) }}</td>
+              <td>{{ sync.syncType }}</td>
+              <td>
+                <span [class]="getStatusClass(sync.status)">{{ sync.status }}</span>
+              </td>
+              <td>{{ formatDuration(sync.duration) }}</td>
+              <td>
+                {{ sync.companies.total }}
+                <small>(+{{ sync.companies.created }})</small>
+              </td>
+              <td>
+                {{ sync.branches.total }}
+                <small>(+{{ sync.branches.created }})</small>
+              </td>
+              <td>
+                {{ sync.departments.total }}
+                <small>(+{{ sync.departments.created }})</small>
+              </td>
+              <td>
+                {{ sync.sections.total }}
+                <small>(+{{ sync.sections.created }})</small>
+              </td>
+              <td>
+                {{ sync.employees.total }}
+                <small>(+{{ sync.employees.created }})</small>
+              </td>
+              <td>
+                {{ sync.users?.total || 0 }}
+                <small>(+{{ sync.users?.created || 0 }})</small>
+              </td>
+              <td>
+                <button
+                  *ngIf="sync.status === 'IN_PROGRESS'"
+                  class="btn btn-xs btn-warning"
+                  (click)="cleanupSingleSync(sync.syncLogId)"
+                  [disabled]="loading"
+                  title="Mark this sync as failed">
+                  🧹 Cleanup
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

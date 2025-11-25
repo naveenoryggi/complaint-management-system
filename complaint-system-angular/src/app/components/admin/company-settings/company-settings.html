@@ -1,0 +1,271 @@
+<div class="company-settings-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <i class="fas fa-building"></i>
+        Company Settings
+      </h1>
+      <p class="page-description">Manage your company information and branding</p>
+    </div>
+  </div>
+
+  <!-- Alert Messages -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading && !company" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading company details...</p>
+  </div>
+
+  <!-- Company Settings Form -->
+  <div *ngIf="company" class="settings-content">
+    <!-- Company Logo Section -->
+    <div class="settings-card">
+      <div class="card-header">
+        <h2>
+          <i class="fas fa-image"></i>
+          Company Logo
+        </h2>
+        <p class="card-description">Upload and manage your company logo (JPG, PNG, GIF, SVG, WEBP - Max 5MB)</p>
+      </div>
+      <div class="card-body">
+        <div class="logo-section">
+          <div class="logo-preview">
+            <div class="logo-container">
+              <img *ngIf="logoPreviewUrl" [src]="logoPreviewUrl" alt="Company Logo" class="logo-image" />
+              <div *ngIf="!logoPreviewUrl" class="logo-placeholder">
+                <i class="fas fa-building"></i>
+                <span>No logo uploaded</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="logo-actions">
+            <div class="file-input-wrapper">
+              <input
+                type="file"
+                id="logoFile"
+                (change)="onFileSelected($event)"
+                accept="image/jpeg,image/png,image/gif,image/svg+xml,image/webp"
+                class="file-input"
+              />
+              <label for="logoFile" class="btn btn-secondary">
+                <i class="fas fa-upload"></i>
+                Choose File
+              </label>
+            </div>
+
+            <button
+              *ngIf="selectedFile"
+              class="btn btn-primary"
+              (click)="uploadLogo()"
+              [disabled]="uploadingLogo"
+            >
+              <i class="fas fa-{{ uploadingLogo ? 'spinner fa-spin' : 'save' }}"></i>
+              {{ uploadingLogo ? 'Uploading...' : 'Upload Logo' }}
+            </button>
+
+            <button
+              *ngIf="selectedFile"
+              class="btn btn-text"
+              (click)="cancelLogoSelection()"
+              [disabled]="uploadingLogo"
+            >
+              Cancel
+            </button>
+
+            <button
+              *ngIf="company.logoUrl && !selectedFile"
+              class="btn btn-danger"
+              (click)="deleteLogo()"
+              [disabled]="uploadingLogo"
+            >
+              <i class="fas fa-{{ uploadingLogo ? 'spinner fa-spin' : 'trash-alt' }}"></i>
+              {{ uploadingLogo ? 'Deleting...' : 'Delete Logo' }}
+            </button>
+          </div>
+
+          <div *ngIf="selectedFile" class="selected-file-info">
+            <i class="fas fa-file-image"></i>
+            <span>{{ selectedFile.name }}</span>
+            <span class="file-size">({{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Company Details Section -->
+    <div class="settings-card">
+      <div class="card-header">
+        <h2>
+          <i class="fas fa-info-circle"></i>
+          Company Details
+        </h2>
+        <p class="card-description">Update your company information</p>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="companyForm" (ngSubmit)="saveCompanyDetails()" class="company-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="code" class="form-label">Company Code</label>
+              <input
+                id="code"
+                type="text"
+                [value]="company.code"
+                class="form-control"
+                disabled
+              />
+              <span class="help-text">Company code cannot be changed</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name" class="form-label required">Company Name</label>
+              <input
+                id="name"
+                type="text"
+                formControlName="name"
+                class="form-control"
+                [class.invalid]="isFieldInvalid('name')"
+                placeholder="Enter company name"
+              />
+              <span *ngIf="isFieldInvalid('name')" class="error-message">
+                Company name is required
+              </span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="description" class="form-label">Description</label>
+              <textarea
+                id="description"
+                formControlName="description"
+                class="form-control"
+                rows="3"
+                placeholder="Brief description of your company..."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="form-row form-row-2">
+            <div class="form-group">
+              <label for="contactEmail" class="form-label">Contact Email</label>
+              <input
+                id="contactEmail"
+                type="email"
+                formControlName="contactEmail"
+                class="form-control"
+                [class.invalid]="isFieldInvalid('contactEmail')"
+                placeholder="contact@company.com"
+              />
+              <span *ngIf="isFieldInvalid('contactEmail')" class="error-message">
+                Please enter a valid email address
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="contactPhone" class="form-label">Contact Phone</label>
+              <input
+                id="contactPhone"
+                type="tel"
+                formControlName="contactPhone"
+                class="form-control"
+                placeholder="+1 234 567 8900"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="address" class="form-label">Address</label>
+              <textarea
+                id="address"
+                formControlName="address"
+                class="form-control"
+                rows="2"
+                placeholder="Company address..."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="loading || companyForm.invalid">
+              <i class="fas fa-{{ loading ? 'spinner fa-spin' : 'save' }}"></i>
+              {{ loading ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Company Management Section -->
+    <div class="settings-card">
+      <div class="card-header">
+        <h2>
+          <i class="fas fa-users"></i>
+          Company Management
+        </h2>
+        <p class="card-description">Assign managers and HR responsible for this company (Optional)</p>
+      </div>
+      <div class="card-body">
+        <form class="company-form">
+          <div class="form-section">
+            <p class="form-help-text">Search for users by name, email, or employee code.</p>
+
+            <div class="form-group">
+              <app-user-autocomplete
+                label="Primary Manager"
+                placeholder="Search by name, email, or employee code..."
+                [selectedUserId]="managerId"
+                [selectedUserName]="managerName"
+                (userSelected)="onManagerSelected($event)"
+              ></app-user-autocomplete>
+              <small class="help-text">Assign a primary manager/CEO of the company</small>
+            </div>
+
+            <div class="form-group">
+              <app-user-autocomplete
+                label="Secondary Manager"
+                placeholder="Search by name, email, or employee code..."
+                [selectedUserId]="secondaryManagerId"
+                [selectedUserName]="secondaryManagerName"
+                (userSelected)="onSecondaryManagerSelected($event)"
+              ></app-user-autocomplete>
+              <small class="help-text">Assign a backup/deputy manager for the company</small>
+            </div>
+
+            <div class="form-group">
+              <app-user-autocomplete
+                label="HR Responsible"
+                placeholder="Search by name, email, or employee code..."
+                [selectedUserId]="hrResponsibleId"
+                [selectedUserName]="hrResponsibleName"
+                (userSelected)="onHrResponsibleSelected($event)"
+              ></app-user-autocomplete>
+              <small class="help-text">Assign a dedicated HR head for this company</small>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-primary" (click)="saveCompanyDetails()" [disabled]="loading || companyForm.invalid">
+              <i class="fas fa-{{ loading ? 'spinner fa-spin' : 'save' }}"></i>
+              {{ loading ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

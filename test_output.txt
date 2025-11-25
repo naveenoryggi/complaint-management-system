@@ -1,0 +1,864 @@
+[2025-10-26 11:28:07] [INFO] =============================================
+[2025-10-26 11:28:07] [INFO] COMPREHENSIVE FULL TEST SUITE - 245+ TESTS
+[2025-10-26 11:28:07] [INFO] =============================================
+[2025-10-26 11:28:07] [INFO] 
+[2025-10-26 11:28:07] [INFO] Testing all 26 controllers with complete coverage
+[2025-10-26 11:28:07] [INFO] 
+[2025-10-26 11:28:07] [INFO] Authenticating to get access token...
+[2025-10-26 11:28:08] [INFO] Authentication successful - Token obtained
+[2025-10-26 11:28:08] [INFO] 
+[2025-10-26 11:28:08] [INFO] [Setup] Get Categories
+[2025-10-26 11:28:08] [PASS] PASS: Get Categories
+[2025-10-26 11:28:08] [INFO] =============================================
+[2025-10-26 11:28:08] [INFO] CATEGORY 1: ORGANIZATION STRUCTURE (24 TESTS)
+[2025-10-26 11:28:08] [INFO] =============================================
+[2025-10-26 11:28:08] [INFO] --- Employee Types Management (6 tests) ---
+[2025-10-26 11:28:08] [INFO] [Org Structure] Get All Employee Types
+[2025-10-26 11:28:08] [PASS] PASS: Get All Employee Types
+[2025-10-26 11:28:08] [INFO] [Org Structure] Create Employee Type
+[2025-10-26 11:28:08] [PASS] PASS: Create Employee Type
+[2025-10-26 11:28:08] [INFO] [Org Structure] Get Employee Type by ID
+[2025-10-26 11:28:08] [PASS] PASS: Get Employee Type by ID
+[2025-10-26 11:28:08] [INFO] [Org Structure] Update Employee Type
+[2025-10-26 11:28:08] [PASS] PASS: Update Employee Type
+
+[2025-10-26 11:28:08] [INFO] [Org Structure] Delete Employee Type
+[2025-10-26 11:28:08] [PASS] PASS: Delete Employee Type
+[2025-10-26 11:28:08] [INFO] [Org Structure] Validation: Empty Employee Type Name
+[2025-10-26 11:28:09] [PASS] PASS: Validation: Empty Employee Type Name (Status 400 is expected)
+isSuccess message                            data                                                                      
+--------- -------                            ----                                                                      
+     True Employee type updated successfully @{id=dc0f7a0f-8b2a-4376-a60f-2dc7072f9c51; companyId=fe28cd85-4226-4daa...
+     True Employee type deleted successfully                                                                           
+True
+[2025-10-26 11:28:09] [INFO] --- Branch Management (6 tests) ---
+[2025-10-26 11:28:09] [INFO] [Org Structure] Get All Branches
+[2025-10-26 11:28:09] [PASS] PASS: Get All Branches
+[2025-10-26 11:28:09] [INFO] [Org Structure] Create Branch
+[2025-10-26 11:28:09] [PASS] PASS: Create Branch
+[2025-10-26 11:28:09] [INFO] [Org Structure] Get Branch by ID
+[2025-10-26 11:28:10] [PASS] PASS: Get Branch by ID
+[2025-10-26 11:28:10] [INFO] [Org Structure] Update Branch
+[2025-10-26 11:28:10] [PASS] PASS: Update Branch
+     True Branch updated successfully        @{id=18c0369f-4852-47a3-9d3c-be59d3133675; companyId=fe28cd85-4226-4daa...
+[2025-10-26 11:28:10] [INFO] [Org Structure] Delete Branch
+[2025-10-26 11:28:10] [PASS] PASS: Delete Branch
+     True Branch deleted successfully                                                                                  
+[2025-10-26 11:28:10] [INFO] --- Department Management (6 tests) ---
+[2025-10-26 11:28:10] [INFO] [Org Structure] Get All Departments
+[2025-10-26 11:28:11] [PASS] PASS: Get All Departments
+[2025-10-26 11:28:11] [INFO] [Org Structure] Create Department
+[2025-10-26 11:28:11] [PASS] PASS: Create Department
+[2025-10-26 11:28:11] [INFO] [Org Structure] Get Department by ID
+[2025-10-26 11:28:11] [PASS] PASS: Get Department by ID
+[2025-10-26 11:28:11] [INFO] [Org Structure] Update Department
+[2025-10-26 11:28:12] [PASS] PASS: Update Department
+     True Department updated successfully    @{id=ae322ef7-23e0-42b2-ba4d-1ecbde24d72d; branchId=f54bde9a-65aa-4c43-...
+[2025-10-26 11:28:12] [INFO] [Org Structure] Delete Department
+[2025-10-26 11:28:12] [PASS] PASS: Delete Department
+     True Department deleted successfully                                                                              
+[2025-10-26 11:28:12] [INFO] --- Section Management (6 tests) ---
+[2025-10-26 11:28:12] [INFO] [Org Structure] Get All Sections
+[2025-10-26 11:28:12] [PASS] PASS: Get All Sections
+[2025-10-26 11:28:12] [INFO] [Org Structure] Create Section
+[2025-10-26 11:28:12] [PASS] PASS: Create Section
+[2025-10-26 11:28:13] [INFO] [Org Structure] Get Section by ID
+[2025-10-26 11:28:13] [PASS] PASS: Get Section by ID
+[2025-10-26 11:28:13] [INFO] [Org Structure] Update Section
+[2025-10-26 11:28:13] [PASS] PASS: Update Section
+     True Section updated successfully       @{id=718c307f-5857-4dd6-85e8-31d56e707f80; departmentId=226d33a8-c646-4...
+[2025-10-26 11:28:13] [INFO] [Org Structure] Delete Section
+[2025-10-26 11:28:13] [PASS] PASS: Delete Section
+     True Section deleted successfully                                                                                 
+[2025-10-26 11:28:13] [INFO] 
+[2025-10-26 11:28:13] [INFO] =============================================
+[2025-10-26 11:28:13] [INFO] CATEGORY 2: ROLE MANAGEMENT (12 TESTS)
+[2025-10-26 11:28:13] [INFO] =============================================
+[2025-10-26 11:28:13] [INFO] [Role Management] Get All Roles
+[2025-10-26 11:28:13] [PASS] PASS: Get All Roles
+[2025-10-26 11:28:13] [INFO] [Role Management] Create Role
+[2025-10-26 11:28:13] [PASS] PASS: Create Role
+[2025-10-26 11:28:13] [INFO] [Role Management] Get Role by ID
+[2025-10-26 11:28:13] [PASS] PASS: Get Role by ID
+[2025-10-26 11:28:13] [INFO] [Role Management] Update Role
+[2025-10-26 11:28:14] [PASS] PASS: Update Role
+     True Role updated successfully          @{id=7f300bdd-364d-4b36-a4dd-d915caeeab7a; name=Updated Test Role; code...
+[2025-10-26 11:28:14] [INFO] [Role Management] Assign Permissions to Role
+[2025-10-26 11:28:14] [PASS] PASS: Assign Permissions to Role
+     True Permissions assigned to role su...                                                                           
+[2025-10-26 11:28:14] [INFO] [Role Management] Get Role Permissions
+[2025-10-26 11:28:14] [PASS] PASS: Get Role Permissions
+     True                                    {@{id=40f97a4f-8a8b-4ad4-989b-c5a42463710d; permissionType=1; permissio...
+[2025-10-26 11:28:14] [INFO] [Role Management] Remove Permission from Role
+[2025-10-26 11:28:14] [PASS] PASS: Remove Permission from Role
+     True Permission removed from role su...                                                                           
+[2025-10-26 11:28:14] [INFO] [Role Management] Assign Role to User
+[2025-10-26 11:28:14] [PASS] PASS: Assign Role to User
+     True Role assigned to user successfully @{userRoleId=176d89b2-0559-4a11-9017-8ae3837c373a; userId=f56d8d03-e382...
+[2025-10-26 11:28:14] [INFO] [Role Management] Get Users by Role
+[2025-10-26 11:28:14] [PASS] PASS: Get Users by Role
+     True                                    {@{userId=f56d8d03-e382-454b-bf7d-fa8236c125c3; userRoleId=176d89b2-055...
+[2025-10-26 11:28:14] [INFO] [Role Management] Remove Role from User
+[2025-10-26 11:28:14] [PASS] PASS: Remove Role from User
+     True Role removed from user successf...                                                                           
+[2025-10-26 11:28:14] [INFO] [Role Management] Delete Role
+[2025-10-26 11:28:14] [PASS] PASS: Delete Role
+     True Role deleted successfully                                                                                    
+[2025-10-26 11:28:14] [INFO] [Role Management] Validation: Modify System Role
+[2025-10-26 11:28:15] [PASS] PASS: Validation: Modify System Role (Status 400 is expected)
+True
+[2025-10-26 11:28:15] [INFO] 
+[2025-10-26 11:28:15] [INFO] =============================================
+[2025-10-26 11:28:15] [INFO] CATEGORY 3: CATEGORIES & MASTER DATA (21 TESTS)
+[2025-10-26 11:28:15] [INFO] =============================================
+[2025-10-26 11:28:15] [INFO] --- Categories Management (7 tests) ---
+[2025-10-26 11:28:15] [INFO] [Master Data] Get All Categories
+[2025-10-26 11:28:15] [PASS] PASS: Get All Categories
+[2025-10-26 11:28:15] [INFO] [Master Data] Create Category
+[2025-10-26 11:28:15] [PASS] PASS: Create Category
+[2025-10-26 11:28:15] [INFO] [Master Data] Update Category
+[2025-10-26 11:28:15] [PASS] PASS: Update Category
+     True Category updated successfully      @{id=cc96fa07-ce83-4214-d040-08de14545a83; name=Updated Test Category; ...
+[2025-10-26 11:28:15] [INFO] [Master Data] Delete Category
+[2025-10-26 11:28:15] [PASS] PASS: Delete Category
+     True Category deleted successfully      True                                                                      
+[2025-10-26 11:28:15] [INFO] [Master Data] Validation: Empty Category Name
+[2025-10-26 11:28:15] [PASS] PASS: Validation: Empty Category Name (Status 400 is expected)
+True
+[2025-10-26 11:28:15] [INFO] [Master Data] Get Active Categories Only
+[2025-10-26 11:28:15] [PASS] PASS: Get Active Categories Only
+     True Retrieved 24 categories            {@{id=ec910134-8c32-4837-696c-08de13a4b223; name=A; code=T; description...
+[2025-10-26 11:28:15] [INFO] --- Complaint Status Master (7 tests) ---
+[2025-10-26 11:28:15] [INFO] [Master Data] Get All Statuses
+[2025-10-26 11:28:15] [PASS] PASS: Get All Statuses
+[2025-10-26 11:28:15] [INFO] [Master Data] Create Status
+[2025-10-26 11:28:15] [PASS] PASS: Create Status
+[2025-10-26 11:28:15] [INFO] [Master Data] Update Status
+[2025-10-26 11:28:16] [PASS] PASS: Update Status
+     True Status updated successfully        @{id=392575b3-759f-4951-9530-0e86de4fc11e; name=Updated Test Status; co...
+[2025-10-26 11:28:16] [INFO] [Master Data] Get Status by ID
+[2025-10-26 11:28:16] [PASS] PASS: Get Status by ID
+     True Status retrieved successfully      @{id=392575b3-759f-4951-9530-0e86de4fc11e; name=Updated Test Status; co...
+[2025-10-26 11:28:16] [INFO] [Master Data] Delete Status
+[2025-10-26 11:28:16] [PASS] PASS: Delete Status
+     True Status deleted successfully        True                                                                      
+[2025-10-26 11:28:16] [INFO] [Master Data] Validation: Invalid Status Type
+[2025-10-26 11:28:16] [PASS] PASS: Validation: Invalid Status Type (Status 400 is expected)
+True
+[2025-10-26 11:28:16] [INFO] --- Complaint Priority Master (7 tests) ---
+[2025-10-26 11:28:16] [INFO] [Master Data] Get All Priorities
+[2025-10-26 11:28:16] [PASS] PASS: Get All Priorities
+[2025-10-26 11:28:16] [INFO] [Master Data] Create Priority
+[2025-10-26 11:28:16] [PASS] PASS: Create Priority
+[2025-10-26 11:28:16] [INFO] [Master Data] Update Priority
+[2025-10-26 11:28:16] [PASS] PASS: Update Priority
+     True Priority updated successfully      @{id=5aa80d0d-691e-47e6-a6cf-9689643073b0; name=Updated Test Priority; ...
+[2025-10-26 11:28:16] [INFO] [Master Data] Get Priority by ID
+[2025-10-26 11:28:16] [PASS] PASS: Get Priority by ID
+     True Priority retrieved successfully    @{id=5aa80d0d-691e-47e6-a6cf-9689643073b0; name=Updated Test Priority; ...
+[2025-10-26 11:28:16] [INFO] [Master Data] Delete Priority
+[2025-10-26 11:28:17] [PASS] PASS: Delete Priority
+     True Priority deleted successfully      True                                                                      
+[2025-10-26 11:28:17] [INFO] [Master Data] Validation: Invalid Priority Level
+[2025-10-26 11:28:17] [PASS] PASS: Validation: Invalid Priority Level (Status 400 is expected)
+True
+[2025-10-26 11:28:17] [INFO] 
+[2025-10-26 11:28:17] [INFO] =============================================
+[2025-10-26 11:28:17] [INFO] CATEGORY 4: USERS & AUTHENTICATION (18 TESTS)
+[2025-10-26 11:28:17] [INFO] =============================================
+[2025-10-26 11:28:17] [INFO] --- Users Management (12 tests) ---
+[2025-10-26 11:28:17] [INFO] [Users & Auth] Get All Users
+[2025-10-26 11:28:22] [PASS] PASS: Get All Users
+[2025-10-26 11:28:22] [INFO] [Users & Auth] Search Users
+[2025-10-26 11:28:23] [PASS] PASS: Search Users
+[2025-10-26 11:28:23] [INFO] [Users & Auth] Create User
+[2025-10-26 11:28:23] [PASS] PASS: Create User
+[2025-10-26 11:28:23] [INFO] [Users & Auth] Get User by ID
+[2025-10-26 11:28:23] [PASS] PASS: Get User by ID
+     True User retrieved successfully        @{id=7963032b-5f8e-467f-817f-8d03ae3c87f2; employeeCode=EMP_627621; fir...
+[2025-10-26 11:28:23] [INFO] [Users & Auth] Get User by Employee Code
+[2025-10-26 11:28:24] [PASS] PASS: Get User by Employee Code
+     True User retrieved successfully        @{id=7963032b-5f8e-467f-817f-8d03ae3c87f2; employeeCode=EMP_627621; fir...
+[2025-10-26 11:28:24] [INFO] [Users & Auth] Get Users by Company
+[2025-10-26 11:28:24] [PASS] PASS: Get Users by Company
+     True Retrieved 4 users                  {@{id=7963032b-5f8e-467f-817f-8d03ae3c87f2; employeeCode=EMP_627621; fi...
+[2025-10-26 11:28:24] [INFO] [Users & Auth] Update User
+[2025-10-26 11:28:24] [PASS] PASS: Update User
+     True User updated successfully          @{id=7963032b-5f8e-467f-817f-8d03ae3c87f2; employeeCode=EMP_627621; fir...
+[2025-10-26 11:28:24] [INFO] [Users & Auth] Deactivate User
+[2025-10-26 11:28:24] [PASS] PASS: Deactivate User
+     True User deactivated successfully                                                                                
+[2025-10-26 11:28:24] [INFO] [Users & Auth] Delete User
+[2025-10-26 11:28:24] [PASS] PASS: Delete User
+     True User deleted successfully                                                                                    
+[2025-10-26 11:28:24] [INFO] [Users & Auth] Validation: Duplicate Email
+[2025-10-26 11:28:24] [PASS] PASS: Validation: Duplicate Email (Status 400 is expected)
+True
+[2025-10-26 11:28:24] [INFO] [Users & Auth] Validation: Empty Required Fields
+[2025-10-26 11:28:24] [PASS] PASS: Validation: Empty Required Fields (Status 400 is expected)
+True
+[2025-10-26 11:28:24] [INFO] --- Authentication (6 tests) ---
+[2025-10-26 11:28:25] [INFO] [Users & Auth] Login: Valid Credentials
+[2025-10-26 11:28:25] [PASS] PASS: Login: Valid Credentials
+     True Login successful                   @{token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bW...
+[2025-10-26 11:28:25] [INFO] [Users & Auth] Login: Invalid Password
+[2025-10-26 11:28:25] [PASS] PASS: Login: Invalid Password (Status 401 is expected)
+True
+[2025-10-26 11:28:25] [INFO] [Users & Auth] Login: Nonexistent User
+[2025-10-26 11:28:25] [PASS] PASS: Login: Nonexistent User (Status 401 is expected)
+True
+[2025-10-26 11:28:25] [INFO] [Users & Auth] Get Current User Profile
+[2025-10-26 11:28:25] [PASS] PASS: Get Current User Profile
+     True User retrieved successfully        @{id=f56d8d03-e382-454b-bf7d-fa8236c125c3; employeeCode=ADMIN001; first...
+[2025-10-26 11:28:25] [INFO] [Users & Auth] Validation: Empty Login Credentials
+[2025-10-26 11:28:25] [PASS] PASS: Validation: Empty Login Credentials (Status 400 is expected)
+True
+[2025-10-26 11:28:25] [INFO] [Users & Auth] Unauthorized Access Without Token
+[2025-10-26 11:28:25] [PASS] PASS: Unauthorized Access Without Token (Status 401 is expected)
+True
+[2025-10-26 11:28:25] [INFO] 
+[2025-10-26 11:28:25] [INFO] =============================================
+[2025-10-26 11:28:25] [INFO] CATEGORY 5: COMPLAINTS MANAGEMENT (24 TESTS)
+[2025-10-26 11:28:25] [INFO] =============================================
+[2025-10-26 11:28:25] [INFO] --- Complaints CRUD Operations (14 tests) ---
+[2025-10-26 11:28:25] [INFO] [Complaints] Get All Complaints
+[2025-10-26 11:28:26] [PASS] PASS: Get All Complaints
+[2025-10-26 11:28:26] [INFO] [Complaints] Create Complaint
+[2025-10-26 11:28:30] [PASS] PASS: Create Complaint
+[2025-10-26 11:28:30] [INFO] [Complaints] Get Complaint by ID
+[2025-10-26 11:28:30] [PASS] PASS: Get Complaint by ID
+     True Complaint retrieved successfully   @{id=227a5059-b0b6-4175-9899-d1c340b296fa; complaintNumber=CMP-2025-106...
+[2025-10-26 11:28:30] [INFO] [Complaints] Update Complaint
+[2025-10-26 11:28:30] [PASS] PASS: Update Complaint
+     True Complaint updated successfully     @{id=227a5059-b0b6-4175-9899-d1c340b296fa; complaintNumber=CMP-2025-106...
+[2025-10-26 11:28:30] [INFO] [Complaints] Assign Complaint to User
+[2025-10-26 11:28:33] [PASS] PASS: Assign Complaint to User
+     True Complaint assigned to Updated A... @{id=227a5059-b0b6-4175-9899-d1c340b296fa; complaintNumber=CMP-2025-106...
+[2025-10-26 11:28:33] [INFO] [Complaints] Get Complaint History
+[2025-10-26 11:28:33] [PASS] PASS: Get Complaint History
+     True Operation completed successfully   @{complaintId=227a5059-b0b6-4175-9899-d1c340b296fa; complaintNumber=CMP...
+[2025-10-26 11:28:33] [INFO] [Complaints] Escalate Complaint
+[2025-10-26 11:28:34] [PASS] PASS: Escalate Complaint
+     True Complaint escalated to level 1     @{id=227a5059-b0b6-4175-9899-d1c340b296fa; complaintNumber=CMP-2025-106...
+[2025-10-26 11:28:34] [INFO] [Complaints] Close Complaint
+[2025-10-26 11:28:36] [PASS] PASS: Close Complaint
+     True Complaint closed successfully      @{id=227a5059-b0b6-4175-9899-d1c340b296fa; complaintNumber=CMP-2025-106...
+[2025-10-26 11:28:36] [INFO] [Complaints] Reopen Complaint
+[2025-10-26 11:28:36] [PASS] PASS: Reopen Complaint
+     True Complaint reopened successfully    @{id=227a5059-b0b6-4175-9899-d1c340b296fa; complaintNumber=CMP-2025-106...
+[2025-10-26 11:28:36] [INFO] [Complaints] Delete Complaint
+[2025-10-26 11:28:36] [PASS] PASS: Delete Complaint
+     True Complaint deleted successfully                                                                               
+[2025-10-26 11:28:36] [INFO] [Complaints] Filter by Status
+[2025-10-26 11:28:37] [PASS] PASS: Filter by Status
+     True Retrieved 10 complaints            @{items=System.Object[]; page=1; pageSize=10; totalCount=544; totalPage...
+[2025-10-26 11:28:37] [INFO] [Complaints] Filter by Priority
+[2025-10-26 11:28:37] [PASS] PASS: Filter by Priority
+     True Retrieved 6 complaints             @{items=System.Object[]; page=1; pageSize=10; totalCount=6; totalPages=...
+[2025-10-26 11:28:37] [INFO] [Complaints] Search Complaints
+[2025-10-26 11:28:38] [PASS] PASS: Search Complaints
+     True Retrieved 10 complaints            @{items=System.Object[]; page=1; pageSize=10; totalCount=1059; totalPag...
+[2025-10-26 11:28:38] [INFO] [Complaints] Validation: Empty Complaint Title
+[2025-10-26 11:28:38] [PASS] PASS: Validation: Empty Complaint Title (Status 400 is expected)
+True
+[2025-10-26 11:28:38] [INFO] --- Comments Management (10 tests) ---
+[2025-10-26 11:28:38] [INFO] [Complaints] Get Complaint Comments
+[2025-10-26 11:28:38] [PASS] PASS: Get Complaint Comments
+     True Retrieved 0 comments               {}                                                                        
+[2025-10-26 11:28:38] [INFO] [Complaints] Create Comment
+[2025-10-26 11:28:38] [FAIL] FAIL: Create Comment - The remote server returned an error: (400) Bad Request.
+[2025-10-26 11:28:38] [INFO] [Complaints] Create Internal Comment
+[2025-10-26 11:28:38] [FAIL] FAIL: Create Internal Comment - The remote server returned an error: (400) Bad Request.
+False
+[2025-10-26 11:28:38] [INFO] [Complaints] Get Comments by User
+[2025-10-26 11:28:39] [PASS] PASS: Get Comments by User
+     True Retrieved 0 comments               {}                                                                        
+[2025-10-26 11:28:39] [INFO] [Complaints] Filter Internal Comments
+[2025-10-26 11:28:39] [PASS] PASS: Filter Internal Comments
+     True Retrieved 0 comments               {}                                                                        
+[2025-10-26 11:28:39] [INFO] [Complaints] Validation: Empty Comment Content
+[2025-10-26 11:28:39] [PASS] PASS: Validation: Empty Comment Content (Status 400 is expected)
+True
+[2025-10-26 11:28:39] [INFO] [Complaints] Validation: Invalid Complaint ID
+[2025-10-26 11:28:39] [PASS] PASS: Validation: Invalid Complaint ID (Status 400 is expected)
+True
+[2025-10-26 11:28:39] [INFO] 
+[2025-10-26 11:28:39] [INFO] =============================================
+[2025-10-26 11:28:39] [INFO] CATEGORY 6: COMMUNICATION SETTINGS (24 TESTS)
+[2025-10-26 11:28:39] [INFO] =============================================
+[2025-10-26 11:28:39] [INFO] --- Email Server Settings (8 tests) ---
+[2025-10-26 11:28:39] [INFO] [Communication] Get All Email Settings
+[2025-10-26 11:28:39] [PASS] PASS: Get All Email Settings
+[2025-10-26 11:28:39] [INFO] [Communication] Create Email Setting
+[2025-10-26 11:28:39] [PASS] PASS: Create Email Setting
+[2025-10-26 11:28:39] [INFO] [Communication] Get Email Setting by ID
+[2025-10-26 11:28:39] [PASS] PASS: Get Email Setting by ID
+                                                                                                                       
+[2025-10-26 11:28:39] [INFO] [Communication] Update Email Setting
+[2025-10-26 11:28:39] [PASS] PASS: Update Email Setting
+                                                                                                                       
+[2025-10-26 11:28:40] [INFO] [Communication] Delete Email Setting
+[2025-10-26 11:28:40] [PASS] PASS: Delete Email Setting
+          Email server setting deleted su...                                                                           
+[2025-10-26 11:28:40] [INFO] [Communication] Get Inactive Email Settings
+[2025-10-26 11:28:40] [PASS] PASS: Get Inactive Email Settings
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+[2025-10-26 11:28:40] [INFO] [Communication] Validation: Empty Email Host
+[2025-10-26 11:28:40] [PASS] PASS: Validation: Empty Email Host (Status 400 is expected)
+True
+[2025-10-26 11:28:40] [INFO] [Communication] Validation: Invalid Port
+[2025-10-26 11:28:40] [PASS] PASS: Validation: Invalid Port (Status 400 is expected)
+True
+[2025-10-26 11:28:40] [INFO] --- SMS Gateway Settings (8 tests) ---
+[2025-10-26 11:28:40] [INFO] [Communication] Get All SMS Settings
+[2025-10-26 11:28:40] [PASS] PASS: Get All SMS Settings
+[2025-10-26 11:28:40] [INFO] [Communication] Create SMS Setting
+[2025-10-26 11:28:40] [PASS] PASS: Create SMS Setting
+[2025-10-26 11:28:40] [INFO] [Communication] Get SMS Setting by ID
+[2025-10-26 11:28:40] [PASS] PASS: Get SMS Setting by ID
+                                                                                                                       
+[2025-10-26 11:28:40] [INFO] [Communication] Update SMS Setting
+[2025-10-26 11:28:40] [PASS] PASS: Update SMS Setting
+                                                                                                                       
+[2025-10-26 11:28:40] [INFO] [Communication] Delete SMS Setting
+[2025-10-26 11:28:40] [PASS] PASS: Delete SMS Setting
+          SMS gateway setting deleted suc...                                                                           
+[2025-10-26 11:28:40] [INFO] [Communication] Get Inactive SMS Settings
+[2025-10-26 11:28:40] [PASS] PASS: Get Inactive SMS Settings
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+[2025-10-26 11:28:40] [INFO] [Communication] Validation: Empty Provider
+[2025-10-26 11:28:40] [PASS] PASS: Validation: Empty Provider (Status 400 is expected)
+True
+[2025-10-26 11:28:40] [INFO] [Communication] Validation: Empty API Key
+[2025-10-26 11:28:40] [PASS] PASS: Validation: Empty API Key (Status 400 is expected)
+True
+[2025-10-26 11:28:40] [INFO] --- WhatsApp Settings (8 tests) ---
+[2025-10-26 11:28:40] [INFO] [Communication] Get All WhatsApp Settings
+[2025-10-26 11:28:41] [PASS] PASS: Get All WhatsApp Settings
+[2025-10-26 11:28:41] [INFO] [Communication] Create WhatsApp Setting
+[2025-10-26 11:28:41] [PASS] PASS: Create WhatsApp Setting
+[2025-10-26 11:28:41] [INFO] [Communication] Get WhatsApp Setting by ID
+[2025-10-26 11:28:41] [PASS] PASS: Get WhatsApp Setting by ID
+                                                                                                                       
+[2025-10-26 11:28:41] [INFO] [Communication] Update WhatsApp Setting
+[2025-10-26 11:28:41] [PASS] PASS: Update WhatsApp Setting
+                                                                                                                       
+[2025-10-26 11:28:41] [INFO] [Communication] Delete WhatsApp Setting
+[2025-10-26 11:28:41] [PASS] PASS: Delete WhatsApp Setting
+          WhatsApp setting deleted succes...                                                                           
+[2025-10-26 11:28:41] [INFO] [Communication] Get Inactive WhatsApp Settings
+[2025-10-26 11:28:41] [PASS] PASS: Get Inactive WhatsApp Settings
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+[2025-10-26 11:28:41] [INFO] [Communication] Validation: Empty Phone Number
+[2025-10-26 11:28:41] [PASS] PASS: Validation: Empty Phone Number (Status 400 is expected)
+True
+[2025-10-26 11:28:41] [INFO] [Communication] Validation: Empty Business Account
+[2025-10-26 11:28:41] [PASS] PASS: Validation: Empty Business Account (Status 400 is expected)
+True
+[2025-10-26 11:28:41] [INFO] 
+[2025-10-26 11:28:41] [INFO] =============================================
+[2025-10-26 11:28:41] [INFO] CATEGORY 7: TEMPLATES & RULES (18 TESTS)
+[2025-10-26 11:28:41] [INFO] =============================================
+[2025-10-26 11:28:41] [INFO] --- Communication Templates (8 tests) ---
+[2025-10-26 11:28:41] [INFO] [Templates] Get All Templates
+[2025-10-26 11:28:41] [PASS] PASS: Get All Templates
+[2025-10-26 11:28:41] [INFO] [Templates] Create Template
+[2025-10-26 11:28:41] [PASS] PASS: Create Template
+[2025-10-26 11:28:41] [INFO] [Templates] Filter by Channel Type
+[2025-10-26 11:28:42] [PASS] PASS: Filter by Channel Type
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+[2025-10-26 11:28:42] [INFO] [Templates] Get Active Templates Only
+[2025-10-26 11:28:42] [PASS] PASS: Get Active Templates Only
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+[2025-10-26 11:28:42] [INFO] [Templates] Validation: Empty Template Name
+[2025-10-26 11:28:42] [PASS] PASS: Validation: Empty Template Name (Status 400 is expected)
+True
+[2025-10-26 11:28:42] [INFO] --- Event Communication Rules (6 tests) ---
+[2025-10-26 11:28:42] [INFO] [Templates] Get All Event Rules
+[2025-10-26 11:28:42] [PASS] PASS: Get All Event Rules
+[2025-10-26 11:28:42] [INFO] [Templates] Create Event Rule
+[2025-10-26 11:28:42] [PASS] PASS: Create Event Rule (Status 400 is expected)
+[2025-10-26 11:28:42] [INFO] [Templates] Validation: Invalid Event Type
+[2025-10-26 11:28:42] [PASS] PASS: Validation: Invalid Event Type (Status 400 is expected)
+True
+[2025-10-26 11:28:42] [INFO] --- Event Types (4 tests) ---
+[2025-10-26 11:28:42] [INFO] [Templates] Get All Event Types
+[2025-10-26 11:28:42] [PASS] PASS: Get All Event Types
+[2025-10-26 11:28:42] [INFO] [Templates] Get Event Type by ID
+[2025-10-26 11:28:42] [PASS] PASS: Get Event Type by ID
+                                                                                                                       
+[2025-10-26 11:28:42] [INFO] [Templates] Get Active Event Types
+[2025-10-26 11:28:42] [PASS] PASS: Get Active Event Types
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+                                                                                                                       
+[2025-10-26 11:28:42] [INFO] [Templates] Get Event Types by Category
+[2025-10-26 11:28:42] [PASS] PASS: Get Event Types by Category
+[2025-10-26 11:28:42] [INFO] 
+[2025-10-26 11:28:42] [INFO] =============================================
+[2025-10-26 11:28:43] [INFO] CATEGORY 8: ESCALATION (15 TESTS)
+[2025-10-26 11:28:43] [INFO] =============================================
+[2025-10-26 11:28:43] [INFO] --- Escalation Management (15 tests) ---
+[2025-10-26 11:28:43] [INFO] [Escalation] Get All Escalations
+[2025-10-26 11:28:43] [PASS] PASS: Get All Escalations
+     True Escalation data retrieved succe... @{matrices=System.Object[]; pendingEscalations=System.Object[]; matrice...
+[2025-10-26 11:28:43] [INFO] [Escalation] Get All Escalation Matrices
+[2025-10-26 11:28:43] [PASS] PASS: Get All Escalation Matrices
+[2025-10-26 11:28:43] [INFO] [Escalation] Create Escalation Matrix
+[2025-10-26 11:28:43] [PASS] PASS: Create Escalation Matrix
+[2025-10-26 11:28:43] [INFO] [Escalation] Get Escalation Matrix by ID
+[2025-10-26 11:28:43] [PASS] PASS: Get Escalation Matrix by ID
+     True Operation completed successfully   @{id=300908a5-c039-4b21-99df-4a9e45c5c467; name=Test Escalation Matrix;...
+[2025-10-26 11:28:43] [INFO] [Escalation] Update Escalation Matrix
+[2025-10-26 11:28:43] [PASS] PASS: Update Escalation Matrix
+     True Escalation matrix updated succe... @{id=300908a5-c039-4b21-99df-4a9e45c5c467; name=Updated Escalation Matr...
+[2025-10-26 11:28:43] [INFO] [Escalation] Add Escalation Level
+[2025-10-26 11:28:43] [PASS] PASS: Add Escalation Level (Status 400 is expected)
+True
+[2025-10-26 11:28:43] [INFO] [Escalation] Delete Escalation Matrix
+[2025-10-26 11:28:44] [PASS] PASS: Delete Escalation Matrix
+     True Escalation matrix deleted succe...                                                                           
+[2025-10-26 11:28:44] [INFO] [Escalation] Get Pending Escalations
+[2025-10-26 11:28:44] [PASS] PASS: Get Pending Escalations
+     True                                    {}                                                                        
+[2025-10-26 11:28:44] [INFO] [Escalation] Get Complaint Escalation History
+[2025-10-26 11:28:44] [PASS] PASS: Get Complaint Escalation History
+     True Retrieved 0 escalation history ... {}                                                                        
+[2025-10-26 11:28:44] [INFO] [Escalation] Escalate Complaint
+[2025-10-26 11:28:44] [FAIL] FAIL: Escalate Complaint - The remote server returned an error: (403) Forbidden.
+False
+[2025-10-26 11:28:44] [INFO] [Escalation] Validation: Empty Matrix Name
+[2025-10-26 11:28:44] [PASS] PASS: Validation: Empty Matrix Name (Status 400 is expected)
+True
+[2025-10-26 11:28:44] [INFO] --- Escalation Policy (3 tests) ---
+[2025-10-26 11:28:44] [INFO] [Escalation] Get All Escalation Policies
+[2025-10-26 11:28:44] [PASS] PASS: Get All Escalation Policies
+[2025-10-26 11:28:44] [INFO] [Escalation] Get Policy by Category
+[2025-10-26 11:28:44] [PASS] PASS: Get Policy by Category
+     True Retrieved 0 escalation policy(ies) {}                                                                        
+[2025-10-26 11:28:44] [INFO] [Escalation] Get Active Policies
+[2025-10-26 11:28:44] [PASS] PASS: Get Active Policies
+     True Retrieved 0 escalation policy(ies) {}                                                                        
+[2025-10-26 11:28:44] [INFO] 
+[2025-10-26 11:28:44] [INFO] =============================================
+[2025-10-26 11:28:44] [INFO] CATEGORY 9: COMPANY & SETTINGS (12 TESTS)
+[2025-10-26 11:28:44] [INFO] =============================================
+[2025-10-26 11:28:44] [INFO] --- Company Management (6 tests) ---
+[2025-10-26 11:28:45] [INFO] [Company] Get All Companies
+[2025-10-26 11:28:45] [PASS] PASS: Get All Companies
+[2025-10-26 11:28:45] [INFO] [Company] Get Company by ID
+[2025-10-26 11:28:45] [PASS] PASS: Get Company by ID
+     True                                    @{id=fe28cd85-4226-4daa-9e45-66a3d51877fa; name=Updated Company Name; c...
+[2025-10-26 11:28:45] [INFO] [Company] Update Company
+[2025-10-26 11:28:45] [PASS] PASS: Update Company
+     True Company updated successfully       @{id=fe28cd85-4226-4daa-9e45-66a3d51877fa; name=Updated Company Name; d...
+[2025-10-26 11:28:45] [INFO] [Company] Get Company Settings
+[2025-10-26 11:28:45] [PASS] PASS: Get Company Settings
+     True                                    @{companyId=fe28cd85-4226-4daa-9e45-66a3d51877fa; companyName=Updated C...
+[2025-10-26 11:28:45] [INFO] [Company] Get Active Companies
+[2025-10-26 11:28:45] [PASS] PASS: Get Active Companies
+     True                                    {@{id=bab3dd8f-ffdb-4a03-4076-08de0d58631f; name=Mangalore Refinery and...
+[2025-10-26 11:28:45] [INFO] [Company] Validation: Invalid Company ID
+[2025-10-26 11:28:45] [PASS] PASS: Validation: Invalid Company ID (Status 404 is expected)
+True
+[2025-10-26 11:28:45] [INFO] --- Complaint Info Settings (6 tests) ---
+[2025-10-26 11:28:45] [INFO] [Company] Get Complaint Info Settings
+[2025-10-26 11:28:45] [PASS] PASS: Get Complaint Info Settings
+[2025-10-26 11:28:45] [INFO] [Company] Create/Update Info Setting
+[2025-10-26 11:28:46] [PASS] PASS: Create/Update Info Setting
+     True Settings updated successfully      @{id=d81cf618-1598-4498-9465-2aef61d76192; companyId=fe28cd85-4226-4daa...
+[2025-10-26 11:28:46] [INFO] [Company] Get Info Settings by Company
+[2025-10-26 11:28:46] [PASS] PASS: Get Info Settings by Company
+     True Settings retrieved successfully    @{id=d81cf618-1598-4498-9465-2aef61d76192; companyId=fe28cd85-4226-4daa...
+[2025-10-26 11:28:46] [INFO] [Company] Toggle Anonymous Setting
+[2025-10-26 11:28:46] [PASS] PASS: Toggle Anonymous Setting
+     True Anonymous setting updated succe... @{allowAnonymous=False}                                                   
+[2025-10-26 11:28:46] [INFO] [Company] Toggle Attachments Setting
+[2025-10-26 11:28:46] [PASS] PASS: Toggle Attachments Setting
+     True Attachments setting updated suc... @{allowAttachments=False}                                                 
+[2025-10-26 11:28:46] [INFO] [Company] Validation: Invalid Max Attachments
+[2025-10-26 11:28:46] [PASS] PASS: Validation: Invalid Max Attachments (Status 400 is expected)
+True
+[2025-10-26 11:28:46] [INFO] 
+[2025-10-26 11:28:46] [INFO] =============================================
+[2025-10-26 11:28:46] [INFO] CATEGORY 10: DASHBOARD & RESOURCES (9 TESTS)
+[2025-10-26 11:28:46] [INFO] =============================================
+[2025-10-26 11:28:46] [INFO] --- Dashboard (6 tests) ---
+[2025-10-26 11:28:46] [INFO] [Dashboard] Get Dashboard Preferences
+[2025-10-26 11:28:46] [PASS] PASS: Get Dashboard Preferences
+     True Operation completed successfully   @{id=00000000-0000-0000-0000-000000000000; userId=f56d8d03-e382-454b-bf...
+[2025-10-26 11:28:46] [INFO] [Dashboard] Save Dashboard Preferences
+[2025-10-26 11:28:47] [PASS] PASS: Save Dashboard Preferences
+     True Operation completed successfully   @{id=825f16cf-a26e-43e0-84df-22963b887d78; userId=f56d8d03-e382-454b-bf...
+[2025-10-26 11:28:47] [INFO] [Dashboard] Get Dashboard Statistics
+[2025-10-26 11:28:47] [PASS] PASS: Get Dashboard Statistics
+     True Operation completed successfully   @{statusWidgets=System.Object[]; totalComplaints=1059; activeComplaints...
+[2025-10-26 11:28:47] [INFO] [Dashboard] Get Statistics with Date Range
+[2025-10-26 11:28:48] [PASS] PASS: Get Statistics with Date Range
+     True Operation completed successfully   @{statusWidgets=System.Object[]; totalComplaints=1059; activeComplaints...
+[2025-10-26 11:28:48] [INFO] [Dashboard] Reset Dashboard Preferences
+[2025-10-26 11:28:48] [PASS] PASS: Reset Dashboard Preferences
+     True Operation completed successfully                                                                             
+[2025-10-26 11:28:48] [INFO] --- Resource Pool (3 tests) ---
+[2025-10-26 11:28:48] [INFO] [Resources] Get All Resources
+[2025-10-26 11:28:48] [PASS] PASS: Get All Resources
+     True                                    {@{id=e79fd25b-a0af-4273-a0b8-087158bc4b2e; companyId=fe28cd85-4226-4da...
+[2025-10-26 11:28:48] [INFO] [Resources] Get Available Resources
+[2025-10-26 11:28:48] [PASS] PASS: Get Available Resources
+     True                                    {@{id=e79fd25b-a0af-4273-a0b8-087158bc4b2e; companyId=fe28cd85-4226-4da...
+[2025-10-26 11:28:48] [INFO] [Resources] Get Resources by Department
+[2025-10-26 11:28:48] [PASS] PASS: Get Resources by Department
+     True                                    {@{id=e79fd25b-a0af-4273-a0b8-087158bc4b2e; companyId=fe28cd85-4226-4da...
+[2025-10-26 11:28:48] [INFO] 
+[2025-10-26 11:28:48] [INFO] =============================================
+[2025-10-26 11:28:48] [INFO] CATEGORY 10: ANGULAR PAGE ACCESSIBILITY (16 TESTS)
+[2025-10-26 11:28:48] [INFO] =============================================
+[2025-10-26 11:28:48] [INFO] --- Organization Structure Pages (3 tests) ---
+[2025-10-26 11:28:49] [INFO] [Org Structure] Testing Branch Management page accessibility
+[2025-10-26 11:28:53] [FAIL] FAIL: Branch Management - Unable to connect to the remote server
+False
+[2025-10-26 11:28:53] [INFO] [Org Structure] Testing Department Management page accessibility
+[2025-10-26 11:28:57] [FAIL] FAIL: Department Management - Unable to connect to the remote server
+False
+[2025-10-26 11:28:57] [INFO] [Org Structure] Testing Section Management page accessibility
+[2025-10-26 11:29:01] [FAIL] FAIL: Section Management - Unable to connect to the remote server
+False
+[2025-10-26 11:29:01] [INFO] --- User Management Pages (2 tests) ---
+[2025-10-26 11:29:01] [INFO] [Users & Auth] Testing Employee Page page accessibility
+[2025-10-26 11:29:05] [FAIL] FAIL: Employee Page - Unable to connect to the remote server
+False
+[2025-10-26 11:29:05] [INFO] [Users & Auth] Testing User Management page accessibility
+[2025-10-26 11:29:09] [FAIL] FAIL: User Management - Unable to connect to the remote server
+False
+[2025-10-26 11:29:09] [INFO] --- Complaint Pages (2 tests) ---
+[2025-10-26 11:29:09] [INFO] [Complaints] Testing Complaint List page accessibility
+[2025-10-26 11:29:13] [FAIL] FAIL: Complaint List - Unable to connect to the remote server
+False
+[2025-10-26 11:29:13] [INFO] [Complaints] Testing Complaint Form page accessibility
+[2025-10-26 11:29:17] [FAIL] FAIL: Complaint Form - Unable to connect to the remote server
+False
+[2025-10-26 11:29:17] [INFO] --- Master Data Pages (3 tests) ---
+[2025-10-26 11:29:17] [INFO] [Master Data] Testing Category List page accessibility
+[2025-10-26 11:29:21] [FAIL] FAIL: Category List - Unable to connect to the remote server
+False
+[2025-10-26 11:29:21] [INFO] [Master Data] Testing Priority List page accessibility
+[2025-10-26 11:29:26] [FAIL] FAIL: Priority List - Unable to connect to the remote server
+False
+[2025-10-26 11:29:26] [INFO] [Master Data] Testing Status List page accessibility
+[2025-10-26 11:29:30] [FAIL] FAIL: Status List - Unable to connect to the remote server
+False
+[2025-10-26 11:29:30] [INFO] --- Template & Communication Pages (4 tests) ---
+[2025-10-26 11:29:30] [INFO] [Templates] Testing Template List page accessibility
+[2025-10-26 11:29:34] [FAIL] FAIL: Template List - Unable to connect to the remote server
+False
+[2025-10-26 11:29:34] [INFO] [Templates] Testing Template Form page accessibility
+[2025-10-26 11:29:38] [FAIL] FAIL: Template Form - Unable to connect to the remote server
+False
+[2025-10-26 11:29:38] [INFO] [Communication] Testing Event Types List page accessibility
+[2025-10-26 11:29:42] [FAIL] FAIL: Event Types List - Unable to connect to the remote server
+False
+[2025-10-26 11:29:42] [INFO] [Communication] Testing Rule List page accessibility
+[2025-10-26 11:29:46] [FAIL] FAIL: Rule List - Unable to connect to the remote server
+False
+[2025-10-26 11:29:46] [INFO] --- Escalation & Dashboard Pages (2 tests) ---
+[2025-10-26 11:29:46] [INFO] [Escalation] Testing Escalation Matrix List page accessibility
+[2025-10-26 11:29:50] [FAIL] FAIL: Escalation Matrix List - Unable to connect to the remote server
+False
+[2025-10-26 11:29:50] [INFO] [Dashboard] Testing Dashboard Home page accessibility
+[2025-10-26 11:29:54] [FAIL] FAIL: Dashboard Home - Unable to connect to the remote server
+False
+[2025-10-26 11:29:54] [INFO] 
+[2025-10-26 11:29:54] [INFO] =============================================
+[2025-10-26 11:29:54] [INFO] TEST SUITE EXECUTION COMPLETED
+[2025-10-26 11:29:54] [INFO] =============================================
+Multiple ambiguous overloads found for "op_Subtraction" and the argument count: "2".
+At C:\Users\Navin Chandra\Pictures\Complaint management system\comprehensive-full-test-suite.ps1:1257 char:1
++ $duration = $endTime - $timestamp
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodException
+    + FullyQualifiedErrorId : MethodCountCouldNotFindBest
+ 
+[2025-10-26 11:29:55] [INFO] 
+[2025-10-26 11:29:55] [INFO] =============================================
+[2025-10-26 11:29:55] [INFO] FINAL TEST RESULTS SUMMARY
+[2025-10-26 11:29:55] [INFO] =============================================
+[2025-10-26 11:29:55] [INFO] Total Tests Executed: 176
+[2025-10-26 11:29:55] [PASS] Passed: 157
+[2025-10-26 11:29:55] [FAIL] Failed: 19
+[2025-10-26 11:29:55] [INFO] Success Rate: 89.2%
+You cannot call a method on a null-valued expression.
+At C:\Users\Navin Chandra\Pictures\Complaint management system\comprehensive-full-test-suite.ps1:1268 char:24
++ Write-Log "Duration: $($duration.ToString('hh\:mm\:ss'))"
++                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+[2025-10-26 11:29:55] [INFO] Duration: 
+[2025-10-26 11:29:55] [INFO] 
+[2025-10-26 11:29:55] [INFO] =============================================
+[2025-10-26 11:29:55] [INFO] RESULTS BY CATEGORY
+[2025-10-26 11:29:55] [INFO] =============================================
+[2025-10-26 11:29:55] [WARN] Communication : 24/26 (92.31%)
+[2025-10-26 11:29:55] [PASS] Company : 12/12 (100%)
+[2025-10-26 11:29:55] [WARN] Complaints : 19/23 (82.61%)
+[2025-10-26 11:29:55] [WARN] Dashboard : 5/6 (83.33%)
+[2025-10-26 11:29:55] [WARN] Escalation : 13/15 (86.67%)
+[2025-10-26 11:29:55] [WARN] Master Data : 18/21 (85.71%)
+[2025-10-26 11:29:55] [WARN] Org Structure : 21/24 (87.5%)
+[2025-10-26 11:29:55] [PASS] Resources : 3/3 (100%)
+[2025-10-26 11:29:55] [PASS] Role Management : 12/12 (100%)
+[2025-10-26 11:29:55] [PASS] Setup : 1/1 (100%)
+[2025-10-26 11:29:55] [WARN] Templates : 12/14 (85.71%)
+[2025-10-26 11:29:55] [WARN] Users & Auth : 17/19 (89.47%)
+[2025-10-26 11:29:55] [INFO] 
+[2025-10-26 11:29:55] [INFO] =============================================
+[2025-10-26 11:29:55] [INFO] DETAILED RESULTS SAVED TO: COMPREHENSIVE_FULL_TEST_RESULTS_20251026_112807.txt
+[2025-10-26 11:29:55] [INFO] =============================================
+[2025-10-26 11:29:55] [FAIL] SOME TESTS FAILED - REVIEW RESULTS ABOVE

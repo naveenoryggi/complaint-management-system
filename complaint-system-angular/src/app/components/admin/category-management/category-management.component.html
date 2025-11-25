@@ -1,0 +1,404 @@
+<div class="category-management">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>
+        <i class="fas fa-tags"></i>
+        Category Management
+      </h1>
+      <p class="page-description">Manage complaint categories, priorities, and SLA settings</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i> Add Category
+    </button>
+  </div>
+
+  <!-- Help Section -->
+  <div class="info-banner">
+    <div class="info-icon">
+      <i class="fas fa-info-circle"></i>
+    </div>
+    <div class="info-content">
+      <h3>Understanding Category Hierarchy</h3>
+      <p>
+        Categories can be organized in a <strong>two-level hierarchy</strong>:
+      </p>
+      <ul>
+        <li><strong>Parent Categories:</strong> Top-level categories (e.g., "HR Issues", "IT Support")</li>
+        <li><strong>Child Categories:</strong> Subcategories under a parent (e.g., "Salary & Payroll" under "HR Issues")</li>
+      </ul>
+      <p>
+        <strong>Benefits:</strong> Better organization, improved reporting, simplified complaint routing.
+        To create a subcategory, select a parent when creating/editing a category.
+      </p>
+    </div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    <i class="fas fa-check-circle"></i> {{ successMessage }}
+  </div>
+  <div class="alert alert-error" *ngIf="errorMessage && !showModal && !showDeleteConfirm">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Search categories by name, code, or description..."
+        class="search-input"
+      />
+    </div>
+    <div class="filter-toggle">
+      <label class="toggle-label">
+        <input
+          type="checkbox"
+          [(ngModel)]="showActiveOnly"
+          (change)="onFilterChange()"
+        />
+        <span>Show Active Only</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading && !showModal">
+    <div class="spinner"></div>
+    <p>Loading categories...</p>
+  </div>
+
+  <!-- Categories Grid -->
+  <div class="categories-grid" *ngIf="!loading && filteredCategories.length > 0">
+    <div
+      *ngFor="let category of filteredCategories; trackBy: trackByCategoryId"
+      class="category-card"
+      [class.inactive]="!category.isActive"
+    >
+      <!-- Card Header -->
+      <div class="card-header" [class.child-category]="category.parentCategoryId">
+        <div class="category-icon" [class.child-icon]="category.parentCategoryId">
+          <i class="fas" [ngClass]="category.parentCategoryId ? 'fa-folder' : 'fa-folder-open'"></i>
+        </div>
+        <div class="category-info">
+          <h3>
+            <span *ngIf="category.parentCategoryId" class="hierarchy-indicator">
+              <i class="fas fa-level-up-alt"></i>
+            </span>
+            {{ category.name }}
+          </h3>
+          <span class="category-code">{{ category.code }}</span>
+        </div>
+        <span class="status-badge" [class.active]="category.isActive">
+          {{ category.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+
+      <!-- Card Body -->
+      <div class="card-body">
+        <p class="category-description" *ngIf="category.description">
+          {{ category.description }}
+        </p>
+        <p class="no-description" *ngIf="!category.description">
+          <i>No description provided</i>
+        </p>
+
+        <!-- Category Details -->
+        <div class="category-details">
+          <div class="detail-row">
+            <div class="detail-item">
+              <i class="fas fa-flag"></i>
+              <span class="detail-label">Default Priority:</span>
+              <span
+                class="priority-badge"
+                [ngClass]="getPriorityBadgeClass(category.defaultPriority)"
+              >
+                {{ getPriorityName(category.defaultPriority) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-item">
+              <i class="fas fa-clock"></i>
+              <span class="detail-label">Default SLA:</span>
+              <span class="detail-value">{{ category.defaultSlaHours }} hours</span>
+            </div>
+          </div>
+
+          <div class="detail-row" *ngIf="category.parentCategoryName">
+            <div class="detail-item">
+              <i class="fas fa-folder-tree"></i>
+              <span class="detail-label">Parent Category:</span>
+              <span class="detail-value">{{ category.parentCategoryName }}</span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-item">
+              <i class="fas fa-sort"></i>
+              <span class="detail-label">Display Order:</span>
+              <span class="detail-value">{{ category.displayOrder }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="card-actions">
+          <button class="btn btn-secondary btn-sm" (click)="openEditModal(category)">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button class="btn btn-danger btn-sm" (click)="openDeleteConfirm(category)">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Results -->
+  <div class="no-results" *ngIf="!loading && filteredCategories.length === 0">
+    <i class="fas fa-inbox"></i>
+    <h3>No Categories Found</h3>
+    <p *ngIf="searchTerm">Try adjusting your search or filters</p>
+    <p *ngIf="!searchTerm && showActiveOnly">Try showing inactive categories</p>
+    <button class="btn btn-primary" *ngIf="!searchTerm" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i> Create First Category
+    </button>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ modalTitle }}</h2>
+      <button class="close-btn" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      </div>
+
+      <form class="category-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="categoryName">
+              Category Name <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="categoryName"
+              [(ngModel)]="categoryForm.name"
+              name="name"
+              class="form-control"
+              placeholder="Enter category name"
+              maxlength="100"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="categoryCode">
+              Category Code <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="categoryCode"
+              [(ngModel)]="categoryForm.code"
+              name="code"
+              class="form-control"
+              placeholder="Enter unique code"
+              maxlength="50"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="categoryDescription">Description</label>
+          <textarea
+            id="categoryDescription"
+            [(ngModel)]="categoryForm.description"
+            name="description"
+            class="form-control"
+            placeholder="Enter category description"
+            rows="3"
+            maxlength="500"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="parentCategory">
+              Parent Category
+              <span class="label-help">
+                <i class="fas fa-question-circle" title="Select a parent to create a subcategory"></i>
+              </span>
+            </label>
+            <select
+              id="parentCategory"
+              [(ngModel)]="categoryForm.parentCategoryId"
+              name="parentCategoryId"
+              class="form-control"
+            >
+              <option [ngValue]="undefined">None (Top-Level Category)</option>
+              <option
+                *ngFor="let parent of getParentCategories(); trackBy: trackByCategoryId"
+                [ngValue]="parent.id"
+              >
+                {{ parent.name }}
+              </option>
+            </select>
+            <small class="form-help-text">
+              Leave as "None" to create a main category, or select a parent to create a subcategory.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="displayOrder">
+              Display Order
+              <span class="label-help">
+                <i class="fas fa-question-circle" title="Lower numbers appear first"></i>
+              </span>
+            </label>
+            <input
+              type="number"
+              id="displayOrder"
+              [(ngModel)]="categoryForm.displayOrder"
+              name="displayOrder"
+              class="form-control"
+              min="0"
+              max="9999"
+              placeholder="0"
+            />
+            <small class="form-help-text">
+              Controls the order categories appear (lower numbers first).
+            </small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="defaultPriority">
+              Default Priority <span class="required">*</span>
+              <span class="label-help">
+                <i class="fas fa-question-circle" title="Priority level for complaints in this category"></i>
+              </span>
+            </label>
+            <select
+              id="defaultPriority"
+              [(ngModel)]="categoryForm.defaultPriority"
+              name="defaultPriority"
+              class="form-control"
+              required
+            >
+              <option [ngValue]="1">Low (1)</option>
+              <option [ngValue]="2">Normal (2)</option>
+              <option [ngValue]="3">High (3)</option>
+              <option [ngValue]="4">Critical (4)</option>
+            </select>
+            <small class="form-help-text">
+              Default priority assigned to new complaints in this category.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="defaultSlaHours">
+              Default SLA (hours) <span class="required">*</span>
+              <span class="label-help">
+                <i class="fas fa-question-circle" title="Service Level Agreement - time to resolve"></i>
+              </span>
+            </label>
+            <input
+              type="number"
+              id="defaultSlaHours"
+              [(ngModel)]="categoryForm.defaultSlaHours"
+              name="defaultSlaHours"
+              class="form-control"
+              min="1"
+              max="720"
+              placeholder="48"
+              required
+            />
+            <small class="form-help-text">
+              Expected resolution time (1-720 hours / 30 days max).
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="categoryForm.isActive"
+              name="isActive"
+            />
+            <span>Active</span>
+          </label>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModal()" [disabled]="loading">
+        Cancel
+      </button>
+      <button class="btn btn-primary" (click)="saveCategory()" [disabled]="loading">
+        <span *ngIf="!loading">
+          <i class="fas" [ngClass]="modalMode === 'create' ? 'fa-plus' : 'fa-save'"></i>
+          {{ modalMode === 'create' ? 'Create' : 'Update' }}
+        </span>
+        <span *ngIf="loading">
+          <i class="fas fa-spinner fa-spin"></i> Saving...
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="closeDeleteConfirm()">
+  <div class="modal-container modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Confirm Delete</h2>
+      <button class="close-btn" (click)="closeDeleteConfirm()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      </div>
+
+      <div class="delete-confirm-content">
+        <i class="fas fa-exclamation-triangle warning-icon"></i>
+        <p>Are you sure you want to delete the category:</p>
+        <p class="category-name-highlight">{{ categoryToDelete?.name }}</p>
+        <p class="warning-text">This action cannot be undone.</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeDeleteConfirm()" [disabled]="deleteLoading">
+        Cancel
+      </button>
+      <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleteLoading">
+        <span *ngIf="!deleteLoading">
+          <i class="fas fa-trash"></i> Delete
+        </span>
+        <span *ngIf="deleteLoading">
+          <i class="fas fa-spinner fa-spin"></i> Deleting...
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,245 @@
+<div class="email-reply-composer">
+  <!-- Composer Header -->
+  <div class="composer-header">
+    <div class="header-left">
+      <i class="bi" [ngClass]="{
+        'bi-reply': replyType === ReplyType.Reply,
+        'bi-reply-all': replyType === ReplyType.ReplyAll,
+        'bi-forward': replyType === ReplyType.Forward,
+        'bi-lock-fill': replyType === ReplyType.PrivateNote
+      }"></i>
+      <h4>{{ getReplyTypeLabel() }}</h4>
+      <span *ngIf="replyType === ReplyType.PrivateNote" class="private-note-badge">
+        <i class="bi bi-lock-fill"></i> Internal Only
+      </span>
+    </div>
+    <div class="header-right">
+      <button class="btn-icon" (click)="onCancel()" title="Close (Esc)">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="hasError" class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Email Form -->
+  <form [formGroup]="emailForm" (ngSubmit)="onSubmit()" class="email-form">
+
+    <!-- Recipients Section (Hidden for Private Notes) -->
+    <div *ngIf="replyType !== ReplyType.PrivateNote" class="recipients-section">
+
+      <!-- To Field -->
+      <div class="recipient-field">
+        <label class="field-label">To:</label>
+        <div class="recipient-input-container">
+          <!-- Recipient Chips -->
+          <div class="recipient-chips">
+            <span
+              *ngFor="let recipient of toRecipients; let i = index"
+              class="recipient-chip">
+              <span class="chip-text">{{ recipient.displayName || recipient.emailAddress }}</span>
+              <button
+                type="button"
+                class="chip-remove"
+                (click)="removeToRecipient(i)"
+                title="Remove">
+                <i class="bi bi-x"></i>
+              </button>
+            </span>
+          </div>
+
+          <!-- Input for adding recipients -->
+          <input
+            type="email"
+            class="recipient-input"
+            [(ngModel)]="toInputValue"
+            [ngModelOptions]="{standalone: true}"
+            (keydown)="onToEmailKeydown($event)"
+            (blur)="addToRecipient()"
+            placeholder="Add recipient (press Enter or comma)"
+            [disabled]="isSending" />
+        </div>
+
+        <div class="field-actions">
+          <button type="button" class="btn-link" (click)="toggleCc()" *ngIf="!showCc">
+            <i class="bi bi-plus-circle"></i> Cc
+          </button>
+          <button type="button" class="btn-link" (click)="toggleBcc()" *ngIf="!showBcc">
+            <i class="bi bi-plus-circle"></i> Bcc
+          </button>
+        </div>
+      </div>
+
+      <!-- Cc Field -->
+      <div *ngIf="showCc" class="recipient-field">
+        <label class="field-label">Cc:</label>
+        <div class="recipient-input-container">
+          <!-- Recipient Chips -->
+          <div class="recipient-chips">
+            <span
+              *ngFor="let recipient of ccRecipients; let i = index"
+              class="recipient-chip">
+              <span class="chip-text">{{ recipient.displayName || recipient.emailAddress }}</span>
+              <button
+                type="button"
+                class="chip-remove"
+                (click)="removeCcRecipient(i)"
+                title="Remove">
+                <i class="bi bi-x"></i>
+              </button>
+            </span>
+          </div>
+
+          <!-- Input for adding recipients -->
+          <input
+            type="email"
+            class="recipient-input"
+            [(ngModel)]="ccInputValue"
+            [ngModelOptions]="{standalone: true}"
+            (keydown)="onCcEmailKeydown($event)"
+            (blur)="addCcRecipient()"
+            placeholder="Add Cc recipient"
+            [disabled]="isSending" />
+        </div>
+      </div>
+
+      <!-- Bcc Field -->
+      <div *ngIf="showBcc" class="recipient-field">
+        <label class="field-label">Bcc:</label>
+        <div class="recipient-input-container">
+          <!-- Recipient Chips -->
+          <div class="recipient-chips">
+            <span
+              *ngFor="let recipient of bccRecipients; let i = index"
+              class="recipient-chip">
+              <span class="chip-text">{{ recipient.displayName || recipient.emailAddress }}</span>
+              <button
+                type="button"
+                class="chip-remove"
+                (click)="removeBccRecipient(i)"
+                title="Remove">
+                <i class="bi bi-x"></i>
+              </button>
+            </span>
+          </div>
+
+          <!-- Input for adding recipients -->
+          <input
+            type="email"
+            class="recipient-input"
+            [(ngModel)]="bccInputValue"
+            [ngModelOptions]="{standalone: true}"
+            (keydown)="onBccEmailKeydown($event)"
+            (blur)="addBccRecipient()"
+            placeholder="Add Bcc recipient"
+            [disabled]="isSending" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Subject Field -->
+    <div class="form-field subject-field">
+      <label class="field-label">Subject:</label>
+      <input
+        type="text"
+        class="form-control subject-input"
+        formControlName="subject"
+        placeholder="Enter email subject"
+        [disabled]="isSending"
+        required />
+      <div *ngIf="emailForm.get('subject')?.invalid && emailForm.get('subject')?.touched" class="field-error">
+        Subject is required
+      </div>
+    </div>
+
+    <!-- Canned Responses Dropdown -->
+    <div *ngIf="showCannedResponses && cannedResponses.length > 0" class="canned-responses-section">
+      <label class="field-label">Quick Responses:</label>
+      <select
+        class="form-control canned-responses-select"
+        (change)="onCannedResponseSelected($any($event.target).value)"
+        [disabled]="isSending">
+        <option value="">Select a quick response...</option>
+        <option
+          *ngFor="let response of cannedResponses"
+          [value]="response.id">
+          {{ response.title }} {{ response.shortCode ? '(' + response.shortCode + ')' : '' }}
+        </option>
+      </select>
+      <small class="text-muted">
+        <i class="bi bi-info-circle"></i>
+        Use predefined responses to save time
+      </small>
+    </div>
+
+    <!-- Rich Text Editor -->
+    <div class="form-field editor-field">
+      <label class="field-label">Message:</label>
+      <quill-editor
+        formControlName="body"
+        [modules]="quillConfig"
+        [styles]="{height: '300px'}"
+        [placeholder]="'Type your message here...'"
+        [disabled]="isSending">
+      </quill-editor>
+      <div *ngIf="emailForm.get('body')?.invalid && emailForm.get('body')?.touched" class="field-error">
+        Message body is required
+      </div>
+    </div>
+
+    <!-- Helper Text -->
+    <div class="composer-help-text">
+      <i class="bi bi-lightbulb"></i>
+      <small>
+        <strong>Pro Tips:</strong>
+        Use <kbd>Ctrl+Enter</kbd> to send quickly •
+        Press <kbd>Enter</kbd> or <kbd>,</kbd> to add recipients •
+        <span *ngIf="showCannedResponses && cannedResponses.length > 0">
+          Use canned responses for common replies •
+        </span>
+        <span *ngIf="enableAutoSave">
+          Drafts are auto-saved every {{ autoSaveInterval / 1000 }} seconds
+        </span>
+      </small>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="composer-actions">
+      <div class="actions-left">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="onCancel()"
+          [disabled]="isSending">
+          <i class="bi bi-x-circle"></i>
+          Cancel
+        </button>
+      </div>
+      <div class="actions-right">
+        <span *ngIf="isSending" class="sending-indicator">
+          <div class="spinner-sm"></div>
+          Sending...
+        </span>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isSending || !emailForm.valid">
+          <i class="bi" [ngClass]="{
+            'bi-send': !isSending,
+            'bi-hourglass-split': isSending
+          }"></i>
+          {{ isSending ? 'Sending...' : 'Send' }}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

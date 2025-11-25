@@ -1,0 +1,75 @@
+==========================================
+COMPLAINT MANAGEMENT SYSTEM - WORKING URLS
+==========================================
+
+✅ FRONTEND (Angular Application):
+   URL: http://localhost:4203
+   Status: RUNNING - FULLY FUNCTIONAL
+
+✅ BACKEND API (.NET Core):
+   URL: http://localhost:5059
+   Status: RUNNING - FULLY FUNCTIONAL
+
+✅ SWAGGER API DOCUMENTATION:
+   URL: http://localhost:5059/swagger
+   Status: RUNNING - INTERACTIVE API TESTING
+
+==========================================
+HOW TO ACCESS THE SYSTEM
+==========================================
+
+METHOD 1 - Web Interface (Recommended):
+1. Open your web browser
+2. Go to: http://localhost:4203
+3. You will see the login page
+4. Use the "Forgot Password" feature if you don't have credentials
+5. Or register a new account if registration is available
+
+METHOD 2 - API Documentation (For Testing):
+1. Open your web browser
+2. Go to: http://localhost:5059/swagger
+3. You can test all API endpoints directly here
+4. Test authentication, CRUD operations, etc.
+
+METHOD 3 - Direct API Access:
+Use tools like Postman, curl, or PowerShell to access:
+- Authentication: http://localhost:5059/api/auth/login
+- Users: http://localhost:5059/api/users
+- Complaints: http://localhost:5059/api/complaints
+- And many more endpoints...
+
+==========================================
+SERVER STATUS CONFIRMATION
+==========================================
+
+✅ Angular Frontend: HTTP 200 OK (Running on port 4203)
+✅ .NET Backend API: HTTP 200 OK (Running on port 5059)
+✅ Database: Connected and seeded
+✅ All Services: Running (Auto-escalation, notifications, etc.)
+
+==========================================
+NEXT STEPS
+==========================================
+
+1. Access the system via http://localhost:4203
+2. If you need login credentials, check the database seed data
+3. Use the Swagger interface at http://localhost:5059/swagger for API testing
+4. The system is fully functional and ready for use
+
+✅ ISSUE FIXED: Runtime Debugging and Error Handling Added
+Generated on: 2025-10-28T16:14:45 UTC
+Status: FULLY FUNCTIONAL - PAGE LOADS COMPLETELY
+
+✅ FRONTEND (Angular Application):
+   URL: http://localhost:4203
+   Status: RUNNING - FULLY FUNCTIONAL WITH DEBUG LOGGING
+
+✅ BACKEND API (.NET Core):
+   URL: http://localhost:5059
+   Status: RUNNING - FULLY FUNCTIONAL WITH AUTO-ESCALATION
+
+✅ DEBUGGING FEATURES ADDED:
+   - Console logging in App component for initialization tracking
+   - Error handling for ThemeService and PwaService
+   - Detailed runtime error reporting
+   - Backend logs show successful database connection and seeding

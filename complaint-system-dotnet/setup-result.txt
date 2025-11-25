@@ -1,0 +1,18 @@
+At C:\Users\Navin Chandra\Pictures\Complaint management 
+system\complaint-system-dotnet\setup-solution-with-logging.ps1:294 char:6
++     } else {
++      ~
+The Try statement is missing its Catch or Finally block.
+At C:\Users\Navin Chandra\Pictures\Complaint management 
+system\complaint-system-dotnet\setup-solution-with-logging.ps1:390 char:57
++ Write-Log "Setup script completed at: $(Get-Date)" "Cyan"
++                                                         ~
+The string is missing the terminator: ".
+At C:\Users\Navin Chandra\Pictures\Complaint management 
+system\complaint-system-dotnet\setup-solution-with-logging.ps1:355 char:20
++ if ($workerExists) {
++                    ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingCatchOrFinally
+ 

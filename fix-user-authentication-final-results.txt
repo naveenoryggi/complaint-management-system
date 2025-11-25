@@ -1,0 +1,137 @@
+Changed database context to 'ComplaintManagementDB'.
+========================================
+STARTING USER AUTHENTICATION FIX
+========================================
+ 
+STEP 1: Fixing nav_nainital@yahoo.com (Complainant)
+----------------------------------------------------
+
+(1 rows affected)
+SUCCESS: Updated nav_nainital@yahoo.com user record
+
+(1 rows affected)
+SUCCESS: Updated Complainant role for nav_nainital@yahoo.com
+ 
+STEP 2: Fixing naveen.chandra@oryggitech.com (Handler)
+----------------------------------------------------
+
+(1 rows affected)
+SUCCESS: Updated naveen.chandra@oryggitech.com user record
+Msg 515, Level 16, State 2, Server LAPTOP-NF9BTG7Q\SQLEXPRESS, Line 95
+Cannot insert the value NULL into column 'Id', table 'ComplaintManagementDB.dbo.UserComplaintRoles'; column does not allow nulls. INSERT fails.
+The statement has been terminated.
+SUCCESS: Assigned Handler role to naveen.chandra@oryggitech.com
+ 
+STEP 3: VERIFICATION - User Status
+----------------------------------------------------
+nav_nainital@yahoo.com Nav Nainital U9PgR051Vnj0Q6DpvcP2+g== 1 0 NULL 0 Ready for Login
+naveen.chandra@oryggitech.com NAVEEN CHANDRA qW03atWbDl3HauFlaYbyAQ== 1 0 NULL 0 Ready for Login
+
+(2 rows affected)
+ 
+STEP 4: VERIFICATION - Role Assignments
+----------------------------------------------------
+nav_nainital@yahoo.com Nav Nainital Complainant 1 1 2025-11-10 13:58:00.0366667
+
+(1 rows affected)
+ 
+STEP 5: Additional Diagnostic Information
+----------------------------------------------------
+User Existence Check:
+  nav_nainital@yahoo.com: EXISTS
+  naveen.chandra@oryggitech.com: EXISTS
+ 
+Available Roles in System:
+Company Administrator Full access within company scope 0
+Complainant Can submit and track own complaints 0
+Department Manager Department level manager 0
+HR Representative HR department representative 0
+Level 1 Handler First level complaint handler 0
+Level 2 Handler Second level complaint handler 0
+Level 3 Handler Third level complaint handler 0
+Level 4 Handler Fourth level complaint handler 0
+Level 5 Handler Fifth level complaint handler (highest) 0
+Primary Contact Main point of contact for branch/department complaint handling 0
+Reporting Manager Team lead or direct supervisor who manages team members 0
+Secondary Contact Backup contact for branch/department when primary is unavailable 0
+System Administrator Full system access across all tenants and companies 0
+Tenant Administrator Full access within tenant scope 0
+Test Role 12345 Test role 0
+Test Role 995984 Test role for comprehensive testing 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Updated Test Role Updated role description 0
+Viewer Read-only access to complaints 0
+
+(80 rows affected)
+ 
+========================================
+USER AUTHENTICATION FIX COMPLETED
+========================================
+ 
+NEXT STEPS:
+1. Test login for nav_nainital@yahoo.com with password: Nav@12345
+2. Test login for naveen.chandra@oryggitech.com with password: Naveen@12345
+3. Verify JWT tokens are returned
+4. Check role claims in tokens
+ 
