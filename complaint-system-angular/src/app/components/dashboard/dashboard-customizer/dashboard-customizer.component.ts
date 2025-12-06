@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { DashboardPreferences, SaveDashboardPreferencesRequest } from '../../../models/dashboard.model';
 import { StatusMasterService, ComplaintStatusMaster, ApiResponse } from '../../../services/status-master.service';
 
@@ -9,7 +10,18 @@ import { StatusMasterService, ComplaintStatusMaster, ApiResponse } from '../../.
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './dashboard-customizer.component.html',
-  styleUrl: './dashboard-customizer.component.scss'
+  styleUrl: './dashboard-customizer.component.scss',
+  animations: [
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ transform: 'translateX(100%)', opacity: 0 }),
+        animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-in', style({ transform: 'translateX(100%)', opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class DashboardCustomizerComponent implements OnInit {
   @Input() show: boolean = false;
@@ -32,12 +44,12 @@ export class DashboardCustomizerComponent implements OnInit {
   error: string = '';
 
   layoutOptions = [
-    { value: 'grid-2', label: '2 Columns', icon: 'bi-grid' },
-    { value: 'grid-3', label: '3 Columns', icon: 'bi-grid-3x3' },
-    { value: 'grid-4', label: '4 Columns', icon: 'bi-grid-3x3-gap' },
-    { value: 'grid-5', label: '5 Columns', icon: 'bi-grid-fill' },
-    { value: 'grid-6', label: '6 Columns', icon: 'bi-grid-fill' },
-    { value: 'list', label: 'List View', icon: 'bi-list-ul' }
+    { value: 'grid-2', label: '2 Columns', icon: 'fa-table-cells-large' },
+    { value: 'grid-3', label: '3 Columns', icon: 'fa-table-cells' },
+    { value: 'grid-4', label: '4 Columns', icon: 'fa-grip' },
+    { value: 'grid-5', label: '5 Columns', icon: 'fa-grip-vertical' },
+    { value: 'grid-6', label: '6 Columns', icon: 'fa-grip-vertical' },
+    { value: 'list', label: 'List View', icon: 'fa-list-ul' }
   ];
 
   dateRangeOptions = [
@@ -59,9 +71,9 @@ export class DashboardCustomizerComponent implements OnInit {
   ];
 
   themeOptions = [
-    { value: 'light', label: 'Light', icon: 'bi-sun' },
-    { value: 'dark', label: 'Dark', icon: 'bi-moon' },
-    { value: 'auto', label: 'Auto', icon: 'bi-circle-half' }
+    { value: 'light', label: 'Light', icon: 'fa-sun' },
+    { value: 'dark', label: 'Dark', icon: 'fa-moon' },
+    { value: 'auto', label: 'Auto', icon: 'fa-circle-half-stroke' }
   ];
 
   constructor(private statusMasterService: StatusMasterService) {}

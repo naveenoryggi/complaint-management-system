@@ -1,0 +1,557 @@
+// Design System Colors (from design code)
+$primary: #067edb;
+$accent: #1ABC9C;
+$heading-text: #2C3E50;
+$body-text: #34495E;
+$subtle-text: #5f788c;
+$background-light: #f5f7f8;
+$card-light: #ffffff;
+$border-light: #dbe1e6;
+
+// Page Container
+.notification-preferences-page {
+  min-height: 100vh;
+  background-color: $background-light;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.content-wrapper {
+  max-width: 896px;
+  margin: 0 auto;
+  padding: 24px 24px 48px;
+
+  @media (min-width: 1024px) {
+    padding: 40px 40px 60px;
+  }
+}
+
+// Page Header
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.page-title {
+  font-size: 1.875rem;
+  font-weight: 900;
+  color: $heading-text;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin: 0;
+
+  @media (min-width: 1024px) {
+    font-size: 2.25rem;
+  }
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  font-weight: 400;
+  color: $subtle-text;
+  line-height: 1.5;
+  margin: 0;
+}
+
+// Header Save Button (disabled state)
+.btn-save-header {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $body-text;
+  background-color: #d1d5db;
+  border: none;
+  border-radius: 8px;
+  cursor: not-allowed;
+  transition: all 0.2s ease;
+
+  &:not(.disabled) {
+    background-color: $heading-text;
+    color: white;
+    cursor: pointer;
+
+    &:hover {
+      background-color: darken($heading-text, 8%);
+    }
+  }
+
+  &.disabled {
+    background-color: #d1d5db;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+}
+
+// Toast Notifications
+.toast-notification {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  i {
+    font-size: 1.25rem;
+  }
+
+  &.success {
+    background-color: #d1fae5;
+    color: #065f46;
+
+    i {
+      color: #10b981;
+    }
+  }
+
+  &.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+
+    i {
+      color: #ef4444;
+    }
+  }
+}
+
+// Loading State
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 16px;
+
+  p {
+    color: $subtle-text;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top-color: $accent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Cards Container
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+// Settings Card
+.settings-card {
+  background-color: $card-light;
+  border: 1px solid $border-light;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 20px;
+  border-bottom: 1px solid $border-light;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: $heading-text;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  margin: 0 0 4px 0;
+}
+
+.card-description {
+  font-size: 1rem;
+  font-weight: 400;
+  color: $subtle-text;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+// Setting Row (for toggles)
+.setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #f3f4f6;
+  }
+}
+
+.setting-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.setting-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $body-text;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.setting-description {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: $subtle-text;
+  line-height: 1.5;
+  margin: 0;
+}
+
+// Toggle Switch (iOS style)
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  width: 51px;
+  height: 31px;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+}
+
+.toggle-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: $background-light;
+  border-radius: 31px;
+  transition: background-color 0.3s ease;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-thumb {
+  width: 27px;
+  height: 27px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 8px, rgba(0, 0, 0, 0.06) 0px 3px 1px;
+}
+
+.toggle-switch.active {
+  .toggle-track {
+    background-color: $accent;
+    justify-content: flex-end;
+  }
+}
+
+// Event Row (for checkboxes)
+.event-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #f3f4f6;
+  }
+}
+
+.event-label {
+  font-size: 1rem;
+  font-weight: 400;
+  color: $body-text;
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+}
+
+// Checkbox Group
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+// Custom Checkbox
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .checkmark {
+      background-color: $accent;
+      border-color: $accent;
+
+      &::after {
+        display: block;
+      }
+    }
+
+    &:focus + .checkmark {
+      box-shadow: 0 0 0 3px rgba($accent, 0.2);
+    }
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    input {
+      cursor: not-allowed;
+    }
+  }
+}
+
+.checkmark {
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    display: none;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-bottom: 2px;
+  }
+}
+
+.checkbox-label-text {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: $body-text;
+}
+
+// Time Selector Grid
+.time-selector-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+
+  @media (min-width: 640px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.time-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $body-text;
+}
+
+.time-dropdown {
+  width: 100%;
+  padding: 8px 36px 8px 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: $body-text;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $accent;
+    box-shadow: 0 0 0 3px rgba($accent, 0.2);
+  }
+
+  &:disabled {
+    background-color: #f9fafb;
+    cursor: not-allowed;
+  }
+}
+
+// Footer Actions
+.footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+
+.btn-save-footer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: white;
+  background-color: $heading-text;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: darken($heading-text, 8%);
+  }
+
+  &:disabled {
+    background-color: #d1d5db;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+}
+
+// Dark Mode Support
+:host-context(.dark-mode),
+:host-context([data-theme="dark"]) {
+  .notification-preferences-page {
+    background-color: #0f1a23;
+  }
+
+  .page-title {
+    color: white;
+  }
+
+  .page-subtitle,
+  .card-description,
+  .setting-description {
+    color: #9ca3af;
+  }
+
+  .settings-card {
+    background-color: #1a2835;
+    border-color: #314254;
+  }
+
+  .card-header {
+    border-color: #314254;
+  }
+
+  .card-title,
+  .setting-label,
+  .event-label,
+  .checkbox-label-text,
+  .field-label {
+    color: #e5e7eb;
+  }
+
+  .setting-row:not(:last-child),
+  .event-row:not(:last-child) {
+    border-color: #314254;
+  }
+
+  .toggle-track {
+    background-color: #374151;
+  }
+
+  .checkmark {
+    background-color: #374151;
+    border-color: #4b5563;
+  }
+
+  .time-dropdown {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: white;
+
+    &:disabled {
+      background-color: #1f2937;
+    }
+  }
+}

@@ -1,8 +1,8 @@
 <!-- PWA Install Banner -->
 <app-pwa-install-banner></app-pwa-install-banner>
 
-<!-- Breadcrumb Navigation (shown on all pages except login) -->
-<app-breadcrumb *ngIf="!isLoginPage()"></app-breadcrumb>
+<!-- Breadcrumb Navigation (shown on pages that need it) -->
+<app-breadcrumb *ngIf="shouldShowBreadcrumb()"></app-breadcrumb>
 
 <!-- Theme Customizer (shown on all pages except login) -->
 <app-theme-customizer *ngIf="!isLoginPage()"></app-theme-customizer>

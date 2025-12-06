@@ -11,11 +11,12 @@ import { DepartmentService } from '../../../services/department.service';
 import { SectionService } from '../../../services/section.service';
 import { PriorityMasterService } from '../../../services/priority-master.service';
 import { PreferredContactMethod, ComplaintPriority } from '../../../models/complaint.model';
+import { AppHeaderComponent } from '../../shared/app-header/app-header.component';
 
 @Component({
   selector: 'app-complaint-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, AppHeaderComponent],
   templateUrl: './complaint-form.component.html',
   styleUrls: ['./complaint-form.component.scss']
 })
@@ -49,7 +50,7 @@ export class ComplaintFormComponent implements OnInit {
     { value: PreferredContactMethod.InApp, label: 'In-App Notification' }
   ];
 
-  priorityOptions: { value: string, label: string }[] = [];  // Changed from number to string (GUID)
+  priorityOptions: { value: string, label: string }[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -465,5 +466,26 @@ export class ComplaintFormComponent implements OnInit {
     }
 
     return '';
+  }
+
+  getBranchName(): string {
+    const branchId = this.complaintForm.get('branchId')?.value;
+    if (!branchId) return '';
+    const branch = this.branches.find(b => b.id === branchId);
+    return branch?.name || '';
+  }
+
+  getDepartmentName(): string {
+    const departmentId = this.complaintForm.get('departmentId')?.value;
+    if (!departmentId) return '';
+    const department = this.departments.find(d => d.id === departmentId);
+    return department?.name || '';
+  }
+
+  getSectionName(): string {
+    const sectionId = this.complaintForm.get('sectionId')?.value;
+    if (!sectionId) return '';
+    const section = this.sections.find(s => s.id === sectionId);
+    return section?.name || '';
   }
 }

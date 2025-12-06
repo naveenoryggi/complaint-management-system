@@ -1,0 +1,155 @@
+<div class="notification-preferences-page">
+  <div class="content-wrapper">
+    <!-- Page Header -->
+    <header class="page-header">
+      <div class="header-content">
+        <h1 class="page-title">Notification Preferences</h1>
+        <p class="page-subtitle">Manage how and when you receive notifications from the system.</p>
+      </div>
+      <button
+        class="btn-save-header"
+        [class.disabled]="!hasChanges || saving"
+        [disabled]="!hasChanges || saving"
+        (click)="savePreferences()">
+        {{ saving ? 'Saving...' : 'Save Changes' }}
+      </button>
+    </header>
+
+    <!-- Success/Error Messages -->
+    <div *ngIf="successMessage" class="toast-notification success">
+      <i class="fa-solid fa-circle-check"></i>
+      <span>{{ successMessage }}</span>
+    </div>
+    <div *ngIf="errorMessage" class="toast-notification error">
+      <i class="fa-solid fa-circle-xmark"></i>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading preferences...</p>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!loading" class="cards-container">
+      <!-- Notification Channels Card -->
+      <section class="settings-card">
+        <div class="card-header">
+          <h2 class="card-title">Notification Channels</h2>
+          <p class="card-description">Choose where you receive notifications.</p>
+        </div>
+        <div class="card-body">
+          <div *ngFor="let channel of channels" class="setting-row">
+            <div class="setting-info">
+              <p class="setting-label">{{ channel.name }}</p>
+              <p class="setting-description">{{ channel.description }}</p>
+            </div>
+            <label class="toggle-switch" [class.active]="channel.enabled">
+              <input
+                type="checkbox"
+                [checked]="channel.enabled"
+                (change)="onChannelToggle(channel)">
+              <span class="toggle-track">
+                <span class="toggle-thumb"></span>
+              </span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Event-Specific Notifications Card -->
+      <section class="settings-card">
+        <div class="card-header">
+          <h2 class="card-title">Event-Specific Notifications</h2>
+          <p class="card-description">Select which events you want to be notified about and where.</p>
+        </div>
+        <div class="card-body">
+          <div *ngFor="let event of eventNotifications" class="event-row">
+            <p class="event-label">{{ event.event }}</p>
+            <div class="checkbox-group">
+              <label class="checkbox-item" [class.disabled]="!isInAppEnabled()">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="event.inApp"
+                  [disabled]="!isInAppEnabled()"
+                  (change)="onEventNotificationChange()">
+                <span class="checkmark"></span>
+                <span class="checkbox-label-text">In-app</span>
+              </label>
+              <label class="checkbox-item" [class.disabled]="!isEmailEnabled()">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="event.email"
+                  [disabled]="!isEmailEnabled()"
+                  (change)="onEventNotificationChange()">
+                <span class="checkmark"></span>
+                <span class="checkbox-label-text">Email</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quiet Hours Card -->
+      <section class="settings-card">
+        <div class="card-header">
+          <h2 class="card-title">Quiet Hours</h2>
+          <p class="card-description">Define a period where you will not receive any notifications.</p>
+        </div>
+        <div class="card-body">
+          <div class="setting-row">
+            <div class="setting-info">
+              <p class="setting-label">Enable Quiet Hours</p>
+              <p class="setting-description">Silence all notifications during a specified time.</p>
+            </div>
+            <label class="toggle-switch" [class.active]="quietHours.enabled">
+              <input
+                type="checkbox"
+                [checked]="quietHours.enabled"
+                (change)="onQuietHoursToggle()">
+              <span class="toggle-track">
+                <span class="toggle-thumb"></span>
+              </span>
+            </label>
+          </div>
+
+          <div class="time-selector-grid" [class.disabled]="!quietHours.enabled">
+            <div class="time-field">
+              <label class="field-label" for="start-time">Start Time</label>
+              <select
+                id="start-time"
+                class="time-dropdown"
+                [(ngModel)]="quietHours.startTime"
+                [disabled]="!quietHours.enabled"
+                (change)="onQuietHoursTimeChange()">
+                <option *ngFor="let time of timeOptions" [value]="time">{{ time }}</option>
+              </select>
+            </div>
+            <div class="time-field">
+              <label class="field-label" for="end-time">End Time</label>
+              <select
+                id="end-time"
+                class="time-dropdown"
+                [(ngModel)]="quietHours.endTime"
+                [disabled]="!quietHours.enabled"
+                (change)="onQuietHoursTimeChange()">
+                <option *ngFor="let time of timeOptions" [value]="time">{{ time }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer Save Button -->
+      <div class="footer-actions">
+        <button
+          class="btn-save-footer"
+          [disabled]="!hasChanges || saving"
+          (click)="savePreferences()">
+          {{ saving ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

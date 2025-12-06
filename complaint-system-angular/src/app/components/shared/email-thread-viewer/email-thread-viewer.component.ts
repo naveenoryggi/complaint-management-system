@@ -348,24 +348,38 @@ export class EmailThreadViewerComponent implements OnInit, OnDestroy {
   /**
    * Sanitize HTML content using DOMPurify
    * Removes potentially dangerous tags and attributes
+   * Pre-processes to remove style/script tags completely (including their content)
    */
   sanitizeHtml(html: string | undefined): SafeHtml {
     if (!html) {
       return '';
     }
 
+    // Pre-process: Remove <style>, <script>, <head>, and <meta> tags completely (including content)
+    // This prevents CSS/JS content from appearing as raw text after DOMPurify strips the tags
+    let preprocessed = html
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Remove style tags and content
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Remove script tags and content
+      .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '') // Remove head tags and content
+      .replace(/<meta[^>]*\/?>/gi, '') // Remove meta tags
+      .replace(/<link[^>]*\/?>/gi, '') // Remove link tags (external stylesheets)
+      .replace(/<!--[\s\S]*?-->/g, ''); // Remove HTML comments
+
     // Configure DOMPurify to allow safe HTML while removing dangerous content
-    const clean = DOMPurify.sanitize(html, {
+    const clean = DOMPurify.sanitize(preprocessed, {
       ALLOWED_TAGS: [
         'p', 'br', 'strong', 'em', 'u', 's', 'a', 'span', 'div',
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'ul', 'ol', 'li', 'blockquote', 'pre', 'code',
-        'table', 'thead', 'tbody', 'tr', 'th', 'td',
-        'img'
+        'table', 'thead', 'tbody', 'tr', 'th', 'td', 'caption', 'colgroup', 'col',
+        'img', 'figure', 'figcaption',
+        'b', 'i', 'small', 'mark', 'sub', 'sup',
+        'hr', 'center', 'font'
       ],
       ALLOWED_ATTR: [
         'href', 'title', 'target', 'rel', 'class', 'style',
-        'src', 'alt', 'width', 'height'
+        'src', 'alt', 'width', 'height', 'border', 'cellpadding', 'cellspacing',
+        'align', 'valign', 'bgcolor', 'color', 'size', 'face'
       ],
       ALLOW_DATA_ATTR: false,
       FORCE_BODY: true,

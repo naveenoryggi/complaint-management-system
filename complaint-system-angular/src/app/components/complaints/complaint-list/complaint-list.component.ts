@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ComplaintService } from '../../../services/complaint.service';
@@ -14,12 +14,15 @@ import { VirtualScrollTableComponent, TableColumn, SortEvent } from '../../../co
 @Component({
   selector: 'app-complaint-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, VirtualScrollTableComponent],
+  imports: [CommonModule, FormsModule, RouterModule, VirtualScrollTableComponent],
   templateUrl: './complaint-list.component.html',
   styleUrls: ['./complaint-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ComplaintListComponent implements OnInit, OnDestroy {
+  // Expose Math to template
+  Math = Math;
+
   complaints: Complaint[] = [];
   loading = false;
   error: string | null = null;
@@ -552,7 +555,7 @@ export class ComplaintListComponent implements OnInit, OnDestroy {
 
   // Virtual Scroll Table Helper Methods - Using existing methods above
 
-  trackComplaintBy = (complaint: Complaint): string => {
+  trackComplaintBy = (index: number, complaint: Complaint): string => {
     return complaint.id;
   };
 
@@ -563,6 +566,74 @@ export class ComplaintListComponent implements OnInit, OnDestroy {
   onSort(event: SortEvent): void {
     // Handle sorting if needed
     console.log('Sort event:', event);
+  }
+
+  // Badge class helpers for new UI design
+  getStatusBadgeClass(status: ComplaintStatus | number | string | undefined | null): string {
+    if (status === null || status === undefined) {
+      return 'status-submitted';
+    }
+
+    // Handle string values from API
+    if (typeof status === 'string') {
+      switch(status.toLowerCase()) {
+        case 'closed': return 'status-closed';
+        case 'resolved': return 'status-resolved';
+        case 'inprogress':
+        case 'in progress': return 'status-in-progress';
+        case 'escalated': return 'status-escalated';
+        case 'submitted': return 'status-submitted';
+        case 'underreview':
+        case 'under review': return 'status-under-review';
+        case 'pendinginfo':
+        case 'pending info': return 'status-pending';
+        case 'rejected': return 'status-rejected';
+        case 'reopened': return 'status-reopened';
+        default: return 'status-submitted';
+      }
+    }
+
+    const statusValue = typeof status === 'number' ? status : Number(status as unknown);
+    switch(statusValue) {
+      case ComplaintStatus.Closed: return 'status-closed';
+      case ComplaintStatus.Resolved: return 'status-resolved';
+      case ComplaintStatus.InProgress: return 'status-in-progress';
+      case ComplaintStatus.Escalated: return 'status-escalated';
+      case ComplaintStatus.Submitted: return 'status-submitted';
+      case ComplaintStatus.UnderReview: return 'status-under-review';
+      case ComplaintStatus.PendingInfo: return 'status-pending';
+      case ComplaintStatus.Rejected: return 'status-rejected';
+      case ComplaintStatus.Reopened: return 'status-reopened';
+      default: return 'status-submitted';
+    }
+  }
+
+  getPriorityBadgeClass(priority: number | string | undefined | null): string {
+    if (priority === null || priority === undefined) {
+      return 'priority-normal';
+    }
+
+    // Handle string values from API
+    if (typeof priority === 'string') {
+      switch(priority.toLowerCase()) {
+        case 'critical': return 'priority-critical';
+        case 'urgent': return 'priority-urgent';
+        case 'high': return 'priority-high';
+        case 'normal':
+        case 'medium': return 'priority-normal';
+        case 'low': return 'priority-low';
+        default: return 'priority-normal';
+      }
+    }
+
+    switch(priority) {
+      case ComplaintPriority.Critical: return 'priority-critical';
+      case ComplaintPriority.Urgent: return 'priority-urgent';
+      case ComplaintPriority.High: return 'priority-high';
+      case ComplaintPriority.Normal: return 'priority-normal';
+      case ComplaintPriority.Low: return 'priority-low';
+      default: return 'priority-normal';
+    }
   }
 
   // Memory Leak Prevention

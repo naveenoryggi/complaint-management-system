@@ -168,5 +168,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/shared/change-password/change-password.component').then(m => m.ChangePasswordComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'admin/notification-preferences',
+    loadComponent: () => import('./components/admin/notification-preferences/notification-preferences.component').then(m => m.NotificationPreferencesComponent),
+    canActivate: [authGuard]
+  },
   { path: '**', redirectTo: '/login' }
 ];

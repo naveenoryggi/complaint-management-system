@@ -431,11 +431,23 @@ export class EmailThreadService {
 
   /**
    * Strip HTML tags from string
+   * Pre-processes to remove style/script tags completely before extracting text
    */
   stripHtml(html: string): string {
     if (!html) return '';
+
+    // Pre-process: Remove <style>, <script>, <head>, and other non-visible content tags
+    // This prevents CSS/JS content from appearing in the text output
+    let preprocessed = html
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Remove style tags and content
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Remove script tags and content
+      .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '') // Remove head tags and content
+      .replace(/<meta[^>]*\/?>/gi, '') // Remove meta tags
+      .replace(/<link[^>]*\/?>/gi, '') // Remove link tags
+      .replace(/<!--[\s\S]*?-->/g, ''); // Remove HTML comments
+
     const tmp = document.createElement('DIV');
-    tmp.innerHTML = html;
+    tmp.innerHTML = preprocessed;
     return tmp.textContent || tmp.innerText || '';
   }
 

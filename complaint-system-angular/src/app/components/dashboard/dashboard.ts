@@ -76,6 +76,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     resolved: 0
   };
 
+  // Unassigned complaints count
+  unassignedCount: number = 0;
+
   // Dynamic Dashboard
   dashboardPreferences?: DashboardPreferences;
   dashboardStatistics?: DashboardStatistics;
@@ -85,6 +88,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Theme Settings
   showThemeSettings: boolean = false;
+
+  // New Dashboard Design Properties
+  selectedTimeRange: string = 'today';
+  statusTimeRange: string = '30';
+  categoryStats: { name: string; percentage: number }[] = [];
+  categoryColors: string[] = ['#0057FF', '#34c759', '#ff9500', '#ff3b30', '#5856d6', '#af52de'];
+
+  // Quick Filter for Recent Complaints
+  quickFilter: string = 'all';
+
+  // Math reference for template usage
+  Math = Math;
 
   // Assignment Modal
   showAssignModal = false;
@@ -274,10 +289,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.complaints = response.data.items;
           this.totalCount = response.data.totalCount;
           this.totalPages = response.data.totalPages;
+          this.loadCategoryStats(); // Load category statistics from complaints
+          // Calculate unassigned count from loaded complaints
+          this.calculateUnassignedCount();
         }
         console.log('Complaints loaded in parallel with role-based filtering');
       })
     );
+  }
+
+  /**
+   * Calculate unassigned complaints count from loaded complaints
+   * This counts complaints where assignedToId is null, empty, or undefined
+   */
+  calculateUnassignedCount(): void {
+    if (this.complaints && this.complaints.length > 0) {
+      this.unassignedCount = this.complaints.filter(
+        (c: any) => !c.assignedToId || c.assignedToId === '' || c.assignedToId === null
+      ).length;
+    }
   }
 
   loadStatisticsParallel(): Observable<void> {
@@ -477,6 +507,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.complaints = response.data.items;
           this.totalCount = response.data.totalCount;
           this.totalPages = response.data.totalPages;
+          this.loadCategoryStats(); // Load category statistics from complaints
         }
         this.loading = false;
       },
@@ -790,6 +821,119 @@ export class DashboardComponent implements OnInit, OnDestroy {
   
   getLayoutClass(): string {
     return 'layout-' + (this.dashboardPreferences?.layout || 'grid-4');
+  }
+
+  // New Dashboard Design Methods
+  setTimeRange(range: string): void {
+    this.selectedTimeRange = range;
+    // Update date range and reload data
+    let days = 1;
+    switch (range) {
+      case 'today': days = 1; break;
+      case 'week': days = 7; break;
+      case 'month': days = 30; break;
+      case 'custom': days = 30; break; // For custom, you could open a date picker
+    }
+    if (this.dashboardPreferences) {
+      this.dashboardPreferences.dateRangeDays = days;
+    }
+    this.loadDashboardStatistics();
+  }
+
+  onStatusTimeRangeChange(): void {
+    let days = 30;
+    switch (this.statusTimeRange) {
+      case '7': days = 7; break;
+      case '30': days = 30; break;
+      case 'month': days = 30; break;
+      case 'year': days = 365; break;
+    }
+    if (this.dashboardPreferences) {
+      this.dashboardPreferences.dateRangeDays = days;
+    }
+    this.loadDashboardStatistics();
+  }
+
+  formatResolutionTime(hours?: number): string {
+    if (!hours || hours === 0) return 'N/A';
+    const days = hours / 24;
+    if (days >= 1) {
+      return `${days.toFixed(1)} Days`;
+    }
+    return `${hours.toFixed(0)} Hours`;
+  }
+
+  getCategoryColor(index: number): string {
+    return this.categoryColors[index % this.categoryColors.length];
+  }
+
+  loadCategoryStats(): void {
+    // Calculate category statistics from complaints
+    const categoryMap = new Map<string, number>();
+    let total = 0;
+
+    this.complaints.forEach(complaint => {
+      const categoryName = complaint.categoryName || 'Other';
+      categoryMap.set(categoryName, (categoryMap.get(categoryName) || 0) + 1);
+      total++;
+    });
+
+    if (total > 0) {
+      this.categoryStats = Array.from(categoryMap.entries())
+        .map(([name, count]) => ({
+          name,
+          percentage: Math.round((count / total) * 100)
+        }))
+        .sort((a, b) => b.percentage - a.percentage)
+        .slice(0, 6); // Top 6 categories
+    }
+  }
+
+  // Quick Filter Methods for Recent Complaints
+  setQuickFilter(filter: string): void {
+    this.quickFilter = filter;
+    this.currentPage = 1;
+
+    // Apply filter logic
+    switch (filter) {
+      case 'unassigned':
+        // Filter to show only unassigned complaints
+        this.selectedStatus = '';
+        this.selectedPriority = '';
+        break;
+      case 'urgent':
+        // Filter to show high priority complaints
+        const urgentPriority = this.priorityOptions.find(p =>
+          p.label.toLowerCase() === 'high' ||
+          p.label.toLowerCase() === 'urgent' ||
+          p.label.toLowerCase() === 'critical'
+        );
+        this.selectedPriority = urgentPriority?.value || '';
+        this.selectedStatus = '';
+        break;
+      default:
+        // Reset filters for 'all'
+        this.selectedStatus = '';
+        this.selectedPriority = '';
+        break;
+    }
+
+    this.loadComplaints();
+  }
+
+  refreshComplaints(): void {
+    this.loading = true;
+    this.loadComplaintsParallel().subscribe({
+      next: () => {
+        this.loading = false;
+        this.calculateUnassignedCount();
+        console.log('Complaints refreshed successfully');
+      },
+      error: (error) => {
+        console.error('Error refreshing complaints:', error);
+        this.loading = false;
+      }
+    });
   }
 
   // Assignment Modal Methods

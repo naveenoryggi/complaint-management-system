@@ -26,86 +26,87 @@ export class AdminMenuConfigService {
     {
       id: 'dashboard-reports',
       label: 'Dashboard & Reports',
-      icon: 'bi-speedometer2',
+      icon: 'fa-gauge-high',
       color: '#4CAF50',
       order: 1,
       expanded: false,
       items: [
-        { label: 'Company Settings', route: 'company-settings', icon: 'bi-building' }
+        { label: 'Company Settings', route: 'company-settings', icon: 'fa-building' }
       ]
     },
     {
       id: 'user-management',
       label: 'User Management',
-      icon: 'bi-people-fill',
+      icon: 'fa-users',
       color: '#2196F3',
       order: 2,
       expanded: false,
       items: [
-        { label: 'Users', route: 'users', icon: 'bi-people' },
-        { label: 'Roles & Permissions', route: 'roles', icon: 'bi-shield-lock' },
-        { label: 'Password Management', route: 'password-management', icon: 'bi-key-fill', badge: 'New', permission: 'ManageUsers' },
-        { label: 'Employee Types', route: 'employee-types', icon: 'bi-person-badge' },
-        { label: 'Resource Pools', route: 'resource-pools', icon: 'bi-people-fill', badge: 'New' }
+        { label: 'Users', route: 'users', icon: 'fa-users' },
+        { label: 'Roles & Permissions', route: 'roles', icon: 'fa-shield-halved' },
+        { label: 'Password Management', route: 'password-management', icon: 'fa-key', badge: 'New', permission: 'ManageUsers' },
+        { label: 'Employee Types', route: 'employee-types', icon: 'fa-id-badge' },
+        { label: 'Resource Pools', route: 'resource-pools', icon: 'fa-users-rectangle', badge: 'New' }
       ]
     },
     {
       id: 'org-structure',
       label: 'Organizational Structure',
-      icon: 'bi-diagram-3-fill',
+      icon: 'fa-sitemap',
       color: '#FF9800',
       order: 3,
       expanded: false,
       items: [
-        { label: 'Branches', route: 'branches', icon: 'bi-geo-alt' },
-        { label: 'Departments', route: 'departments', icon: 'bi-building-gear' },
-        { label: 'Sections', route: 'sections', icon: 'bi-boxes' }
+        { label: 'Branches', route: 'branches', icon: 'fa-location-dot' },
+        { label: 'Departments', route: 'departments', icon: 'fa-building-user' },
+        { label: 'Sections', route: 'sections', icon: 'fa-cubes' }
       ]
     },
     {
       id: 'complaint-config',
       label: 'Complaint Configuration',
-      icon: 'bi-gear-fill',
+      icon: 'fa-gears',
       color: '#9C27B0',
       order: 4,
       expanded: false,
       items: [
-        { label: 'Categories', route: 'categories', icon: 'bi-tags' },
-        { label: 'Status Masters', route: 'status-masters', icon: 'bi-circle' },
-        { label: 'Priority Masters', route: 'priority-masters', icon: 'bi-flag' },
-        { label: 'SLA Management', route: 'sla-management', icon: 'bi-clock-history', badge: 'New', permission: 'ViewSLA' },
-        { label: 'Workflow Management', route: 'workflow-management', icon: 'bi-diagram-2', badge: 'New' },
-        { label: 'Complaint Settings', route: 'complaint-info-settings', icon: 'bi-sliders' }
+        { label: 'Categories', route: 'categories', icon: 'fa-tags' },
+        { label: 'Status Masters', route: 'status-masters', icon: 'fa-circle' },
+        { label: 'Priority Masters', route: 'priority-masters', icon: 'fa-flag' },
+        { label: 'SLA Management', route: 'sla-management', icon: 'fa-clock-rotate-left', badge: 'New', permission: 'ViewSLA' },
+        { label: 'Workflow Management', route: 'workflow-management', icon: 'fa-diagram-project', badge: 'New' },
+        { label: 'Complaint Settings', route: 'complaint-info-settings', icon: 'fa-sliders' }
       ]
     },
     {
       id: 'communication',
       label: 'Communication Settings',
-      icon: 'bi-megaphone-fill',
+      icon: 'fa-bullhorn',
       color: '#00BCD4',
       order: 5,
       expanded: false,
       items: [
-        { label: 'Email Settings', route: 'email-settings', icon: 'bi-envelope-at' },
-        { label: 'Email Ticketing', route: 'email-ticketing-config', icon: 'bi-envelope-open-text', badge: 'New', permission: 'ManageSettings' },
-        { label: 'SMS Gateway', route: 'sms-gateway', icon: 'bi-phone' },
-        { label: 'WhatsApp Settings', route: 'whatsapp-settings', icon: 'bi-whatsapp' },
-        { label: 'Templates', route: 'templates', icon: 'bi-file-earmark-text' },
-        { label: 'Event Types', route: 'event-types', icon: 'bi-calendar-event' },
-        { label: 'Notification Rules', route: 'notification-rules', icon: 'bi-bell' }
+        { label: 'Email Settings', route: 'email-settings', icon: 'fa-at' },
+        { label: 'Email Ticketing', route: 'email-ticketing-config', icon: 'fa-envelope-open-text', badge: 'New', permission: 'ManageSettings' },
+        { label: 'SMS Gateway', route: 'sms-gateway', icon: 'fa-mobile-screen' },
+        { label: 'WhatsApp Settings', route: 'whatsapp-settings', icon: 'fa-brands fa-whatsapp' },
+        { label: 'Templates', route: 'templates', icon: 'fa-file-lines' },
+        { label: 'Event Types', route: 'event-types', icon: 'fa-calendar-days' },
+        { label: 'Notification Rules', route: 'notification-rules', icon: 'fa-bell' },
+        { label: 'Notification Preferences', route: 'notification-preferences', icon: 'fa-sliders', badge: 'New' }
       ]
     },
     {
       id: 'integrations',
       label: 'Integrations & Automation',
-      icon: 'bi-arrow-repeat',
+      icon: 'fa-rotate',
       color: '#F44336',
       order: 6,
       expanded: false,
       items: [
-        { label: 'Oryggi Sync', route: 'oryggi-sync', icon: 'bi-arrow-repeat' },
-        { label: 'Escalation Matrix', route: 'escalation-matrix', icon: 'bi-diagram-3' },
-        { label: 'Escalation Policy', route: 'escalation-policy', icon: 'bi-shield-check' }
+        { label: 'Oryggi Sync', route: 'oryggi-sync', icon: 'fa-rotate' },
+        { label: 'Escalation Matrix', route: 'escalation-matrix', icon: 'fa-sitemap' },
+        { label: 'Escalation Policy', route: 'escalation-policy', icon: 'fa-shield-check' }
       ]
     }
   ];

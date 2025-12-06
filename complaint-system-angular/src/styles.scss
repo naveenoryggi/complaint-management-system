@@ -3,7 +3,7 @@
 // =============================================================================
 
 // Import Google Fonts
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@200..800&family=Roboto:wght@300;400;500;700&display=swap');
 
 // -----------------------------------------------------------------------------
 // 1. DESIGN TOKENS - COLOR SYSTEM
@@ -100,7 +100,7 @@ $neutral-950: #0a0a0a;
 // -----------------------------------------------------------------------------
 
 // Font Families
-$font-family-sans: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+$font-family-sans: 'Manrope', 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 $font-family-mono: 'Fira Code', 'Monaco', 'Cascadia Code', 'Segoe UI Mono', 'Roboto Mono', monospace;
 
 // Font Sizes
@@ -486,6 +486,16 @@ body {
   color: var(--text-primary);
   background-color: var(--background-color, #ffffff);
   transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+// Ensure all form elements inherit font family
+input,
+textarea,
+select,
+button,
+optgroup,
+option {
+  font-family: inherit;
 }
 
 // Focus styles for accessibility
@@ -2105,6 +2115,9 @@ body {
 
 // Ensure content sits above background
 app-root {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
   position: relative;
   z-index: 1;
 }
@@ -2662,5 +2675,219 @@ app-root {
     border: 1px solid #000 !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// GLOBAL COLORFUL ICON SYSTEM
+// -----------------------------------------------------------------------------
+
+// Icon Wrapper - Base styles for colorful icon backgrounds
+.icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  flex-shrink: 0;
+
+  i {
+    color: white;
+  }
+
+  // Size variants
+  &.icon-xs {
+    width: 24px;
+    height: 24px;
+    i { font-size: 0.75rem; }
+  }
+
+  &.icon-sm {
+    width: 32px;
+    height: 32px;
+    i { font-size: 0.875rem; }
+  }
+
+  &.icon-md {
+    width: 40px;
+    height: 40px;
+    i { font-size: 1.125rem; }
+  }
+
+  &.icon-lg {
+    width: 48px;
+    height: 48px;
+    i { font-size: 1.375rem; }
+  }
+
+  &.icon-xl {
+    width: 56px;
+    height: 56px;
+    i { font-size: 1.5rem; }
+  }
+
+  // Color variants - Gradient backgrounds
+  &.icon-blue {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  }
+
+  &.icon-purple {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  }
+
+  &.icon-green {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  }
+
+  &.icon-red {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  }
+
+  &.icon-orange {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  &.icon-teal {
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  }
+
+  &.icon-pink {
+    background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  }
+
+  &.icon-indigo {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  }
+
+  &.icon-cyan {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  }
+
+  &.icon-amber {
+    background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+  }
+
+  &.icon-emerald {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  &.icon-rose {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  }
+
+  &.icon-slate {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  }
+
+  // Soft/Light color variants with colored icon
+  &.icon-blue-soft {
+    background: rgba(59, 130, 246, 0.15);
+    i { color: #3b82f6; }
+  }
+
+  &.icon-purple-soft {
+    background: rgba(139, 92, 246, 0.15);
+    i { color: #8b5cf6; }
+  }
+
+  &.icon-green-soft {
+    background: rgba(34, 197, 94, 0.15);
+    i { color: #22c55e; }
+  }
+
+  &.icon-red-soft {
+    background: rgba(239, 68, 68, 0.15);
+    i { color: #ef4444; }
+  }
+
+  &.icon-orange-soft {
+    background: rgba(245, 158, 11, 0.15);
+    i { color: #f59e0b; }
+  }
+
+  &.icon-teal-soft {
+    background: rgba(20, 184, 166, 0.15);
+    i { color: #14b8a6; }
+  }
+
+  &.icon-pink-soft {
+    background: rgba(236, 72, 153, 0.15);
+    i { color: #ec4899; }
+  }
+
+  &.icon-indigo-soft {
+    background: rgba(99, 102, 241, 0.15);
+    i { color: #6366f1; }
+  }
+
+  // Circular variant
+  &.icon-circle {
+    border-radius: 50%;
+  }
+
+  // Square variant (less rounded)
+  &.icon-square {
+    border-radius: 6px;
+  }
+}
+
+// Standalone colorful icons (without wrapper)
+.text-icon-blue { color: #3b82f6 !important; }
+.text-icon-purple { color: #8b5cf6 !important; }
+.text-icon-green { color: #22c55e !important; }
+.text-icon-red { color: #ef4444 !important; }
+.text-icon-orange { color: #f59e0b !important; }
+.text-icon-teal { color: #14b8a6 !important; }
+.text-icon-pink { color: #ec4899 !important; }
+.text-icon-indigo { color: #6366f1 !important; }
+.text-icon-cyan { color: #06b6d4 !important; }
+.text-icon-amber { color: #f59e0b !important; }
+.text-icon-emerald { color: #10b981 !important; }
+.text-icon-rose { color: #f43f5e !important; }
+.text-icon-slate { color: #64748b !important; }
+
+// Action buttons with colorful icons
+.action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &.action-view {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    &:hover { background: rgba(59, 130, 246, 0.2); }
+  }
+
+  &.action-edit {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    &:hover { background: rgba(245, 158, 11, 0.2); }
+  }
+
+  &.action-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    &:hover { background: rgba(239, 68, 68, 0.2); }
+  }
+
+  &.action-success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    &:hover { background: rgba(34, 197, 94, 0.2); }
+  }
+
+  &.action-info {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+    &:hover { background: rgba(99, 102, 241, 0.2); }
   }
 }

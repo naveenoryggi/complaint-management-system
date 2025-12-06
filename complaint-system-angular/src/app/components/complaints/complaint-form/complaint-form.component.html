@@ -1,472 +1,287 @@
-<div class="complaint-form-wrapper">
-  <!-- Header -->
-  <div class="form-header">
-    <div class="container-lg">
-      <div class="header-content">
-        <button class="btn-back" (click)="goBack()">
-          <i class="bi bi-arrow-left"></i>
-        </button>
-        <div class="header-text">
-          <h1 class="page-title">{{ isEditMode ? 'Edit Complaint' : 'Submit New Complaint' }}</h1>
-          <p class="page-subtitle">We're here to help. Please provide details about your concern.</p>
-        </div>
-      </div>
+<!-- Shared Navigation Header -->
+<app-header [activeNavLink]="'complaints'"></app-header>
+
+<div class="complaint-form-page">
+  <div class="content-wrapper">
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1 class="page-title">{{ isEditMode ? 'Edit Complaint' : 'Submit a New Complaint' }}</h1>
+      <p class="page-subtitle">Please fill out the form below to submit your complaint. We will get back to you as soon as possible.</p>
+    </header>
+
+    <!-- Error Message -->
+    <div *ngIf="error" class="alert-message error">
+      <i class="bi bi-exclamation-circle"></i>
+      <span>{{ error }}</span>
+      <button type="button" class="alert-close" (click)="error = null">
+        <i class="bi bi-x"></i>
+      </button>
     </div>
-  </div>
 
-  <!-- Main Content -->
-  <div class="form-content">
-    <div class="container-lg">
-      <!-- Error Message -->
-      <div *ngIf="error" class="alert-modern alert-danger" role="alert">
-        <div class="alert-icon">
-          <i class="bi bi-exclamation-circle"></i>
-        </div>
-        <div class="alert-content">
-          <strong>Error</strong>
-          <p>{{ error }}</p>
-        </div>
-        <button type="button" class="alert-close" (click)="error = null">
-          <i class="bi bi-x"></i>
-        </button>
-      </div>
+    <!-- Form -->
+    <form [formGroup]="complaintForm" (ngSubmit)="onSubmit()">
+      <!-- Complaint Details Section -->
+      <section class="form-section">
+        <h2 class="section-title">Complaint Details</h2>
 
-      <!-- Form -->
-      <form [formGroup]="complaintForm" (ngSubmit)="onSubmit()">
-        <div class="row g-4">
-          <!-- Left Column -->
-          <div class="col-lg-8">
-            <!-- Basic Information Section -->
-            <div class="form-section">
-              <div class="section-header">
-                <div class="section-icon">
-                  <i class="bi bi-file-text"></i>
-                </div>
-                <div>
-                  <h2 class="section-title">Complaint Details</h2>
-                  <p class="section-subtitle">Provide a clear description of your concern</p>
-                </div>
-              </div>
-
-              <div class="section-content">
-                <!-- Title -->
-                <div class="form-group">
-                  <label for="title" class="form-label-modern">
-                    <i class="bi bi-pencil"></i>
-                    Complaint Title <span class="required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    class="form-control-modern"
-                    id="title"
-                    formControlName="title"
-                    [class.is-invalid]="isFieldInvalid('title')"
-                    placeholder="Brief summary of your complaint"
-                    maxlength="200">
-                  <div class="field-footer">
-                    <div class="invalid-feedback" *ngIf="isFieldInvalid('title')">
-                      <i class="bi bi-exclamation-circle"></i> {{ getFieldError('title') }}
-                    </div>
-                    <span class="char-counter">{{ complaintForm.get('title')?.value?.length || 0 }}/200</span>
-                  </div>
-                </div>
-
-                <!-- Description -->
-                <div class="form-group">
-                  <label for="description" class="form-label-modern">
-                    <i class="bi bi-card-text"></i>
-                    Detailed Description <span class="required">*</span>
-                  </label>
-                  <textarea
-                    class="form-control-modern"
-                    id="description"
-                    formControlName="description"
-                    rows="6"
-                    [class.is-invalid]="isFieldInvalid('description')"
-                    placeholder="Please provide a detailed explanation of the issue, including when it occurred and any relevant context..."
-                    maxlength="2000"></textarea>
-                  <div class="field-footer">
-                    <div class="invalid-feedback" *ngIf="isFieldInvalid('description')">
-                      <i class="bi bi-exclamation-circle"></i> {{ getFieldError('description') }}
-                    </div>
-                    <span class="char-counter">{{ complaintForm.get('description')?.value?.length || 0 }}/2000</span>
-                  </div>
-                </div>
-
-                <!-- Category and Priority Row -->
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="categoryId" class="form-label-modern">
-                        <i class="bi bi-tag"></i>
-                        Category <span class="required">*</span>
-                      </label>
-                      <select
-                        class="form-select-modern"
-                        id="categoryId"
-                        formControlName="categoryId"
-                        [class.is-invalid]="isFieldInvalid('categoryId')">
-                        <option value="">Choose a category...</option>
-                        <option *ngFor="let category of categories" [value]="category.id">
-                          {{ category.name }}
-                        </option>
-                      </select>
-                      <div class="invalid-feedback" *ngIf="isFieldInvalid('categoryId')">
-                        <i class="bi bi-exclamation-circle"></i> {{ getFieldError('categoryId') }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="priority" class="form-label-modern">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        Priority Level <span class="required">*</span>
-                      </label>
-                      <select
-                        class="form-select-modern"
-                        id="priority"
-                        formControlName="priorityMasterId"
-                        [class.is-invalid]="isFieldInvalid('priorityMasterId')">
-                        <option *ngFor="let priority of priorityOptions" [ngValue]="priority.value">
-                          {{ priority.label }}
-                        </option>
-                      </select>
-                      <div class="invalid-feedback" *ngIf="isFieldInvalid('priorityMasterId')">
-                        <i class="bi bi-exclamation-circle"></i> {{ getFieldError('priorityMasterId') }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Tags -->
-                <div class="form-group">
-                  <label for="tags" class="form-label-modern">
-                    <i class="bi bi-tags"></i>
-                    Tags <span class="optional-badge">Optional</span>
-                  </label>
-                  <input
-                    type="text"
-                    class="form-control-modern"
-                    id="tags"
-                    formControlName="tags"
-                    placeholder="e.g., urgent, facility, it-support">
-                  <small class="form-hint">
-                    <i class="bi bi-info-circle"></i> Separate multiple tags with commas
-                  </small>
-                </div>
-              </div>
-            </div>
-
-            <!-- Contact Information Section -->
-            <div class="form-section">
-              <div class="section-header">
-                <div class="section-icon">
-                  <i class="bi bi-telephone"></i>
-                </div>
-                <div>
-                  <h2 class="section-title">Contact Information</h2>
-                  <p class="section-subtitle">How should we reach you regarding this complaint?</p>
-                </div>
-              </div>
-
-              <div class="section-content">
-                <div class="row g-3">
-                  <!-- Contact Email -->
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="contactEmail" class="form-label-modern">
-                        <i class="bi bi-envelope"></i>
-                        Email Address
-                      </label>
-                      <input
-                        type="email"
-                        class="form-control-modern"
-                        id="contactEmail"
-                        formControlName="contactEmail"
-                        [class.is-invalid]="isFieldInvalid('contactEmail')"
-                        placeholder="your.email@company.com">
-                      <small class="form-hint auto-filled">
-                        <i class="bi bi-check-circle"></i> Auto-populated from your profile
-                      </small>
-                      <div class="invalid-feedback" *ngIf="isFieldInvalid('contactEmail')">
-                        <i class="bi bi-exclamation-circle"></i> {{ getFieldError('contactEmail') }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Contact Phone -->
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="contactPhone" class="form-label-modern">
-                        <i class="bi bi-phone"></i>
-                        Primary Phone
-                      </label>
-                      <input
-                        type="tel"
-                        class="form-control-modern"
-                        id="contactPhone"
-                        formControlName="contactPhone"
-                        placeholder="+1 (555) 123-4567">
-                      <small class="form-hint auto-filled">
-                        <i class="bi bi-check-circle"></i> Auto-populated, can be modified
-                      </small>
-                    </div>
-                  </div>
-
-                  <!-- Alternate Phone -->
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="alternatePhone" class="form-label-modern">
-                        <i class="bi bi-phone-vibrate"></i>
-                        Alternate Phone <span class="optional-badge">Optional</span>
-                      </label>
-                      <input
-                        type="tel"
-                        class="form-control-modern"
-                        id="alternatePhone"
-                        formControlName="alternatePhone"
-                        placeholder="+1 (555) 987-6543">
-                    </div>
-                  </div>
-
-                  <!-- Preferred Contact Method -->
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="preferredContactMethod" class="form-label-modern">
-                        <i class="bi bi-chat-dots"></i>
-                        Preferred Contact Method
-                      </label>
-                      <select
-                        class="form-select-modern"
-                        id="preferredContactMethod"
-                        formControlName="preferredContactMethod">
-                        <option *ngFor="let method of preferredContactOptions" [ngValue]="method.value">
-                          {{ method.label }}
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <!-- Branch -->
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label for="branchId" class="form-label-modern">
-                        <i class="bi bi-building"></i>
-                        Branch <span class="optional-badge">Optional</span>
-                      </label>
-                      <select
-                        class="form-select-modern"
-                        id="branchId"
-                        formControlName="branchId"
-                        (change)="onBranchChange($any($event.target).value)">
-                        <option value="">Select branch...</option>
-                        <option *ngFor="let branch of branches" [value]="branch.id">
-                          {{ branch.name }}
-                        </option>
-                      </select>
-                      <small class="form-hint auto-filled" *ngIf="complaintForm.get('branchId')?.value">
-                        <i class="bi bi-check-circle"></i> Auto-populated, can be changed
-                      </small>
-                    </div>
-                  </div>
-
-                  <!-- Department -->
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label for="departmentId" class="form-label-modern">
-                        <i class="bi bi-diagram-3"></i>
-                        Department <span class="optional-badge">Optional</span>
-                      </label>
-                      <select
-                        class="form-select-modern"
-                        id="departmentId"
-                        formControlName="departmentId"
-                        (change)="onDepartmentChange($any($event.target).value)"
-                        [disabled]="!complaintForm.get('branchId')?.value && departments.length === 0">
-                        <option value="">Select department...</option>
-                        <option *ngFor="let department of departments" [value]="department.id">
-                          {{ department.name }}
-                        </option>
-                      </select>
-                      <small class="form-hint" *ngIf="!complaintForm.get('branchId')?.value && departments.length === 0">
-                        <i class="bi bi-info-circle"></i> Select a branch first
-                      </small>
-                      <small class="form-hint auto-filled" *ngIf="complaintForm.get('departmentId')?.value">
-                        <i class="bi bi-check-circle"></i> Auto-populated, can be changed
-                      </small>
-                    </div>
-                  </div>
-
-                  <!-- Section -->
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label for="sectionId" class="form-label-modern">
-                        <i class="bi bi-grid-3x3"></i>
-                        Section <span class="optional-badge">Optional</span>
-                      </label>
-                      <select
-                        class="form-select-modern"
-                        id="sectionId"
-                        formControlName="sectionId"
-                        [disabled]="!complaintForm.get('departmentId')?.value && sections.length === 0">
-                        <option value="">Select section...</option>
-                        <option *ngFor="let section of sections" [value]="section.id">
-                          {{ section.name }}
-                        </option>
-                      </select>
-                      <small class="form-hint" *ngIf="!complaintForm.get('departmentId')?.value && sections.length === 0">
-                        <i class="bi bi-info-circle"></i> Select a department first
-                      </small>
-                      <small class="form-hint auto-filled" *ngIf="complaintForm.get('sectionId')?.value">
-                        <i class="bi bi-check-circle"></i> Auto-populated, can be changed
-                      </small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Attachments Section -->
-            <div class="form-section">
-              <div class="section-header">
-                <div class="section-icon">
-                  <i class="bi bi-paperclip"></i>
-                </div>
-                <div>
-                  <h2 class="section-title">Attachments</h2>
-                  <p class="section-subtitle">Add supporting documents or images</p>
-                </div>
-              </div>
-
-              <div class="section-content">
-                <!-- File Upload Area -->
-                <div class="form-group">
-                  <label class="form-label-modern">
-                    <i class="bi bi-cloud-upload"></i>
-                    Upload Files <span class="optional-badge">Optional</span>
-                  </label>
-
-                  <input
-                    #fileInput
-                    type="file"
-                    multiple
-                    (change)="onFileSelect($event)"
-                    accept="image/*,.pdf,.doc,.docx,.txt"
-                    style="display: none;">
-
-                  <div class="file-upload-zone" (click)="fileInput.click()" [class.disabled]="selectedFiles.length >= 10">
-                    <div class="upload-icon">
-                      <i class="bi bi-cloud-arrow-up"></i>
-                    </div>
-                    <div class="upload-text">
-                      <strong>Click to browse</strong> or drag and drop
-                    </div>
-                    <div class="upload-hint">
-                      Maximum 10 files, 5MB each. Supported: Images, PDF, DOC, DOCX, TXT
-                    </div>
-                  </div>
-
-                  <small class="form-hint" *ngIf="selectedFiles.length > 0">
-                    <i class="bi bi-info-circle"></i> {{ selectedFiles.length }}/10 files selected
-                  </small>
-
-                  <div class="invalid-feedback" *ngIf="fileUploadError" style="display: flex;">
-                    <i class="bi bi-exclamation-circle"></i> {{ fileUploadError }}
-                  </div>
-                </div>
-
-                <!-- Selected Files List -->
-                <div class="selected-files-container" *ngIf="selectedFiles.length > 0">
-                  <div class="selected-files-header">
-                    <span class="files-count">
-                      <i class="bi bi-files"></i> {{ selectedFiles.length }} file{{ selectedFiles.length > 1 ? 's' : '' }} selected
-                    </span>
-                    <button type="button" class="btn-clear-files" (click)="clearAllFiles()">
-                      <i class="bi bi-trash"></i> Clear All
-                    </button>
-                  </div>
-
-                  <div class="files-list">
-                    <div class="file-item-modern" *ngFor="let file of selectedFiles; let i = index">
-                      <div class="file-icon-wrapper">
-                        <i class="bi" [ngClass]="getFileIcon(file.name)"></i>
-                      </div>
-                      <div class="file-details">
-                        <div class="file-name">{{ file.name }}</div>
-                        <div class="file-meta">
-                          <span class="file-size">{{ formatFileSize(file.size) }}</span>
-                        </div>
-                      </div>
-                      <button type="button" class="btn-remove-file" (click)="removeFile(i)" title="Remove file">
-                        <i class="bi bi-x-lg"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        <div class="form-grid">
+          <!-- Title -->
+          <div class="form-group full-width">
+            <label for="title" class="form-label">Title</label>
+            <input
+              type="text"
+              class="form-input"
+              id="title"
+              formControlName="title"
+              [class.is-invalid]="isFieldInvalid('title')"
+              placeholder="e.g., Defective Product Received"
+              maxlength="200">
+            <div class="error-message" *ngIf="isFieldInvalid('title')">
+              {{ getFieldError('title') }}
             </div>
           </div>
 
-          <!-- Right Column - Summary & Actions -->
-          <div class="col-lg-4">
-            <!-- Privacy Options -->
-            <div class="form-section sticky-section">
-              <div class="section-header">
-                <div class="section-icon">
-                  <i class="bi bi-shield-check"></i>
-                </div>
-                <div>
-                  <h2 class="section-title">Privacy Options</h2>
-                </div>
-              </div>
-
-              <div class="section-content">
-                <div class="privacy-option">
-                  <div class="form-check-modern">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="isAnonymous"
-                      formControlName="isAnonymous">
-                    <label class="form-check-label" for="isAnonymous">
-                      <strong>Submit Anonymously</strong>
-                      <span class="d-block text-muted small mt-1">
-                        Your identity will be hidden from other users. Only administrators can see your details.
-                      </span>
-                    </label>
-                  </div>
-                </div>
-
-                <!-- Help Card -->
-                <div class="help-card mt-4">
-                  <div class="help-icon">
-                    <i class="bi bi-lightbulb"></i>
-                  </div>
-                  <h3 class="help-title">Need Help?</h3>
-                  <p class="help-text">
-                    Fill in the required fields marked with <span class="text-danger">*</span>.
-                    All information is kept confidential and will be used to address your concern.
-                  </p>
-                </div>
-              </div>
+          <!-- Description -->
+          <div class="form-group full-width">
+            <label for="description" class="form-label">Description</label>
+            <textarea
+              class="form-input form-textarea"
+              id="description"
+              formControlName="description"
+              rows="5"
+              [class.is-invalid]="isFieldInvalid('description')"
+              placeholder="Please describe the issue in detail..."
+              maxlength="2000"></textarea>
+            <div class="error-message" *ngIf="isFieldInvalid('description')">
+              {{ getFieldError('description') }}
             </div>
+          </div>
 
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-              <button type="submit" class="btn-submit" [disabled]="loading">
-                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-                <i *ngIf="!loading" class="bi bi-send-check me-2"></i>
-                {{ isEditMode ? 'Update Complaint' : 'Submit Complaint' }}
-              </button>
-              <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="loading">
-                <i class="bi bi-x-circle me-2"></i>
-                Cancel
-              </button>
+          <!-- Category -->
+          <div class="form-group">
+            <label for="categoryId" class="form-label">Category</label>
+            <select
+              class="form-input form-select"
+              id="categoryId"
+              formControlName="categoryId"
+              [class.is-invalid]="isFieldInvalid('categoryId')">
+              <option value="">Select a category</option>
+              <option *ngFor="let category of categories" [value]="category.id">
+                {{ category.name }}
+              </option>
+            </select>
+            <div class="error-message" *ngIf="isFieldInvalid('categoryId')">
+              {{ getFieldError('categoryId') }}
+            </div>
+          </div>
+
+          <!-- Priority Level -->
+          <div class="form-group">
+            <label for="priority" class="form-label">Priority Level</label>
+            <select
+              class="form-input form-select"
+              id="priority"
+              formControlName="priorityMasterId"
+              [class.is-invalid]="isFieldInvalid('priorityMasterId')">
+              <option value="">Select priority</option>
+              <option *ngFor="let priority of priorityOptions" [ngValue]="priority.value">
+                {{ priority.label }}
+              </option>
+            </select>
+            <div class="error-message" *ngIf="isFieldInvalid('priorityMasterId')">
+              {{ getFieldError('priorityMasterId') }}
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div class="form-group full-width">
+            <label for="tags" class="form-label">
+              Tags <span class="label-hint">(Optional, comma-separated)</span>
+            </label>
+            <input
+              type="text"
+              class="form-input"
+              id="tags"
+              formControlName="tags"
+              placeholder="e.g., broken, shipping, refund">
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Information Section -->
+      <section class="form-section">
+        <h2 class="section-title">Contact Information</h2>
+
+        <div class="form-grid">
+          <!-- Email -->
+          <div class="form-group">
+            <label for="contactEmail" class="form-label">Email</label>
+            <input
+              type="email"
+              class="form-input"
+              id="contactEmail"
+              formControlName="contactEmail"
+              [class.is-invalid]="isFieldInvalid('contactEmail')"
+              placeholder="you@example.com">
+            <div class="error-message" *ngIf="isFieldInvalid('contactEmail')">
+              {{ getFieldError('contactEmail') }}
+            </div>
+          </div>
+
+          <!-- Primary Phone -->
+          <div class="form-group">
+            <label for="contactPhone" class="form-label">Primary Phone</label>
+            <input
+              type="tel"
+              class="form-input"
+              id="contactPhone"
+              formControlName="contactPhone"
+              placeholder="(555) 123-4567">
+          </div>
+
+          <!-- Alternate Phone -->
+          <div class="form-group">
+            <label for="alternatePhone" class="form-label">
+              Alternate Phone <span class="label-hint">(Optional)</span>
+            </label>
+            <input
+              type="tel"
+              class="form-input"
+              id="alternatePhone"
+              formControlName="alternatePhone"
+              placeholder="(555) 987-6543">
+          </div>
+
+          <!-- Preferred Contact Method -->
+          <div class="form-group">
+            <label for="preferredContactMethod" class="form-label">Preferred Contact Method</label>
+            <select
+              class="form-input form-select"
+              id="preferredContactMethod"
+              formControlName="preferredContactMethod">
+              <option value="">Select method</option>
+              <option *ngFor="let method of preferredContactOptions" [ngValue]="method.value">
+                {{ method.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Branch -->
+          <div class="form-group">
+            <label for="branchId" class="form-label">Branch</label>
+            <input
+              type="text"
+              class="form-input"
+              id="branchId"
+              [value]="getBranchName()"
+              placeholder="e.g., Headquarters"
+              readonly>
+          </div>
+
+          <!-- Department -->
+          <div class="form-group">
+            <label for="departmentId" class="form-label">Department</label>
+            <input
+              type="text"
+              class="form-input"
+              id="departmentId"
+              [value]="getDepartmentName()"
+              placeholder="e.g., Customer Support"
+              readonly>
+          </div>
+
+          <!-- Section -->
+          <div class="form-group full-width-half">
+            <label for="sectionId" class="form-label">
+              Section <span class="label-hint">(Optional)</span>
+            </label>
+            <input
+              type="text"
+              class="form-input"
+              id="sectionId"
+              [value]="getSectionName()"
+              placeholder="e.g., Technical Team"
+              readonly>
+          </div>
+        </div>
+      </section>
+
+      <!-- Attachments Section -->
+      <section class="form-section">
+        <h2 class="section-title">Attachments</h2>
+
+        <div class="upload-zone" (click)="fileInput.click()" [class.disabled]="selectedFiles.length >= 10">
+          <input
+            #fileInput
+            type="file"
+            multiple
+            (change)="onFileSelect($event)"
+            accept="image/*,.pdf,.doc,.docx,.txt"
+            style="display: none;">
+
+          <div class="upload-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <div class="upload-text">
+            <span class="upload-link">Upload a file</span> or drag and drop
+          </div>
+          <div class="upload-hint">PNG, JPG, PDF up to 10MB</div>
+        </div>
+
+        <div class="error-message" *ngIf="fileUploadError">
+          {{ fileUploadError }}
+        </div>
+
+        <!-- Selected Files List -->
+        <div class="files-list" *ngIf="selectedFiles.length > 0">
+          <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
+            <div class="file-info">
+              <i class="bi" [ngClass]="getFileIcon(file.name)"></i>
+              <span class="file-name">{{ file.name }}</span>
+              <span class="file-size">({{ formatFileSize(file.size) }})</span>
+            </div>
+            <button type="button" class="file-remove" (click)="removeFile(i)">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Privacy Options Section -->
+      <section class="form-section">
+        <h2 class="section-title">Privacy Options</h2>
+
+        <div class="checkbox-group">
+          <div class="checkbox-label">
+            <div class="checkbox-wrapper">
+              <input
+                type="checkbox"
+                class="checkbox-input"
+                id="isAnonymous"
+                formControlName="isAnonymous">
+            </div>
+            <div class="checkbox-text">
+              <label for="isAnonymous"><strong>Submit Anonymously</strong></label>
+              <p class="checkbox-hint">If checked, your contact information will not be shared.</p>
             </div>
           </div>
         </div>
-      </form>
-    </div>
+      </section>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-cancel" (click)="onCancel()" [disabled]="loading">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-submit" [disabled]="loading">
+          <span *ngIf="loading" class="spinner"></span>
+          {{ isEditMode ? 'Update Complaint' : 'Submit Complaint' }}
+        </button>
+      </div>
+    </form>
   </div>
 </div>

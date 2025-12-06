@@ -3,18 +3,18 @@
 <div class="customizer-modal" *ngIf="show" [@slideIn]>
   <div class="modal-header">
     <h2>
-      <i class="bi bi-sliders"></i>
+      <i class="fa-solid fa-sliders"></i>
       Customize Dashboard
     </h2>
     <button class="close-btn" (click)="onClose()">
-      <i class="bi bi-x-lg"></i>
+      <i class="fa-solid fa-xmark"></i>
     </button>
   </div>
 
   <div class="modal-body">
     <!-- Error Message -->
     <div class="alert alert-error" *ngIf="error">
-      <i class="bi bi-exclamation-triangle"></i>
+      <i class="fa-solid fa-triangle-exclamation"></i>
       {{ error }}
     </div>
 
@@ -22,7 +22,7 @@
     <div class="section">
       <div class="section-header">
         <h3>
-          <i class="bi bi-circle"></i>
+          <i class="fa-solid fa-circle"></i>
           Status Widgets
         </h3>
         <div class="section-actions">
@@ -40,17 +40,17 @@
           [class.selected]="isStatusSelected(status.id)"
           (click)="toggleStatus(status.id)">
           <div class="status-indicator" [style.background-color]="status.colorCode"></div>
-          <i class="bi status-icon" [ngClass]="status.iconClass" [style.color]="status.colorCode"></i>
+          <i class="fa-solid status-icon" [ngClass]="status.iconClass" [style.color]="status.colorCode"></i>
           <div class="status-info">
             <div class="status-name">{{ status.name }}</div>
             <div class="status-code">{{ status.code }}</div>
           </div>
-          <i class="bi check-icon" [class.show]="isStatusSelected(status.id)" [ngClass]="'bi-check-circle-fill'"></i>
+          <i class="fa-solid check-icon" [class.show]="isStatusSelected(status.id)" [ngClass]="'fa-circle-check'"></i>
         </div>
       </div>
 
       <div class="loading-spinner" *ngIf="loading">
-        <i class="bi bi-arrow-repeat spin"></i>
+        <i class="fa-solid fa-rotate spin"></i>
         Loading statuses...
       </div>
     </div>
@@ -59,7 +59,7 @@
     <div class="section">
       <div class="section-header">
         <h3>
-          <i class="bi bi-grid-3x3-gap"></i>
+          <i class="fa-solid fa-grip"></i>
           Layout
         </h3>
       </div>
@@ -70,7 +70,7 @@
           *ngFor="let option of layoutOptions"
           [class.selected]="layout === option.value"
           (click)="layout = option.value">
-          <i class="bi" [ngClass]="option.icon"></i>
+          <i class="fa-solid" [ngClass]="option.icon"></i>
           <span>{{ option.label }}</span>
         </div>
       </div>
@@ -80,7 +80,7 @@
     <div class="section">
       <div class="section-header">
         <h3>
-          <i class="bi bi-eye"></i>
+          <i class="fa-regular fa-eye"></i>
           Display Options
         </h3>
       </div>
@@ -89,7 +89,7 @@
         <label class="option-item">
           <input type="checkbox" [(ngModel)]="showTrends" />
           <span class="option-label">
-            <i class="bi bi-graph-up"></i>
+            <i class="fa-solid fa-chart-line"></i>
             Show trend indicators
           </span>
         </label>
@@ -97,7 +97,7 @@
         <label class="option-item">
           <input type="checkbox" [(ngModel)]="showPercentages" />
           <span class="option-label">
-            <i class="bi bi-percent"></i>
+            <i class="fa-solid fa-percent"></i>
             Show percentage changes
           </span>
         </label>
@@ -108,7 +108,7 @@
     <div class="section">
       <div class="section-header">
         <h3>
-          <i class="bi bi-calendar-range"></i>
+          <i class="fa-regular fa-calendar-days"></i>
           Date Range
         </h3>
       </div>
@@ -124,7 +124,7 @@
     <div class="section">
       <div class="section-header">
         <h3>
-          <i class="bi bi-arrow-clockwise"></i>
+          <i class="fa-solid fa-arrows-rotate"></i>
           Auto Refresh
         </h3>
       </div>
@@ -140,7 +140,7 @@
     <div class="section">
       <div class="section-header">
         <h3>
-          <i class="bi bi-palette"></i>
+          <i class="fa-solid fa-palette"></i>
           Theme
         </h3>
       </div>
@@ -151,7 +151,7 @@
           *ngFor="let option of themeOptions"
           [class.selected]="theme === option.value"
           (click)="theme = option.value">
-          <i class="bi" [ngClass]="option.icon"></i>
+          <i class="fa-solid" [ngClass]="option.icon"></i>
           <span>{{ option.label }}</span>
         </div>
       </div>
@@ -160,13 +160,13 @@
 
   <div class="modal-footer">
     <button class="btn btn-secondary" (click)="resetToDefaults()">
-      <i class="bi bi-arrow-counterclockwise"></i>
+      <i class="fa-solid fa-rotate-left"></i>
       Reset to Defaults
     </button>
     <div class="footer-actions">
       <button class="btn btn-outline" (click)="onClose()">Cancel</button>
       <button class="btn btn-primary" (click)="onSave()">
-        <i class="bi bi-check-lg"></i>
+        <i class="fa-solid fa-check"></i>
         Save Preferences
       </button>
     </div>

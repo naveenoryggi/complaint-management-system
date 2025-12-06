@@ -45,6 +45,29 @@ export class App implements OnInit, OnDestroy {
   }
 
   /**
+   * Determine if breadcrumb should be shown based on current route
+   * Hide breadcrumb on pages that have their own navigation/header
+   */
+  shouldShowBreadcrumb(): boolean {
+    // Don't show breadcrumb on login page
+    if (this.isLoginPage()) {
+      return false;
+    }
+
+    // Don't show breadcrumb on dashboard (has its own header)
+    if (this.currentUrl === '/dashboard') {
+      return false;
+    }
+
+    // Don't show breadcrumb on complaint form pages (has its own title)
+    if (this.currentUrl === '/complaints/new' || this.currentUrl.startsWith('/complaints/edit')) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
    * Update body classes based on current route for proper theme application
    */
   private updateBodyClasses(): void {
