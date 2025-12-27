@@ -323,4 +323,41 @@ export class StatusMasterManagementComponent
   onFilterChange(): void {
     this.onActiveFilterChange();
   }
+
+  // TrackBy function for *ngFor optimization
+  override trackById(index: number, item: ComplaintStatusMaster): string {
+    return item.id;
+  }
+
+  // Get Material Icon based on status code/name
+  getStatusIcon(status: ComplaintStatusMaster): string {
+    const code = status.code?.toLowerCase() || '';
+    const name = status.name?.toLowerCase() || '';
+
+    // Map status codes/names to Material Icons
+    if (code.includes('open') || code.includes('new')) {
+      return 'fiber_new';
+    } else if (code.includes('progress') || code.includes('working')) {
+      return 'pending_actions';
+    } else if (code.includes('review') || code.includes('pending')) {
+      return 'rate_review';
+    } else if (code.includes('resolved') || code.includes('complete')) {
+      return 'task_alt';
+    } else if (code.includes('closed') || code.includes('done')) {
+      return 'check_circle';
+    } else if (code.includes('reject') || code.includes('cancel')) {
+      return 'cancel';
+    } else if (code.includes('hold') || code.includes('wait')) {
+      return 'pause_circle';
+    } else if (code.includes('escalate')) {
+      return 'trending_up';
+    } else if (code.includes('assign')) {
+      return 'assignment_ind';
+    } else if (name.includes('reopen')) {
+      return 'refresh';
+    }
+
+    // Default icon
+    return 'radio_button_checked';
+  }
 }

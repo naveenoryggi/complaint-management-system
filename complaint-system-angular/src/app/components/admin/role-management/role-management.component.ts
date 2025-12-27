@@ -339,5 +339,25 @@ export class RoleManagementComponent implements OnInit {
   getPermissionCount(role: Role): number {
     return role.permissions.filter(p => p.isGranted).length;
   }
+
+  getPermissionPercentage(role: Role): number {
+    if (this.availablePermissions.length === 0) return 0;
+    const granted = this.getPermissionCount(role);
+    return (granted / this.availablePermissions.length) * 100;
+  }
+
+  trackByRoleId(index: number, role: Role): string {
+    return role.id;
+  }
+
+  selectAllPermissions(): void {
+    this.availablePermissions.forEach(p => {
+      this.selectedPermissions.add(p.value);
+    });
+  }
+
+  clearAllPermissions(): void {
+    this.selectedPermissions.clear();
+  }
 }
 

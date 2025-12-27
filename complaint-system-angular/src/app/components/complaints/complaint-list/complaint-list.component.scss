@@ -265,6 +265,51 @@ $priority-urgent: #DC2626;
   }
 }
 
+// ===== QUICK FILTER TABS =====
+.quick-filter-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 4px;
+  background: $card-light;
+  border-radius: 12px;
+  border: 1px solid $border-light;
+  width: fit-content;
+}
+
+.filter-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: $text-secondary;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 14px;
+  }
+
+  &:hover {
+    background: $background-light;
+    color: $text-primary;
+  }
+
+  &.active {
+    background: $primary;
+    color: white;
+
+    i {
+      color: white;
+    }
+  }
+}
+
 // ===== SEARCH AND FILTERS ROW =====
 .search-filters-row {
   display: flex;
@@ -538,6 +583,60 @@ $priority-urgent: #DC2626;
   font-weight: 600;
   color: $primary;
   white-space: nowrap;
+}
+
+// ===== CUSTOMER RESPONSE INDICATOR =====
+// Bold styling for tickets with unread customer responses
+.has-customer-response {
+  background: rgba(245, 158, 11, 0.06) !important;
+
+  td {
+    font-weight: 600 !important;
+  }
+
+  .complaint-id {
+    font-weight: 700 !important;
+  }
+
+  .complaint-subject {
+    font-weight: 600 !important;
+    color: $text-primary;
+  }
+
+  &:hover {
+    background: rgba(245, 158, 11, 0.12) !important;
+  }
+}
+
+.id-with-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.email-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  border-radius: 50%;
+  animation: pulse-email 2s ease-in-out infinite;
+
+  i {
+    font-size: 11px;
+    color: white;
+  }
+}
+
+@keyframes pulse-email {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
+  }
 }
 
 .complaint-subject {

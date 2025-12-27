@@ -7,12 +7,12 @@ import { Subscription } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { PwaInstallBannerComponent } from './components/shared/pwa-install-banner/pwa-install-banner.component';
-import { BreadcrumbComponent } from './components/shared/breadcrumb/breadcrumb.component';
 import { ThemeCustomizerComponent } from './components/shared/theme-customizer/theme-customizer.component';
+import { AppHeaderComponent } from './components/shared/app-header/app-header.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule, PwaInstallBannerComponent, BreadcrumbComponent, ThemeCustomizerComponent],
+  imports: [RouterOutlet, CommonModule, PwaInstallBannerComponent, ThemeCustomizerComponent, AppHeaderComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -45,26 +45,30 @@ export class App implements OnInit, OnDestroy {
   }
 
   /**
-   * Determine if breadcrumb should be shown based on current route
-   * Hide breadcrumb on pages that have their own navigation/header
+   * Get the active navigation link based on current URL
    */
-  shouldShowBreadcrumb(): boolean {
-    // Don't show breadcrumb on login page
-    if (this.isLoginPage()) {
-      return false;
-    }
-
-    // Don't show breadcrumb on dashboard (has its own header)
+  getActiveNavLink(): string {
     if (this.currentUrl === '/dashboard') {
-      return false;
+      return 'dashboard';
     }
-
-    // Don't show breadcrumb on complaint form pages (has its own title)
-    if (this.currentUrl === '/complaints/new' || this.currentUrl.startsWith('/complaints/edit')) {
-      return false;
+    if (this.currentUrl.startsWith('/complaints')) {
+      return 'complaints';
     }
+    if (this.currentUrl.startsWith('/reports')) {
+      return 'reports';
+    }
+    if (this.currentUrl.startsWith('/admin')) {
+      return 'admin';
+    }
+    return '';
+  }
 
-    return true;
+  /**
+   * Determine if the app header should be shown
+   * Hide on login page only
+   */
+  shouldShowHeader(): boolean {
+    return !this.isLoginPage();
   }
 
   /**

@@ -412,21 +412,74 @@ export class EmailThreadService {
 
   /**
    * Format email for display
+   * Removes quoted content from email replies to show only the new message
    */
   formatEmailPreview(email: EmailThreadItemDto, maxLength: number = 100): string {
     if (!email) return '';
 
-    const body = email.htmlBody
-      ? this.stripHtml(email.htmlBody)
-      : email.textBody;
+    let body = email.htmlBody
+      ? this.stripHtmlWithoutQuotes(email.htmlBody)
+      : this.removeQuotedText(email.textBody || '');
 
     if (!body) return '';
+
+    // Clean up whitespace
+    body = body.replace(/\s+/g, ' ').trim();
 
     if (body.length <= maxLength) {
       return body;
     }
 
     return body.substring(0, maxLength) + '...';
+  }
+
+  /**
+   * Strip HTML tags and remove quoted content from email
+   */
+  private stripHtmlWithoutQuotes(html: string): string {
+    if (!html) return '';
+
+    // First remove quoted content patterns (before stripping HTML)
+    let processed = html
+      // Remove Gmail quoted content
+      .replace(/<div class="gmail_quote"[\s\S]*$/gi, '')
+      .replace(/<div class="gmail_extra"[\s\S]*$/gi, '')
+      // Remove Outlook quoted content
+      .replace(/<hr[^>]*>[\s\S]*?<p[^>]*>\s*<b>\s*From:\s*<\/b>[\s\S]*$/gi, '')
+      .replace(/<p[^>]*>\s*<strong>\s*From:\s*<\/strong>[\s\S]*$/gi, '')
+      .replace(/<p[^>]*>\s*<b>\s*From:\s*<\/b>[\s\S]*$/gi, '')
+      // Remove blockquotes
+      .replace(/<blockquote[\s\S]*?<\/blockquote>/gi, '')
+      // Remove other quote patterns
+      .replace(/<div class="yahoo_quoted"[\s\S]*$/gi, '')
+      .replace(/<div class="moz-cite-prefix"[\s\S]*$/gi, '');
+
+    // Then strip HTML tags
+    return this.stripHtml(processed);
+  }
+
+  /**
+   * Remove quoted text from plain text emails
+   */
+  private removeQuotedText(text: string): string {
+    if (!text) return '';
+
+    // Split by common quote indicators and take only the first part
+    const lines = text.split('\n');
+    const result: string[] = [];
+
+    for (const line of lines) {
+      // Stop at common quote indicators
+      if (line.trim().startsWith('>') ||
+          line.trim().startsWith('From:') ||
+          line.trim().startsWith('On ') && line.includes(' wrote:') ||
+          line.trim().startsWith('-----Original Message-----')) {
+        break;
+      }
+      result.push(line);
+    }
+
+    return result.join('\n');
   }
 
   /**

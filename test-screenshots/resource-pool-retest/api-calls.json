@@ -1,0 +1,140 @@
+[
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/auth/login",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:03.311Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/notifications",
+    "status": 404,
+    "timestamp": "2025-12-26T19:02:04.080Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/notifications/count",
+    "status": 404,
+    "timestamp": "2025-12-26T19:02:04.151Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/company/fe28cd85-4226-4daa-9e45-66a3d51877fa",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:04.203Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/dashboard/preferences",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:04.234Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/complaintstatusmaster",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:04.501Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/complaintprioritymaster",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:05.032Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/complaintstatusmaster?isActive=true&includeSystem=true",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:05.111Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/notifications/count",
+    "status": 404,
+    "timestamp": "2025-12-26T19:02:07.942Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/notifications",
+    "status": 404,
+    "timestamp": "2025-12-26T19:02:08.118Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/company/fe28cd85-4226-4daa-9e45-66a3d51877fa",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:08.165Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/branches?companyId=fe28cd85-4226-4daa-9e45-66a3d51877fa&activeOnly=true",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:08.168Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/departments?branchId=fe28cd85-4226-4daa-9e45-66a3d51877fa&activeOnly=false",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:08.170Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/sections?departmentId=fe28cd85-4226-4daa-9e45-66a3d51877fa&activeOnly=false",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:09.810Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/resource-pools?companyId=fe28cd85-4226-4daa-9e45-66a3d51877fa",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:14.631Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/complaints?page=1&pageSize=5",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:16.442Z"
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:5000/api/resource-pools",
+    "status": 201,
+    "timestamp": "2025-12-26T19:02:25.982Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/resource-pools?companyId=fe28cd85-4226-4daa-9e45-66a3d51877fa",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:25.998Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/notifications/count",
+    "status": 404,
+    "timestamp": "2025-12-26T19:02:35.890Z"
+  },
+  {
+    "method": "PUT",
+    "url": "http://localhost:5000/api/resource-pools/5a16cfc1-41e8-4123-910d-c77c6e6bcd42",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:38.481Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/resource-pools?companyId=fe28cd85-4226-4daa-9e45-66a3d51877fa",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:38.503Z"
+  },
+  {
+    "method": "DELETE",
+    "url": "http://localhost:5000/api/resource-pools/5a16cfc1-41e8-4123-910d-c77c6e6bcd42",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:49.961Z"
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:5000/api/resource-pools?companyId=fe28cd85-4226-4daa-9e45-66a3d51877fa",
+    "status": 200,
+    "timestamp": "2025-12-26T19:02:49.969Z"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "testSuite": "Resource Pool Management CRUD Tests",
+  "timestamp": "2025-12-26T18:37:51.782Z",
+  "summary": {
+    "totalPassed": 0,
+    "totalFailed": 1,
+    "totalWarnings": 0,
+    "totalScreenshots": 2
+  },
+  "results": {
+    "passed": [],
+    "failed": [
+      "Login failed: page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[name=\"email\"]')\u001b[22m\n"
+    ],
+    "warnings": [],
+    "screenshots": [
+      {
+        "filename": "1766774240539-01-login-page.png",
+        "filepath": "C:\\Users\\Navin Chandra\\Pictures\\Complaint management system\\test-screenshots\\resource-pool-crud\\1766774236291\\1766774240539-01-login-page.png",
+        "description": "Login page loaded",
+        "timestamp": "2025-12-26T18:37:20.539Z"
+      },
+      {
+        "filename": "1766774271138-error-login.png",
+        "filepath": "C:\\Users\\Navin Chandra\\Pictures\\Complaint management system\\test-screenshots\\resource-pool-crud\\1766774236291\\1766774271138-error-login.png",
+        "description": "Login failed",
+        "timestamp": "2025-12-26T18:37:51.138Z"
+      }
+    ]
+  },
+  "screenshotDirectory": "C:\\Users\\Navin Chandra\\Pictures\\Complaint management system\\test-screenshots\\resource-pool-crud\\1766774236291"
+}

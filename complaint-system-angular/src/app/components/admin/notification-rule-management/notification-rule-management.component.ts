@@ -522,12 +522,58 @@ export class NotificationRuleManagementComponent implements OnInit {
     return roleIds.map(id => this.getRoleName(id)).join(', ');
   }
 
+  // Helper method to safely format specificEmails (handles both string and array)
+  formatSpecificEmails(emails: string[] | string | undefined | null): string {
+    if (!emails) return '';
+    if (Array.isArray(emails)) {
+      return emails.join(', ');
+    }
+    // If it's a string, return as-is
+    return String(emails);
+  }
+
+  // Helper method to check if specificEmails has content
+  hasSpecificEmails(emails: string[] | string | undefined | null): boolean {
+    if (!emails) return false;
+    if (Array.isArray(emails)) {
+      return emails.length > 0;
+    }
+    // If it's a string, check if it's not empty
+    return String(emails).trim().length > 0;
+  }
+
   getActiveRulesCount(): number {
     return this.rules.filter(r => r.isActive).length;
   }
 
   getInactiveRulesCount(): number {
     return this.rules.filter(r => !r.isActive).length;
+  }
+
+  // TrackBy function for *ngFor optimization
+  trackByRuleId(index: number, rule: NotificationRule): string {
+    return rule.id;
+  }
+
+  // Get priority badge class
+  getPriorityClass(priority: number): string {
+    if (priority <= 10) return 'priority-high';
+    if (priority <= 50) return 'priority-medium';
+    return 'priority-low';
+  }
+
+  // Get channel icon class
+  getChannelIcon(channel: CommunicationChannel): string {
+    switch (channel) {
+      case CommunicationChannel.Email:
+        return 'fas fa-envelope channel-email';
+      case CommunicationChannel.SMS:
+        return 'fas fa-sms channel-sms';
+      case CommunicationChannel.WhatsApp:
+        return 'fab fa-whatsapp channel-whatsapp';
+      default:
+        return 'fas fa-bell';
+    }
   }
 
   addSpecificEmail(): void {

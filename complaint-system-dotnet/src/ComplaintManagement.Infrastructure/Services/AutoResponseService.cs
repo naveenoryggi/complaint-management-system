@@ -46,58 +46,74 @@ public class AutoResponseService : IAutoResponseService
     {
         try
         {
+            _logger.LogInformation("=== AUTO-RESPONSE: Starting for complaint {ComplaintId}, CompanyId: {CompanyId} ===",
+                complaint.Id, complaint.CompanyId);
+
             // Check if auto-response is enabled globally
             var autoResponseEnabled = _configuration.GetValue<bool>("AutoResponse:Enabled", true);
+            _logger.LogInformation("AUTO-RESPONSE: Enabled config = {Enabled}", autoResponseEnabled);
             if (!autoResponseEnabled)
             {
-                _logger.LogDebug("Auto-response is disabled globally, skipping complaint created notification");
+                _logger.LogWarning("AUTO-RESPONSE: Disabled globally, skipping");
                 return Result.Success("Auto-response disabled");
             }
 
             // Check if acknowledgment on web creation is enabled
             var sendOnWebCreation = _configuration.GetValue<bool>("AutoResponse:SendAcknowledgmentOnWebCreation", true);
+            _logger.LogInformation("AUTO-RESPONSE: SendOnWebCreation config = {SendOnWebCreation}", sendOnWebCreation);
             if (!sendOnWebCreation)
             {
-                _logger.LogDebug("Auto-acknowledgment on web creation is disabled, skipping");
+                _logger.LogWarning("AUTO-RESPONSE: Disabled for web creation, skipping");
                 return Result.Success("Auto-acknowledgment disabled for web creation");
             }
 
             // Load email configuration for company
+            _logger.LogInformation("AUTO-RESPONSE: Loading email config for company {CompanyId}", complaint.CompanyId);
             var emailConfigs = await _unitOfWork.Repository<EmailConfiguration>()
                 .FindAsync(c => c.CompanyId == complaint.CompanyId && c.IsEnabled, cancellationToken);
             var emailConfig = emailConfigs.FirstOrDefault();
 
             if (emailConfig == null)
             {
-                _logger.LogWarning("No active email configuration found for company {CompanyId}, cannot send auto-response",
-                    complaint.CompanyId);
+                _logger.LogError("AUTO-RESPONSE: No email configuration found for company {CompanyId}", complaint.CompanyId);
                 return Result.Failure("No email configuration found");
             }
+            _logger.LogInformation("AUTO-RESPONSE: Found email config {ConfigId}, SendAutoAcknowledgement = {SendAutoAck}",
+                emailConfig.Id, emailConfig.SendAutoAcknowledgement);
 
             // Check if auto-acknowledgment is enabled in email config
             if (!emailConfig.SendAutoAcknowledgement)
             {
-                _logger.LogDebug("Auto-acknowledgment is disabled in email configuration for company {CompanyId}",
-                    complaint.CompanyId);
+                _logger.LogWarning("AUTO-RESPONSE: SendAutoAcknowledgement is disabled in email config");
                 return Result.Success("Auto-acknowledgment disabled in email config");
             }
 
             // Load complaint with related data for template variables
+            _logger.LogInformation("AUTO-RESPONSE: Loading complaint details for {ComplaintId}", complaint.Id);
             var complaintWithDetails = await LoadComplaintWithDetailsAsync(complaint.Id, cancellationToken);
             if (complaintWithDetails == null)
             {
+                _logger.LogError("AUTO-RESPONSE: Complaint {ComplaintId} not found during details load", complaint.Id);
                 return Result.Failure("Complaint not found");
             }
+            _logger.LogInformation("AUTO-RESPONSE: Loaded complaint {ComplaintNumber}, ComplainantId = {ComplainantId}, Complainant loaded = {HasComplainant}",
+                complaintWithDetails.ComplaintNumber, complaintWithDetails.ComplainantId, complaintWithDetails.Complainant != null);
 
             // Get complainant email
             var complainantEmail = complaintWithDetails.Complainant?.Email ?? complaintWithDetails.ContactEmail;
+            _logger.LogInformation("AUTO-RESPONSE: Complainant.Email = {ComplainantEmail}, ContactEmail = {ContactEmail}, Using = {FinalEmail}",
+                complaintWithDetails.Complainant?.Email ?? "NULL",
+                complaintWithDetails.ContactEmail ?? "NULL",
+                complainantEmail ?? "NULL");
+
             if (string.IsNullOrEmpty(complainantEmail))
             {
-                _logger.LogWarning("No email address found for complainant, cannot send auto-response");
+                _logger.LogError("AUTO-RESPONSE: No email address found for complainant");
                 return Result.Failure("No complainant email address");
             }
 
             // Send auto-acknowledgment using EmailTicketingService
+            _logger.LogInformation("AUTO-RESPONSE: Calling EmailTicketingService.SendAutoAcknowledgementAsync for {Email}", complainantEmail);
             var result = await _emailTicketingService.SendAutoAcknowledgementAsync(
                 complaint.Id,
                 complainantEmail,
@@ -106,12 +122,12 @@ public class AutoResponseService : IAutoResponseService
 
             if (result.IsSuccess)
             {
-                _logger.LogInformation("Auto-acknowledgment sent successfully for complaint {ComplaintNumber} to {Email}",
+                _logger.LogInformation("AUTO-RESPONSE: SUCCESS - Email sent for complaint {ComplaintNumber} to {Email}",
                     complaintWithDetails.ComplaintNumber, complainantEmail);
             }
             else
             {
-                _logger.LogError("Failed to send auto-acknowledgment for complaint {ComplaintNumber}: {Error}",
+                _logger.LogError("AUTO-RESPONSE: FAILED - Could not send email for complaint {ComplaintNumber}: {Error}",
                     complaintWithDetails.ComplaintNumber, result.Message);
             }
 
@@ -119,8 +135,8 @@ public class AutoResponseService : IAutoResponseService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error sending complaint created auto-response for complaint {ComplaintId}",
-                complaint.Id);
+            _logger.LogError(ex, "AUTO-RESPONSE: EXCEPTION for complaint {ComplaintId}: {Message}",
+                complaint.Id, ex.Message);
             return Result.Failure($"Error sending auto-response: {ex.Message}");
         }
     }

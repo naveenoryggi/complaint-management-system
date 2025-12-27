@@ -11,7 +11,7 @@ import { ComplaintInformationSettings } from '../../../models/complaint-info-set
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './complaint-info-settings.component.html',
-  styleUrls: ['./complaint-info-settings.component.css']
+  styleUrls: ['./complaint-info-settings.component.scss']
 })
 export class ComplaintInfoSettingsComponent implements OnInit {
   settingsForm: FormGroup;

@@ -260,12 +260,12 @@ export interface EscalationHistory {
   status: string;
 }
 
-// Resource Pool Types
+// Resource Pool Types - numeric values to match C# backend enum
 export enum ResourcePoolType {
-  Branch = 'Branch',
-  Department = 'Department',
-  Section = 'Section',
-  Custom = 'Custom'
+  Branch = 0,
+  Department = 1,
+  Section = 2,
+  Custom = 3
 }
 
 export interface ResourcePoolMember {

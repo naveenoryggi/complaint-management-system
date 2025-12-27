@@ -9,7 +9,7 @@ import { EventType, CreateEventTypeRequest, UpdateEventTypeRequest } from '../..
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './event-type-management.component.html',
-  styleUrls: ['./event-type-management.component.css']
+  styleUrls: ['./event-type-management.component.scss']
 })
 export class EventTypeManagementComponent implements OnInit {
   eventTypes: EventType[] = [];
@@ -148,6 +148,11 @@ export class EventTypeManagementComponent implements OnInit {
     this.currentEventType = eventType;
     this.showDeleteModal = true;
     this.error = null;
+  }
+
+  viewEventType(eventType: EventType): void {
+    // Open edit modal in view mode (can be enhanced later)
+    this.openEditModal(eventType);
   }
 
   closeModals(): void {

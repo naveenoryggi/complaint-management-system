@@ -1,59 +1,39 @@
 <div class="branch-management-container">
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-title-row">
-        <button class="btn-back" (click)="navigateBack()">
-          <i class="fas fa-arrow-left"></i>
-          Back to Dashboard
-        </button>
-        <h1>
-          <i class="fas fa-building"></i>
-          Branch Management
-        </h1>
+  <!-- Unified Page Header -->
+  <div class="page-header-card">
+    <div class="header-main">
+      <div class="header-content">
+        <div class="title-row">
+          <span class="material-icons-round header-icon">business</span>
+          <h1>Branch Management</h1>
+        </div>
+        <p class="page-description">
+          Manage organizational branches and office locations. Branches represent physical office sites within your organization following the hierarchy: Company → Branch → Department → Section. Proper setup enables location-based reporting, escalation routing, and access control.
+        </p>
       </div>
-      <p class="header-description">Manage organizational branches and office locations</p>
-    </div>
-    <button class="btn btn-primary" (click)="openCreateModal()">
-      <i class="fas fa-plus"></i>
-      Add Branch
-    </button>
-  </div>
-
-  <!-- Info Banner -->
-  <div class="info-banner">
-    <div class="info-icon">
-      <i class="fas fa-info-circle"></i>
-    </div>
-    <div class="info-content">
-      <h3>About Branch Management</h3>
-      <p>
-        <strong>Branches</strong> represent physical office locations or regional centers within your organization.
-        Each branch can contain multiple departments and users.
-      </p>
-      <ul>
-        <li><strong>Purpose:</strong> Organize your company by geographical locations</li>
-        <li><strong>Structure:</strong> Company → Branch → Department → Section</li>
-        <li><strong>Benefits:</strong> Location-based reporting, escalation routing, and access control</li>
-      </ul>
+      <button class="btn btn-primary btn-add" (click)="openCreateModal()">
+        <span class="material-icons-round">add</span>
+        Add Branch
+      </button>
     </div>
   </div>
 
   <!-- Success Message -->
   <div *ngIf="successMessage" class="alert alert-success">
-    <i class="fas fa-check-circle"></i>
+    <span class="material-icons-round">check_circle</span>
     {{ successMessage }}
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="errorMessage && !showModal" class="alert alert-danger">
-    <i class="fas fa-exclamation-circle"></i>
+  <div *ngIf="errorMessage && !showModal" class="alert alert-error">
+    <span class="material-icons-round">error</span>
     {{ errorMessage }}
   </div>
 
   <!-- Search and Filter -->
   <div class="filter-section">
     <div class="search-box">
-      <i class="fas fa-search"></i>
+      <span class="material-icons-round">search</span>
       <input
         type="text"
         [(ngModel)]="searchTerm"
@@ -67,7 +47,7 @@
         [class.active]="statusFilter === 'all'"
         (click)="setStatusFilter('all')"
       >
-        <i class="fas fa-list"></i>
+        <span class="material-icons-round">list</span>
         All
       </button>
       <button
@@ -75,7 +55,7 @@
         [class.active]="statusFilter === 'active'"
         (click)="setStatusFilter('active')"
       >
-        <i class="fas fa-check-circle"></i>
+        <span class="material-icons-round">check_circle</span>
         Active
       </button>
       <button
@@ -83,7 +63,7 @@
         [class.active]="statusFilter === 'inactive'"
         (click)="setStatusFilter('inactive')"
       >
-        <i class="fas fa-times-circle"></i>
+        <span class="material-icons-round">cancel</span>
         Inactive
       </button>
     </div>
@@ -91,18 +71,18 @@
 
   <!-- Loading State -->
   <div *ngIf="loading && branches.length === 0" class="loading-state">
-    <i class="fas fa-spinner fa-spin"></i>
+    <span class="material-icons-round spin">sync</span>
     <p>Loading branches...</p>
   </div>
 
   <!-- Empty State -->
   <div *ngIf="!loading && filteredBranches.length === 0" class="empty-state">
-    <i class="fas fa-building"></i>
+    <span class="material-icons-round">business</span>
     <h3>No Branches Found</h3>
     <p *ngIf="searchTerm">Try adjusting your search criteria</p>
     <p *ngIf="!searchTerm">Get started by creating your first branch</p>
     <button class="btn btn-primary" (click)="openCreateModal()">
-      <i class="fas fa-plus"></i>
+      <span class="material-icons-round">add</span>
       Add Branch
     </button>
   </div>
@@ -124,21 +104,21 @@
             (click)="openEditModal(branch)"
             title="Edit Branch"
           >
-            <i class="fas fa-edit"></i>
+            <span class="material-icons-round">edit</span>
           </button>
           <button
             class="btn-icon"
             (click)="toggleBranchStatus(branch)"
             [title]="branch.isActive ? 'Deactivate' : 'Activate'"
           >
-            <i [class]="branch.isActive ? 'fas fa-toggle-on' : 'fas fa-toggle-off'"></i>
+            <span class="material-icons-round">{{ branch.isActive ? 'toggle_on' : 'toggle_off' }}</span>
           </button>
           <button
             class="btn-icon btn-delete"
             (click)="openDeleteModal(branch)"
             title="Delete Branch"
           >
-            <i class="fas fa-trash"></i>
+            <span class="material-icons-round">delete</span>
           </button>
         </div>
       </div>
@@ -150,39 +130,39 @@
 
         <div class="branch-details">
           <div *ngIf="branch.city || branch.country" class="detail-item">
-            <i class="fas fa-map-marker-alt"></i>
+            <span class="material-icons-round">location_on</span>
             <span>
               <span *ngIf="branch.city">{{ branch.city }}</span><span *ngIf="branch.city && branch.country">, </span><span *ngIf="branch.country">{{ branch.country }}</span>
             </span>
           </div>
 
           <div *ngIf="branch.address" class="detail-item">
-            <i class="fas fa-location-arrow"></i>
+            <span class="material-icons-round">near_me</span>
             <span>{{ branch.address }}</span>
           </div>
 
           <div *ngIf="branch.contactEmail" class="detail-item">
-            <i class="fas fa-envelope"></i>
+            <span class="material-icons-round">email</span>
             <a [href]="'mailto:' + branch.contactEmail">{{ branch.contactEmail }}</a>
           </div>
 
           <div *ngIf="branch.contactPhone" class="detail-item">
-            <i class="fas fa-phone"></i>
+            <span class="material-icons-round">phone</span>
             <a [href]="'tel:' + branch.contactPhone">{{ branch.contactPhone }}</a>
           </div>
 
           <div *ngIf="branch.managerName" class="detail-item">
-            <i class="fas fa-user-tie"></i>
+            <span class="material-icons-round">badge</span>
             <span>Manager: <strong>{{ branch.managerName }}</strong></span>
           </div>
 
           <div *ngIf="branch.secondaryManagerName" class="detail-item">
-            <i class="fas fa-user-shield"></i>
+            <span class="material-icons-round">shield_person</span>
             <span>Secondary: <strong>{{ branch.secondaryManagerName }}</strong></span>
           </div>
 
           <div *ngIf="branch.hrResponsibleName" class="detail-item">
-            <i class="fas fa-user-friends"></i>
+            <span class="material-icons-round">group</span>
             <span>HR: <strong>{{ branch.hrResponsibleName }}</strong></span>
           </div>
         </div>
@@ -218,18 +198,18 @@
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>
-        <i class="fas fa-building"></i>
+        <span class="material-icons-round">business</span>
         {{ isEditMode ? 'Edit Branch' : 'Create New Branch' }}
       </h2>
       <button class="btn-close" (click)="closeModal()">
-        <i class="fas fa-times"></i>
+        <span class="material-icons-round">close</span>
       </button>
     </div>
 
     <div class="modal-body">
       <!-- Error Message in Modal -->
-      <div *ngIf="errorMessage" class="alert alert-danger">
-        <i class="fas fa-exclamation-circle"></i>
+      <div *ngIf="errorMessage" class="alert alert-error">
+        <span class="material-icons-round">error</span>
         {{ errorMessage }}
       </div>
 
@@ -411,8 +391,8 @@
             Cancel
           </button>
           <button type="submit" class="btn btn-primary" [disabled]="loading">
-            <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
-            <i *ngIf="!loading" [class]="isEditMode ? 'fas fa-save' : 'fas fa-plus'"></i>
+            <span *ngIf="loading" class="material-icons-round spin">sync</span>
+            <span *ngIf="!loading" class="material-icons-round">{{ isEditMode ? 'save' : 'add' }}</span>
             {{ isEditMode ? 'Update Branch' : 'Create Branch' }}
           </button>
         </div>
@@ -424,25 +404,25 @@
 <!-- Delete Confirmation Modal -->
 <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
   <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-    <div class="modal-header">
+    <div class="modal-header modal-header-danger">
       <h2>
-        <i class="fas fa-exclamation-triangle"></i>
+        <span class="material-icons-round">warning</span>
         Confirm Deletion
       </h2>
       <button class="btn-close" (click)="closeDeleteModal()">
-        <i class="fas fa-times"></i>
+        <span class="material-icons-round">close</span>
       </button>
     </div>
 
     <div class="modal-body">
-      <div *ngIf="errorMessage" class="alert alert-danger">
-        <i class="fas fa-exclamation-circle"></i>
+      <div *ngIf="errorMessage" class="alert alert-error">
+        <span class="material-icons-round">error</span>
         {{ errorMessage }}
       </div>
 
       <p>Are you sure you want to delete the branch <strong>{{ branchToDelete?.name }}</strong>?</p>
       <p class="warning-text">
-        <i class="fas fa-exclamation-triangle"></i>
+        <span class="material-icons-round">warning</span>
         This action cannot be undone. Make sure the branch has no departments or users assigned before deleting.
       </p>
     </div>
@@ -452,8 +432,8 @@
         Cancel
       </button>
       <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="loading">
-        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
-        <i *ngIf="!loading" class="fas fa-trash"></i>
+        <span *ngIf="loading" class="material-icons-round spin">sync</span>
+        <span *ngIf="!loading" class="material-icons-round">delete</span>
         Delete Branch
       </button>
     </div>

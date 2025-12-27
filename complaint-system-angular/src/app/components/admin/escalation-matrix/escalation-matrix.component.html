@@ -1,147 +1,384 @@
-<div class="escalation-matrix-container">
-  <!-- Header -->
+<div class="escalation-management">
+  <!-- Page Header -->
   <div class="page-header">
     <div class="header-content">
-      <h1 class="page-title">
-        <i class="fas fa-layer-group"></i>
-        Escalation Matrix Management
-      </h1>
-      <p class="page-description">Configure escalation levels and rules for complaint handling</p>
+      <div class="title-row">
+        <span class="material-icons-round header-icon">moving</span>
+        <h1>Escalation Rules</h1>
+      </div>
+      <p class="page-description">
+        Define and manage automated escalation workflows for unresolved complaints based on time, priority, and department logic.
+      </p>
     </div>
-    <button *ngIf="!showForm" class="btn btn-primary" (click)="createNewMatrix()">
-      <i class="fas fa-plus"></i>
-      Create New Matrix
+    <button *ngIf="!showForm" class="btn btn-primary btn-add" (click)="createNewMatrix()">
+      <span class="material-icons-round">add</span>
+      Add Escalation Rule
     </button>
   </div>
 
-  <!-- Alert Messages -->
-  <div *ngIf="successMessage" class="alert alert-success">
-    <i class="fas fa-check-circle"></i>
-    {{ successMessage }}
+  <!-- Success/Error Messages -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    <span class="material-icons-round">check_circle</span>
+    <span>{{ successMessage }}</span>
+  </div>
+  <div class="alert alert-error" *ngIf="errorMessage && !showForm">
+    <span class="material-icons-round">error</span>
+    <span>{{ errorMessage }}</span>
   </div>
 
-  <div *ngIf="errorMessage" class="alert alert-error">
-    <i class="fas fa-exclamation-circle"></i>
-    {{ errorMessage }}
-  </div>
-
-  <!-- Loading Spinner -->
-  <div *ngIf="loading && !showForm" class="loading-container">
-    <div class="spinner"></div>
-    <p>Loading escalation matrices...</p>
-  </div>
-
-  <!-- Matrix List -->
-  <div *ngIf="!showForm && !loading" class="matrix-list">
-    <div *ngIf="matrices.length === 0" class="empty-state">
-      <i class="fas fa-inbox"></i>
-      <h3>No Escalation Matrices</h3>
-      <p>Get started by creating your first escalation matrix</p>
-      <button class="btn btn-primary" (click)="createNewMatrix()">
-        <i class="fas fa-plus"></i>
-        Create Matrix
+  <!-- Filters and Search (only when not showing form) -->
+  <div class="filters-bar" *ngIf="!showForm && !loading">
+    <div class="search-box">
+      <span class="material-icons-round search-icon">search</span>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Search rules by name, ID, or action..."
+        class="search-input"
+      />
+    </div>
+    <div class="filter-actions">
+      <button class="filter-btn" [class.active]="statusFilter === 'all'" (click)="setStatusFilter('all')">
+        <span>Status: {{ statusFilter === 'all' ? 'All' : statusFilter === 'active' ? 'Active' : 'Inactive' }}</span>
+        <span class="material-icons-round">expand_more</span>
+      </button>
+      <button class="filter-btn" (click)="togglePriorityFilter()">
+        <span>Priority: {{ priorityFilter === 'all' ? 'All' : priorityFilter }}</span>
+        <span class="material-icons-round">expand_more</span>
+      </button>
+      <button class="filter-btn icon-only" (click)="resetFilters()" title="Reset Filters">
+        <span class="material-icons-round">restart_alt</span>
       </button>
     </div>
+  </div>
 
-    <div *ngFor="let matrix of matrices; trackBy: trackByMatrixId" class="matrix-card">
-      <div class="matrix-card-header">
-        <div class="matrix-info">
-          <h3 class="matrix-name">
-            {{ matrix.name }}
-            <span *ngIf="matrix.isDefault" class="badge badge-primary">Default</span>
-            <span *ngIf="!matrix.isActive" class="badge badge-secondary">Inactive</span>
-          </h3>
-          <p *ngIf="matrix.description" class="matrix-description">{{ matrix.description }}</p>
-        </div>
-        <div class="matrix-actions">
-          <button class="btn btn-icon btn-secondary" (click)="editMatrix(matrix)" title="Edit">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="btn btn-icon btn-danger" (click)="deleteMatrix(matrix)" title="Delete">
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        </div>
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading && !showForm">
+    <div class="spinner"></div>
+    <p>Loading escalation rules...</p>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="main-grid" *ngIf="!showForm && !loading">
+    <!-- Left Column - Rules List -->
+    <div class="rules-column">
+      <div class="rules-header">
+        <span class="rules-count">{{ filteredMatrices.length }} {{ filteredMatrices.length === 1 ? 'Rule' : 'Rules' }}</span>
+        <span class="sort-info">
+          <span class="material-icons-round">sort</span> Sorted by Priority
+        </span>
       </div>
 
-      <div class="matrix-levels">
-        <div class="levels-header">
-          <span class="levels-count">
-            <i class="fas fa-layer-group"></i>
-            {{ matrix.escalationLevels.length }} Escalation {{ matrix.escalationLevels.length === 1 ? 'Level' : 'Levels' }}
-          </span>
+      <!-- Empty State -->
+      <div *ngIf="filteredMatrices.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <span class="material-icons-round">inbox</span>
         </div>
-        <div *ngIf="matrix.escalationLevels.length > 0" class="levels-timeline">
-          <div *ngFor="let level of matrix.escalationLevels; let i = index; trackBy: trackByEscalationLevel" class="level-item">
-            <div class="level-number">{{ level.level }}</div>
+        <h3>No Escalation Rules Found</h3>
+        <p *ngIf="searchTerm">Try adjusting your search or filters</p>
+        <p *ngIf="!searchTerm">Get started by creating your first escalation rule</p>
+        <button class="btn btn-primary" *ngIf="!searchTerm" (click)="createNewMatrix()">
+          <span class="material-icons-round">add</span> Create First Rule
+        </button>
+      </div>
+
+      <!-- Rule Cards -->
+      <div
+        *ngFor="let matrix of filteredMatrices; trackBy: trackByMatrixId"
+        class="rule-card"
+        [class.inactive]="!matrix.isActive"
+      >
+        <!-- Priority Indicator -->
+        <div class="priority-indicator" [class]="getPriorityClass(matrix.priority)"></div>
+
+        <!-- Card Header -->
+        <div class="card-header">
+          <div class="rule-info">
+            <div class="rule-icon" [class]="getPriorityClass(matrix.priority)">
+              <span class="material-icons-round">{{ getMatrixIcon(matrix) }}</span>
+            </div>
+            <div class="rule-details">
+              <div class="rule-title-row">
+                <h3 class="rule-name">{{ matrix.name }}</h3>
+                <span class="status-badge" [class.active]="matrix.isActive">
+                  {{ matrix.isActive ? 'ACTIVE' : 'INACTIVE' }}
+                </span>
+                <span class="badge badge-default" *ngIf="matrix.isDefault">DEFAULT</span>
+              </div>
+              <p class="rule-description">{{ matrix.description || 'No description provided' }}</p>
+            </div>
+          </div>
+          <div class="rule-actions">
+            <button class="btn-action" title="Test this rule" (click)="testRule(matrix)">
+              <span class="material-icons-round">science</span>
+              Test
+            </button>
+            <label class="toggle-switch">
+              <input
+                type="checkbox"
+                [checked]="matrix.isActive"
+                (change)="toggleMatrixActive(matrix)"
+              />
+              <span class="slider"></span>
+            </label>
+            <div class="dropdown">
+              <button class="btn-menu" (click)="toggleDropdown(matrix.id)">
+                <span class="material-icons-round">more_vert</span>
+              </button>
+              <div class="dropdown-menu" *ngIf="activeDropdownId === matrix.id">
+                <button class="dropdown-item" (click)="editMatrix(matrix); closeDropdown()">
+                  <span class="material-icons-round">edit</span> Edit
+                </button>
+                <button class="dropdown-item" (click)="duplicateMatrix(matrix); closeDropdown()">
+                  <span class="material-icons-round">content_copy</span> Duplicate
+                </button>
+                <button class="dropdown-item danger" (click)="deleteMatrix(matrix); closeDropdown()">
+                  <span class="material-icons-round">delete</span> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Details -->
+        <div class="card-details">
+          <div class="detail-item">
+            <p class="detail-label">Trigger Condition</p>
+            <div class="detail-value">
+              <span class="material-icons-round icon-primary">schedule</span>
+              <span>{{ getLevelSummary(matrix) }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <p class="detail-label">Action</p>
+            <div class="detail-value">
+              <span class="material-icons-round icon-warning">notification_important</span>
+              <span>{{ getActionSummary(matrix) }}</span>
+            </div>
+          </div>
+          <div class="detail-item assignees">
+            <div class="assignee-avatars">
+              <div class="avatar" *ngFor="let level of matrix.escalationLevels.slice(0, 3); let i = index">
+                {{ getInitials(level.name) }}
+              </div>
+              <div class="avatar more" *ngIf="matrix.escalationLevels.length > 3">
+                +{{ matrix.escalationLevels.length - 3 }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expand/Collapse Levels -->
+        <div class="card-expand" *ngIf="matrix.escalationLevels.length > 0">
+          <button class="expand-btn" (click)="toggleExpand(matrix.id)">
+            <span class="material-icons-round">{{ expandedMatrices.has(matrix.id) ? 'expand_less' : 'expand_more' }}</span>
+            <span>{{ expandedMatrices.has(matrix.id) ? 'Hide' : 'Show' }} {{ matrix.escalationLevels.length }} Levels</span>
+          </button>
+        </div>
+
+        <!-- Expanded Levels View -->
+        <div class="levels-timeline" *ngIf="expandedMatrices.has(matrix.id)">
+          <div
+            *ngFor="let level of matrix.escalationLevels; let i = index; let last = last"
+            class="level-item"
+          >
+            <div class="level-marker">
+              <div class="level-number">{{ level.level }}</div>
+              <div class="level-line" *ngIf="!last"></div>
+            </div>
             <div class="level-content">
               <h4 class="level-name">{{ level.name }}</h4>
-              <div class="level-details">
-                <span class="detail-item">
-                  <i class="fas fa-clock"></i>
+              <div class="level-meta">
+                <span class="meta-item">
+                  <span class="material-icons-round">schedule</span>
                   After {{ level.triggerTimeDisplay }}
                 </span>
-                <span class="detail-item">
-                  <i class="fas fa-user-tag"></i>
+                <span class="meta-item">
+                  <span class="material-icons-round">person</span>
                   {{ getAssignmentStrategyLabel(level.assignmentStrategy) }}
                 </span>
-                <span *ngIf="level.sendNotification" class="detail-item">
-                  <i class="fas fa-bell"></i>
-                  Notifications Enabled
+                <span class="meta-item" *ngIf="level.sendNotification">
+                  <span class="material-icons-round">notifications_active</span>
+                  Notify
                 </span>
               </div>
             </div>
-            <div *ngIf="i < matrix.escalationLevels.length - 1" class="level-connector"></div>
           </div>
         </div>
-        <div *ngIf="matrix.escalationLevels.length === 0" class="empty-levels-message">
-          <i class="fas fa-info-circle"></i>
-          <span>No escalation levels configured yet. Click Edit to add levels.</span>
+      </div>
+    </div>
+
+    <!-- Right Column - Sidebar -->
+    <div class="sidebar-column">
+      <!-- Rule Simulator -->
+      <div class="sidebar-card simulator-card">
+        <div class="sidebar-header">
+          <div class="header-icon">
+            <span class="material-icons-round">science</span>
+          </div>
+          <h3>Rule Simulator</h3>
+        </div>
+        <p class="sidebar-description">
+          Run a test to verify which escalation rules would trigger for a specific complaint scenario.
+        </p>
+        <div class="simulator-form">
+          <div class="simulator-field">
+            <div class="field-header">
+              <label>Priority Level</label>
+              <span class="field-value" [class]="simulatorPriority">{{ simulatorPriority | titlecase }}</span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="4"
+              [(ngModel)]="simulatorPriorityValue"
+              (ngModelChange)="updateSimulatorPriority()"
+              class="priority-slider"
+            />
+          </div>
+          <div class="simulator-field">
+            <div class="field-header">
+              <label>Idle Time</label>
+              <span class="field-value">{{ simulatorIdleTime }} Hours</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="72"
+              [(ngModel)]="simulatorIdleTime"
+              class="idle-slider"
+            />
+          </div>
+          <button class="btn btn-simulate" (click)="runSimulation()">
+            <span class="material-icons-round">play_arrow</span>
+            Simulate Complaint
+          </button>
+          <div class="simulation-result" *ngIf="simulationResult">
+            <div class="result-header">
+              <span class="material-icons-round">{{ simulationResult.matched ? 'check_circle' : 'cancel' }}</span>
+              <span>{{ simulationResult.matched ? 'Predicted Outcome' : 'No Match' }}</span>
+            </div>
+            <div class="result-content" *ngIf="simulationResult.matched">
+              <p class="result-label">Matched Rule</p>
+              <p class="result-value">{{ simulationResult.matchedRule }}</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="matrix-card-footer">
-        <span class="footer-item">
-          <i class="fas fa-calendar-plus"></i>
-          Created {{ matrix.createdAt | utcToLocal:'medium' }}
-        </span>
-        <span *ngIf="matrix.updatedAt" class="footer-item">
-          <i class="fas fa-calendar-check"></i>
-          Updated {{ matrix.updatedAt | utcToLocal:'medium' }}
-        </span>
+      <!-- How Escalations Work -->
+      <div class="sidebar-card info-card">
+        <div class="sidebar-header">
+          <span class="material-icons-round">info</span>
+          <h3>How Escalations Work</h3>
+        </div>
+        <div class="steps-timeline">
+          <div class="step-item">
+            <div class="step-marker"></div>
+            <div class="step-content">
+              <h4>1. Monitoring</h4>
+              <p>The system continuously monitors all open complaints against your active rules.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-marker"></div>
+            <div class="step-content">
+              <h4>2. Condition Check</h4>
+              <p>When a complaint matches a Trigger (e.g. time elapsed), the rule is flagged.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-marker"></div>
+            <div class="step-content">
+              <h4>3. Automated Action</h4>
+              <p>The defined action executes immediately, notifying stakeholders or reassigning tickets.</p>
+            </div>
+          </div>
+        </div>
+        <div class="info-footer">
+          <a class="link-primary" href="#">
+            View Documentation <span class="material-icons-round">open_in_new</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Escalation Health -->
+      <div class="sidebar-card health-card">
+        <h3>Escalation Health</h3>
+        <div class="health-metrics">
+          <div class="metric-item">
+            <div class="metric-header">
+              <span class="metric-label">Rules Triggered (Today)</span>
+              <span class="metric-value">{{ stats.triggeredToday }}</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-fill primary" [style.width.%]="stats.triggeredPercent"></div>
+            </div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-header">
+              <span class="metric-label">SLA Breaches</span>
+              <span class="metric-value danger">{{ stats.slaBreaches }}</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-fill danger" [style.width.%]="stats.slaBreachPercent"></div>
+            </div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-header">
+              <span class="metric-label">Active Rules</span>
+              <span class="metric-value">{{ stats.activeRules }} / {{ matrices.length }}</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-fill success" [style.width.%]="stats.activePercent"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Matrix Form -->
-  <div *ngIf="showForm" class="matrix-form-container">
+  <!-- Matrix Form (Create/Edit) -->
+  <div *ngIf="showForm" class="form-container">
     <div class="form-header">
-      <h2>
-        <i class="fas fa-{{ isEditMode ? 'edit' : 'plus-circle' }}"></i>
-        {{ isEditMode ? 'Edit' : 'Create New' }} Escalation Matrix
-      </h2>
+      <div class="form-title">
+        <span class="material-icons-round">{{ isEditMode ? 'edit' : 'add_circle' }}</span>
+        <h2>{{ isEditMode ? 'Edit' : 'Create New' }} Escalation Rule</h2>
+      </div>
       <button class="btn btn-text" (click)="cancelForm()">
-        <i class="fas fa-times"></i>
+        <span class="material-icons-round">close</span>
         Cancel
       </button>
     </div>
 
-    <form [formGroup]="matrixForm" (ngSubmit)="saveMatrix()" class="matrix-form">
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <span class="material-icons-round">error</span>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <form [formGroup]="matrixForm" (ngSubmit)="saveMatrix()" class="rule-form">
       <!-- Basic Information -->
       <div class="form-section">
-        <h3 class="section-title">Basic Information</h3>
+        <h3 class="section-title">
+          <span class="material-icons-round">info</span>
+          Basic Information
+        </h3>
         <div class="form-row">
           <div class="form-group">
-            <label for="name" class="form-label required">Matrix Name</label>
+            <label for="name" class="form-label">
+              Rule Name <span class="required">*</span>
+            </label>
             <input
               id="name"
               type="text"
               formControlName="name"
               class="form-control"
               [class.invalid]="isFieldInvalid('name')"
-              placeholder="e.g., Standard Escalation Matrix"
+              placeholder="e.g., Critical SLA Breach"
             />
             <span *ngIf="isFieldInvalid('name')" class="error-message">
-              Matrix name is required
+              Rule name is required
             </span>
           </div>
         </div>
@@ -154,23 +391,23 @@
               formControlName="description"
               class="form-control"
               rows="3"
-              placeholder="Describe the purpose of this escalation matrix..."
+              placeholder="Describe when this escalation rule should trigger..."
             ></textarea>
           </div>
         </div>
 
-        <div class="form-row">
+        <div class="form-row form-row-2">
           <div class="form-group-checkbox">
-            <input
-              id="isDefault"
-              type="checkbox"
-              formControlName="isDefault"
-              class="form-checkbox"
-            />
-            <label for="isDefault" class="checkbox-label">
-              Set as default matrix
-              <span class="checkbox-description">This matrix will be used by default for new complaints</span>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                formControlName="isDefault"
+                class="form-checkbox"
+              />
+              <span class="checkbox-custom"></span>
+              <span class="checkbox-text">Set as default rule</span>
             </label>
+            <span class="checkbox-description">This rule will be used by default for new complaints</span>
           </div>
         </div>
       </div>
@@ -178,38 +415,43 @@
       <!-- Escalation Levels -->
       <div class="form-section">
         <div class="section-header">
-          <h3 class="section-title">Escalation Levels</h3>
+          <h3 class="section-title">
+            <span class="material-icons-round">layers</span>
+            Escalation Levels
+          </h3>
           <button type="button" class="btn btn-secondary btn-sm" (click)="addLevel()">
-            <i class="fas fa-plus"></i>
+            <span class="material-icons-round">add</span>
             Add Level
           </button>
         </div>
 
         <div formArrayName="levels" class="levels-form">
-          <div *ngFor="let level of levels.controls; let i = index; trackBy: trackByLevel" [formGroupName]="i" class="level-form-card">
-            <div class="level-form-header">
-              <h4 class="level-form-title">
-                <span class="level-badge">Level {{ i + 1 }}</span>
-                <input
-                  type="text"
-                  formControlName="name"
-                  class="level-name-input"
-                  [class.invalid]="isLevelFieldInvalid(i, 'name')"
-                  placeholder="Level name"
-                />
-              </h4>
+          <div
+            *ngFor="let level of levels.controls; let i = index; trackBy: trackByLevel"
+            [formGroupName]="i"
+            class="level-card"
+          >
+            <div class="level-header">
+              <div class="level-badge">Level {{ i + 1 }}</div>
+              <input
+                type="text"
+                formControlName="name"
+                class="level-name-input"
+                [class.invalid]="isLevelFieldInvalid(i, 'name')"
+                placeholder="Level name"
+              />
               <button
                 *ngIf="levels.length > 1"
                 type="button"
-                class="btn btn-icon btn-danger btn-sm"
+                class="btn-remove"
                 (click)="removeLevel(i)"
                 title="Remove this level"
               >
-                <i class="fas fa-trash-alt"></i>
+                <span class="material-icons-round">delete</span>
               </button>
             </div>
 
-            <div class="level-form-content">
+            <div class="level-body">
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label">Description</label>
@@ -224,7 +466,9 @@
 
               <div class="form-row form-row-2">
                 <div class="form-group">
-                  <label class="form-label required">Trigger After</label>
+                  <label class="form-label">
+                    Trigger After <span class="required">*</span>
+                  </label>
                   <div class="input-group">
                     <input
                       type="number"
@@ -246,7 +490,9 @@
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label required">Assignment Strategy</label>
+                  <label class="form-label">
+                    Assignment Strategy <span class="required">*</span>
+                  </label>
                   <select
                     formControlName="assignmentStrategy"
                     class="form-control"
@@ -273,26 +519,26 @@
 
               <div class="form-row form-row-2">
                 <div class="form-group-checkbox">
-                  <input
-                    [id]="'sendNotification' + i"
-                    type="checkbox"
-                    formControlName="sendNotification"
-                    class="form-checkbox"
-                  />
-                  <label [for]="'sendNotification' + i" class="checkbox-label">
-                    Send email notification
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      formControlName="sendNotification"
+                      class="form-checkbox"
+                    />
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-text">Send email notification</span>
                   </label>
                 </div>
 
                 <div class="form-group-checkbox">
-                  <input
-                    [id]="'notifyPreviousHandler' + i"
-                    type="checkbox"
-                    formControlName="notifyPreviousHandler"
-                    class="form-checkbox"
-                  />
-                  <label [for]="'notifyPreviousHandler' + i" class="checkbox-label">
-                    Notify previous handler
+                  <label class="checkbox-label">
+                    <input
+                      type="checkbox"
+                      formControlName="notifyPreviousHandler"
+                      class="form-checkbox"
+                    />
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-text">Notify previous handler</span>
                   </label>
                 </div>
               </div>
@@ -304,12 +550,12 @@
       <!-- Form Actions -->
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="cancelForm()">
-          <i class="fas fa-times"></i>
           Cancel
         </button>
         <button type="submit" class="btn btn-primary" [disabled]="loading || matrixForm.invalid">
-          <i class="fas fa-{{ loading ? 'spinner fa-spin' : 'save' }}"></i>
-          {{ loading ? 'Saving...' : (isEditMode ? 'Update Matrix' : 'Create Matrix') }}
+          <span class="material-icons-round" *ngIf="!loading">{{ isEditMode ? 'save' : 'add' }}</span>
+          <span class="spinner-small" *ngIf="loading"></span>
+          {{ loading ? 'Saving...' : (isEditMode ? 'Update Rule' : 'Create Rule') }}
         </button>
       </div>
     </form>

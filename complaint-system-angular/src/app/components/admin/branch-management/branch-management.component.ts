@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { BranchService } from '../../../services/branch.service';
 import { AuthService } from '../../../services/auth.service';
 import { LoggerService } from '../../../core/services/logger.service';
@@ -122,8 +121,7 @@ export class BranchManagementComponent
   constructor(
     private branchService: BranchService,
     authService: AuthService,
-    logger: LoggerService,
-    private router: Router
+    logger: LoggerService
   ) {
     super(authService, logger);
     this.form = this.getEmptyForm();
@@ -467,10 +465,6 @@ export class BranchManagementComponent
   onHrResponsibleSelected(user: UserSearchResult | null): void {
     this.hrResponsibleId = user?.id;
     this.hrResponsibleName = user?.fullName;
-  }
-
-  navigateBack(): void {
-    this.router.navigate(['/dashboard']);
   }
 
   // TrackBy function for *ngFor optimization

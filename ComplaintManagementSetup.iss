@@ -3,8 +3,8 @@
 ; Download Inno Setup from: https://jrsoftware.org/isdl.php
 
 #define MyAppName "Complaint Management System"
-#define MyAppVersion "1.0.0"
-#define MyAppPublisher "Your Company Name"
+#define MyAppVersion "1.1.0"
+#define MyAppPublisher "Oryggi Technology"
 #define MyAppURL "https://www.yourcompany.com/"
 #define MyAppExeName "ComplaintManagement.API.exe"
 
@@ -50,7 +50,7 @@ Name: "configureiss"; Description: "Configure IIS Website"; GroupDescription: "W
 ; Backend API
 Source: "complaint-system-dotnet\src\ComplaintManagement.API\bin\Release\net8.0\publish\*"; DestDir: "{app}\API"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Frontend
-Source: "complaint-system-angular\dist\complaint-system-angular\*"; DestDir: "{app}\WWW"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "complaint-system-angular\dist\complaint-system-angular\browser\*"; DestDir: "{app}\WWW"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Documentation
 Source: "INSTALLATION_GUIDE.md"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 ;Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion isreadme

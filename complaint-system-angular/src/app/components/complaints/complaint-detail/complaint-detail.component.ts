@@ -34,11 +34,19 @@ import {
   UserCandidate
 } from '../../../models/assignment.model';
 import { SLAInfoPanelComponent } from '../../shared/sla-info-panel/sla-info-panel.component';
-import { EmailThreadViewerComponent } from '../../shared/email-thread-viewer/email-thread-viewer.component';
+import { EmailThreadViewerComponent, EmailReplyEvent } from '../../shared/email-thread-viewer/email-thread-viewer.component';
 import { EmailComposerModalComponent } from '../../shared/email-composer-modal/email-composer-modal.component';
 import { EmailReplyComposerComponent } from '../../shared/email-reply-composer/email-reply-composer.component';
 import { EmailThreadItemDto, EmailThreadService } from '../../../services/email-thread.service';
 import { ReplyType } from '../../../models/communication.model';
+
+// Interface for @mention users
+interface MentionUser {
+  id: string;
+  displayName: string;
+  email: string;
+  role: string;
+}
 
 @Component({
   selector: 'app-complaint-detail',
@@ -116,6 +124,7 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
   loadingComments = false;
   commentError: string | null = null;
   newComment = '';
+  isInternalNote = false; // Toggle for internal notes
   submittingComment = false;
   showComments = true;
 
@@ -130,6 +139,25 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
   priorities: any[] = [];
   statuses: any[] = [];
   categories: Category[] = [];
+
+  // Tab navigation
+  activeTab: 'details' | 'complainant' | 'thread' | 'comments' = 'details';
+
+  // Email thread tracking
+  unreadEmailCount = 0;
+
+  // Unread comments tracking (comments not yet seen by user)
+  unreadCommentCount = 0;
+  private seenCommentIds: Set<string> = new Set();
+
+  // @Mention functionality
+  showMentionDropdown = false;
+  mentionSuggestions: MentionUser[] = [];
+  mentionedUsers: MentionUser[] = [];
+  selectedMentionIndex = 0;
+  mentionSearchTerm = '';
+  private mentionTriggerPosition = -1;
+  private allMentionableUsers: MentionUser[] = [];
 
   // Edit mode properties
   isEditMode = false;
@@ -165,6 +193,7 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
   emailReplyTo?: EmailThreadItemDto;
   emailThread?: EmailThreadItemDto[]; // Full email thread for forwarding
   emailReplyType: ReplyType = ReplyType.Reply;
+  emailInitialContent: string = ''; // Content from quick reply textbox
   ReplyType = ReplyType; // Expose enum to template
 
   // Destroy subject for subscription cleanup
@@ -218,20 +247,61 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      // Load master data first, then load complaint
-      this.loadMasterData()
-        .then(() => {
-          // Master data loaded successfully, now load complaint
-          this.loadComplaint(id);
-        })
-        .catch((error: any) => {
-          console.error('Failed to load master data:', error);
-          // Still load complaint even if master data fails
-          this.loadComplaint(id);
-        });
-    }
+    // Subscribe to route parameter changes to handle navigation between complaints
+    this.route.paramMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const id = params.get('id');
+        if (id) {
+          // Reset component state for new complaint
+          this.resetComponentState();
+
+          // Load master data first, then load complaint
+          this.loadMasterData()
+            .then(() => {
+              // Master data loaded successfully, now load complaint
+              this.loadComplaint(id);
+            })
+            .catch((error: any) => {
+              console.error('Failed to load master data:', error);
+              // Still load complaint even if master data fails
+              this.loadComplaint(id);
+            });
+        }
+      });
+
+    // Load mentionable users for @mention functionality
+    this.loadMentionableUsers();
+  }
+
+  /**
+   * Reset component state when navigating to a different complaint
+   */
+  private resetComponentState(): void {
+    this.complaint = null;
+    this.loading = false;
+    this.error = null;
+    this.comments = [];
+    this.complaintHistory = null;
+    this.showHistory = false;
+    this.availableTransitions = [];
+    this.unreadEmailCount = 0;
+    this.unreadCommentCount = 0;
+    this.activeTab = 'details';
+    this.isEditMode = false;
+    this.showEmailReplyComposer = false;
+
+    // Reset modals
+    this.showAssignModal = false;
+    this.showEscalateModal = false;
+    this.showCloseModal = false;
+    this.showReopenModal = false;
+    this.showTransitionModal = false;
+
+    // Clear messages
+    this.successMessage = null;
+    this.actionError = null;
+    this.actionSuccess = null;
   }
 
   ngOnDestroy(): void {
@@ -258,9 +328,10 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
             );
           }
 
-          // Load comments and workflow transitions after complaint is loaded
+          // Load comments, workflow transitions, and email count after complaint is loaded
           this.loadComments();
           this.loadAllowedTransitions();
+          this.loadUnreadEmailCount();
         } else {
           this.error = response.message || 'Failed to load complaint';
         }
@@ -870,6 +941,165 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
     return this.masterDataService.getStatusName(status);
   }
 
+  // Badge class helpers for new UI design
+  getStatusBadgeClass(status: string | undefined | null): string {
+    if (status === null || status === undefined) return 'status-default';
+    if (typeof status === 'string') {
+      switch(status.toLowerCase()) {
+        case 'closed':
+        case 'resolved':
+          return 'status-success';
+        case 'inprogress':
+        case 'in progress':
+          return 'status-primary';
+        case 'escalated':
+          return 'status-danger';
+        case 'submitted':
+        case 'underreview':
+        case 'under review':
+          return 'status-info';
+        case 'pendinginfo':
+        case 'pending info':
+          return 'status-warning';
+        case 'rejected':
+          return 'status-dark';
+        case 'reopened':
+          return 'status-warning';
+        default:
+          return 'status-default';
+      }
+    }
+    return 'status-default';
+  }
+
+  getPriorityBadgeClass(priority: string | undefined | null): string {
+    if (priority === null || priority === undefined) return 'priority-default';
+    if (typeof priority === 'string') {
+      switch(priority.toLowerCase()) {
+        case 'critical':
+        case 'urgent':
+        case 'emergency':
+        case 'severe':
+          return 'priority-critical';
+        case 'high':
+        case 'elevated':
+          return 'priority-high';
+        case 'normal':
+        case 'medium':
+          return 'priority-medium';
+        case 'low':
+          return 'priority-low';
+        default:
+          return 'priority-default';
+      }
+    }
+    return 'priority-default';
+  }
+
+  // Email count for tab badge
+  loadUnreadEmailCount(): void {
+    if (!this.complaint) return;
+
+    this.emailThreadService.getComplaintEmails(this.complaint.id).subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data) {
+          // Count unread inbound emails (emails not sent by us that haven't been read)
+          this.unreadEmailCount = response.data.filter(
+            email => !email.isOutbound && !email.isRead
+          ).length;
+        }
+      },
+      error: (err) => {
+        console.error('Error loading email count:', err);
+        // Silently fail - this is for UI enhancement only
+      }
+    });
+  }
+
+  /**
+   * Mark all emails as read when user views the Email Thread tab
+   */
+  markEmailsAsRead(): void {
+    if (!this.complaint || this.unreadEmailCount === 0) return;
+
+    this.emailThreadService.markAllAsRead(this.complaint.id).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.unreadEmailCount = 0;
+        }
+      },
+      error: (err) => {
+        console.error('Error marking emails as read:', err);
+        // Silently fail - this is for UI enhancement only
+      }
+    });
+  }
+
+  /**
+   * Get the localStorage key for storing seen comment IDs for this complaint
+   */
+  private getSeenCommentsStorageKey(): string {
+    return `complaint_seen_comments_${this.complaint?.id || ''}`;
+  }
+
+  /**
+   * Load seen comment IDs from localStorage
+   */
+  private loadSeenCommentIds(): void {
+    if (!this.complaint) return;
+
+    try {
+      const stored = localStorage.getItem(this.getSeenCommentsStorageKey());
+      if (stored) {
+        const ids = JSON.parse(stored) as string[];
+        this.seenCommentIds = new Set(ids);
+      }
+    } catch (e) {
+      console.error('Error loading seen comment IDs:', e);
+      this.seenCommentIds = new Set();
+    }
+  }
+
+  /**
+   * Save seen comment IDs to localStorage
+   */
+  private saveSeenCommentIds(): void {
+    if (!this.complaint) return;
+
+    try {
+      const ids = Array.from(this.seenCommentIds);
+      localStorage.setItem(this.getSeenCommentsStorageKey(), JSON.stringify(ids));
+    } catch (e) {
+      console.error('Error saving seen comment IDs:', e);
+    }
+  }
+
+  /**
+   * Mark all current comments as seen
+   * Called when user views the Comments tab
+   */
+  markCommentsAsSeen(): void {
+    this.comments.forEach(comment => {
+      this.seenCommentIds.add(comment.id);
+    });
+    this.saveSeenCommentIds();
+    this.unreadCommentCount = 0;
+  }
+
+  /**
+   * Update the count of unread comments (comments not yet seen by user)
+   * This helps users identify new activity on the complaint
+   */
+  updateUnreadCommentCount(): void {
+    // Load seen comment IDs from localStorage
+    this.loadSeenCommentIds();
+
+    // Count comments that haven't been seen yet
+    this.unreadCommentCount = this.comments.filter(comment =>
+      !this.seenCommentIds.has(comment.id)
+    ).length;
+  }
+
   // Comment functionality methods
   loadComments(): void {
     if (!this.complaint) return;
@@ -881,6 +1111,8 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.isSuccess && response.data) {
           this.comments = response.data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          // Calculate unread comments (not yet seen by user)
+          this.updateUnreadCommentCount();
         } else {
           this.commentError = response.message || 'Failed to load comments';
         }
@@ -900,10 +1132,14 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
     this.submittingComment = true;
     this.commentError = null;
 
+    // Collect mentioned user IDs for notification
+    const mentionedUserIds = this.mentionedUsers.map(u => u.id);
+
     const request: CreateCommentRequest = {
       complaintId: this.complaint.id,
       comment: this.newComment.trim(),
-      isInternal: false // Default to public comments
+      isInternal: this.isInternalNote,
+      mentionedUserIds: mentionedUserIds.length > 0 ? mentionedUserIds : undefined
     };
 
     this.commentService.addComment(request).subscribe({
@@ -911,9 +1147,23 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
         if (response.isSuccess && response.data) {
           // Add new comment to the beginning of the array
           this.comments.unshift(response.data);
+          const wasInternalNote = this.isInternalNote;
+          const hadMentions = this.mentionedUsers.length > 0;
           this.newComment = '';
-          this.actionSuccess = 'Comment added successfully';
-          setTimeout(() => this.actionSuccess = null, 3000);
+          this.isInternalNote = false; // Reset internal note toggle
+          this.mentionedUsers = []; // Reset mentioned users
+
+          // Build success message
+          let successMsg = wasInternalNote ? 'Internal note added successfully' : 'Comment posted successfully';
+          if (hadMentions) {
+            successMsg += '. Notifications sent to mentioned users.';
+          }
+          this.actionSuccess = successMsg;
+
+          // Mark the new comment as seen (user just added it)
+          this.seenCommentIds.add(response.data.id);
+          this.saveSeenCommentIds();
+          setTimeout(() => this.actionSuccess = null, 4000);
 
           // Update complaint comment count
           if (this.complaint) {
@@ -937,6 +1187,190 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
     if (this.showComments && this.comments.length === 0) {
       this.loadComments();
     }
+  }
+
+  // ==========================================
+  // @Mention Functionality Methods
+  // ==========================================
+
+  /**
+   * Load mentionable users - staff members who can be mentioned
+   */
+  loadMentionableUsers(): void {
+    // Load all users who can be mentioned (staff members)
+    this.userService.getUsers().subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data) {
+          this.allMentionableUsers = response.data.map((user: User) => ({
+            id: user.id,
+            displayName: user.fullName || `${user.firstName} ${user.lastName}`,
+            email: user.email,
+            role: user.roles && user.roles.length > 0 ? user.roles[0].roleName : 'User'
+          }));
+        }
+      },
+      error: (err) => {
+        console.error('Error loading mentionable users:', err);
+      }
+    });
+  }
+
+  /**
+   * Get display name for role
+   */
+  private getRoleDisplayName(roleId: string): string {
+    const roleMap: { [key: string]: string } = {
+      'admin': 'Administrator',
+      'manager': 'Manager',
+      'supervisor': 'Supervisor',
+      'agent': 'Support Agent',
+      'technician': 'Technician',
+      'user': 'User'
+    };
+    return roleMap[roleId?.toLowerCase()] || roleId || 'Staff';
+  }
+
+  /**
+   * Get user initials for avatar
+   */
+  getUserInitials(displayName: string): string {
+    if (!displayName) return '??';
+    const names = displayName.trim().split(' ');
+    if (names.length >= 2) {
+      return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+    }
+    return displayName.substring(0, 2).toUpperCase();
+  }
+
+  /**
+   * Handle input in comment textarea - detect @mentions
+   */
+  onCommentInput(event: Event): void {
+    const textarea = event.target as HTMLTextAreaElement;
+    const cursorPos = textarea.selectionStart;
+    const text = textarea.value;
+
+    // Find if we're in a mention context (after @)
+    const textBeforeCursor = text.substring(0, cursorPos);
+    const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+
+    if (lastAtIndex !== -1) {
+      const textAfterAt = textBeforeCursor.substring(lastAtIndex + 1);
+      // Check if there's no space after @ (still in mention mode)
+      if (!textAfterAt.includes(' ') && !textAfterAt.includes('\n')) {
+        this.mentionTriggerPosition = lastAtIndex;
+        this.mentionSearchTerm = textAfterAt.toLowerCase();
+        this.filterMentionSuggestions();
+        this.showMentionDropdown = true;
+        this.selectedMentionIndex = 0;
+        return;
+      }
+    }
+
+    // Not in mention mode
+    this.hideMentionDropdown();
+  }
+
+  /**
+   * Handle keydown in comment textarea - navigate mention dropdown
+   */
+  onCommentKeydown(event: KeyboardEvent): void {
+    if (!this.showMentionDropdown || this.mentionSuggestions.length === 0) {
+      return;
+    }
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        this.selectedMentionIndex = Math.min(
+          this.selectedMentionIndex + 1,
+          this.mentionSuggestions.length - 1
+        );
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.selectedMentionIndex = Math.max(this.selectedMentionIndex - 1, 0);
+        break;
+      case 'Enter':
+      case 'Tab':
+        if (this.showMentionDropdown && this.mentionSuggestions.length > 0) {
+          event.preventDefault();
+          this.selectMention(this.mentionSuggestions[this.selectedMentionIndex]);
+        }
+        break;
+      case 'Escape':
+        event.preventDefault();
+        this.hideMentionDropdown();
+        break;
+    }
+  }
+
+  /**
+   * Filter mention suggestions based on search term
+   */
+  private filterMentionSuggestions(): void {
+    if (!this.mentionSearchTerm) {
+      this.mentionSuggestions = this.allMentionableUsers.slice(0, 5);
+    } else {
+      this.mentionSuggestions = this.allMentionableUsers
+        .filter(user =>
+          user.displayName.toLowerCase().includes(this.mentionSearchTerm) ||
+          user.email.toLowerCase().includes(this.mentionSearchTerm) ||
+          user.role.toLowerCase().includes(this.mentionSearchTerm)
+        )
+        .slice(0, 5);
+    }
+  }
+
+  /**
+   * Select a user from the mention dropdown
+   */
+  selectMention(user: MentionUser): void {
+    // Get textarea reference
+    const textarea = document.querySelector('.composer-textarea') as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const text = this.newComment;
+    const beforeMention = text.substring(0, this.mentionTriggerPosition);
+    const afterMention = text.substring(textarea.selectionStart);
+
+    // Insert the mention
+    this.newComment = beforeMention + '@' + user.displayName + ' ' + afterMention;
+
+    // Add to mentioned users if not already there
+    if (!this.mentionedUsers.find(u => u.id === user.id)) {
+      this.mentionedUsers.push(user);
+    }
+
+    this.hideMentionDropdown();
+
+    // Refocus textarea and set cursor position
+    setTimeout(() => {
+      const newCursorPos = beforeMention.length + user.displayName.length + 2;
+      textarea.focus();
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  }
+
+  /**
+   * Remove a mentioned user
+   */
+  removeMention(user: MentionUser): void {
+    this.mentionedUsers = this.mentionedUsers.filter(u => u.id !== user.id);
+    // Also remove from the comment text
+    const mentionPattern = new RegExp('@' + user.displayName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s?', 'g');
+    this.newComment = this.newComment.replace(mentionPattern, '');
+  }
+
+  /**
+   * Hide the mention dropdown
+   */
+  private hideMentionDropdown(): void {
+    this.showMentionDropdown = false;
+    this.mentionSuggestions = [];
+    this.selectedMentionIndex = 0;
+    this.mentionSearchTerm = '';
+    this.mentionTriggerPosition = -1;
   }
 
   // Workflow transition methods
@@ -1197,29 +1631,32 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
   /**
    * Handle reply to existing email
    */
-  onEmailReplyClicked(email: EmailThreadItemDto): void {
-    this.emailReplyTo = email;
+  onEmailReplyClicked(event: EmailReplyEvent): void {
+    this.emailReplyTo = event.email;
     this.emailThread = undefined; // Reply doesn't need full thread
     this.emailReplyType = ReplyType.Reply;
+    this.emailInitialContent = event.quickReplyContent || '';
     this.showEmailReplyComposer = true;
   }
 
   /**
    * Handle reply-all to existing email
    */
-  onEmailReplyAllClicked(email: EmailThreadItemDto): void {
-    this.emailReplyTo = email;
+  onEmailReplyAllClicked(event: EmailReplyEvent): void {
+    this.emailReplyTo = event.email;
     this.emailThread = undefined; // Reply All doesn't need full thread
     this.emailReplyType = ReplyType.ReplyAll;
+    this.emailInitialContent = event.quickReplyContent || '';
     this.showEmailReplyComposer = true;
   }
 
   /**
    * Handle forward - includes full email thread
    */
-  onEmailForwardClicked(email: EmailThreadItemDto): void {
-    this.emailReplyTo = email;
+  onEmailForwardClicked(event: EmailReplyEvent): void {
+    this.emailReplyTo = event.email;
     this.emailReplyType = ReplyType.Forward;
+    this.emailInitialContent = event.quickReplyContent || '';
 
     // Fetch the full email thread for forwarding the entire conversation
     if (this.complaint?.id) {
@@ -1229,27 +1666,44 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
             this.emailThread = response.data;
           } else {
             // Fallback: use just the single email if thread fetch fails
-            this.emailThread = [email];
+            this.emailThread = [event.email];
           }
           this.showEmailReplyComposer = true;
         },
         error: (err) => {
           console.error('Error loading email thread for forward:', err);
           // Fallback: use just the single email if thread fetch fails
-          this.emailThread = [email];
+          this.emailThread = [event.email];
           this.showEmailReplyComposer = true;
         }
       });
     } else {
       // No complaint ID available, use just the single email
-      this.emailThread = [email];
+      this.emailThread = [event.email];
       this.showEmailReplyComposer = true;
     }
+  }
+
+  /**
+   * Handle Add Internal Note button click from email thread viewer
+   * Switches to Comments & Activity tab where internal notes are managed
+   */
+  onAddInternalNoteClicked(): void {
+    this.activeTab = 'comments';
+    this.isInternalNote = true; // Pre-check the internal note toggle
+    // Focus the comment input after a short delay to allow tab switch
+    setTimeout(() => {
+      const commentInput = document.querySelector('.comment-form textarea');
+      if (commentInput) {
+        (commentInput as HTMLTextAreaElement).focus();
+      }
+    }, 100);
   }
 
   onEmailReplySent(sentEmail: EmailThreadItemDto): void {
     this.showEmailReplyComposer = false;
     this.emailReplyTo = undefined;
+    this.emailInitialContent = '';
     this.successMessage = 'Email sent successfully!';
 
     // Clear success message after 3 seconds
@@ -1263,5 +1717,6 @@ export class ComplaintDetailComponent implements OnInit, OnDestroy {
   onEmailReplyCancelled(): void {
     this.showEmailReplyComposer = false;
     this.emailReplyTo = undefined;
+    this.emailInitialContent = '';
   }
 }

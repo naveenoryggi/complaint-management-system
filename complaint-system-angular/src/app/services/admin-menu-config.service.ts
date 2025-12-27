@@ -106,7 +106,7 @@ export class AdminMenuConfigService {
       items: [
         { label: 'Oryggi Sync', route: 'oryggi-sync', icon: 'fa-rotate' },
         { label: 'Escalation Matrix', route: 'escalation-matrix', icon: 'fa-sitemap' },
-        { label: 'Escalation Policy', route: 'escalation-policy', icon: 'fa-shield-check' }
+        { label: 'Escalation Policy', route: 'escalation-policy', icon: 'fa-list-check' }
       ]
     }
   ];

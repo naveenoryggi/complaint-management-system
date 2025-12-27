@@ -157,4 +157,20 @@ public interface IWorkflowEngine
         Guid workflowId,
         Guid fromStatusId,
         Guid toStatusId);
+
+    /// <summary>
+    /// Remove a status from a workflow
+    /// </summary>
+    /// <param name="workflowId">Workflow ID</param>
+    /// <param name="statusId">Workflow status ID to remove</param>
+    /// <returns>True if removal was successful</returns>
+    Task<bool> RemoveStatusFromWorkflowAsync(Guid workflowId, Guid statusId);
+
+    /// <summary>
+    /// Remove a transition rule from a workflow
+    /// </summary>
+    /// <param name="workflowId">Workflow ID</param>
+    /// <param name="transitionId">Transition ID to remove</param>
+    /// <returns>True if removal was successful</returns>
+    Task<bool> RemoveTransitionRuleAsync(Guid workflowId, Guid transitionId);
 }

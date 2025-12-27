@@ -143,6 +143,21 @@ public class Complaint : BaseEntity
     /// </summary>
     public Guid? RelatedComplaintId { get; set; }
 
+    /// <summary>
+    /// Indicates if there is a customer response awaiting handler action
+    /// </summary>
+    public bool HasCustomerResponse { get; set; } = false;
+
+    /// <summary>
+    /// Who sent the last response (Customer or Handler)
+    /// </summary>
+    public string? LastResponseFrom { get; set; }
+
+    /// <summary>
+    /// When the last response was received
+    /// </summary>
+    public DateTime? LastResponseAt { get; set; }
+
     // Navigation properties
     /// <summary>
     /// Complaint category

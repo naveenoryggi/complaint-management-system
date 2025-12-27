@@ -1,55 +1,59 @@
-<div class="priority-master-management">
+<div class="priority-management">
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-content">
-      <h1>
-        <i class="fas fa-flag"></i>
-        Priority Master Management
-      </h1>
-      <p class="page-description">Manage complaint priority levels, SLA times, and escalation settings</p>
+      <div class="title-row">
+        <span class="material-icons-round header-icon">flag</span>
+        <h1>Priority Master Management</h1>
+      </div>
+      <p class="page-description">
+        Manage complaint priority levels, SLA times, and escalation settings for your support workflows.
+      </p>
     </div>
-    <button
-      *ngIf="canManageSettings"
-      class="btn btn-primary"
-      (click)="openCreateModal()">
-      <i class="fas fa-plus"></i> Add Priority
+    <button class="btn btn-primary btn-add" *ngIf="canManageSettings" (click)="openCreateModal()">
+      <span class="material-icons-round">add</span>
+      Add Priority
     </button>
   </div>
 
-  <!-- Help Section -->
+  <!-- Info Banner -->
   <div class="info-banner">
-    <div class="info-icon">
-      <i class="fas fa-info-circle"></i>
+    <div class="info-icon-wrapper">
+      <span class="material-icons-round">info</span>
     </div>
     <div class="info-content">
       <h3>Understanding Priority Masters</h3>
-      <p>
-        Priority masters define the urgency levels and SLA requirements for complaints:
-      </p>
-      <ul>
-        <li><strong>Priority Level:</strong> Numeric value (1-5) indicating urgency, where higher numbers mean higher priority</li>
-        <li><strong>SLA Times:</strong> Define response and resolution timeframes in hours</li>
-        <li><strong>System Priorities:</strong> Built-in priorities (e.g., "Low", "High", "Critical") that cannot be edited or deleted</li>
-        <li><strong>Custom Priorities:</strong> Company-specific priorities with custom SLA times</li>
-      </ul>
-      <p>
-        <strong>Configuration:</strong> Each priority can have unique color codes, icons, and display order for visual distinction.
+      <div class="info-grid">
+        <div class="info-item">
+          <p class="info-label">Priority Level (1-5)</p>
+          <p>Numeric value indicating urgency. Higher numbers mean higher priority.</p>
+        </div>
+        <div class="info-item">
+          <p class="info-label">SLA Configuration</p>
+          <p>Define response and resolution timeframes in hours for each priority level.</p>
+        </div>
+      </div>
+      <p class="info-tip">
+        <span class="material-icons-round">lightbulb</span>
+        Tip: Configure unique colors for each priority level for quick visual identification in dashboards.
       </p>
     </div>
   </div>
 
   <!-- Success/Error Messages -->
   <div class="alert alert-success" *ngIf="successMessage">
-    <i class="fas fa-check-circle"></i> {{ successMessage }}
+    <span class="material-icons-round">check_circle</span>
+    {{ successMessage }}
   </div>
   <div class="alert alert-error" *ngIf="errorMessage && !showModal && !showDeleteConfirm">
-    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+    <span class="material-icons-round">error</span>
+    {{ errorMessage }}
   </div>
 
-  <!-- Filters and Search -->
+  <!-- Filters and Search Bar -->
   <div class="filters-bar">
     <div class="search-box">
-      <i class="fas fa-search"></i>
+      <span class="material-icons-round search-icon">search</span>
       <input
         type="text"
         [(ngModel)]="searchTerm"
@@ -58,7 +62,7 @@
         class="search-input"
       />
     </div>
-    <div class="filter-toggle">
+    <div class="filter-actions">
       <label class="toggle-label">
         <input
           type="checkbox"
@@ -67,6 +71,13 @@
         />
         <span>Show Active Only</span>
       </label>
+      <div class="view-divider"></div>
+      <button class="view-btn active" title="Grid View">
+        <span class="material-icons-round">grid_view</span>
+      </button>
+      <button class="view-btn" title="List View">
+        <span class="material-icons-round">view_list</span>
+      </button>
     </div>
   </div>
 
@@ -79,31 +90,32 @@
   <!-- Priorities Grid -->
   <div class="priorities-grid" *ngIf="!loading && filteredPriorities.length > 0">
     <div
-      *ngFor="let priority of filteredPriorities"
+      *ngFor="let priority of filteredPriorities; trackBy: trackById"
       class="priority-card"
       [class.inactive]="!priority.isActive"
-      [class.system-priority]="priority.isSystem"
     >
       <!-- Card Header -->
       <div class="card-header">
-        <div class="priority-icon" [style.color]="priority.colorCode || '#6c757d'">
-          <i class="fas" [ngClass]="priority.iconClass || 'fa-flag'"></i>
-        </div>
-        <div class="priority-info">
-          <h3>
-            {{ priority.name }}
-            <span *ngIf="priority.isSystem" class="system-badge" title="System-defined priority">
-              <i class="fas fa-lock"></i> System
-            </span>
-          </h3>
-          <span class="priority-code">{{ priority.code }}</span>
+        <div class="header-left">
+          <div class="priority-icon" [style.background-color]="priority.colorCode || '#6c757d'">
+            <span class="material-icons-round">{{ getPriorityIcon(priority) }}</span>
+          </div>
+          <div class="priority-info">
+            <h3 class="priority-name">
+              {{ priority.name }}
+              <span *ngIf="priority.isSystem" class="system-badge">
+                <span class="material-icons-round">lock</span> System
+              </span>
+            </h3>
+            <code class="priority-code">{{ priority.code }}</code>
+          </div>
         </div>
         <div class="badge-group">
           <span class="status-badge" [class.active]="priority.isActive">
-            {{ priority.isActive ? 'Active' : 'Inactive' }}
+            {{ priority.isActive ? 'ACTIVE' : 'INACTIVE' }}
           </span>
-          <span class="level-badge" [class]="'level-' + priority.level" title="Priority Level">
-            <i class="fas fa-layer-group"></i> Level {{ priority.level }}
+          <span class="level-badge" [class]="'level-' + priority.level">
+            <span class="material-icons-round">layers</span> Level {{ priority.level }}
           </span>
         </div>
       </div>
@@ -114,80 +126,58 @@
           {{ priority.description }}
         </p>
         <p class="no-description" *ngIf="!priority.description">
-          <i>No description provided</i>
+          No description provided
         </p>
 
         <!-- Priority Details -->
         <div class="priority-details">
           <div class="detail-row">
-            <div class="detail-item">
-              <i class="fas fa-palette"></i>
-              <span class="detail-label">Color:</span>
-              <span class="color-preview" [style.background-color]="priority.colorCode || '#6c757d'">
-                {{ priority.colorCode || 'Default' }}
-              </span>
+            <div class="detail-left">
+              <span class="material-icons-round">palette</span>
+              <span>Color</span>
             </div>
+            <span class="color-preview" [style.background-color]="priority.colorCode || '#6c757d'">
+              {{ priority.colorCode || '#6c757d' }}
+            </span>
           </div>
 
           <div class="detail-row">
-            <div class="detail-item">
-              <i class="fas fa-icons"></i>
-              <span class="detail-label">Icon Class:</span>
-              <span class="detail-value">{{ priority.iconClass || 'Default' }}</span>
+            <div class="detail-left">
+              <span class="material-icons-round">schedule</span>
+              <span>SLA Response</span>
             </div>
-          </div>
-
-          <div class="detail-row" *ngIf="priority.slaResponseHours">
-            <div class="detail-item">
-              <i class="fas fa-clock"></i>
-              <span class="detail-label">SLA Response:</span>
-              <span class="detail-value sla-value">{{ priority.slaResponseHours }} hours</span>
-            </div>
-          </div>
-
-          <div class="detail-row" *ngIf="priority.slaResolutionHours">
-            <div class="detail-item">
-              <i class="fas fa-hourglass-end"></i>
-              <span class="detail-label">SLA Resolution:</span>
-              <span class="detail-value sla-value">{{ priority.slaResolutionHours }} hours</span>
-            </div>
+            <span class="detail-value sla-value">{{ priority.slaResponseHours }} hours</span>
           </div>
 
           <div class="detail-row">
-            <div class="detail-item">
-              <i class="fas fa-sort"></i>
-              <span class="detail-label">Display Order:</span>
-              <span class="detail-value">{{ priority.displayOrder }}</span>
+            <div class="detail-left">
+              <span class="material-icons-round">timer</span>
+              <span>SLA Resolution</span>
             </div>
+            <span class="detail-value sla-value">{{ priority.slaResolutionHours }} hours</span>
           </div>
 
-          <div class="detail-row" *ngIf="priority.companyId">
-            <div class="detail-item">
-              <i class="fas fa-building"></i>
-              <span class="detail-label">Scope:</span>
-              <span class="detail-value">Company-Specific</span>
+          <div class="detail-row">
+            <div class="detail-left">
+              <span class="material-icons-round">sort</span>
+              <span>Display Order</span>
             </div>
+            <span class="detail-value">{{ priority.displayOrder }}</span>
           </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="card-actions" *ngIf="canManageSettings">
-          <button
-            class="btn btn-secondary btn-sm"
-            (click)="openEditModal(priority)">
-            <i class="fas fa-edit"></i> Edit
-            <span *ngIf="priority.isSystem" class="system-indicator">⚠</span>
+          <button class="btn btn-edit" (click)="openEditModal(priority)">
+            <span class="material-icons-round">edit</span> Edit
           </button>
-          <button
-            class="btn btn-danger btn-sm"
-            (click)="openDeleteConfirm(priority)">
-            <i class="fas fa-trash"></i> Delete
-            <span *ngIf="priority.isSystem" class="system-indicator">⚠</span>
+          <button class="btn btn-delete" (click)="openDeleteConfirm(priority)">
+            <span class="material-icons-round">delete</span> Delete
           </button>
         </div>
         <div class="card-actions" *ngIf="!canManageSettings">
           <p class="no-permission-text">
-            <i class="fas fa-lock"></i> View Only - No edit permission
+            <span class="material-icons-round">lock</span> View Only - No edit permission
           </p>
         </div>
       </div>
@@ -196,16 +186,23 @@
 
   <!-- No Results -->
   <div class="no-results" *ngIf="!loading && filteredPriorities.length === 0">
-    <i class="fas fa-inbox"></i>
+    <div class="no-results-icon">
+      <span class="material-icons-round">inbox</span>
+    </div>
     <h3>No Priorities Found</h3>
     <p *ngIf="searchTerm">Try adjusting your search or filters</p>
     <p *ngIf="!searchTerm && showActiveOnly">Try showing inactive priorities</p>
-    <button
-      *ngIf="!searchTerm && canManageSettings"
-      class="btn btn-primary"
-      (click)="openCreateModal()">
-      <i class="fas fa-plus"></i> Create First Priority
+    <button class="btn btn-primary" *ngIf="!searchTerm && canManageSettings" (click)="openCreateModal()">
+      <span class="material-icons-round">add</span> Create First Priority
     </button>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-bar" *ngIf="!loading && filteredPriorities.length > 0">
+    <div class="results-info">
+      Showing <span class="highlight">{{ filteredPriorities.length }}</span> of
+      <span class="highlight">{{ priorities.length }}</span> priorities
+    </div>
   </div>
 </div>
 
@@ -215,22 +212,23 @@
     <div class="modal-header">
       <h2>{{ modalTitle }}</h2>
       <button class="close-btn" (click)="closeModal()">
-        <i class="fas fa-times"></i>
+        <span class="material-icons-round">close</span>
       </button>
     </div>
 
     <div class="modal-body">
       <div class="alert alert-error" *ngIf="errorMessage">
-        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+        <span class="material-icons-round">error</span>
+        {{ errorMessage }}
       </div>
 
       <!-- System Record Warning -->
       <div class="alert alert-warning" *ngIf="isEditingSystemPriority()">
         <div class="warning-content">
-          <i class="fas fa-exclamation-triangle"></i>
+          <span class="material-icons-round">warning</span>
           <div>
             <strong>Warning: Editing System-Defined Priority</strong>
-            <p>You are editing a system-defined priority. Changes will affect all complaints using this priority across the system. Please proceed with caution.</p>
+            <p>You are editing a system-defined priority. Changes will affect all complaints using this priority.</p>
           </div>
         </div>
       </div>
@@ -263,7 +261,7 @@
               [(ngModel)]="priorityCode"
               name="code"
               class="form-control"
-              placeholder="Enter unique code (e.g., URGENT)"
+              placeholder="e.g., URGENT"
               maxlength="50"
               [disabled]="modalMode === 'edit'"
               required
@@ -281,7 +279,7 @@
             [(ngModel)]="priorityForm.description"
             name="description"
             class="form-control"
-            placeholder="Enter priority description"
+            placeholder="Enter a brief description of this priority level..."
             rows="3"
             maxlength="500"
           ></textarea>
@@ -291,8 +289,8 @@
           <div class="form-group">
             <label for="priorityLevel">
               Priority Level <span class="required">*</span>
-              <span class="label-help">
-                <i class="fas fa-question-circle" title="Numeric level (1-5), higher = more urgent"></i>
+              <span class="label-help" title="Numeric level (1-5), higher = more urgent">
+                <span class="material-icons-round">help_outline</span>
               </span>
             </label>
             <input
@@ -307,15 +305,15 @@
               required
             />
             <small class="form-help-text">
-              Enter a value between 1 (lowest) and 5 (highest priority)
+              Enter a value between 1 (lowest) and 5 (highest)
             </small>
           </div>
 
           <div class="form-group">
             <label for="displayOrder">
               Display Order
-              <span class="label-help">
-                <i class="fas fa-question-circle" title="Lower numbers appear first"></i>
+              <span class="label-help" title="Lower numbers appear first">
+                <span class="material-icons-round">help_outline</span>
               </span>
             </label>
             <input
@@ -328,9 +326,6 @@
               max="9999"
               placeholder="0"
             />
-            <small class="form-help-text">
-              Controls display order (lower numbers first)
-            </small>
           </div>
         </div>
 
@@ -338,8 +333,8 @@
           <div class="form-group">
             <label for="colorCode">
               Color Code
-              <span class="label-help">
-                <i class="fas fa-question-circle" title="Hex color code for visual representation"></i>
+              <span class="label-help" title="Hex color code for visual representation">
+                <span class="material-icons-round">help_outline</span>
               </span>
             </label>
             <div class="color-input-group">
@@ -357,47 +352,42 @@
                 class="form-control"
                 placeholder="#ef4444"
                 maxlength="7"
-                pattern="^#[0-9A-Fa-f]{6}$"
               />
             </div>
             <small class="form-help-text">
-              Select a color or enter hex code (e.g., #ef4444)
+              Select a color or enter hex code
             </small>
           </div>
 
           <div class="form-group">
-            <label for="iconClass">
-              Icon Class
-              <span class="label-help">
-                <i class="fas fa-question-circle" title="FontAwesome icon class"></i>
-              </span>
-            </label>
-            <input
-              type="text"
-              id="iconClass"
-              [(ngModel)]="priorityForm.iconClass"
-              name="iconClass"
-              class="form-control"
-              placeholder="e.g., fa-flag"
-              maxlength="100"
-            />
-            <small class="form-help-text">
-              FontAwesome icon class without 'fas' prefix
-            </small>
+            <label>Active Status</label>
+            <div class="checkbox-group-inline">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="priorityForm.isActive"
+                  name="isActive"
+                />
+                <span class="checkbox-text">Active</span>
+                <span class="checkbox-description">Enable for use in complaints</span>
+              </label>
+            </div>
           </div>
         </div>
 
+        <!-- SLA Section -->
         <div class="sla-section">
-          <h4 class="sla-heading">
-            <i class="fas fa-clock"></i> SLA Configuration
-          </h4>
+          <div class="sla-header">
+            <span class="material-icons-round">schedule</span>
+            <h4>SLA Configuration</h4>
+          </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="slaResponseHours">
-                SLA Response Time (hours)
-                <span class="label-help">
-                  <i class="fas fa-question-circle" title="Time to acknowledge/respond to complaint"></i>
+                Response Time (hours)
+                <span class="label-help" title="Time to acknowledge/respond to complaint">
+                  <span class="material-icons-round">help_outline</span>
                 </span>
               </label>
               <input
@@ -417,9 +407,9 @@
 
             <div class="form-group">
               <label for="slaResolutionHours">
-                SLA Resolution Time (hours)
-                <span class="label-help">
-                  <i class="fas fa-question-circle" title="Time to resolve/close complaint"></i>
+                Resolution Time (hours)
+                <span class="label-help" title="Time to resolve/close complaint">
+                  <span class="material-icons-round">help_outline</span>
                 </span>
               </label>
               <input
@@ -438,17 +428,6 @@
             </div>
           </div>
         </div>
-
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [(ngModel)]="priorityForm.isActive"
-              name="isActive"
-            />
-            <span>Active</span>
-          </label>
-        </div>
       </form>
     </div>
 
@@ -458,11 +437,12 @@
       </button>
       <button class="btn btn-primary" (click)="savePriority()" [disabled]="loading">
         <span *ngIf="!loading">
-          <i class="fas" [ngClass]="modalMode === 'create' ? 'fa-plus' : 'fa-save'"></i>
-          {{ modalMode === 'create' ? 'Create' : 'Update' }}
+          <span class="material-icons-round">{{ modalMode === 'create' ? 'add' : 'save' }}</span>
+          {{ modalMode === 'create' ? 'Create Priority' : 'Save Changes' }}
         </span>
-        <span *ngIf="loading">
-          <i class="fas fa-spinner fa-spin"></i> Saving...
+        <span *ngIf="loading" class="loading-state">
+          <span class="spinner-small"></span>
+          Saving...
         </span>
       </button>
     </div>
@@ -472,34 +452,40 @@
 <!-- Delete Confirmation Modal -->
 <div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="closeDeleteConfirm()">
   <div class="modal-container modal-sm" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>Confirm Delete</h2>
+    <div class="modal-header modal-header-danger">
+      <h2>Delete Priority</h2>
       <button class="close-btn" (click)="closeDeleteConfirm()">
-        <i class="fas fa-times"></i>
+        <span class="material-icons-round">close</span>
       </button>
     </div>
 
     <div class="modal-body">
       <div class="alert alert-error" *ngIf="errorMessage">
-        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+        <span class="material-icons-round">error</span>
+        {{ errorMessage }}
       </div>
 
       <!-- System Record Warning -->
       <div class="alert alert-warning" *ngIf="priorityToDelete?.isSystem">
         <div class="warning-content">
-          <i class="fas fa-exclamation-triangle"></i>
+          <span class="material-icons-round">warning</span>
           <div>
             <strong>Critical Warning: Deleting System-Defined Priority</strong>
-            <p>You are about to delete a system-defined priority. This may cause issues with existing complaints and workflows. This action is not recommended.</p>
+            <p>You are about to delete a system-defined priority. This may cause issues with existing complaints.</p>
           </div>
         </div>
       </div>
 
       <div class="delete-confirm-content">
-        <i class="fas fa-exclamation-triangle warning-icon"></i>
-        <p>Are you sure you want to delete the priority:</p>
+        <div class="warning-icon-wrapper">
+          <span class="material-icons-round">warning</span>
+        </div>
+        <p class="delete-message">Are you sure you want to delete this priority?</p>
         <p class="priority-name-highlight">{{ priorityToDelete?.name }}</p>
-        <p class="warning-text">This action cannot be undone.</p>
+        <p class="warning-text">
+          <span class="material-icons-round">info</span>
+          This action cannot be undone. Any complaints using this priority may be affected.
+        </p>
       </div>
     </div>
 
@@ -509,10 +495,11 @@
       </button>
       <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleteLoading">
         <span *ngIf="!deleteLoading">
-          <i class="fas fa-trash"></i> Delete
+          <span class="material-icons-round">delete</span> Delete Priority
         </span>
-        <span *ngIf="deleteLoading">
-          <i class="fas fa-spinner fa-spin"></i> Deleting...
+        <span *ngIf="deleteLoading" class="loading-state">
+          <span class="spinner-small"></span>
+          Deleting...
         </span>
       </button>
     </div>

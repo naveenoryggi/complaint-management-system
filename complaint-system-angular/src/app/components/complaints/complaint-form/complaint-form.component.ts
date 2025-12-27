@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -11,16 +11,17 @@ import { DepartmentService } from '../../../services/department.service';
 import { SectionService } from '../../../services/section.service';
 import { PriorityMasterService } from '../../../services/priority-master.service';
 import { PreferredContactMethod, ComplaintPriority } from '../../../models/complaint.model';
-import { AppHeaderComponent } from '../../shared/app-header/app-header.component';
 
 @Component({
   selector: 'app-complaint-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, AppHeaderComponent],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './complaint-form.component.html',
   styleUrls: ['./complaint-form.component.scss']
 })
 export class ComplaintFormComponent implements OnInit {
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
   complaintForm: FormGroup;
   loading = false;
   error: string | null = null;
@@ -93,6 +94,62 @@ export class ComplaintFormComponent implements OnInit {
       this.isEditMode = true;
       this.complaintId = id;
       this.loadComplaint(id);
+    }
+
+    // Add click listener for debugging after view init
+    setTimeout(() => {
+      this.setupFileInputDebugging();
+    }, 1000);
+  }
+
+  private setupFileInputDebugging(): void {
+    const fileInput = document.getElementById('fileUploadInput') as HTMLInputElement;
+    const uploadZone = document.querySelector('.upload-zone');
+
+    console.log('=== FILE INPUT DEBUGGING SETUP ===');
+    console.log('File input element found:', !!fileInput);
+    console.log('Upload zone element found:', !!uploadZone);
+
+    if (fileInput) {
+      console.log('File input properties:');
+      console.log('  - type:', fileInput.type);
+      console.log('  - accept:', fileInput.accept);
+      console.log('  - multiple:', fileInput.multiple);
+      console.log('  - disabled:', fileInput.disabled);
+      console.log('  - display style:', window.getComputedStyle(fileInput).display);
+      console.log('  - visibility:', window.getComputedStyle(fileInput).visibility);
+      console.log('  - pointer-events:', window.getComputedStyle(fileInput).pointerEvents);
+      console.log('  - z-index:', window.getComputedStyle(fileInput).zIndex);
+      console.log('  - position:', window.getComputedStyle(fileInput).position);
+      console.log('  - offsetWidth:', fileInput.offsetWidth);
+      console.log('  - offsetHeight:', fileInput.offsetHeight);
+
+      // Add direct click listener
+      fileInput.addEventListener('click', (e) => {
+        console.log('=== FILE INPUT CLICK EVENT ===');
+        console.log('Event:', e);
+        console.log('Event target:', e.target);
+        console.log('Event currentTarget:', e.currentTarget);
+        console.log('Default prevented:', e.defaultPrevented);
+        console.log('Propagation stopped:', e.cancelBubble);
+      });
+
+      // Add focus listener
+      fileInput.addEventListener('focus', () => {
+        console.log('=== FILE INPUT FOCUSED ===');
+      });
+    }
+
+    if (uploadZone) {
+      console.log('Upload zone properties:');
+      console.log('  - pointer-events:', window.getComputedStyle(uploadZone).pointerEvents);
+      console.log('  - z-index:', window.getComputedStyle(uploadZone).zIndex);
+
+      uploadZone.addEventListener('click', (e) => {
+        console.log('=== UPLOAD ZONE CLICK EVENT ===');
+        console.log('Click target:', e.target);
+        console.log('Click coordinates:', (e as MouseEvent).clientX, (e as MouseEvent).clientY);
+      });
     }
   }
 
@@ -360,13 +417,23 @@ export class ComplaintFormComponent implements OnInit {
   }
 
   onFileSelect(event: Event): void {
+    console.log('=== FILE SELECT EVENT TRIGGERED ===');
+    console.log('Event:', event);
+    console.log('Event type:', event.type);
+
     const input = event.target as HTMLInputElement;
+    console.log('Input element:', input);
+    console.log('Input files:', input.files);
+    console.log('Files length:', input.files?.length);
+
     if (!input.files || input.files.length === 0) {
+      console.log('No files selected - returning early');
       return;
     }
 
     this.fileUploadError = null;
     const files = Array.from(input.files);
+    console.log('Files array:', files);
 
     // Check total files limit
     if (this.selectedFiles.length + files.length > 10) {
@@ -376,10 +443,10 @@ export class ComplaintFormComponent implements OnInit {
     }
 
     // Validate each file
-    const maxFileSize = 5 * 1024 * 1024; // 5MB
+    const maxFileSize = 10 * 1024 * 1024; // 10MB
     for (const file of files) {
       if (file.size > maxFileSize) {
-        this.fileUploadError = `File "${file.name}" exceeds the maximum size of 5MB`;
+        this.fileUploadError = `File "${file.name}" exceeds the maximum size of 10MB`;
         input.value = '';
         return;
       }
@@ -398,6 +465,36 @@ export class ComplaintFormComponent implements OnInit {
   clearAllFiles(): void {
     this.selectedFiles = [];
     this.fileUploadError = null;
+  }
+
+  // Direct method to trigger file input click
+  triggerFileInput(): void {
+    console.log('=== TRIGGER FILE INPUT CALLED ===');
+    console.log('FileInput ViewChild:', this.fileInput);
+
+    if (this.fileInput && this.fileInput.nativeElement) {
+      const input = this.fileInput.nativeElement;
+      console.log('Native element:', input);
+      console.log('Input disabled:', input.disabled);
+
+      if (!input.disabled) {
+        // Use setTimeout to ensure we're outside any event bubbling
+        setTimeout(() => {
+          console.log('Calling input.click() inside setTimeout');
+          input.click();
+        }, 0);
+      }
+    } else {
+      console.error('FileInput ViewChild not found!');
+      // Fallback to document.getElementById
+      const fallbackInput = document.getElementById('fileUploadInput') as HTMLInputElement;
+      if (fallbackInput) {
+        console.log('Using fallback input');
+        setTimeout(() => {
+          fallbackInput.click();
+        }, 0);
+      }
+    }
   }
 
   formatFileSize(bytes: number): string {
@@ -425,6 +522,12 @@ export class ComplaintFormComponent implements OnInit {
       case 'svg':
       case 'webp':
         return 'bi-file-earmark-image';
+      case 'mp4':
+      case 'webm':
+      case 'mov':
+      case 'avi':
+      case 'mkv':
+        return 'bi-file-earmark-play';
       default:
         return 'bi-file-earmark';
     }

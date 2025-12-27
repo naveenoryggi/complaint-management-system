@@ -40,6 +40,9 @@ export class TemplateManagementComponent
   showPreview = false;
   previewContent = '';
 
+  // Info banner state
+  showInfoBanner = true;
+
   // Filter state
   statusFilter: 'all' | 'active' | 'inactive' = 'all';
   channelFilter: 'all' | CommunicationChannel = 'all';
@@ -440,6 +443,42 @@ export class TemplateManagementComponent
 
   getChannelLabel(channel: CommunicationChannel): string {
     return getCommunicationChannelLabel(channel);
+  }
+
+  getChannelIconClass(channel: CommunicationChannel): string {
+    switch (channel) {
+      case CommunicationChannel.Email:
+        return 'channel-email';
+      case CommunicationChannel.SMS:
+        return 'channel-sms';
+      case CommunicationChannel.WhatsApp:
+        return 'channel-whatsapp';
+      case CommunicationChannel.InApp:
+        return 'channel-inapp';
+      default:
+        return 'channel-email';
+    }
+  }
+
+  getChannelIcon(channel: CommunicationChannel): string {
+    switch (channel) {
+      case CommunicationChannel.Email:
+        return 'fas fa-envelope';
+      case CommunicationChannel.SMS:
+        return 'fas fa-sms';
+      case CommunicationChannel.WhatsApp:
+        return 'fab fa-whatsapp';
+      case CommunicationChannel.InApp:
+        return 'fas fa-bell';
+      default:
+        return 'fas fa-envelope';
+    }
+  }
+
+  truncateText(text: string, maxLength: number): string {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
   }
 
   getActiveTemplatesCount(): number {

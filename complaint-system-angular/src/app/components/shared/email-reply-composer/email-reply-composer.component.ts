@@ -52,6 +52,7 @@ export class EmailReplyComposerComponent implements OnInit, OnDestroy {
   @Input() showCannedResponses: boolean = true;
   @Input() enableAutoSave: boolean = false;
   @Input() autoSaveInterval: number = 30000; // 30 seconds
+  @Input() initialContent: string = ''; // Pre-filled content from quick reply textbox
 
   // ==================== OUTPUTS ====================
 
@@ -250,8 +251,22 @@ export class EmailReplyComposerComponent implements OnInit, OnDestroy {
   }
 
   private prefillBody(): void {
+    // If we have initial content from quick reply, use it as the starting message
+    const userContent = this.initialContent ? `<p>${this.escapeHtml(this.initialContent)}</p>` : '';
+
+    // For Private Note, only include the user's typed content
+    if (this.replyType === ReplyType.PrivateNote) {
+      if (userContent) {
+        this.emailForm.patchValue({ body: userContent });
+      }
+      return;
+    }
+
     // Only include original email content for Reply, ReplyAll, and Forward
-    if (!this.replyTo || this.replyType === ReplyType.PrivateNote) {
+    if (!this.replyTo) {
+      if (userContent) {
+        this.emailForm.patchValue({ body: userContent });
+      }
       return;
     }
 
@@ -268,12 +283,24 @@ export class EmailReplyComposerComponent implements OnInit, OnDestroy {
     // For Forward, include the full quoted message
     // For Reply/ReplyAll, user can choose to include it or not
     if (this.replyType === ReplyType.Forward) {
-      this.emailForm.patchValue({ body: quotedContent });
+      // For forward, prepend user content if any
+      const body = userContent ? `${userContent}<br><br>${quotedContent}` : quotedContent;
+      this.emailForm.patchValue({ body });
     } else {
-      // For Reply/ReplyAll, append quoted text after cursor
+      // For Reply/ReplyAll, prepend user content, then quoted text
       // This allows user to type above the quoted text
-      this.emailForm.patchValue({ body: `<br><br>${quotedContent}` });
+      const body = userContent ? `${userContent}<br><br>${quotedContent}` : `<br><br>${quotedContent}`;
+      this.emailForm.patchValue({ body });
     }
+  }
+
+  /**
+   * Escape HTML characters to prevent XSS when inserting plain text into HTML
+   */
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
   private formatOriginalEmailAsQuoted(email: EmailThreadItemDto): string {

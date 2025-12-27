@@ -374,6 +374,46 @@ public class WorkflowController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Remove a status from a workflow
+    /// </summary>
+    [HttpDelete("{workflowId}/statuses/{statusId}")]
+    [HasPermission("ManageSettings")]
+    public async Task<IActionResult> RemoveStatusFromWorkflow(Guid workflowId, Guid statusId)
+    {
+        try
+        {
+            var success = await _workflowEngine.RemoveStatusFromWorkflowAsync(workflowId, statusId);
+
+            if (success)
+            {
+                return Ok(new
+                {
+                    isSuccess = true,
+                    message = "Status removed from workflow successfully"
+                });
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    isSuccess = false,
+                    message = "Failed to remove status from workflow"
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error removing status {StatusId} from workflow {WorkflowId}", statusId, workflowId);
+            return StatusCode(500, new
+            {
+                isSuccess = false,
+                message = "Error removing status from workflow",
+                errors = new[] { ex.Message }
+            });
+        }
+    }
+
     #endregion
 
     #region Workflow Transitions
@@ -421,6 +461,46 @@ public class WorkflowController : ControllerBase
             {
                 isSuccess = false,
                 message = "Error adding transition rule",
+                errors = new[] { ex.Message }
+            });
+        }
+    }
+
+    /// <summary>
+    /// Remove a transition rule from a workflow
+    /// </summary>
+    [HttpDelete("{workflowId}/transitions/{transitionId}")]
+    [HasPermission("ManageSettings")]
+    public async Task<IActionResult> RemoveTransitionRule(Guid workflowId, Guid transitionId)
+    {
+        try
+        {
+            var success = await _workflowEngine.RemoveTransitionRuleAsync(workflowId, transitionId);
+
+            if (success)
+            {
+                return Ok(new
+                {
+                    isSuccess = true,
+                    message = "Transition removed from workflow successfully"
+                });
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    isSuccess = false,
+                    message = "Failed to remove transition from workflow"
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error removing transition {TransitionId} from workflow {WorkflowId}", transitionId, workflowId);
+            return StatusCode(500, new
+            {
+                isSuccess = false,
+                message = "Error removing transition from workflow",
                 errors = new[] { ex.Message }
             });
         }

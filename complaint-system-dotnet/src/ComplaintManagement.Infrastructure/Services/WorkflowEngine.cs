@@ -546,6 +546,99 @@ public class WorkflowEngine : IWorkflowEngine
         }
     }
 
+    public async Task<bool> RemoveStatusFromWorkflowAsync(Guid workflowId, Guid statusId)
+    {
+        try
+        {
+            var workflowStatus = await _context.CategoryWorkflowStatuses
+                .FirstOrDefaultAsync(ws => ws.WorkflowId == workflowId && ws.Id == statusId);
+
+            if (workflowStatus == null)
+            {
+                _logger.LogWarning(
+                    "Workflow status {StatusId} not found in workflow {WorkflowId}",
+                    statusId,
+                    workflowId);
+                return false;
+            }
+
+            // Check if there are transitions using this status
+            var hasTransitions = await _context.CategoryWorkflowTransitions
+                .AnyAsync(t => t.WorkflowId == workflowId &&
+                    (t.FromStatusId == workflowStatus.StatusMasterId || t.ToStatusId == workflowStatus.StatusMasterId) &&
+                    t.IsActive);
+
+            if (hasTransitions)
+            {
+                _logger.LogWarning(
+                    "Cannot remove status {StatusId} from workflow {WorkflowId} - it has active transitions",
+                    statusId,
+                    workflowId);
+                // Soft delete instead
+                workflowStatus.IsActive = false;
+            }
+            else
+            {
+                _context.CategoryWorkflowStatuses.Remove(workflowStatus);
+            }
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Removed status {StatusId} from workflow {WorkflowId}",
+                statusId,
+                workflowId);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Error removing status {StatusId} from workflow {WorkflowId}",
+                statusId,
+                workflowId);
+            return false;
+        }
+    }
+
+    public async Task<bool> RemoveTransitionRuleAsync(Guid workflowId, Guid transitionId)
+    {
+        try
+        {
+            var transition = await _context.CategoryWorkflowTransitions
+                .FirstOrDefaultAsync(t => t.WorkflowId == workflowId && t.Id == transitionId);
+
+            if (transition == null)
+            {
+                _logger.LogWarning(
+                    "Transition {TransitionId} not found in workflow {WorkflowId}",
+                    transitionId,
+                    workflowId);
+                return false;
+            }
+
+            _context.CategoryWorkflowTransitions.Remove(transition);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Removed transition {TransitionId} from workflow {WorkflowId}",
+                transitionId,
+                workflowId);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Error removing transition {TransitionId} from workflow {WorkflowId}",
+                transitionId,
+                workflowId);
+            return false;
+        }
+    }
+
     #region Private Helper Methods
 
     private bool IsUserAuthorizedForTransition(

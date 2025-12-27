@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin, Observable, Subscription, Subject, of } from 'rxjs';
 import { map, takeUntil, catchError, timeout } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
@@ -79,6 +79,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Unassigned complaints count
   unassignedCount: number = 0;
 
+  // Waiting for response count (customer replied, awaiting handler response)
+  waitingForResponseCount: number = 0;
+
   // Dynamic Dashboard
   dashboardPreferences?: DashboardPreferences;
   dashboardStatistics?: DashboardStatistics;
@@ -94,6 +97,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
   statusTimeRange: string = '30';
   categoryStats: { name: string; percentage: number }[] = [];
   categoryColors: string[] = ['#0057FF', '#34c759', '#ff9500', '#ff3b30', '#5856d6', '#af52de'];
+
+  // Custom Date Range Picker
+  showDateRangePicker: boolean = false;
+  customStartDate: string = '';
+  customEndDate: string = '';
+  customDateRangeLabel: string = '';
+
+  // Team Member Filter (Admin only)
+  teamMembers: User[] = [];
+  selectedTeamMemberId: string = '';
+  selectedTeamMemberName: string = '';
+  loadingTeamMembers: boolean = false;
 
   // Quick Filter for Recent Complaints
   quickFilter: string = 'all';
@@ -129,7 +144,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private dateService: DateService,
     private masterDataService: MasterDataService,
     private adminMenuConfig: AdminMenuConfigService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     // Memory Leak Prevention - Managed subscription
     const userSubscription = this.authService.currentUser
@@ -146,7 +162,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Check for query params from Team Performance page
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      if (params['teamMemberId'] && params['teamMemberName']) {
+        this.selectedTeamMemberId = params['teamMemberId'];
+        this.selectedTeamMemberName = params['teamMemberName'];
+      }
+    });
+
     this.initializeDashboard();
+    // Load team members for admin team filter dropdown
+    if (this.isAdmin()) {
+      this.loadTeamMembers();
+    }
   }
 
   ngOnDestroy(): void {
@@ -286,12 +314,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ).pipe(
       map((response: any) => {
         if (response.isSuccess && response.data) {
-          this.complaints = response.data.items;
+          // Sort complaints with customer responses to the top
+          this.complaints = this.sortByCustomerResponse(response.data.items);
           this.totalCount = response.data.totalCount;
           this.totalPages = response.data.totalPages;
           this.loadCategoryStats(); // Load category statistics from complaints
           // Calculate unassigned count from loaded complaints
           this.calculateUnassignedCount();
+          // Calculate waiting for response count from loaded complaints
+          this.calculateWaitingForResponseCount();
         }
         console.log('Complaints loaded in parallel with role-based filtering');
       })
@@ -299,15 +330,87 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Calculate unassigned complaints count from loaded complaints
-   * This counts complaints where assignedToId is null, empty, or undefined
+   * Calculate unassigned complaints count using API call for accurate count
+   * Makes a separate API call with unassignedOnly=true to get the exact count
    */
   calculateUnassignedCount(): void {
-    if (this.complaints && this.complaints.length > 0) {
-      this.unassignedCount = this.complaints.filter(
-        (c: any) => !c.assignedToId || c.assignedToId === '' || c.assignedToId === null
-      ).length;
-    }
+    const status = this.selectedStatus || undefined;
+    const priority = this.selectedPriority || undefined;
+    const roleFilters = this.getRoleBasedFilters();
+
+    // Use API call with unassignedOnly=true to get accurate count
+    this.complaintService.getComplaints(
+      1,
+      1, // Only need count, not data
+      status,
+      priority,
+      undefined,
+      roleFilters.assignedToId,
+      roleFilters.complainantId,
+      true, // unassignedOnly = true
+      false
+    ).subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data) {
+          this.unassignedCount = response.data.totalCount;
+        }
+      },
+      error: (error) => {
+        console.error('Error calculating unassigned count:', error);
+        // Fallback to local count if API fails
+        if (this.complaints && this.complaints.length > 0) {
+          this.unassignedCount = this.complaints.filter(
+            (c: any) => !c.assignedToId || c.assignedToId === '' || c.assignedToId === null
+          ).length;
+        }
+      }
+    });
+  }
+
+  /**
+   * Calculate waiting for response count using API call for accurate count
+   * "Waiting for Response" = Complaints that are ALREADY ASSIGNED (have a handler)
+   * AND have comments (customer has responded in the past) AND are in active status.
+   * This is different from "unassigned" complaints that have never been assigned.
+   */
+  calculateWaitingForResponseCount(): void {
+    const status = this.selectedStatus || undefined;
+    const priority = this.selectedPriority || undefined;
+    const roleFilters = this.getRoleBasedFilters();
+
+    // Use API call with waitingForResponseOnly=true to get accurate count
+    this.complaintService.getComplaints(
+      1,
+      1, // Only need count, not data
+      status,
+      priority,
+      undefined,
+      roleFilters.assignedToId,
+      roleFilters.complainantId,
+      false,
+      true // waitingForResponseOnly = true
+    ).subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data) {
+          this.waitingForResponseCount = response.data.totalCount;
+        }
+      },
+      error: (error) => {
+        console.error('Error calculating waiting for response count:', error);
+        // Fallback to local count if API fails
+        if (this.complaints && this.complaints.length > 0) {
+          this.waitingForResponseCount = this.complaints.filter((c: any) => {
+            if (c.hasCustomerResponse !== undefined) {
+              return c.hasCustomerResponse === true;
+            }
+            const isAssigned = c.assignedToId && c.assignedToId !== '' && c.assignedToId !== null;
+            const isActiveStatus = !['Resolved', 'Closed', 'Rejected'].includes(c.status);
+            const hasComments = c.commentCount > 0;
+            return isAssigned && isActiveStatus && hasComments;
+          }).length;
+        }
+      }
+    });
   }
 
   loadStatisticsParallel(): Observable<void> {
@@ -493,21 +596,48 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Apply role-based filtering
     const roleFilters = this.getRoleBasedFilters();
 
+    // For unassigned quick filter, load more data for local filtering
+    // For waitingResponse, use API-level filtering with waitingForResponseOnly parameter
+    const pageSize = this.quickFilter === 'unassigned'
+      ? 100 // Load more to filter locally for unassigned
+      : this.pageSize;
+
+    // Use API-level filtering for waitingResponse
+    const unassignedOnly = this.quickFilter === 'unassigned';
+    const waitingForResponseOnly = this.quickFilter === 'waitingResponse';
+
     this.complaintService.getComplaints(
-      this.currentPage,
-      this.pageSize,
+      this.quickFilter ? 1 : this.currentPage, // Start from page 1 for quick filters
+      pageSize,
       status,
       priority,
       search,
       roleFilters.assignedToId,
-      roleFilters.complainantId
+      roleFilters.complainantId,
+      unassignedOnly,
+      waitingForResponseOnly
     ).subscribe({
       next: (response) => {
         if (response.isSuccess && response.data) {
-          this.complaints = response.data.items;
-          this.totalCount = response.data.totalCount;
-          this.totalPages = response.data.totalPages;
+          let complaints = response.data.items;
+
+          // Sort complaints with customer responses to the top
+          complaints = this.sortByCustomerResponse(complaints);
+
+          this.complaints = complaints.slice(0, this.pageSize); // Limit to page size
+          // Use API totalCount for accurate count
+          if (this.quickFilter === 'unassigned') {
+            // For unassigned, use filtered length since we loaded extra
+            this.totalCount = complaints.length;
+            this.totalPages = Math.ceil(complaints.length / this.pageSize);
+          } else {
+            this.totalCount = response.data.totalCount;
+            this.totalPages = response.data.totalPages;
+          }
           this.loadCategoryStats(); // Load category statistics from complaints
+          // Recalculate counts when filters change
+          this.calculateUnassignedCount();
+          this.calculateWaitingForResponseCount();
         }
         this.loading = false;
       },
@@ -515,6 +645,56 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.error('Error loading complaints:', error);
         this.loading = false;
       }
+    });
+  }
+
+  /**
+   * Filter complaints that are waiting for handler response
+   * "Waiting for Response" = Complaints that are ALREADY ASSIGNED (have a handler)
+   * AND have comments (customer has responded) AND are in active status.
+   * This is different from "unassigned" complaints that have never been assigned.
+   */
+  private filterWaitingResponseComplaints(complaints: any[]): any[] {
+    // Filter complaints where:
+    // 1. Complaint is ASSIGNED to someone (has assignedToId)
+    // 2. Has comments (customer/handler has responded in the past)
+    // 3. Is in active status (not resolved/closed/rejected)
+    return complaints.filter((c: any) => {
+      // If hasCustomerResponse field is available from backend, use it
+      if (c.hasCustomerResponse !== undefined) {
+        return c.hasCustomerResponse === true;
+      }
+
+      // Waiting for response = assigned + has comments + active status
+      const isAssigned = c.assignedToId && c.assignedToId !== '' && c.assignedToId !== null;
+      const isActiveStatus = !['Resolved', 'Closed', 'Rejected'].includes(c.status);
+      const hasComments = c.commentCount > 0;
+
+      return isAssigned && isActiveStatus && hasComments;
+    });
+  }
+
+  /**
+   * Sort complaints to show those with customer responses at the top
+   * Maintains original order (by date) within each group
+   */
+  private sortByCustomerResponse(complaints: any[]): any[] {
+    if (!complaints || complaints.length === 0) {
+      return complaints;
+    }
+
+    return complaints.sort((a, b) => {
+      // Complaints with customer response come first
+      const aHasResponse = a.hasCustomerResponse ? 1 : 0;
+      const bHasResponse = b.hasCustomerResponse ? 1 : 0;
+
+      // Sort descending (true values first)
+      if (bHasResponse !== aHasResponse) {
+        return bHasResponse - aHasResponse;
+      }
+
+      // Within same group, maintain original order (already sorted by date from API)
+      return 0;
     });
   }
 
@@ -713,6 +893,107 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.currentUser.roles.map(r => r.roleName).join(', ');
   }
 
+  /**
+   * Get dynamic dashboard title based on user role and selected team member
+   */
+  getDashboardTitle(): string {
+    if (this.isAdmin()) {
+      if (this.selectedTeamMemberId && this.selectedTeamMemberName) {
+        return `${this.selectedTeamMemberName}'s Dashboard`;
+      }
+      return 'Team Dashboard';
+    }
+    if (this.isHandler()) {
+      return 'My Dashboard';
+    }
+    return 'My Complaints';
+  }
+
+  /**
+   * Get dashboard subtitle/description based on role
+   */
+  getDashboardSubtitle(): string {
+    if (this.isAdmin()) {
+      if (this.selectedTeamMemberId) {
+        return 'Viewing selected team member\'s tickets';
+      }
+      return 'Overview of all team members and tickets';
+    }
+    if (this.isHandler()) {
+      return 'Your assigned tickets and performance';
+    }
+    return 'Track your submitted complaints';
+  }
+
+  /**
+   * Load team members for admin filter dropdown
+   * Loads all active users who could potentially be assigned tickets
+   */
+  loadTeamMembers(): void {
+    if (!this.isAdmin()) return;
+
+    this.loadingTeamMembers = true;
+    this.userService.getUsers().subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data) {
+          // Include all active users (excluding current admin viewing)
+          // In a real system, you might want to filter by specific roles
+          this.teamMembers = response.data.filter(user => {
+            // Exclude the current user (admin viewing the dashboard)
+            if (user.id === this.currentUser?.id) return false;
+            // Include users with any role (they could potentially handle tickets)
+            return user.isActive !== false; // Only active users
+          });
+
+          // Sort by name for easier selection
+          this.teamMembers.sort((a, b) => {
+            const nameA = a.fullName || a.email || '';
+            const nameB = b.fullName || b.email || '';
+            return nameA.localeCompare(nameB);
+          });
+
+          console.log(`Loaded ${this.teamMembers.length} team members for admin filter`);
+        }
+        this.loadingTeamMembers = false;
+      },
+      error: (error) => {
+        console.error('Error loading team members:', error);
+        this.loadingTeamMembers = false;
+      }
+    });
+  }
+
+  /**
+   * Handle team member selection change (Admin only)
+   * Updates the dashboard to show selected team member's data
+   */
+  onTeamMemberChange(): void {
+    if (this.selectedTeamMemberId) {
+      const selectedMember = this.teamMembers.find(m => m.id === this.selectedTeamMemberId);
+      this.selectedTeamMemberName = selectedMember?.fullName || selectedMember?.email || '';
+      console.log(`Admin viewing dashboard for: ${this.selectedTeamMemberName} (${this.selectedTeamMemberId})`);
+    } else {
+      this.selectedTeamMemberName = '';
+      console.log('Admin viewing team-wide dashboard');
+    }
+
+    // Reset to first page and reload all data for the selected team member
+    this.currentPage = 1;
+    this.loadComplaints();
+    this.loadStatistics(); // Reload statistics for selected team member
+    this.calculateUnassignedCount();
+    this.calculateWaitingForResponseCount();
+  }
+
+  /**
+   * Clear team member filter (Admin only)
+   */
+  clearTeamMemberFilter(): void {
+    this.selectedTeamMemberId = '';
+    this.selectedTeamMemberName = '';
+    this.onTeamMemberChange();
+  }
+
   toggleAdminMenu(): void {
     this.showAdminMenu = !this.showAdminMenu;
     this.showUserMenu = false; // Close user menu when opening admin menu
@@ -736,6 +1017,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   navigateToPage(path: string): void {
     this.showUserMenu = false;
     this.router.navigate([path]);
+  }
+
+  /**
+   * Navigate to complaints page with waiting response filter
+   * This shows complaints where customers have replied and are awaiting handler response
+   */
+  navigateToWaitingResponse(): void {
+    // Navigate to complaints list with waitingResponse filter
+    this.router.navigate(['/complaints'], {
+      queryParams: { filter: 'waitingResponse' }
+    });
   }
 
   // Dynamic Dashboard Methods
@@ -826,18 +1118,90 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // New Dashboard Design Methods
   setTimeRange(range: string): void {
     this.selectedTimeRange = range;
+
+    if (range === 'custom') {
+      // Open the date range picker modal
+      this.openDateRangePicker();
+      return;
+    }
+
     // Update date range and reload data
     let days = 1;
     switch (range) {
       case 'today': days = 1; break;
       case 'week': days = 7; break;
       case 'month': days = 30; break;
-      case 'custom': days = 30; break; // For custom, you could open a date picker
     }
+
+    // Clear custom date range label when switching to preset ranges
+    this.customDateRangeLabel = '';
+
     if (this.dashboardPreferences) {
       this.dashboardPreferences.dateRangeDays = days;
     }
     this.loadDashboardStatistics();
+  }
+
+  // Custom Date Range Picker Methods
+  openDateRangePicker(): void {
+    // Set default dates if not already set
+    if (!this.customStartDate) {
+      const today = new Date();
+      const lastMonth = new Date(today);
+      lastMonth.setMonth(lastMonth.getMonth() - 1);
+      this.customStartDate = this.formatDateForInput(lastMonth);
+      this.customEndDate = this.formatDateForInput(today);
+    }
+    this.showDateRangePicker = true;
+  }
+
+  closeDateRangePicker(): void {
+    this.showDateRangePicker = false;
+    // If no custom range was applied, revert to previous selection
+    if (!this.customDateRangeLabel) {
+      this.selectedTimeRange = 'today';
+    }
+  }
+
+  applyCustomDateRange(): void {
+    if (!this.customStartDate || !this.customEndDate) {
+      return;
+    }
+
+    const startDate = new Date(this.customStartDate);
+    const endDate = new Date(this.customEndDate);
+
+    if (startDate > endDate) {
+      // Swap dates if start is after end
+      const temp = this.customStartDate;
+      this.customStartDate = this.customEndDate;
+      this.customEndDate = temp;
+    }
+
+    // Calculate days between dates
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    // Update label for the custom range button
+    this.customDateRangeLabel = `${this.formatDateDisplay(this.customStartDate)} - ${this.formatDateDisplay(this.customEndDate)}`;
+
+    if (this.dashboardPreferences) {
+      this.dashboardPreferences.dateRangeDays = diffDays;
+      this.dashboardPreferences.startDate = this.customStartDate;
+      this.dashboardPreferences.endDate = this.customEndDate;
+    }
+
+    this.showDateRangePicker = false;
+    this.loadDashboardStatistics();
+  }
+
+  private formatDateForInput(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  private formatDateDisplay(dateStr: string): string {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
   onStatusTimeRangeChange(): void {
@@ -911,6 +1275,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.selectedPriority = urgentPriority?.value || '';
         this.selectedStatus = '';
         break;
+      case 'waitingResponse':
+        // Filter to show complaints waiting for handler response (customer replied)
+        this.selectedStatus = '';
+        this.selectedPriority = '';
+        // Note: In production, this would filter by hasCustomerResponse=true on the backend
+        break;
       default:
         // Reset filters for 'all'
         this.selectedStatus = '';
@@ -927,6 +1297,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       next: () => {
         this.loading = false;
         this.calculateUnassignedCount();
+        this.calculateWaitingForResponseCount();
         console.log('Complaints refreshed successfully');
       },
       error: (error) => {
@@ -1258,6 +1629,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
    * Determine which filters to apply based on the current user's role
    * Returns assignedToId for handlers and complainantId for complainants
    * Returns undefined for both if user is admin (sees all complaints)
+   *
+   * For admins: If a team member is selected, filters by that team member's ID
    */
   private getRoleBasedFilters(): { assignedToId?: string, complainantId?: string } {
     if (!this.currentUser) {
@@ -1268,6 +1641,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Check if user is admin (sees ALL complaints - no filtering)
     const isAdmin = this.isAdmin();
     if (isAdmin) {
+      // If admin has selected a specific team member, filter by that team member
+      if (this.selectedTeamMemberId) {
+        console.log(`Admin viewing team member dashboard - filtering by assignedToId: ${this.selectedTeamMemberId}`);
+        return { assignedToId: this.selectedTeamMemberId };
+      }
       console.log('User is admin - showing all complaints (no role-based filtering)');
       return {};
     }
@@ -1312,6 +1690,56 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.isAdmin()) return 'Administrator (All Complaints)';
     if (this.isHandler()) return 'Handler (Assigned Complaints)';
     return 'Complainant (My Complaints)';
+  }
+
+  /**
+   * Get context-aware stat card labels based on user role and selected team member
+   */
+  getStatLabel(statType: string): string {
+    const isViewingTeamMember = this.isAdmin() && this.selectedTeamMemberId;
+    const isHandler = this.isHandler();
+    const isAdmin = this.isAdmin();
+
+    switch (statType) {
+      case 'today':
+        if (isViewingTeamMember) return 'New Today (This Handler)';
+        if (isHandler) return 'New Today (My Queue)';
+        if (isAdmin) return 'New Complaints Today';
+        return 'New Complaints Today';
+
+      case 'waiting':
+        if (isViewingTeamMember) return 'Awaiting Response';
+        if (isHandler) return 'Awaiting My Response';
+        if (isAdmin) return 'Waiting for Response';
+        return 'Pending Updates';
+
+      case 'unassigned':
+        if (isViewingTeamMember) return 'Unassigned (Team)';
+        if (isHandler) return 'Unassigned (Available)';
+        if (isAdmin) return 'Unassigned Complaints';
+        return 'Pending Assignment';
+
+      case 'open':
+        if (isViewingTeamMember) return 'Open Cases';
+        if (isHandler) return 'My Open Cases';
+        if (isAdmin) return 'Total Open Cases';
+        return 'My Open Complaints';
+
+      case 'resolution':
+        if (isViewingTeamMember) return 'Avg. Resolution Time';
+        if (isHandler) return 'My Avg. Resolution';
+        if (isAdmin) return 'Avg. Resolution Time';
+        return 'Avg. Resolution Time';
+
+      case 'overdue':
+        if (isViewingTeamMember) return 'Overdue Cases';
+        if (isHandler) return 'My Overdue Cases';
+        if (isAdmin) return 'Overdue Complaints';
+        return 'Overdue Complaints';
+
+      default:
+        return statType;
+    }
   }
 
   // Local Storage Methods for Widget State Persistence

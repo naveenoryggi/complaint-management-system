@@ -356,4 +356,58 @@ export class CategoryManagementComponent
   trackByCategoryId(index: number, category: Category): string {
     return category.id;
   }
+
+  // Get icon class for category based on display order or priority
+  getCategoryIconClass(category: Category): string {
+    // Assign different colors based on category attributes
+    const iconClasses = ['icon-blue', 'icon-indigo', 'icon-emerald', 'icon-orange', 'icon-purple', 'icon-teal', 'icon-rose'];
+
+    // Use display order to cycle through colors, or priority-based
+    if (!category.isActive) {
+      return 'icon-slate';
+    }
+
+    // Use a hash of the category name for consistent color assignment
+    const hash = category.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return iconClasses[hash % iconClasses.length];
+  }
+
+  // Get appropriate icon for category
+  getCategoryIcon(category: Category): string {
+    // Return different icons based on category characteristics
+    if (category.parentCategoryId) {
+      return 'folder_open';
+    }
+
+    // Use different icons based on category code patterns
+    const code = category.code?.toLowerCase() || '';
+    if (code.includes('hr') || code.includes('salary') || code.includes('payroll')) {
+      return 'payments';
+    } else if (code.includes('it') || code.includes('tech') || code.includes('system')) {
+      return 'dns';
+    } else if (code.includes('product') || code.includes('quality')) {
+      return 'inventory_2';
+    } else if (code.includes('service') || code.includes('delay')) {
+      return 'schedule';
+    } else if (code.includes('bill') || code.includes('invoice')) {
+      return 'receipt_long';
+    } else if (code.includes('attend')) {
+      return 'event_available';
+    }
+
+    return 'folder';
+  }
+
+  // Format SLA hours for display (e.g., "24 hours", "3 days", "1 week")
+  formatSlaDisplay(hours: number): string {
+    if (hours < 24) {
+      return `${hours} hour${hours !== 1 ? 's' : ''}`;
+    } else if (hours < 168) { // Less than a week
+      const days = Math.round(hours / 24);
+      return `${days} day${days !== 1 ? 's' : ''}`;
+    } else {
+      const weeks = Math.round(hours / 168);
+      return `${weeks} week${weeks !== 1 ? 's' : ''}`;
+    }
+  }
 }

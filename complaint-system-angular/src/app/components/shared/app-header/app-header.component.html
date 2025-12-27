@@ -13,6 +13,7 @@
       <nav class="main-nav">
         <a class="nav-link" [class.active]="activeNavLink === 'dashboard'" (click)="navigateToPage('/dashboard')">Dashboard</a>
         <a class="nav-link" [class.active]="activeNavLink === 'complaints'" (click)="navigateToPage('/complaints')">All Complaints</a>
+        <a class="nav-link" [class.active]="activeNavLink === 'team-performance'" (click)="navigateToPage('/team-performance')" *ngIf="isAdmin()">Team Performance</a>
         <a class="nav-link" [class.active]="activeNavLink === 'reports'" (click)="navigateToPage('/reports')" *ngIf="isAdmin()">Reports</a>
         <div class="nav-dropdown" *ngIf="isAdmin() && showAdminPanel">
           <button class="nav-link dropdown-trigger" (click)="toggleAdminMenu(); $event.stopPropagation()">
@@ -44,10 +45,57 @@
         <i class="fa-solid fa-search"></i>
         <input type="search" placeholder="Search..." [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
       </div>
-      <button class="notification-btn" *ngIf="showNotifications" (click)="onNotificationClick()">
-        <i class="fa-regular fa-bell"></i>
-        <span class="notification-badge" *ngIf="notificationCount > 0">{{ notificationCount > 99 ? '99+' : notificationCount }}</span>
-      </button>
+      <!-- Notification Dropdown -->
+      <div class="notification-dropdown-wrapper" *ngIf="showNotifications">
+        <button class="notification-btn" (click)="toggleNotificationDropdown(); $event.stopPropagation()">
+          <i class="fa-regular fa-bell"></i>
+          <span class="notification-badge" *ngIf="unreadNotificationCount > 0">{{ unreadNotificationCount > 99 ? '99+' : unreadNotificationCount }}</span>
+        </button>
+
+        <!-- Notification Dropdown Menu -->
+        <div class="notification-dropdown" *ngIf="showNotificationDropdown" (click)="$event.stopPropagation()">
+          <div class="notification-header">
+            <h3>Notifications</h3>
+            <button class="mark-all-btn" *ngIf="unreadNotificationCount > 0" (click)="markAllNotificationsAsRead()">
+              <i class="fa-solid fa-check-double"></i>
+              Mark all read
+            </button>
+          </div>
+
+          <div class="notification-list" *ngIf="notifications.length > 0">
+            <div
+              class="notification-item"
+              *ngFor="let notification of notifications"
+              [class.unread]="!notification.isRead"
+              (click)="onNotificationItemClick(notification)">
+              <div class="notification-icon" [style.background-color]="getNotificationColor(notification.type) + '20'" [style.color]="getNotificationColor(notification.type)">
+                <i class="fa-solid" [ngClass]="getNotificationIcon(notification.type)"></i>
+              </div>
+              <div class="notification-content">
+                <div class="notification-title">{{ notification.title }}</div>
+                <div class="notification-message">{{ notification.message }}</div>
+                <div class="notification-time">
+                  <i class="fa-regular fa-clock"></i>
+                  {{ getTimeAgo(notification.createdAt) }}
+                </div>
+              </div>
+              <div class="notification-indicator" *ngIf="!notification.isRead"></div>
+            </div>
+          </div>
+
+          <div class="notification-empty" *ngIf="notifications.length === 0">
+            <i class="fa-regular fa-bell-slash"></i>
+            <p>No notifications yet</p>
+          </div>
+
+          <div class="notification-footer">
+            <button class="view-all-btn" (click)="viewAllNotifications()">
+              View All Notifications
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
       <div class="user-avatar-dropdown">
         <div class="avatar" (click)="toggleUserMenu(); $event.stopPropagation()">
           <i class="fa-regular fa-circle-user"></i>

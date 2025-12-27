@@ -1,87 +1,100 @@
 <div class="section-management-container">
+  <!-- Page Header -->
   <div class="page-header">
     <div class="header-content">
-      <h1>
-        <i class="fas fa-layer-group"></i>
-        Section Management
-      </h1>
-      <p class="header-description">Manage organizational sections (teams) within departments</p>
+      <div class="breadcrumb-label">
+        <span class="material-icons-round">domain</span>
+        <span>Organization Structure</span>
+      </div>
+      <h1>Section Management</h1>
+      <p class="page-description">
+        Manage organizational sections (teams) within departments. Sections represent the lowest level in the hierarchy:
+        <span class="hierarchy-badge">Branch</span>
+        <span class="hierarchy-arrow">→</span>
+        <span class="hierarchy-badge">Department</span>
+        <span class="hierarchy-arrow">→</span>
+        <span class="hierarchy-badge active">Section</span>.
+        Each section can have designated heads for team-based routing, reporting, and access control.
+      </p>
     </div>
-    <button class="btn btn-primary" (click)="openCreateModal()" [disabled]="!selectedDepartmentId">
-      <i class="fas fa-plus"></i>
+    <button class="btn btn-primary btn-add" (click)="openCreateModal()" [disabled]="!selectedDepartmentId">
+      <span class="material-icons-round">add</span>
       Add Section
     </button>
   </div>
 
-  <!-- Info Banner -->
-  <div class="info-banner">
-    <div class="info-icon">
-      <i class="fas fa-info-circle"></i>
-    </div>
-    <div class="info-content">
-      <h3>About Section Management</h3>
-      <p>
-        <strong>Sections</strong> represent teams or groups within a department.
-        Each section can have a designated head and multiple users.
-      </p>
-      <ul>
-        <li><strong>Structure:</strong> Branch → Department → Section → User</li>
-        <li><strong>Head:</strong> Each section can have a designated section head or team lead</li>
-        <li><strong>Benefits:</strong> Team-based routing, reporting, and access control</li>
-      </ul>
-    </div>
-  </div>
-
   <!-- Success Message -->
   <div *ngIf="successMessage" class="alert alert-success">
-    <i class="fas fa-check-circle"></i>
+    <span class="material-icons-round">check_circle</span>
     {{ successMessage }}
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="errorMessage && !showModal" class="alert alert-danger">
-    <i class="fas fa-exclamation-circle"></i>
+  <div *ngIf="errorMessage && !showModal" class="alert alert-error">
+    <span class="material-icons-round">error</span>
     {{ errorMessage }}
   </div>
 
-  <!-- Branch and Department Selection -->
-  <div class="cascading-selector">
-    <div class="selector-group">
-      <label for="branchSelect">Select Branch:</label>
-      <select
-        id="branchSelect"
-        [(ngModel)]="selectedBranchId"
-        (change)="onBranchChange()"
-        class="form-control"
-      >
-        <option value="">-- Select a Branch --</option>
-        <option *ngFor="let branch of branches" [value]="branch.id">
-          {{ branch.name }} ({{ branch.code }})
-        </option>
-      </select>
-    </div>
+  <!-- Cascading Selector Card (Branch + Department) -->
+  <div class="cascading-selector-card">
+    <div class="selector-row">
+      <div class="selector-item">
+        <div class="selector-icon">
+          <span class="material-icons-round">apartment</span>
+        </div>
+        <div class="selector-content">
+          <label for="branchSelect">Select Branch</label>
+          <div class="select-wrapper">
+            <select
+              id="branchSelect"
+              [(ngModel)]="selectedBranchId"
+              (change)="onBranchChange()"
+              class="form-select"
+            >
+              <option value="">-- Select a Branch --</option>
+              <option *ngFor="let branch of branches; trackBy: trackByBranchId" [value]="branch.id">
+                {{ branch.name }} ({{ branch.code }})
+              </option>
+            </select>
+            <span class="material-icons-round select-arrow">expand_more</span>
+          </div>
+        </div>
+      </div>
 
-    <div class="selector-group">
-      <label for="departmentSelect">Select Department:</label>
-      <select
-        id="departmentSelect"
-        [(ngModel)]="selectedDepartmentId"
-        (change)="onDepartmentChange()"
-        class="form-control"
-        [disabled]="!selectedBranchId || departments.length === 0"
-      >
-        <option value="">-- Select a Department --</option>
-        <option *ngFor="let department of departments" [value]="department.id">
-          {{ department.name }} ({{ department.code }})
-        </option>
-      </select>
+      <div class="selector-divider">
+        <span class="material-icons-round">arrow_forward</span>
+      </div>
+
+      <div class="selector-item">
+        <div class="selector-icon">
+          <span class="material-icons-round">account_tree</span>
+        </div>
+        <div class="selector-content">
+          <label for="departmentSelect">Select Department</label>
+          <div class="select-wrapper">
+            <select
+              id="departmentSelect"
+              [(ngModel)]="selectedDepartmentId"
+              (change)="onDepartmentChange()"
+              class="form-select"
+              [disabled]="!selectedBranchId || departments.length === 0"
+            >
+              <option value="">-- Select a Department --</option>
+              <option *ngFor="let department of departments; trackBy: trackByDepartmentId" [value]="department.id">
+                {{ department.name }} ({{ department.code }})
+              </option>
+            </select>
+            <span class="material-icons-round select-arrow">expand_more</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Search and Filter -->
-  <div *ngIf="selectedDepartmentId" class="filter-section">
+  <!-- Search and Filter Row -->
+  <div *ngIf="selectedDepartmentId" class="filter-row">
     <div class="search-box">
-      <i class="fas fa-search"></i>
+      <span class="material-icons-round">search</span>
       <input
         type="text"
         [(ngModel)]="searchTerm"
@@ -89,118 +102,142 @@
         class="search-input"
       />
     </div>
-    <div class="filter-options">
-      <label class="checkbox-label">
-        <input type="checkbox" [(ngModel)]="showInactive" (change)="onActiveFilterChange()" />
-        Show Inactive Sections
-      </label>
+    <div class="filter-buttons">
+      <button
+        class="filter-btn"
+        [class.active]="statusFilter === 'all'"
+        (click)="setStatusFilter('all')"
+      >
+        <span class="material-icons-round">list</span>
+        All
+      </button>
+      <button
+        class="filter-btn"
+        [class.active]="statusFilter === 'active'"
+        (click)="setStatusFilter('active')"
+      >
+        <span class="material-icons-round">check_circle</span>
+        Active
+      </button>
+      <button
+        class="filter-btn"
+        [class.active]="statusFilter === 'inactive'"
+        (click)="setStatusFilter('inactive')"
+      >
+        <span class="material-icons-round">cancel</span>
+        Inactive
+      </button>
     </div>
   </div>
 
   <!-- Loading State -->
   <div *ngIf="loading && sections.length === 0" class="loading-state">
-    <i class="fas fa-spinner fa-spin"></i>
+    <span class="material-icons-round spin">sync</span>
     <p>Loading sections...</p>
   </div>
 
   <!-- No Department Selected -->
   <div *ngIf="!selectedDepartmentId && !loading" class="empty-state">
-    <i class="fas fa-sitemap"></i>
+    <div class="empty-icon">
+      <span class="material-icons-round">groups</span>
+    </div>
     <h3>Select a Department</h3>
     <p>Please select a branch and department to view and manage sections</p>
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="selectedDepartmentId && !loading && filteredSections.length === 0" class="empty-state">
-    <i class="fas fa-sitemap"></i>
-    <h3>No Sections Found</h3>
-    <p *ngIf="searchTerm">Try adjusting your search criteria</p>
-    <p *ngIf="!searchTerm">Get started by creating your first section in {{ getSelectedDepartmentName() }}</p>
-    <button class="btn btn-primary" (click)="openCreateModal()">
-      <i class="fas fa-plus"></i>
-      Add Section
-    </button>
+  <div *ngIf="selectedDepartmentId && !loading && filteredSections.length === 0 && searchTerm" class="empty-state">
+    <div class="empty-icon">
+      <span class="material-icons-round">search_off</span>
+    </div>
+    <h3>No Results Found</h3>
+    <p>Try adjusting your search criteria</p>
   </div>
 
   <!-- Sections Grid -->
-  <div *ngIf="selectedDepartmentId && !loading && filteredSections.length > 0" class="sections-grid">
-    <div *ngFor="let section of filteredSections" class="section-card" [class.inactive]="!section.isActive">
-      <div class="card-header">
-        <div class="section-info">
-          <h3>{{ section.name }}</h3>
-          <span class="section-code">{{ section.code }}</span>
-          <span class="status-badge" [class.active]="section.isActive" [class.inactive]="!section.isActive">
-            {{ section.isActive ? 'Active' : 'Inactive' }}
-          </span>
+  <div *ngIf="selectedDepartmentId && !loading" class="sections-grid">
+    <!-- Section Cards -->
+    <div *ngFor="let section of filteredSections; trackBy: trackBySectionId"
+         class="section-card"
+         [class.inactive]="!section.isActive">
+      <div class="card-content">
+        <div class="card-header">
+          <div class="card-title-area">
+            <h3>{{ section.name }}</h3>
+            <div class="badge-row">
+              <span class="badge badge-code">{{ section.code }}</span>
+              <span class="badge" [class.badge-active]="section.isActive" [class.badge-inactive]="!section.isActive">
+                {{ section.isActive ? 'ACTIVE' : 'INACTIVE' }}
+              </span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="action-btn" (click)="openEditModal(section)" title="Edit">
+              <span class="material-icons-round">edit</span>
+            </button>
+            <button class="action-btn" (click)="toggleSectionStatus(section)" [title]="section.isActive ? 'Deactivate' : 'Activate'">
+              <span class="material-icons-round">{{ section.isActive ? 'toggle_on' : 'toggle_off' }}</span>
+            </button>
+            <button class="action-btn action-btn-danger" (click)="openDeleteModal(section)" title="Delete">
+              <span class="material-icons-round">delete</span>
+            </button>
+          </div>
         </div>
-        <div class="card-actions">
-          <button
-            class="btn-icon"
-            (click)="openEditModal(section)"
-            title="Edit Section"
-          >
-            <i class="fas fa-edit"></i>
-          </button>
-          <button
-            class="btn-icon"
-            (click)="toggleSectionStatus(section)"
-            [title]="section.isActive ? 'Deactivate' : 'Activate'"
-          >
-            <i [class]="section.isActive ? 'fas fa-toggle-on' : 'fas fa-toggle-off'"></i>
-          </button>
-          <button
-            class="btn-icon btn-delete"
-            (click)="openDeleteModal(section)"
-            title="Delete Section"
-          >
-            <i class="fas fa-trash"></i>
-          </button>
+        <p *ngIf="section.description" class="card-description">{{ section.description }}</p>
+
+        <!-- Head Info -->
+        <div *ngIf="section.headName" class="head-info">
+          <span class="material-icons-round">badge</span>
+          <span>Head: <strong>{{ section.headName }}</strong></span>
+        </div>
+
+        <!-- Secondary Head Info -->
+        <div *ngIf="section.secondaryHeadName" class="head-info">
+          <span class="material-icons-round">supervisor_account</span>
+          <span>Deputy: <strong>{{ section.secondaryHeadName }}</strong></span>
+        </div>
+
+        <!-- HR Responsible Info -->
+        <div *ngIf="section.hrResponsibleName" class="head-info">
+          <span class="material-icons-round">support_agent</span>
+          <span>HR: <strong>{{ section.hrResponsibleName }}</strong></span>
         </div>
       </div>
-
-      <div class="card-body">
-        <div *ngIf="section.description" class="section-description">
-          <p>{{ section.description }}</p>
-        </div>
-
-        <div class="section-details">
-          <div *ngIf="section.headName" class="detail-item">
-            <i class="fas fa-user-tie"></i>
-            <span>Head: <strong>{{ section.headName }}</strong></span>
-          </div>
-
-          <div *ngIf="section.secondaryHeadName" class="detail-item">
-            <i class="fas fa-user-shield"></i>
-            <span>Secondary Head: <strong>{{ section.secondaryHeadName }}</strong></span>
-          </div>
-
-          <div *ngIf="section.hrResponsibleName" class="detail-item">
-            <i class="fas fa-user-friends"></i>
-            <span>HR: <strong>{{ section.hrResponsibleName }}</strong></span>
-          </div>
-        </div>
-      </div>
-
       <div class="card-footer">
-        <small>
-          Created: {{ section.createdAt | utcToLocal:'medium' }}
-        </small>
+        <span class="footer-item">
+          <span class="material-icons-round">schedule</span>
+          {{ section.createdAt | utcToLocal:'medium' }}
+        </span>
       </div>
     </div>
+
+    <!-- Add New Section Card -->
+    <button *ngIf="filteredSections.length > 0 || !searchTerm"
+            class="add-card"
+            (click)="openCreateModal()"
+            [disabled]="!selectedDepartmentId">
+      <div class="add-icon">
+        <span class="material-icons-round">add</span>
+      </div>
+      <span class="add-title">Add New Section</span>
+      <span class="add-subtitle">Configure a new team for this department</span>
+    </button>
   </div>
 
   <!-- Summary Stats -->
   <div *ngIf="selectedDepartmentId && sections.length > 0" class="summary-stats">
     <div class="stat-item">
-      <span class="stat-label">Total Sections:</span>
+      <span class="stat-label">Total Sections</span>
       <span class="stat-value">{{ sections.length }}</span>
     </div>
+    <div class="stat-divider"></div>
     <div class="stat-item">
-      <span class="stat-label">Active:</span>
+      <span class="stat-label">Active</span>
       <span class="stat-value stat-active">{{ getActiveSectionsCount() }}</span>
     </div>
+    <div class="stat-divider"></div>
     <div class="stat-item">
-      <span class="stat-label">Inactive:</span>
+      <span class="stat-label">Inactive</span>
       <span class="stat-value stat-inactive">{{ getInactiveSectionsCount() }}</span>
     </div>
   </div>
@@ -211,18 +248,18 @@
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>
-        <i class="fas fa-sitemap"></i>
+        <span class="material-icons-round">groups</span>
         {{ isEditMode ? 'Edit Section' : 'Create New Section' }}
       </h2>
       <button class="btn-close" (click)="closeModal()">
-        <i class="fas fa-times"></i>
+        <span class="material-icons-round">close</span>
       </button>
     </div>
 
     <div class="modal-body">
       <!-- Error Message in Modal -->
-      <div *ngIf="errorMessage" class="alert alert-danger">
-        <i class="fas fa-exclamation-circle"></i>
+      <div *ngIf="errorMessage" class="alert alert-error">
+        <span class="material-icons-round">error</span>
         {{ errorMessage }}
       </div>
 
@@ -240,7 +277,7 @@
                 [(ngModel)]="sectionForm.name"
                 name="name"
                 class="form-control"
-                placeholder="e.g., IT Section, HR Section"
+                placeholder="e.g., Development Team, Support Team"
                 required
               />
               <small class="form-help-text">The official name of the section</small>
@@ -254,7 +291,7 @@
                 [(ngModel)]="sectionForm.code"
                 name="code"
                 class="form-control"
-                placeholder="e.g., IT, HR, FIN"
+                placeholder="e.g., DEV, SUP, QA"
                 maxlength="20"
                 required
               />
@@ -330,8 +367,8 @@
             Cancel
           </button>
           <button type="submit" class="btn btn-primary" [disabled]="loading">
-            <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
-            <i *ngIf="!loading" [class]="isEditMode ? 'fas fa-save' : 'fas fa-plus'"></i>
+            <span *ngIf="loading" class="material-icons-round spin">sync</span>
+            <span *ngIf="!loading" class="material-icons-round">{{ isEditMode ? 'save' : 'add' }}</span>
             {{ isEditMode ? 'Update Section' : 'Create Section' }}
           </button>
         </div>
@@ -343,25 +380,25 @@
 <!-- Delete Confirmation Modal -->
 <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
   <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-    <div class="modal-header">
+    <div class="modal-header modal-header-danger">
       <h2>
-        <i class="fas fa-exclamation-triangle"></i>
+        <span class="material-icons-round">warning</span>
         Confirm Deletion
       </h2>
       <button class="btn-close" (click)="closeDeleteModal()">
-        <i class="fas fa-times"></i>
+        <span class="material-icons-round">close</span>
       </button>
     </div>
 
     <div class="modal-body">
-      <div *ngIf="errorMessage" class="alert alert-danger">
-        <i class="fas fa-exclamation-circle"></i>
+      <div *ngIf="errorMessage" class="alert alert-error">
+        <span class="material-icons-round">error</span>
         {{ errorMessage }}
       </div>
 
       <p>Are you sure you want to delete the section <strong>{{ sectionToDelete?.name }}</strong>?</p>
       <p class="warning-text">
-        <i class="fas fa-exclamation-triangle"></i>
+        <span class="material-icons-round">warning</span>
         This action cannot be undone. Make sure the section has no users assigned before deleting.
       </p>
     </div>
@@ -371,8 +408,8 @@
         Cancel
       </button>
       <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="loading">
-        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
-        <i *ngIf="!loading" class="fas fa-trash"></i>
+        <span *ngIf="loading" class="material-icons-round spin">sync</span>
+        <span *ngIf="!loading" class="material-icons-round">delete</span>
         Delete Section
       </button>
     </div>

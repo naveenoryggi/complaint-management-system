@@ -15,6 +15,14 @@ import {
 } from '../../../models/communication.model';
 
 /**
+ * Interface for reply events that include the quick reply content
+ */
+export interface EmailReplyEvent {
+  email: EmailThreadItemDto;
+  quickReplyContent: string;
+}
+
+/**
  * EmailThreadViewerComponent
  *
  * A comprehensive Angular component for displaying email conversations in complaints.
@@ -59,10 +67,10 @@ export class EmailThreadViewerComponent implements OnInit, OnDestroy {
 
   // ==================== OUTPUTS ====================
 
-  @Output() replyClicked = new EventEmitter<EmailThreadItemDto>();
-  @Output() replyAllClicked = new EventEmitter<EmailThreadItemDto>();
-  @Output() forwardClicked = new EventEmitter<EmailThreadItemDto>();
-  @Output() privateNoteClicked = new EventEmitter<EmailThreadItemDto>();
+  @Output() replyClicked = new EventEmitter<EmailReplyEvent>();
+  @Output() replyAllClicked = new EventEmitter<EmailReplyEvent>();
+  @Output() forwardClicked = new EventEmitter<EmailReplyEvent>();
+  @Output() privateNoteClicked = new EventEmitter<EmailReplyEvent>();
   @Output() composeNewClicked = new EventEmitter<void>();
   @Output() attachmentClicked = new EventEmitter<EmailAttachment>();
   @Output() emailExpanded = new EventEmitter<EmailThreadItemDto>();
@@ -86,6 +94,9 @@ export class EmailThreadViewerComponent implements OnInit, OnDestroy {
   totalCount = 0;
   inboundCount = 0;
   outboundCount = 0;
+
+  // Reply content for the text editor
+  replyContent = '';
 
   // ==================== CONSTRUCTOR ====================
 
@@ -167,19 +178,31 @@ export class EmailThreadViewerComponent implements OnInit, OnDestroy {
 
   /**
    * Sort emails based on sortOrder
+   * Priority: Unread inbound emails first, then by date
+   * This ensures support agents see emails requiring attention at the top
    */
   private sortEmails(emails: EmailThreadItemDto[]): EmailThreadItemDto[] {
     const sorted = [...emails];
 
-    if (this.sortOrder === 'newest-first') {
-      return sorted.sort((a, b) =>
-        new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime()
-      );
-    } else {
-      return sorted.sort((a, b) =>
-        new Date(a.receivedAt).getTime() - new Date(b.receivedAt).getTime()
-      );
-    }
+    return sorted.sort((a, b) => {
+      // First priority: Unread inbound emails come first
+      // (Outbound emails are always "read" since we sent them)
+      const aUnread = !a.isRead && !a.isOutbound;
+      const bUnread = !b.isRead && !b.isOutbound;
+
+      if (aUnread && !bUnread) return -1; // a is unread, b is read -> a first
+      if (!aUnread && bUnread) return 1;  // b is unread, a is read -> b first
+
+      // Second priority: Sort by date based on sortOrder
+      const aTime = new Date(a.receivedAt).getTime();
+      const bTime = new Date(b.receivedAt).getTime();
+
+      if (this.sortOrder === 'newest-first') {
+        return bTime - aTime; // Newest first
+      } else {
+        return aTime - bTime; // Oldest first
+      }
+    });
   }
 
   /**
@@ -227,6 +250,7 @@ export class EmailThreadViewerComponent implements OnInit, OnDestroy {
 
   /**
    * Toggle email expansion
+   * When expanding an unread inbound email, mark it as read
    */
   toggleEmail(email: EmailThreadItemDto): void {
     const emailId = email.id;
@@ -237,9 +261,37 @@ export class EmailThreadViewerComponent implements OnInit, OnDestroy {
     } else {
       this.expandedEmailIds.add(emailId);
       this.emailExpanded.emit(email);
+
+      // Mark as read when expanding an unread inbound email
+      // This clears the HasCustomerResponse flag on the complaint
+      if (!email.isRead && !email.isOutbound) {
+        this.markEmailAsRead(email);
+      }
     }
 
     this.cdr.markForCheck();
+  }
+
+  /**
+   * Mark email as read via API
+   * This also clears the HasCustomerResponse flag on the complaint
+   */
+  private markEmailAsRead(email: EmailThreadItemDto): void {
+    this.emailThreadService.markAsRead(this.complaintId, email.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.isSuccess) {
+            // Update local state
+            email.isRead = true;
+            this.logger.info('Email marked as read', { emailId: email.id, complaintId: this.complaintId });
+            this.cdr.markForCheck();
+          }
+        },
+        error: (error: Error) => {
+          this.logger.error('Failed to mark email as read', { emailId: email.id, error });
+        }
+      });
   }
 
   /**
@@ -282,32 +334,48 @@ export class EmailThreadViewerComponent implements OnInit, OnDestroy {
    * Handle reply click
    */
   onReplyClick(email: EmailThreadItemDto): void {
-    this.replyClicked.emit(email);
-    this.logger.info('Reply clicked', { emailId: email.id });
+    const event: EmailReplyEvent = { email, quickReplyContent: this.replyContent };
+    this.replyClicked.emit(event);
+    this.logger.info('Reply clicked', { emailId: email.id, hasContent: !!this.replyContent });
+    this.clearReplyContent();
   }
 
   /**
    * Handle reply all click
    */
   onReplyAllClick(email: EmailThreadItemDto): void {
-    this.replyAllClicked.emit(email);
-    this.logger.info('Reply All clicked', { emailId: email.id });
+    const event: EmailReplyEvent = { email, quickReplyContent: this.replyContent };
+    this.replyAllClicked.emit(event);
+    this.logger.info('Reply All clicked', { emailId: email.id, hasContent: !!this.replyContent });
+    this.clearReplyContent();
   }
 
   /**
    * Handle forward click
    */
   onForwardClick(email: EmailThreadItemDto): void {
-    this.forwardClicked.emit(email);
-    this.logger.info('Forward clicked', { emailId: email.id });
+    const event: EmailReplyEvent = { email, quickReplyContent: this.replyContent };
+    this.forwardClicked.emit(event);
+    this.logger.info('Forward clicked', { emailId: email.id, hasContent: !!this.replyContent });
+    this.clearReplyContent();
   }
 
   /**
    * Handle private note click
    */
   onPrivateNoteClick(email: EmailThreadItemDto): void {
-    this.privateNoteClicked.emit(email);
-    this.logger.info('Private Note clicked', { emailId: email.id });
+    const event: EmailReplyEvent = { email, quickReplyContent: this.replyContent };
+    this.privateNoteClicked.emit(event);
+    this.logger.info('Private Note clicked', { emailId: email.id, hasContent: !!this.replyContent });
+    this.clearReplyContent();
+  }
+
+  /**
+   * Clear the quick reply content after emitting
+   */
+  private clearReplyContent(): void {
+    this.replyContent = '';
+    this.cdr.markForCheck();
   }
 
   /**
@@ -316,6 +384,72 @@ export class EmailThreadViewerComponent implements OnInit, OnDestroy {
   onComposeNewClick(): void {
     this.composeNewClicked.emit();
     this.logger.info('Compose New Email clicked');
+  }
+
+  /**
+   * Check if there are any inbound emails to reply to
+   */
+  hasInboundEmails(): boolean {
+    return this.emails.some(e => !e.isOutbound);
+  }
+
+  /**
+   * Get the latest inbound email for reply
+   */
+  private getLatestInboundEmail(): EmailThreadItemDto | undefined {
+    return this.emails.find(e => !e.isOutbound);
+  }
+
+  /**
+   * Handle reply to latest email
+   */
+  onReplyToLatest(): void {
+    const latestInbound = this.getLatestInboundEmail();
+    if (latestInbound) {
+      const event: EmailReplyEvent = { email: latestInbound, quickReplyContent: this.replyContent };
+      this.replyClicked.emit(event);
+      this.logger.info('Reply to latest clicked', { emailId: latestInbound.id, hasContent: !!this.replyContent });
+      this.clearReplyContent();
+    }
+  }
+
+  /**
+   * Handle reply all to latest email
+   */
+  onReplyAllToLatest(): void {
+    const latestInbound = this.getLatestInboundEmail();
+    if (latestInbound) {
+      const event: EmailReplyEvent = { email: latestInbound, quickReplyContent: this.replyContent };
+      this.replyAllClicked.emit(event);
+      this.logger.info('Reply All to latest clicked', { emailId: latestInbound.id, hasContent: !!this.replyContent });
+      this.clearReplyContent();
+    }
+  }
+
+  /**
+   * Handle forward latest email
+   */
+  onForwardLatest(): void {
+    const latest = this.emails[0];
+    if (latest) {
+      const event: EmailReplyEvent = { email: latest, quickReplyContent: this.replyContent };
+      this.forwardClicked.emit(event);
+      this.logger.info('Forward latest clicked', { emailId: latest.id, hasContent: !!this.replyContent });
+      this.clearReplyContent();
+    }
+  }
+
+  /**
+   * Handle add internal note
+   */
+  onAddInternalNote(): void {
+    const latest = this.emails[0];
+    if (latest) {
+      const event: EmailReplyEvent = { email: latest, quickReplyContent: this.replyContent };
+      this.privateNoteClicked.emit(event);
+      this.logger.info('Add Internal Note clicked', { hasContent: !!this.replyContent });
+      this.clearReplyContent();
+    }
   }
 
   /**
@@ -349,6 +483,7 @@ export class EmailThreadViewerComponent implements OnInit, OnDestroy {
    * Sanitize HTML content using DOMPurify
    * Removes potentially dangerous tags and attributes
    * Pre-processes to remove style/script tags completely (including their content)
+   * Also removes quoted email content (from Outlook, Gmail, etc.) to avoid redundancy in thread view
    */
   sanitizeHtml(html: string | undefined): SafeHtml {
     if (!html) {
@@ -364,6 +499,9 @@ export class EmailThreadViewerComponent implements OnInit, OnDestroy {
       .replace(/<meta[^>]*\/?>/gi, '') // Remove meta tags
       .replace(/<link[^>]*\/?>/gi, '') // Remove link tags (external stylesheets)
       .replace(/<!--[\s\S]*?-->/g, ''); // Remove HTML comments
+
+    // Remove quoted email content to avoid redundancy in thread view
+    preprocessed = this.removeQuotedContent(preprocessed);
 
     // Configure DOMPurify to allow safe HTML while removing dangerous content
     const clean = DOMPurify.sanitize(preprocessed, {
@@ -389,6 +527,44 @@ export class EmailThreadViewerComponent implements OnInit, OnDestroy {
     });
 
     return this.sanitizer.sanitize(1, clean) || ''; // SecurityContext.HTML = 1
+  }
+
+  /**
+   * Remove quoted email content from HTML to avoid redundancy
+   * Handles various email client patterns (Outlook, Gmail, Yahoo, etc.)
+   */
+  private removeQuotedContent(html: string): string {
+    let result = html;
+
+    // Remove Gmail quoted content
+    result = result.replace(/<div class="gmail_quote"[\s\S]*$/gi, '');
+    result = result.replace(/<div class="gmail_extra"[\s\S]*$/gi, '');
+
+    // Remove Outlook quoted content (starts with divider line or "From:" pattern)
+    // Pattern: <hr> followed by From: email info
+    result = result.replace(/<hr[^>]*>[\s\S]*?<p[^>]*>\s*<b>\s*From:\s*<\/b>[\s\S]*$/gi, '');
+
+    // Outlook mobile pattern: <p><strong>From:</strong>...</p> and everything after
+    result = result.replace(/<p[^>]*>\s*<strong>\s*From:\s*<\/strong>[\s\S]*$/gi, '');
+    result = result.replace(/<p[^>]*>\s*<b>\s*From:\s*<\/b>[\s\S]*$/gi, '');
+
+    // Remove blockquote elements (common for quoted content)
+    result = result.replace(/<blockquote[\s\S]*?<\/blockquote>/gi, '');
+
+    // Remove Yahoo quoted content
+    result = result.replace(/<div class="yahoo_quoted"[\s\S]*$/gi, '');
+
+    // Remove Apple Mail signatures
+    result = result.replace(/<div class="AppleMailSignature"[\s\S]*?<\/div>/gi, '');
+
+    // Remove Mozilla cite prefix
+    result = result.replace(/<div class="moz-cite-prefix"[\s\S]*$/gi, '');
+
+    // Trim trailing empty paragraphs
+    result = result.replace(/(<p>\s*(&nbsp;)*\s*<\/p>\s*)+$/gi, '');
+    result = result.replace(/(<br\s*\/?>\s*)+$/gi, '');
+
+    return result;
   }
 
   /**

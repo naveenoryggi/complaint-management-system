@@ -1676,11 +1676,20 @@ namespace ComplaintManagement.Infrastructure.Migrations
                     b.Property<string>("EmployeeCode")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("HasCustomerResponse")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastResponseAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastResponseFrom")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PreferredContactMethod")
                         .HasColumnType("int");
@@ -3293,7 +3302,7 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             Id = new Guid("20000000-0000-0000-0000-000000000001"),
                             Code = "LOW",
                             ColorCode = "#4CAF50",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 983, DateTimeKind.Utc).AddTicks(7134),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 438, DateTimeKind.Utc).AddTicks(7588),
                             Description = "Low priority - No immediate action required",
                             DisplayOrder = 1,
                             IconClass = "bi-arrow-down-circle",
@@ -3302,14 +3311,14 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsSystem = true,
                             Level = 1,
                             Name = "Low",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 983, DateTimeKind.Utc).AddTicks(7238)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 438, DateTimeKind.Utc).AddTicks(7705)
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000002"),
                             Code = "NORMAL",
                             ColorCode = "#2196F3",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 983, DateTimeKind.Utc).AddTicks(7445),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 438, DateTimeKind.Utc).AddTicks(7976),
                             Description = "Normal priority - Standard processing time",
                             DisplayOrder = 2,
                             IconClass = "bi-dash-circle",
@@ -3318,14 +3327,14 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsSystem = true,
                             Level = 3,
                             Name = "Normal",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 983, DateTimeKind.Utc).AddTicks(7446)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 438, DateTimeKind.Utc).AddTicks(7977)
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000003"),
                             Code = "HIGH",
                             ColorCode = "#FF9800",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 983, DateTimeKind.Utc).AddTicks(7450),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 438, DateTimeKind.Utc).AddTicks(7980),
                             Description = "High priority - Requires expedited attention",
                             DisplayOrder = 3,
                             IconClass = "bi-exclamation-circle",
@@ -3334,14 +3343,14 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsSystem = true,
                             Level = 5,
                             Name = "High",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 983, DateTimeKind.Utc).AddTicks(7450)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 438, DateTimeKind.Utc).AddTicks(7981)
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000004"),
                             Code = "CRITICAL",
                             ColorCode = "#F44336",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 983, DateTimeKind.Utc).AddTicks(7454),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 438, DateTimeKind.Utc).AddTicks(7983),
                             Description = "Critical priority - Requires immediate attention",
                             DisplayOrder = 4,
                             IconClass = "bi-exclamation-triangle",
@@ -3350,14 +3359,14 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsSystem = true,
                             Level = 8,
                             Name = "Critical",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 983, DateTimeKind.Utc).AddTicks(7454)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 438, DateTimeKind.Utc).AddTicks(7983)
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000005"),
                             Code = "URGENT",
                             ColorCode = "#9C27B0",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 983, DateTimeKind.Utc).AddTicks(7457),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 438, DateTimeKind.Utc).AddTicks(7986),
                             Description = "Urgent priority - Highest priority level",
                             DisplayOrder = 5,
                             IconClass = "bi-lightning",
@@ -3366,7 +3375,7 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsSystem = true,
                             Level = 10,
                             Name = "Urgent",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 983, DateTimeKind.Utc).AddTicks(7458)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 438, DateTimeKind.Utc).AddTicks(7986)
                         });
                 });
 
@@ -3454,7 +3463,7 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             Id = new Guid("10000000-0000-0000-0000-000000000001"),
                             Code = "SUBMITTED",
                             ColorCode = "#9E9E9E",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5370),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8292),
                             Description = "Complaint has been submitted but not yet reviewed",
                             DisplayOrder = 1,
                             IconClass = "bi-inbox",
@@ -3463,14 +3472,14 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Submitted",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5371)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8298)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000002"),
                             Code = "UNDER_REVIEW",
                             ColorCode = "#2196F3",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5390),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8327),
                             Description = "Complaint is being reviewed by the assigned handler",
                             DisplayOrder = 2,
                             IconClass = "bi-eye",
@@ -3479,14 +3488,14 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Under Review",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5391)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8328)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000003"),
                             Code = "IN_PROGRESS",
                             ColorCode = "#FF9800",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5393),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8333),
                             Description = "Complaint is currently being investigated",
                             DisplayOrder = 3,
                             IconClass = "bi-gear",
@@ -3495,14 +3504,14 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "In Progress",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5393)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8333)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000004"),
                             Code = "ESCALATED",
                             ColorCode = "#FF5722",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5395),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8338),
                             Description = "Complaint has been escalated to a higher level",
                             DisplayOrder = 4,
                             IconClass = "bi-arrow-up-circle",
@@ -3511,14 +3520,14 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Escalated",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5396)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8338)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000005"),
                             Code = "PENDING_INFO",
                             ColorCode = "#FFC107",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5399),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8341),
                             Description = "Complaint is awaiting information from the complainant",
                             DisplayOrder = 5,
                             IconClass = "bi-question-circle",
@@ -3527,14 +3536,14 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Pending Info",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5399)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8341)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000006"),
                             Code = "RESOLVED",
                             ColorCode = "#4CAF50",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5401),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8344),
                             Description = "Complaint has been resolved",
                             DisplayOrder = 6,
                             IconClass = "bi-check-circle",
@@ -3543,14 +3552,14 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Resolved",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5401)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8344)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000007"),
                             Code = "CLOSED",
                             ColorCode = "#607D8B",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5404),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8347),
                             Description = "Complaint has been closed (final state)",
                             DisplayOrder = 7,
                             IconClass = "bi-lock",
@@ -3559,14 +3568,14 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsFinal = true,
                             IsSystem = true,
                             Name = "Closed",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5405)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8347)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000008"),
                             Code = "REJECTED",
                             ColorCode = "#F44336",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5408),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8350),
                             Description = "Complaint has been rejected/dismissed",
                             DisplayOrder = 8,
                             IconClass = "bi-x-circle",
@@ -3575,14 +3584,14 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsFinal = true,
                             IsSystem = true,
                             Name = "Rejected",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5409)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8350)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000009"),
                             Code = "REOPENED",
                             ColorCode = "#E91E63",
-                            CreatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5410),
+                            CreatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8353),
                             Description = "Complaint has been reopened after closure",
                             DisplayOrder = 9,
                             IconClass = "bi-arrow-repeat",
@@ -3591,7 +3600,7 @@ namespace ComplaintManagement.Infrastructure.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Reopened",
-                            UpdatedAt = new DateTime(2025, 11, 17, 4, 14, 8, 985, DateTimeKind.Utc).AddTicks(5411)
+                            UpdatedAt = new DateTime(2025, 12, 8, 20, 22, 10, 440, DateTimeKind.Utc).AddTicks(8353)
                         });
                 });
 

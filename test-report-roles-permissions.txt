@@ -1,0 +1,49 @@
+═══════════════════════════════════════════════════════════════
+ROLE & PERMISSION MANAGEMENT - COMPREHENSIVE TEST REPORT
+Date: 2025-12-26T17:29:29.000Z
+═══════════════════════════════════════════════════════════════
+
+SUMMARY:
+  ✅ Passed: 1
+  ❌ Issues: 10
+  📸 Screenshots: 12
+
+PASSED TESTS:
+  1. No console errors
+
+
+ISSUES FOUND:
+
+1. [CRITICAL] Login
+   Description: Unable to login to the application
+
+2. [MINOR] Page Load - Info Banner
+   Description: Info banner explaining roles & permissions is missing
+
+3. [MINOR] Page Load - Active Toggle
+   Description: "Show Active Only" toggle is missing
+
+4. [CRITICAL] Page Load - Role Cards
+   Description: No role cards found on the page
+
+5. [CRITICAL] Create Role - Button
+   Description: Create/Add Role button is not available on the page
+   Recommendation: Add a button to create new roles
+
+6. [CRITICAL] Manage Permissions - Link
+   Description: No permission links found on role cards (e.g., "X granted")
+
+7. [MAJOR] Edit Role - Button
+   Description: No Edit button found on non-system roles
+
+8. [MAJOR] Delete Role - Button
+   Description: No Delete button found on custom roles
+
+9. [MAJOR] Search - Functionality
+   Description: Search does not filter results correctly
+
+10. [MINOR] Filter - Active Toggle
+   Description: Show Active Only toggle not found
+
+
+Screenshot Directory: C:\Users\Navin Chandra\Pictures\Complaint management system\test-screenshots\roles-permissions-manual

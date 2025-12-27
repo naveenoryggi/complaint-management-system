@@ -1,282 +1,335 @@
-<div class="container-fluid mt-4">
-  <div class="row mb-3">
-    <div class="col">
-      <h2>Complaint Information Settings</h2>
-      <p class="text-muted">Configure what complainant information is visible to handlers, management, and in reports</p>
+<div class="complaint-info-settings">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Complaint Information Settings</h1>
+      <p class="page-description">
+        Configure what complainant information is visible to handlers, management, and in reports. Control data privacy and retention policies centrally.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-secondary" (click)="onReset()" [disabled]="saving || !hasChanges()">
+        Reset Defaults
+      </button>
+      <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="saving || !hasChanges()">
+        <span class="material-icons-round" *ngIf="!saving">save</span>
+        <span class="spinner-small" *ngIf="saving"></span>
+        {{ saving ? 'Saving...' : 'Save Changes' }}
+      </button>
     </div>
   </div>
 
-  <!-- Loading Spinner -->
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-    <p class="mt-2">Loading settings...</p>
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading settings...</p>
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="error && !loading" class="alert alert-danger alert-dismissible fade show" role="alert">
-    <i class="bi bi-exclamation-triangle"></i> {{ error }}
-    <button type="button" class="btn-close" (click)="error = null"></button>
+  <div class="alert alert-error" *ngIf="error && !loading">
+    <span class="material-icons-round">error</span>
+    <span>{{ error }}</span>
+    <button type="button" class="alert-close" (click)="error = null">
+      <span class="material-icons-round">close</span>
+    </button>
   </div>
 
   <!-- Success Message -->
-  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="bi bi-check-circle"></i> {{ successMessage }}
-    <button type="button" class="btn-close" (click)="successMessage = null"></button>
+  <div class="alert alert-success" *ngIf="successMessage">
+    <span class="material-icons-round">check_circle</span>
+    <span>{{ successMessage }}</span>
+    <button type="button" class="alert-close" (click)="successMessage = null">
+      <span class="material-icons-round">close</span>
+    </button>
   </div>
 
   <!-- Settings Form -->
-  <form [formGroup]="settingsForm" (ngSubmit)="onSave()" *ngIf="!loading">
+  <form [formGroup]="settingsForm" *ngIf="!loading">
     <!-- Handler Visibility Settings -->
-    <div class="card mb-3">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">
-          <i class="bi bi-people"></i> Handler Visibility Settings
-        </h5>
-        <div class="btn-group btn-group-sm">
-          <button type="button" class="btn btn-outline-primary" (click)="toggleAllHandlerSettings(true)">
+    <section class="settings-section">
+      <div class="section-header">
+        <div class="section-title">
+          <span class="material-icons-round section-icon">visibility</span>
+          <div>
+            <h2>Handler Visibility Settings</h2>
+            <p>Control what information complaint handlers can see.</p>
+          </div>
+        </div>
+        <div class="section-actions">
+          <button type="button" class="action-link primary" (click)="toggleAllHandlerSettings(true)">
             Enable All
           </button>
-          <button type="button" class="btn btn-outline-secondary" (click)="toggleAllHandlerSettings(false)">
+          <span class="divider">|</span>
+          <button type="button" class="action-link" (click)="toggleAllHandlerSettings(false)">
             Disable All
           </button>
         </div>
       </div>
-      <div class="card-body">
-        <p class="text-muted">Control what complainant information complaint handlers can see</p>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="showEmployeeCodeToHandlers" formControlName="showEmployeeCodeToHandlers">
-              <label class="form-check-label" for="showEmployeeCodeToHandlers">
-                Show Employee Code
-              </label>
-            </div>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="showEmailToHandlers" formControlName="showEmailToHandlers">
-              <label class="form-check-label" for="showEmailToHandlers">
-                Show Email Address
-              </label>
-            </div>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="showPhoneToHandlers" formControlName="showPhoneToHandlers">
-              <label class="form-check-label" for="showPhoneToHandlers">
-                Show Phone Number
-              </label>
-            </div>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="showBranchToHandlers" formControlName="showBranchToHandlers">
-              <label class="form-check-label" for="showBranchToHandlers">
-                Show Branch Information
-              </label>
-            </div>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="showDepartmentToHandlers" formControlName="showDepartmentToHandlers">
-              <label class="form-check-label" for="showDepartmentToHandlers">
-                Show Department Information
-              </label>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="showSectionToHandlers" formControlName="showSectionToHandlers">
-              <label class="form-check-label" for="showSectionToHandlers">
-                Show Section Information
-              </label>
-            </div>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="showJobTitleToHandlers" formControlName="showJobTitleToHandlers">
-              <label class="form-check-label" for="showJobTitleToHandlers">
-                Show Job Title
-              </label>
-            </div>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="showManagerDetailsToHandlers" formControlName="showManagerDetailsToHandlers">
-              <label class="form-check-label" for="showManagerDetailsToHandlers">
-                Show Manager Details
-              </label>
-            </div>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="showPreviousComplaintsToHandlers" formControlName="showPreviousComplaintsToHandlers">
-              <label class="form-check-label" for="showPreviousComplaintsToHandlers">
-                Show Previous Complaints History
-              </label>
-            </div>
-          </div>
+
+      <div class="settings-grid">
+        <div class="setting-item">
+          <span class="setting-label">Show Employee Code</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="showEmployeeCodeToHandlers" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Show Email Address</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="showEmailToHandlers" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Show Phone Number</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="showPhoneToHandlers" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Show Branch Information</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="showBranchToHandlers" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Show Department Information</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="showDepartmentToHandlers" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Show Section Information</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="showSectionToHandlers" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Show Job Title</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="showJobTitleToHandlers" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Show Manager Details</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="showManagerDetailsToHandlers" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item full-width">
+          <span class="setting-label">Show Previous Complaints History</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="showPreviousComplaintsToHandlers" />
+            <span class="toggle-slider"></span>
+          </label>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Management Visibility Settings -->
-    <div class="card mb-3">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">
-          <i class="bi bi-person-badge"></i> Management Visibility Settings
-        </h5>
-        <div class="btn-group btn-group-sm">
-          <button type="button" class="btn btn-outline-primary" (click)="toggleAllManagementSettings(true)">
+    <section class="settings-section">
+      <div class="section-header">
+        <div class="section-title">
+          <span class="material-icons-round section-icon">admin_panel_settings</span>
+          <div>
+            <h2>Management Visibility Settings</h2>
+            <p>Extended information visible only to management level users.</p>
+          </div>
+        </div>
+        <div class="section-actions">
+          <button type="button" class="action-link primary" (click)="toggleAllManagementSettings(true)">
             Enable All
           </button>
-          <button type="button" class="btn btn-outline-secondary" (click)="toggleAllManagementSettings(false)">
+          <span class="divider">|</span>
+          <button type="button" class="action-link" (click)="toggleAllManagementSettings(false)">
             Disable All
           </button>
         </div>
       </div>
-      <div class="card-body">
-        <p class="text-muted">Extended information visible only to management level users</p>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="showEmployeeAddressToManagement" formControlName="showEmployeeAddressToManagement">
-              <label class="form-check-label" for="showEmployeeAddressToManagement">
-                Show Employee Address
-              </label>
-            </div>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="showEmergencyContactToManagement" formControlName="showEmergencyContactToManagement">
-              <label class="form-check-label" for="showEmergencyContactToManagement">
-                Show Emergency Contact
-              </label>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="showPerformanceMetricsToManagement" formControlName="showPerformanceMetricsToManagement">
-              <label class="form-check-label" for="showPerformanceMetricsToManagement">
-                Show Performance Metrics
-              </label>
-            </div>
+
+      <div class="settings-grid">
+        <div class="setting-item">
+          <span class="setting-label">Show Employee Address</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="showEmployeeAddressToManagement" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Show Emergency Contact</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="showEmergencyContactToManagement" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item full-width">
+          <span class="setting-label">Show Performance Metrics</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="showPerformanceMetricsToManagement" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Privacy & Data Retention Settings -->
+    <section class="settings-section">
+      <div class="section-header">
+        <div class="section-title">
+          <span class="material-icons-round section-icon">security</span>
+          <div>
+            <h2>Privacy & Data Retention Settings</h2>
+            <p>Configure how personal information is handled in the system.</p>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Privacy Settings -->
-    <div class="card mb-3">
-      <div class="card-header">
-        <h5 class="mb-0">
-          <i class="bi bi-shield-lock"></i> Privacy & Data Retention Settings
-        </h5>
-      </div>
-      <div class="card-body">
-        <p class="text-muted">Configure how personal information is handled in the system</p>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="maskPersonalInfoInLogs" formControlName="maskPersonalInfoInLogs">
-              <label class="form-check-label" for="maskPersonalInfoInLogs">
-                Mask Personal Information in System Logs
-              </label>
-              <small class="text-muted d-block">Emails and phone numbers will be partially hidden in logs</small>
+      <div class="privacy-settings">
+        <div class="checkbox-item">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="maskPersonalInfoInLogs" />
+            <span class="checkbox-custom"></span>
+            <div class="checkbox-content">
+              <span class="checkbox-title">Mask Personal Information in System Logs</span>
+              <span class="checkbox-description">Emails and phone numbers will be partially hidden in system-generated logs.</span>
             </div>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="redactInfoAfterClosure" formControlName="redactInfoAfterClosure">
-              <label class="form-check-label" for="redactInfoAfterClosure">
-                Redact Personal Info After Complaint Closure
-              </label>
-              <small class="text-muted d-block">Contact details will be removed after resolution</small>
+          </label>
+        </div>
+
+        <div class="checkbox-item">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="redactInfoAfterClosure" />
+            <span class="checkbox-custom"></span>
+            <div class="checkbox-content">
+              <span class="checkbox-title">Redact Personal Info After Complaint Closure</span>
+              <span class="checkbox-description">Contact details will be removed automatically after the case is marked as resolved.</span>
             </div>
-          </div>
-          <div class="col-md-6">
-            <div class="mb-3">
-              <label for="dataRetentionDays" class="form-label">
-                Data Retention Period (Days)
-              </label>
+          </label>
+        </div>
+
+        <div class="retention-setting">
+          <label class="retention-label" for="dataRetentionDays">Data Retention Period (Days)</label>
+          <div class="retention-input-group">
+            <div class="input-with-suffix">
               <input
                 type="number"
-                class="form-control"
                 id="dataRetentionDays"
                 formControlName="dataRetentionDays"
+                class="form-control"
                 min="0"
-                placeholder="0 = Keep indefinitely">
-              <small class="text-muted">
-                Number of days to retain complaint data. 0 means keep indefinitely.
-              </small>
+                placeholder="365"
+              />
+              <span class="input-suffix">days</span>
             </div>
+            <p class="retention-help">
+              <span class="material-icons-round">info</span>
+              Number of days to retain complaint data. 0 means keep indefinitely.
+            </p>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Report Settings -->
-    <div class="card mb-3">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">
-          <i class="bi bi-file-earmark-text"></i> Report Settings
-        </h5>
-        <div class="btn-group btn-group-sm">
-          <button type="button" class="btn btn-outline-primary" (click)="toggleAllReportSettings(true)">
+    <section class="settings-section">
+      <div class="section-header">
+        <div class="section-title">
+          <span class="material-icons-round section-icon">description</span>
+          <div>
+            <h2>Report Settings</h2>
+            <p>Configure what information to include in exported reports.</p>
+          </div>
+        </div>
+        <div class="section-actions">
+          <button type="button" class="action-link primary" (click)="toggleAllReportSettings(true)">
             Include All
           </button>
-          <button type="button" class="btn btn-outline-secondary" (click)="toggleAllReportSettings(false)">
+          <span class="divider">|</span>
+          <button type="button" class="action-link" (click)="toggleAllReportSettings(false)">
             Exclude All
           </button>
         </div>
       </div>
-      <div class="card-body">
-        <p class="text-muted">Configure what information to include in exported reports</p>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="includeEmployeeCodeInReports" formControlName="includeEmployeeCodeInReports">
-              <label class="form-check-label" for="includeEmployeeCodeInReports">
-                Include Employee Code
-              </label>
-            </div>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="includeEmailInReports" formControlName="includeEmailInReports">
-              <label class="form-check-label" for="includeEmailInReports">
-                Include Email Address
-              </label>
-            </div>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="includePhoneInReports" formControlName="includePhoneInReports">
-              <label class="form-check-label" for="includePhoneInReports">
-                Include Phone Number
-              </label>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="maskEmailInReports" formControlName="maskEmailInReports">
-              <label class="form-check-label" for="maskEmailInReports">
-                Mask Email in Reports
-              </label>
-              <small class="text-muted d-block">Show as u***@example.com</small>
-            </div>
-            <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="maskPhoneInReports" formControlName="maskPhoneInReports">
-              <label class="form-check-label" for="maskPhoneInReports">
-                Mask Phone in Reports
-              </label>
-              <small class="text-muted d-block">Show as +1234***890</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Action Buttons -->
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <span class="text-muted" *ngIf="hasChanges()">
-              <i class="bi bi-info-circle"></i> You have unsaved changes
-            </span>
+      <div class="settings-grid">
+        <div class="setting-item">
+          <span class="setting-label">Include Employee Code</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="includeEmployeeCodeInReports" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Include Email Address</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="includeEmailInReports" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Include Phone Number</span>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="includePhoneInReports" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item with-description">
+          <div class="setting-content">
+            <span class="setting-label">Mask Email in Reports</span>
+            <span class="setting-description">Show as u***&#64;example.com</span>
           </div>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-secondary" (click)="onReset()" [disabled]="saving || !hasChanges()">
-              <i class="bi bi-arrow-counterclockwise"></i> Reset
-            </button>
-            <button type="submit" class="btn btn-primary" [disabled]="saving || !hasChanges()">
-              <span *ngIf="saving" class="spinner-border spinner-border-sm me-1"></span>
-              <i class="bi bi-save" *ngIf="!saving"></i> {{ saving ? 'Saving...' : 'Save Settings' }}
-            </button>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="maskEmailInReports" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item with-description">
+          <div class="setting-content">
+            <span class="setting-label">Mask Phone in Reports</span>
+            <span class="setting-description">Show as +1234***890</span>
           </div>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="maskPhoneInReports" />
+            <span class="toggle-slider"></span>
+          </label>
         </div>
       </div>
+    </section>
+
+    <!-- Unsaved Changes Indicator -->
+    <div class="unsaved-indicator" *ngIf="hasChanges()">
+      <span class="material-icons-round">info</span>
+      <span>You have unsaved changes</span>
     </div>
   </form>
+
+  <!-- Mobile Save Button -->
+  <div class="mobile-save-bar" *ngIf="!loading && hasChanges()">
+    <button type="button" class="btn btn-primary btn-full" (click)="onSave()" [disabled]="saving">
+      <span class="material-icons-round" *ngIf="!saving">save</span>
+      <span class="spinner-small" *ngIf="saving"></span>
+      {{ saving ? 'Saving...' : 'Save Changes' }}
+    </button>
+  </div>
 </div>

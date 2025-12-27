@@ -8,6 +8,8 @@ export interface DashboardPreferences {
   showPercentages: boolean;
   autoRefreshInterval: number;
   dateRangeDays: number;
+  startDate?: string;
+  endDate?: string;
   theme?: string;
   widgetConfig?: string;
   createdAt: Date;
@@ -44,6 +46,9 @@ export interface DashboardStatistics {
   averageResolutionTime?: number;
   dateRangeDays: number;
   generatedAt: Date;
+
+  // Customer response tracking
+  waitingForResponseCount?: number;  // Complaints with customer replies awaiting handler response
 }
 
 // Save Dashboard Preferences Request

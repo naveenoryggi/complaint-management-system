@@ -1,49 +1,28 @@
 <div class="complaints-page">
-  <!-- Header -->
-  <header class="page-header">
-    <div class="header-content">
-      <div class="logo-nav">
-        <div class="logo" (click)="goHome()">
-          <img src="assets/images/logo.svg" alt="Company Logo" onerror="this.style.display='none'">
-          <h2>Updated Company Name</h2>
-        </div>
-        <nav class="main-nav">
-          <span class="nav-item" (click)="goHome()">Dashboard</span>
-          <span class="nav-item active">All Complaints</span>
-          <span class="nav-item" routerLink="/reports">Reports</span>
-          <div class="nav-dropdown">
-            <button class="nav-item dropdown-toggle">
-              Admin Panel <i class="fa-solid fa-chevron-down"></i>
-            </button>
-          </div>
-        </nav>
-      </div>
-      <div class="header-actions">
-        <div class="search-box">
-          <input type="text" placeholder="Search complaints..." [(ngModel)]="searchTerm" (keyup.enter)="onFilterChange()">
-          <button class="search-btn" (click)="onFilterChange()">
-            <i class="fa-solid fa-search"></i>
-          </button>
-        </div>
-        <button class="notification-btn">
-          <i class="fa-regular fa-bell"></i>
-          <span class="badge">99+</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
   <!-- Main Content -->
   <main class="main-content">
     <div class="content-wrapper">
       <!-- Page Title Row -->
       <div class="page-title-row">
         <div class="title-section">
-          <h1>All Complaints</h1>
-          <p class="subtitle">Manage and track all customer complaints</p>
+          <h1>{{ getPageTitle() }}</h1>
+          <p class="subtitle">{{ getPageSubtitle() }}</p>
         </div>
         <button class="btn-primary" (click)="createComplaint()">
           <i class="fa-solid fa-plus"></i> Create New Complaint
+        </button>
+      </div>
+
+      <!-- Quick Filter Tabs -->
+      <div class="quick-filter-tabs">
+        <button class="filter-tab" [class.active]="quickFilter === 'all'" (click)="setQuickFilter('all')">
+          <i class="fa-solid fa-list"></i> All Complaints
+        </button>
+        <button class="filter-tab" [class.active]="quickFilter === 'waitingResponse'" (click)="setQuickFilter('waitingResponse')">
+          <i class="fa-solid fa-envelope-open-text"></i> Waiting for Response
+        </button>
+        <button class="filter-tab" [class.active]="quickFilter === 'unassigned'" (click)="setQuickFilter('unassigned')">
+          <i class="fa-solid fa-user-clock"></i> Unassigned
         </button>
       </div>
 
@@ -136,8 +115,16 @@
             <tbody>
               <tr *ngFor="let complaint of complaints; trackBy: trackComplaintBy"
                   (click)="viewComplaint(complaint.id)"
-                  class="complaint-row">
-                <td class="complaint-id">#{{ complaint.complaintNumber }}</td>
+                  class="complaint-row"
+                  [class.has-customer-response]="complaint.hasCustomerResponse">
+                <td class="complaint-id">
+                  <span class="id-with-indicator">
+                    <span class="email-indicator" *ngIf="complaint.hasCustomerResponse" title="Customer has replied - awaiting response">
+                      <i class="fa-solid fa-envelope"></i>
+                    </span>
+                    #{{ complaint.complaintNumber }}
+                  </span>
+                </td>
                 <td class="complaint-subject">{{ complaint.title }}</td>
                 <td class="complaint-customer">{{ complaint.complainantName }}</td>
                 <td class="complaint-handler">{{ complaint.assignedToName || 'Unassigned' }}</td>

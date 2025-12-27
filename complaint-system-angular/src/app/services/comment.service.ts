@@ -15,6 +15,7 @@ export interface CreateCommentRequest {
   complaintId: string;
   comment: string;
   isInternal: boolean;
+  mentionedUserIds?: string[];  // User IDs to notify about this comment
 }
 
 @Injectable({
@@ -32,7 +33,8 @@ export class CommentService {
   addComment(request: CreateCommentRequest): Observable<ApiResponse<Comment>> {
     return this.http.post<ApiResponse<Comment>>(`${this.apiUrl}/${request.complaintId}/comments`, {
       comment: request.comment,
-      isInternal: request.isInternal
+      isInternal: request.isInternal,
+      mentionedUserIds: request.mentionedUserIds
     });
   }
 }

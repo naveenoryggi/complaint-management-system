@@ -1,212 +1,502 @@
 <!DOCTYPE html>
-<html class="light" lang="en"><head>
+<html lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Submit a New Complaint - OryggiTech</title>
+<title>Escalation Management</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#135bec",
+              "background-light": "#f8fafc", 
+              "surface-light": "#ffffff",
+              "surface-highlight": "#f1f5f9",
+              "text-main": "#0f172a",
+              "text-muted": "#64748b",
+              "border-light": "#e2e8f0",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
 <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
         .material-symbols-outlined {
-            font-variation-settings:
-            'FILL' 0,
-            'wght' 400,
-            'GRAD' 0,
-            'opsz' 24
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px; 
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
         }
     </style>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#005A9C",
-                        "background-light": "#F9FAFB",
-                        "background-dark": "#1F2937",
-                        "text-light": "#1F2937",
-                        "text-dark": "#F9FAFB",
-                        "muted-light": "#6B7280",
-                        "muted-dark": "#9CA3AF"
-                    },
-                    fontFamily: {
-                        "display": ["Manrope", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.5rem",
-                        "lg": "0.75rem",
-                        "xl": "1rem",
-                        "full": "9999px"
-                    },
-                },
-            },
-        }
-    </script>
 </head>
-<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
-<div class="relative flex min-h-screen w-full flex-col">
-<header class="sticky top-0 z-10 w-full border-b border-slate-200/80 dark:border-slate-800/80 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
-<div class="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-<div class="flex items-center gap-4">
-<svg class="text-primary h-6 w-6" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-<path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z" fill="currentColor"></path>
+<body class="bg-background-light text-text-main min-h-screen flex flex-col overflow-x-hidden">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light px-6 lg:px-10 py-3 bg-surface-light z-50 shadow-sm">
+<div class="flex items-center gap-4 text-text-main">
+<div class="size-8 text-primary">
+<svg class="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M44 24C44 35.0457 35.0457 44 24 44C12.9543 44 4 35.0457 4 24C4 12.9543 12.9543 4 24 4C35.0457 4 44 12.9543 44 24Z" fill="currentColor" fill-opacity="0.1"></path>
+<path d="M24 8L36 30H12L24 8Z" fill="currentColor"></path>
 </svg>
-<h2 class="text-lg font-bold">OryggiTech</h2>
 </div>
-<div class="flex items-center gap-6">
-<nav class="hidden items-center gap-6 text-sm font-medium md:flex">
-<a class="text-muted-light dark:text-muted-dark hover:text-primary dark:hover:text-white transition-colors" href="#">Dashboard</a>
-<a class="text-primary dark:text-white font-semibold" href="#">My Complaints</a>
-</nav>
-<button class="flex h-10 min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary px-5 text-sm font-bold text-white transition-opacity hover:opacity-90">
-<span class="truncate">Logout</span>
+<h2 class="text-text-main text-lg font-bold leading-tight tracking-[-0.015em]">Admin Console</h2>
+</div>
+<div class="hidden lg:flex flex-1 justify-end gap-8">
+<div class="flex items-center gap-9">
+<a class="text-text-muted hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Dashboard</a>
+<a class="text-text-muted hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Complaints</a>
+<a class="text-primary text-sm font-medium leading-normal" href="#">Configuration</a>
+<a class="text-text-muted hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Reports</a>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-2 ring-gray-100" data-alt="User profile avatar showing a smiling professional" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBbDke3Z_Zyg3t15bk4r20fNruGf3DOiShfUH4iEaBTtb1npBea0rkfoZJuAWpjyitGG_P-aeE-c_yyGCokEAEV5oTa4EWiZSwh7xxDjALvr0VeuMUETc4hzz3kjosDFQBaqMHMxSTD1ZEeLzEs-4Q71nPGabV-OMph5cQawwnJf36mHXhbzLZ6MNBc_gkU_eRKZrJ-TmaaTjcE6cef_aBzupK21ifYt9OOgZb0JcoCAyNtcY5YDqcUs7_Ng9Ep5RqCuLqycAsmOU8");'></div>
+</div>
+<div class="lg:hidden text-text-main">
+<span class="material-symbols-outlined !text-3xl">menu</span>
+</div>
+</header>
+<main class="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-10 flex flex-col gap-6">
+<div class="flex flex-wrap gap-2 items-center text-sm md:text-base">
+<a class="text-text-muted hover:text-primary font-medium transition-colors" href="#">Home</a>
+<span class="text-text-muted font-medium">/</span>
+<a class="text-text-muted hover:text-primary font-medium transition-colors" href="#">Configuration</a>
+<span class="text-text-muted font-medium">/</span>
+<span class="text-text-main font-medium">Escalation Management</span>
+</div>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-border-light">
+<div class="flex flex-col gap-3 max-w-2xl">
+<h1 class="text-text-main text-3xl md:text-4xl font-black leading-tight tracking-tight">Escalation Rules</h1>
+<p class="text-text-muted text-base font-normal leading-relaxed">Define and manage automated escalation workflows for unresolved complaints based on time, priority, and department logic.</p>
+</div>
+<button class="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-primary hover:bg-primary/90 text-white text-sm font-bold shadow-lg shadow-primary/20 transition-all active:scale-95 whitespace-nowrap">
+<span class="material-symbols-outlined !text-lg">add</span>
+<span>Add Escalation Rule</span>
+</button>
+</div>
+<div class="flex flex-col lg:flex-row gap-4 lg:items-center">
+<div class="flex-1">
+<div class="flex w-full items-stretch rounded-lg h-12 bg-white border border-border-light shadow-sm focus-within:border-primary transition-colors">
+<div class="text-text-muted flex items-center justify-center pl-4 pr-2">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="w-full bg-transparent border-none text-text-main focus:ring-0 placeholder:text-slate-400 text-base h-full" placeholder="Search rules by name, ID, or action..."/>
+</div>
+</div>
+<div class="flex flex-wrap gap-3">
+<button class="group flex h-10 items-center gap-x-2 rounded-lg bg-white hover:bg-gray-50 pl-4 pr-3 transition-colors border border-border-light shadow-sm hover:border-gray-300">
+<p class="text-slate-700 text-sm font-medium">Status: All</p>
+<span class="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors">expand_more</span>
+</button>
+<button class="group flex h-10 items-center gap-x-2 rounded-lg bg-white hover:bg-gray-50 pl-4 pr-3 transition-colors border border-border-light shadow-sm hover:border-gray-300">
+<p class="text-slate-700 text-sm font-medium">Trigger: All</p>
+<span class="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors">expand_more</span>
+</button>
+<button class="group flex h-10 items-center gap-x-2 rounded-lg bg-white hover:bg-gray-50 pl-4 pr-3 transition-colors border border-border-light shadow-sm hover:border-gray-300">
+<p class="text-slate-700 text-sm font-medium">Priority: All</p>
+<span class="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors">expand_more</span>
+</button>
+<button class="flex h-10 w-10 items-center justify-center rounded-lg bg-white hover:bg-gray-50 text-text-muted hover:text-primary transition-colors border border-border-light shadow-sm hover:border-gray-300" title="Reset Filters">
+<span class="material-symbols-outlined">restart_alt</span>
 </button>
 </div>
 </div>
-</header>
-<main class="flex-1">
-<div class="container mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
-<div class="mb-10">
-<h1 class="text-4xl font-black tracking-tighter text-text-light dark:text-text-dark">Submit a New Complaint</h1>
-<p class="mt-2 text-muted-light dark:text-muted-dark">Please fill out the form below to submit your complaint. We will get back to you as soon as possible.</p>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8 mt-2">
+<div class="xl:col-span-2 flex flex-col gap-4">
+<div class="flex items-center justify-between px-2">
+<span class="text-xs font-semibold uppercase tracking-wider text-text-muted">4 Active Rules</span>
+<span class="text-xs text-text-muted flex items-center gap-1">
+<span class="material-symbols-outlined !text-sm">sort</span> Sorted by Priority
+                    </span>
 </div>
-<div class="space-y-12">
-<section>
-<h2 class="text-2xl font-bold tracking-tight">Complaint Details</h2>
-<div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
-<div class="sm:col-span-2">
-<label class="block text-sm font-medium leading-6" for="complaint-title">Title</label>
-<div class="mt-2">
-<input class="block w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 py-2.5 px-4 text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-700 placeholder:text-muted-light dark:placeholder:text-muted-dark focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" id="complaint-title" name="complaint-title" placeholder="e.g., Defective Product Received" type="text"/>
+<div class="group relative flex flex-col gap-0 rounded-xl bg-white border border-border-light hover:border-primary/40 transition-all shadow-sm hover:shadow-md overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
+<div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex items-start gap-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-500">
+<span class="material-symbols-outlined !text-2xl">timer_off</span>
 </div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h3 class="text-text-main text-lg font-bold">Critical SLA Breach</h3>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-green-100 text-green-700 border border-green-200">Active</span>
 </div>
-<div class="col-span-full">
-<label class="block text-sm font-medium leading-6" for="description">Description</label>
-<div class="mt-2">
-<textarea class="block w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 py-2.5 px-4 text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-700 placeholder:text-muted-light dark:placeholder:text-muted-dark focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" id="description" name="description" placeholder="Please describe the issue in detail..." rows="5"></textarea>
-</div>
-</div>
-<div class="sm:col-span-1">
-<label class="block text-sm font-medium leading-6" for="category">Category</label>
-<div class="mt-2">
-<select class="block w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 py-2.5 px-3 text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-700 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" id="category" name="category">
-<option>Select a category</option>
-<option>Product Defect</option>
-<option>Service Issue</option>
-<option>Billing Error</option>
-<option>Other</option>
-</select>
+<p class="text-text-muted text-sm">Triggers when a High Priority ticket is untouched for 4 hours.</p>
 </div>
 </div>
-<div class="sm:col-span-1">
-<label class="block text-sm font-medium leading-6" for="priority-level">Priority Level</label>
-<div class="mt-2">
-<select class="block w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 py-2.5 px-3 text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-700 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" id="priority-level" name="priority-level">
-<option>Select priority</option>
-<option>Low</option>
-<option>Medium</option>
-<option>High</option>
-<option>Urgent</option>
-</select>
-</div>
-</div>
-<div class="sm:col-span-2">
-<label class="block text-sm font-medium leading-6" for="tags">Tags <span class="text-muted-light dark:text-muted-dark">(Optional, comma-separated)</span></label>
-<div class="mt-2">
-<input class="block w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 py-2.5 px-4 text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-700 placeholder:text-muted-light dark:placeholder:text-muted-dark focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" id="tags" name="tags" placeholder="e.g., broken, shipping, refund" type="text"/>
-</div>
-</div>
-</div>
-</section>
-<section>
-<h2 class="text-2xl font-bold tracking-tight">Contact Information</h2>
-<div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
-<div class="sm:col-span-1">
-<label class="block text-sm font-medium leading-6" for="email">Email</label>
-<div class="mt-2">
-<input class="block w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 py-2.5 px-4 text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-700 placeholder:text-muted-light dark:placeholder:text-muted-dark focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" id="email" name="email" placeholder="you@example.com" type="email"/>
-</div>
-</div>
-<div class="sm:col-span-1">
-<label class="block text-sm font-medium leading-6" for="primary-phone">Primary Phone</label>
-<div class="mt-2">
-<input class="block w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 py-2.5 px-4 text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-700 placeholder:text-muted-light dark:placeholder:text-muted-dark focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" id="primary-phone" name="primary-phone" placeholder="(555) 123-4567" type="tel"/>
-</div>
-</div>
-<div class="sm:col-span-1">
-<label class="block text-sm font-medium leading-6" for="alternate-phone">Alternate Phone <span class="text-muted-light dark:text-muted-dark">(Optional)</span></label>
-<div class="mt-2">
-<input class="block w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 py-2.5 px-4 text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-700 placeholder:text-muted-light dark:placeholder:text-muted-dark focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" id="alternate-phone" name="alternate-phone" placeholder="(555) 987-6543" type="tel"/>
-</div>
-</div>
-<div class="sm:col-span-1">
-<label class="block text-sm font-medium leading-6" for="preferred-contact-method">Preferred Contact Method</label>
-<div class="mt-2">
-<select class="block w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 py-2.5 px-3 text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-700 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" id="preferred-contact-method" name="preferred-contact-method">
-<option>Select method</option>
-<option>Email</option>
-<option>Primary Phone</option>
-<option>Alternate Phone</option>
-</select>
-</div>
-</div>
-<div class="sm:col-span-1">
-<label class="block text-sm font-medium leading-6" for="branch">Branch</label>
-<div class="mt-2">
-<input class="block w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 py-2.5 px-4 text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-700 placeholder:text-muted-light dark:placeholder:text-muted-dark focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" id="branch" name="branch" placeholder="e.g., Headquarters" type="text"/>
-</div>
-</div>
-<div class="sm:col-span-1">
-<label class="block text-sm font-medium leading-6" for="department">Department</label>
-<div class="mt-2">
-<input class="block w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 py-2.5 px-4 text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-700 placeholder:text-muted-light dark:placeholder:text-muted-dark focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" id="department" name="department" placeholder="e.g., Customer Support" type="text"/>
-</div>
-</div>
-<div class="sm:col-span-1">
-<label class="block text-sm font-medium leading-6" for="section">Section <span class="text-muted-light dark:text-muted-dark">(Optional)</span></label>
-<div class="mt-2">
-<input class="block w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 py-2.5 px-4 text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-700 placeholder:text-muted-light dark:placeholder:text-muted-dark focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" id="section" name="section" placeholder="e.g., Technical Team" type="text"/>
-</div>
-</div>
-</div>
-</section>
-<section>
-<h2 class="text-2xl font-bold tracking-tight">Attachments</h2>
-<div class="mt-6 flex justify-center rounded-lg border border-dashed border-slate-900/25 dark:border-slate-50/25 px-6 py-10 bg-white/50 dark:bg-slate-800/20">
-<div class="text-center">
-<span aria-hidden="true" class="material-symbols-outlined mx-auto text-5xl text-muted-light dark:text-muted-dark">cloud_upload</span>
-<div class="mt-4 flex text-sm leading-6 text-muted-light dark:text-muted-dark">
-<label class="relative cursor-pointer rounded-md font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 dark:ring-offset-background-dark hover:text-primary/80" for="file-upload">
-<span>Upload a file</span>
-<input class="sr-only" id="file-upload" name="file-upload" type="file"/>
+<div class="flex items-center gap-3 md:pl-4 md:border-l md:border-border-light">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white hover:bg-gray-50 text-xs font-medium text-text-muted hover:text-primary transition-colors border border-border-light shadow-sm group" title="Simulate this rule">
+<span class="material-symbols-outlined !text-sm text-primary transition-colors">science</span>
+                            Test
+                        </button>
+<label class="inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
 </label>
-<p class="pl-1">or drag and drop</p>
-</div>
-<p class="text-xs leading-5 text-muted-light dark:text-muted-dark">PNG, JPG, PDF up to 10MB</p>
-</div>
-</div>
-</section>
-<section>
-<h2 class="text-2xl font-bold tracking-tight">Privacy Options</h2>
-<div class="mt-6 space-y-6">
-<div class="relative flex items-start gap-x-3">
-<div class="flex h-6 items-center">
-<input class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" id="anonymous-submission" name="anonymous-submission" type="checkbox"/>
-</div>
-<div class="text-sm leading-6">
-<label class="font-medium" for="anonymous-submission">Submit Anonymously</label>
-<p class="text-muted-light dark:text-muted-dark">If checked, your contact information will not be shared.</p>
+<button class="flex h-8 w-8 items-center justify-center rounded-full text-text-muted hover:bg-gray-100 hover:text-text-main transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
 </div>
 </div>
+<div class="bg-surface-highlight px-5 py-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 border-t border-border-light">
+<div>
+<p class="text-text-muted text-xs uppercase font-semibold mb-1">Trigger Condition</p>
+<div class="flex items-center gap-2 text-text-main text-sm font-medium">
+<span class="material-symbols-outlined text-primary !text-lg">schedule</span>
+<span>Time &gt; 4 Hours</span>
 </div>
-</section>
-<div class="mt-12 flex items-center justify-end gap-x-4 border-t border-slate-900/10 dark:border-slate-50/10 pt-6">
-<button class="text-sm font-semibold leading-6 text-muted-light dark:text-muted-dark hover:text-text-light dark:hover:text-text-dark" type="button">Cancel</button>
-<button class="rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary" type="submit">Submit Complaint</button>
+</div>
+<div>
+<p class="text-text-muted text-xs uppercase font-semibold mb-1">Action</p>
+<div class="flex items-center gap-2 text-text-main text-sm font-medium">
+<span class="material-symbols-outlined text-yellow-500 !text-lg">notification_important</span>
+<span>Notify: Dept. Head</span>
+</div>
+</div>
+<div class="flex items-center justify-start md:justify-end">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface-highlight bg-cover bg-center" data-alt="Avatar of assignee Sarah" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA9GOSNi5CBdS_gWDEeKZHGK8uRpjdLeqFAWHBZu3EnK1d2Sk6LlRtLGFa3aGUiO9cyzUKWvkuO7GV6T3ne0d1J8ZPLcFFMtLKW91EfhnDFMHSU-s4GCumKRU10YPpnAQ4Tg5WWzkry-uoslwn1IdB6v9mDIFOrFMYiwqnbtrBFkmx0tYehAwyzBWuZTPD_Qbty21FgCr2BpqkfiMMfD4ZUr_51kG3qSkanGyixjgnUT4FFmGTk3MKdSePc6GITnBtpf5Z3AL7oLjo');"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface-highlight bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">+3</div>
+</div>
+</div>
+</div>
+</div>
+<div class="group relative flex flex-col gap-0 rounded-xl bg-white border border-border-light hover:border-primary/40 transition-all shadow-sm hover:shadow-md overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500"></div>
+<div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex items-start gap-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-yellow-50 text-yellow-600">
+<span class="material-symbols-outlined !text-2xl">autorenew</span>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h3 class="text-text-main text-lg font-bold">Billing Dept Re-route</h3>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-green-100 text-green-700 border border-green-200">Active</span>
+</div>
+<p class="text-text-muted text-sm">Auto-assigns complex billing disputes to Tier 2 Support.</p>
+</div>
+</div>
+<div class="flex items-center gap-3 md:pl-4 md:border-l md:border-border-light">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white hover:bg-gray-50 text-xs font-medium text-text-muted hover:text-primary transition-colors border border-border-light shadow-sm group" title="Simulate this rule">
+<span class="material-symbols-outlined !text-sm text-primary transition-colors">science</span>
+                            Test
+                        </button>
+<label class="inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+<button class="flex h-8 w-8 items-center justify-center rounded-full text-text-muted hover:bg-gray-100 hover:text-text-main transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-highlight px-5 py-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 border-t border-border-light">
+<div>
+<p class="text-text-muted text-xs uppercase font-semibold mb-1">Trigger Condition</p>
+<div class="flex items-center gap-2 text-text-main text-sm font-medium">
+<span class="material-symbols-outlined text-primary !text-lg">sell</span>
+<span>Tag: "Dispute"</span>
+</div>
+</div>
+<div>
+<p class="text-text-muted text-xs uppercase font-semibold mb-1">Action</p>
+<div class="flex items-center gap-2 text-text-main text-sm font-medium">
+<span class="material-symbols-outlined text-purple-500 !text-lg">move_up</span>
+<span>Assign: Tier 2</span>
+</div>
+</div>
+<div class="flex items-center justify-start md:justify-end">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface-highlight bg-cover bg-center" data-alt="Avatar of team member Mike" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCjDV4q-W-Ck1a8btf7Yo6fyBDIYPSm1f6kuhZ9sWHY27KJ6LAiOdQxiSL7dLBfDiCWdJL3dvttBnpkoWi--AluPcrbndFVVsePjoBtggAXhS66j2aHw9QeGnArBVUW8Kt6W0A5KjoNg65XRORbIYKnj8UqegMx898BGvlCYu3UQOdJOa68F8AK5j8bfdMbG7W0UQO5EvkFcyIVuzNfohALvJan8kITmfDmlCZfcSgay-337Uwr5ldSmNvljqZx7F-vLl5SnI-Qasc');"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="group relative flex flex-col gap-0 rounded-xl bg-white border border-border-light hover:border-primary/40 transition-all shadow-sm hover:shadow-md overflow-hidden opacity-75 hover:opacity-100">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-gray-500"></div>
+<div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex items-start gap-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-gray-500">
+<span class="material-symbols-outlined !text-2xl">mark_email_read</span>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h3 class="text-text-main text-lg font-bold">Auto-Close Resolved</h3>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300">Inactive</span>
+</div>
+<p class="text-text-muted text-sm">Automatically closes tickets marked resolved after 7 days.</p>
+</div>
+</div>
+<div class="flex items-center gap-3 md:pl-4 md:border-l md:border-border-light">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white hover:bg-gray-50 text-xs font-medium text-text-muted hover:text-primary transition-colors border border-border-light shadow-sm group" title="Simulate this rule">
+<span class="material-symbols-outlined !text-sm text-primary transition-colors">science</span>
+                            Test
+                        </button>
+<label class="inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+<button class="flex h-8 w-8 items-center justify-center rounded-full text-text-muted hover:bg-gray-100 hover:text-text-main transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-highlight px-5 py-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 border-t border-border-light">
+<div>
+<p class="text-text-muted text-xs uppercase font-semibold mb-1">Trigger Condition</p>
+<div class="flex items-center gap-2 text-text-main text-sm font-medium">
+<span class="material-symbols-outlined text-primary !text-lg">event_available</span>
+<span>Status: "Resolved" &gt; 7d</span>
+</div>
+</div>
+<div>
+<p class="text-text-muted text-xs uppercase font-semibold mb-1">Action</p>
+<div class="flex items-center gap-2 text-text-main text-sm font-medium">
+<span class="material-symbols-outlined text-blue-500 !text-lg">archive</span>
+<span>Change Status: Closed</span>
+</div>
+</div>
+<div class="flex items-center justify-start md:justify-end">
+<span class="text-text-muted text-xs italic">System Rule</span>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-border-light">
+<div class="flex items-center justify-between mb-4 px-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-text-muted">history</span>
+<h3 class="text-text-main text-lg font-bold">Simulation History Log</h3>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white hover:bg-gray-50 text-xs font-medium text-text-muted hover:text-primary transition-colors border border-border-light shadow-sm group">
+<span class="material-symbols-outlined !text-sm text-text-muted group-hover:text-primary transition-colors">download</span>
+                            Export Log
+                        </button>
+<button class="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1">
+            View Full Audit Log
+            <span class="material-symbols-outlined !text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="rounded-xl bg-white border border-border-light overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-highlight text-xs uppercase text-text-muted border-b border-border-light">
+<th class="px-5 py-3 font-semibold whitespace-nowrap">Date &amp; Time</th>
+<th class="px-5 py-3 font-semibold whitespace-nowrap">Tester</th>
+<th class="px-5 py-3 font-semibold whitespace-nowrap">Rule Tested</th>
+<th class="px-5 py-3 font-semibold whitespace-nowrap">Input Parameters</th>
+<th class="px-5 py-3 font-semibold whitespace-nowrap">Outcome</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light text-sm">
+<tr class="group hover:bg-surface-highlight transition-colors">
+<td class="px-5 py-3 text-text-muted whitespace-nowrap">Oct 24, 10:42 AM</td>
+<td class="px-5 py-3 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-cover ring-1 ring-border-light" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBbDke3Z_Zyg3t15bk4r20fNruGf3DOiShfUH4iEaBTtb1npBea0rkfoZJuAWpjyitGG_P-aeE-c_yyGCokEAEV5oTa4EWiZSwh7xxDjALvr0VeuMUETc4hzz3kjosDFQBaqMHMxSTD1ZEeLzEs-4Q71nPGabV-OMph5cQawwnJf36mHXhbzLZ6MNBc_gkU_eRKZrJ-TmaaTjcE6cef_aBzupK21ifYt9OOgZb0JcoCAyNtcY5YDqcUs7_Ng9Ep5RqCuLqycAsmOU8");'></div>
+<span class="text-text-main text-xs">You</span>
+</div>
+</td>
+<td class="px-5 py-3 text-text-main font-medium whitespace-nowrap">Critical SLA Breach</td>
+<td class="px-5 py-3 whitespace-nowrap">
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] text-text-muted font-mono uppercase tracking-wide">Prio: High</span>
+<span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] text-text-muted font-mono uppercase tracking-wide">Idle: 5h</span>
+</div>
+</td>
+<td class="px-5 py-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-600 border border-green-200">
+<span class="material-symbols-outlined !text-sm">check_circle</span>
+                                Triggered
+                            </span>
+</td>
+</tr>
+<tr class="group hover:bg-surface-highlight transition-colors">
+<td class="px-5 py-3 text-text-muted whitespace-nowrap">Oct 24, 09:15 AM</td>
+<td class="px-5 py-3 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-cover ring-1 ring-border-light" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA9GOSNi5CBdS_gWDEeKZHGK8uRpjdLeqFAWHBZu3EnK1d2Sk6LlRtLGFa3aGUiO9cyzUKWvkuO7GV6T3ne0d1J8ZPLcFFMtLKW91EfhnDFMHSU-s4GCumKRU10YPpnAQ4Tg5WWzkry-uoslwn1IdB6v9mDIFOrFMYiwqnbtrBFkmx0tYehAwyzBWuZTPD_Qbty21FgCr2BpqkfiMMfD4ZUr_51kG3qSkanGyixjgnUT4FFmGTk3MKdSePc6GITnBtpf5Z3AL7oLjo");'></div>
+<span class="text-text-main text-xs">Sarah L.</span>
+</div>
+</td>
+<td class="px-5 py-3 text-text-main font-medium whitespace-nowrap">Billing Dept Re-route</td>
+<td class="px-5 py-3 whitespace-nowrap">
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] text-text-muted font-mono uppercase tracking-wide">Tag: Support</span>
+</div>
+</td>
+<td class="px-5 py-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200">
+<span class="material-symbols-outlined !text-sm">cancel</span>
+                                No Match
+                            </span>
+</td>
+</tr>
+<tr class="group hover:bg-surface-highlight transition-colors">
+<td class="px-5 py-3 text-text-muted whitespace-nowrap">Oct 23, 16:30 PM</td>
+<td class="px-5 py-3 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-cover ring-1 ring-border-light" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCjDV4q-W-Ck1a8btf7Yo6fyBDIYPSm1f6kuhZ9sWHY27KJ6LAiOdQxiSL7dLBfDiCWdJL3dvttBnpkoWi--AluPcrbndFVVsePjoBtggAXhS66j2aHw9QeGnArBVUW8Kt6W0A5KjoNg65XRORbIYKnj8UqegMx898BGvlCYu3UQOdJOa68F8AK5j8bfdMbG7W0UQO5EvkFcyIVuzNfohALvJan8kITmfDmlCZfcSgay-337Uwr5ldSmNvljqZx7F-vLl5SnI-Qasc");'></div>
+<span class="text-text-main text-xs">Mike R.</span>
+</div>
+</td>
+<td class="px-5 py-3 text-text-main font-medium whitespace-nowrap">Auto-Close Resolved</td>
+<td class="px-5 py-3 whitespace-nowrap">
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] text-text-muted font-mono uppercase tracking-wide">Status: Done</span>
+<span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] text-text-muted font-mono uppercase tracking-wide">Age: 8d</span>
+</div>
+</td>
+<td class="px-5 py-3 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-600 border border-green-200">
+<span class="material-symbols-outlined !text-sm">check_circle</span>
+                                Triggered
+                            </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="xl:col-span-1">
+<div class="sticky top-6 flex flex-col gap-6">
+<div class="rounded-xl bg-white border border-border-light p-6 shadow-sm relative overflow-hidden">
+<div class="absolute top-0 right-0 p-3 opacity-5">
+<span class="material-symbols-outlined text-9xl text-slate-900">science</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<div class="bg-primary/10 p-1.5 rounded-lg text-primary">
+<span class="material-symbols-outlined !text-xl">science</span>
+</div>
+<h3 class="text-text-main text-lg font-bold">Rule Simulator</h3>
+</div>
+</div>
+<p class="text-text-muted text-xs mb-4 leading-relaxed">Run a test to verify which escalation rules would trigger for a specific complaint scenario.</p>
+<div class="flex flex-col gap-3">
+<div class="bg-slate-50 p-3 rounded-lg border border-border-light space-y-3">
+<div class="flex items-center justify-between">
+<label class="text-text-muted text-xs font-medium">Priority Level</label>
+<span class="text-red-500 text-xs font-bold">High</span>
+</div>
+<div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+<div class="h-full bg-red-500 w-3/4 rounded-full"></div>
+</div>
+<div class="flex items-center justify-between mt-2">
+<label class="text-text-muted text-xs font-medium">Idle Time</label>
+<span class="text-text-main text-xs font-bold">4.5 Hours</span>
+</div>
+<input class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary" max="24" min="0" type="range" value="4.5"/>
+</div>
+<button class="flex items-center justify-center gap-2 h-9 w-full bg-white hover:bg-primary text-slate-700 hover:text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-all border border-border-light hover:border-primary hover:shadow-lg hover:shadow-primary/20 group mt-1">
+<span class="material-symbols-outlined group-hover:animate-pulse !text-lg">play_arrow</span>
+<span>Simulate Complaint</span>
+</button>
+<div class="flex flex-col gap-2 mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-green-600 !text-sm">check_circle</span>
+<span class="text-text-main text-xs font-bold">Predicted Outcome</span>
+</div>
+<div class="pl-6">
+<p class="text-text-muted text-[10px] uppercase font-bold mb-0.5">Matched Rule</p>
+<p class="text-text-main text-xs font-medium underline decoration-dashed decoration-slate-300 underline-offset-2">Critical SLA Breach</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="rounded-xl bg-white border border-border-light p-6 shadow-sm">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">info</span>
+<h3 class="text-text-main text-lg font-bold">How Escalations Work</h3>
+</div>
+<div class="relative pl-2">
+<div class="absolute left-2 top-2 bottom-4 w-px bg-gradient-to-b from-primary/50 to-transparent"></div>
+<div class="relative flex gap-4 mb-8">
+<div class="relative z-10 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white ring-2 ring-primary">
+<div class="h-2 w-2 rounded-full bg-primary"></div>
+</div>
+<div>
+<h4 class="text-text-main text-sm font-bold mb-1">1. Monitoring</h4>
+<p class="text-text-muted text-xs leading-relaxed">The system continuously monitors all open complaints against your active rules.</p>
+</div>
+</div>
+<div class="relative flex gap-4 mb-8">
+<div class="relative z-10 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white ring-2 ring-primary">
+<div class="h-2 w-2 rounded-full bg-primary"></div>
+</div>
+<div>
+<h4 class="text-text-main text-sm font-bold mb-1">2. Condition Check</h4>
+<p class="text-text-muted text-xs leading-relaxed">When a complaint matches a Trigger (e.g. time elapsed), the rule is flagged.</p>
+</div>
+</div>
+<div class="relative flex gap-4">
+<div class="relative z-10 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white ring-2 ring-primary">
+<div class="h-2 w-2 rounded-full bg-primary"></div>
+</div>
+<div>
+<h4 class="text-text-main text-sm font-bold mb-1">3. Automated Action</h4>
+<p class="text-text-muted text-xs leading-relaxed">The defined action executes immediately, notifying stakeholders or reassigning tickets.</p>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-border-light">
+<a class="text-primary text-sm font-medium hover:underline flex items-center gap-1" href="#">
+                                View Documentation <span class="material-symbols-outlined !text-sm">open_in_new</span>
+</a>
+</div>
+</div>
+<div class="rounded-xl bg-white border border-border-light p-6 shadow-sm">
+<h3 class="text-text-main text-base font-bold mb-4">Escalation Health</h3>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="text-text-muted">Rules Triggered (Today)</span>
+<span class="text-text-main font-bold">124</span>
+</div>
+<div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%] rounded-full"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="text-text-muted">SLA Breaches</span>
+<span class="text-red-500 font-bold">12</span>
+</div>
+<div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+<div class="h-full bg-red-500 w-[15%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
 </main>
-</div>
-
 </body></html>

@@ -7,16 +7,16 @@
 
   <!-- Error State -->
   <div *ngIf="hasError && !isLoading" class="error-state">
-    <i class="bi bi-exclamation-triangle"></i>
+    <i class="fa-solid fa-triangle-exclamation"></i>
     <p>{{ errorMessage }}</p>
     <button class="btn btn-sm btn-secondary" (click)="loadEmails()">
-      <i class="bi bi-arrow-clockwise"></i> Retry
+      <i class="fa-solid fa-rotate"></i> Retry
     </button>
   </div>
 
   <!-- Empty State -->
   <div *ngIf="!isLoading && !hasError && emails.length === 0" class="empty-state">
-    <i class="bi bi-inbox"></i>
+    <i class="fa-solid fa-inbox"></i>
     <p>No email messages for this complaint</p>
     <small class="text-muted">Email messages will appear here when they are sent or received</small>
   </div>
@@ -25,72 +25,16 @@
   <div *ngIf="!isLoading && !hasError && emails.length > 0" class="email-thread">
     <!-- Thread Header -->
     <div class="thread-header">
-      <div class="header-left">
-        <h4>
-          <i class="bi bi-envelope-open-text"></i>
-          Email Thread
-        </h4>
-        <div class="statistics">
-          <span class="stat-badge total">
-            <i class="bi bi-envelope"></i>
-            {{ totalCount }} total
-          </span>
-          <span class="stat-badge inbound">
-            <i class="bi bi-arrow-down-circle"></i>
-            {{ inboundCount }} received
-          </span>
-          <span class="stat-badge outbound">
-            <i class="bi bi-arrow-up-circle"></i>
-            {{ outboundCount }} sent
-          </span>
-        </div>
-      </div>
-      <div class="header-right">
-        <!-- Compose New Email Button -->
-        <button
-          class="btn-compose-new"
-          (click)="onComposeNewClick()"
-          title="Compose new email"
-          aria-label="Compose new email">
-          <i class="bi bi-plus-circle-fill"></i>
-          <span class="compose-text">New Email</span>
-        </button>
-
-        <div class="divider"></div>
-
-        <button
-          class="btn-icon"
-          (click)="toggleSortOrder()"
-          [title]="sortOrder === 'newest-first' ? 'Showing newest first' : 'Showing oldest first'"
-          [attr.aria-label]="sortOrder === 'newest-first' ? 'Sort oldest first' : 'Sort newest first'">
-          <i class="bi" [ngClass]="sortOrder === 'newest-first' ? 'bi-sort-down' : 'bi-sort-up'"></i>
-        </button>
-        <button
-          class="btn-icon"
-          (click)="expandAll()"
-          title="Expand all emails"
-          aria-label="Expand all emails">
-          <i class="bi bi-arrows-expand"></i>
-        </button>
-        <button
-          class="btn-icon"
-          (click)="collapseAll()"
-          title="Collapse all emails"
-          aria-label="Collapse all emails">
-          <i class="bi bi-arrows-collapse"></i>
-        </button>
-        <button
-          class="btn-icon"
-          (click)="refresh()"
-          title="Refresh email thread"
-          aria-label="Refresh email thread">
-          <i class="bi bi-arrow-clockwise"></i>
-        </button>
+      <h2 class="thread-title">Email Thread</h2>
+      <div class="thread-stats">
+        <span class="stat-badge total">{{ totalCount }} total</span>
+        <span class="stat-badge received">{{ inboundCount }} received</span>
+        <span class="stat-badge sent">{{ outboundCount }} sent</span>
       </div>
     </div>
 
     <!-- Emails List -->
-    <div class="emails-list" [style.max-height]="maxHeight">
+    <div class="emails-container" [style.max-height]="maxHeight">
       <div
         *ngFor="let email of emails; trackBy: trackByEmailId"
         class="email-item"
@@ -100,219 +44,256 @@
 
         <!-- Email Header (Clickable) -->
         <div class="email-header" (click)="toggleEmail(email)">
-          <div class="header-left">
+          <div class="email-header-left">
             <!-- Avatar -->
-            <div class="email-avatar" [class.inbound]="!email.isOutbound">
+            <div class="email-avatar" [class.inbound]="!email.isOutbound" [class.outbound]="email.isOutbound">
               {{ getUserInitials(email.fromName, email.fromEmail) }}
             </div>
 
-            <!-- Email Info -->
-            <div class="email-info">
-              <div class="sender-info">
-                <strong>{{ email.fromName || email.fromEmail }}</strong>
+            <!-- Sender Info -->
+            <div class="email-sender-info">
+              <div class="sender-row">
+                <span class="sender-name">{{ email.fromName || email.fromEmail }}</span>
                 <span class="direction-badge" [class.inbound]="!email.isOutbound" [class.outbound]="email.isOutbound">
-                  <i class="bi" [ngClass]="!email.isOutbound ? 'bi-arrow-down' : 'bi-arrow-up'"></i>
                   {{ getDirectionLabel(email.isOutbound) }}
                 </span>
               </div>
-              <div class="email-meta">
-                <span class="date" [title]="formatFullDate(email.receivedAt.toString())">
-                  <i class="bi bi-clock"></i>
-                  {{ formatDate(email.receivedAt.toString()) }}
-                </span>
-                <span *ngIf="!email.isRead && !email.isOutbound" class="unread-badge">
-                  <i class="bi bi-circle-fill"></i> Unread
-                </span>
-                <span *ngIf="email.isPrivateNote" class="internal-badge">
-                  <i class="bi bi-lock-fill"></i> Internal
-                </span>
-              </div>
+              <div class="email-preview-text">{{ getEmailPreview(email) }}</div>
             </div>
           </div>
 
-          <div class="header-right">
-            <div class="subject-line">
-              <strong>{{ email.subject }}</strong>
+          <div class="email-header-right">
+            <div class="email-date-info">
+              <span class="email-date" [title]="formatFullDate(email.receivedAt.toString())">
+                {{ formatDate(email.receivedAt.toString()) }}
+              </span>
+              <span *ngIf="!email.isRead && !email.isOutbound" class="unread-indicator">
+                Unread
+              </span>
             </div>
-            <i class="bi bi-chevron-down toggle-icon" [class.rotated]="isExpanded(email.id)"></i>
+            <i class="fa-solid expand-icon" [ngClass]="isExpanded(email.id) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
           </div>
-        </div>
-
-        <!-- Email Preview (Collapsed) -->
-        <div *ngIf="!isExpanded(email.id)" class="email-preview">
-          {{ getEmailPreview(email) }}
-        </div>
-
-        <!-- Quick Actions (Collapsed State) - Always Visible -->
-        <div *ngIf="!isExpanded(email.id) && showActions" class="quick-actions">
-          <!-- Reply Button (Inbound Only) -->
-          <button
-            *ngIf="!email.isOutbound"
-            class="btn-quick btn-quick-reply"
-            (click)="onReplyClick(email); $event.stopPropagation()"
-            [disabled]="isActionLoading(email.id, 'reply')"
-            title="Reply to this email"
-            aria-label="Reply to this email">
-            <i class="bi" [ngClass]="isActionLoading(email.id, 'reply') ? 'bi-hourglass-split' : 'bi-reply-fill'"></i>
-            <span>Reply</span>
-          </button>
-
-          <!-- Reply All Button (Inbound Only) -->
-          <button
-            *ngIf="!email.isOutbound"
-            class="btn-quick btn-quick-reply-all"
-            (click)="onReplyAllClick(email); $event.stopPropagation()"
-            [disabled]="isActionLoading(email.id, 'replyAll')"
-            title="Reply to all recipients"
-            aria-label="Reply to all recipients">
-            <i class="bi" [ngClass]="isActionLoading(email.id, 'replyAll') ? 'bi-hourglass-split' : 'bi-reply-all-fill'"></i>
-            <span>Reply All</span>
-          </button>
-
-          <!-- Forward Button (All Emails) -->
-          <button
-            class="btn-quick btn-quick-forward"
-            (click)="onForwardClick(email); $event.stopPropagation()"
-            [disabled]="isActionLoading(email.id, 'forward')"
-            title="Forward this email"
-            aria-label="Forward this email">
-            <i class="bi" [ngClass]="isActionLoading(email.id, 'forward') ? 'bi-hourglass-split' : 'bi-forward-fill'"></i>
-            <span>Forward</span>
-          </button>
-
-          <!-- Private Note Button (All Emails) -->
-          <button
-            class="btn-quick btn-quick-private-note"
-            (click)="onPrivateNoteClick(email); $event.stopPropagation()"
-            [disabled]="isActionLoading(email.id, 'privateNote')"
-            title="Add internal note (not sent to customer)"
-            aria-label="Add internal note">
-            <i class="bi" [ngClass]="isActionLoading(email.id, 'privateNote') ? 'bi-hourglass-split' : 'bi-sticky-fill'"></i>
-            <span>Internal Note</span>
-          </button>
         </div>
 
         <!-- Email Body (Expanded) -->
-        <div *ngIf="isExpanded(email.id)" class="email-body">
-          <!-- Email Details -->
-          <div class="email-details">
-            <div class="detail-row">
-              <strong>From:</strong>
-              <span>{{ email.fromName }} &lt;{{ email.fromEmail }}&gt;</span>
-            </div>
-            <div class="detail-row">
-              <strong>To:</strong>
-              <span>{{ formatRecipientsList(email.toRecipients) }}</span>
-            </div>
-            <div *ngIf="email.ccRecipients && email.ccRecipients.length > 0" class="detail-row">
-              <strong>CC:</strong>
-              <span>{{ formatRecipientsList(email.ccRecipients) }}</span>
-            </div>
-            <div class="detail-row">
-              <strong>Date:</strong>
-              <span>{{ formatFullDate(email.receivedAt.toString()) }}</span>
-            </div>
-            <div class="detail-row">
-              <strong>Subject:</strong>
-              <span>{{ email.subject }}</span>
-            </div>
+        <div *ngIf="isExpanded(email.id)" class="email-body-section">
+          <!-- Subject Line -->
+          <div class="email-subject">
+            <strong>{{ email.subject }}</strong>
           </div>
 
           <!-- Email Content -->
           <div class="email-content">
             <div *ngIf="email.htmlBody" class="html-content" [innerHTML]="sanitizeHtml(email.htmlBody)"></div>
             <div *ngIf="!email.htmlBody && email.textBody" class="text-content">
-              <pre>{{ email.textBody }}</pre>
+              <p>{{ email.textBody }}</p>
             </div>
           </div>
+
+          <!-- Email Details (Expandable) -->
+          <details class="email-details-section">
+            <summary>Show email details</summary>
+            <div class="email-details-grid">
+              <div class="detail-row">
+                <span class="detail-label">From:</span>
+                <span class="detail-value">{{ email.fromName }} &lt;{{ email.fromEmail }}&gt;</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">To:</span>
+                <span class="detail-value">{{ formatRecipientsList(email.toRecipients) }}</span>
+              </div>
+              <div *ngIf="email.ccRecipients && email.ccRecipients.length > 0" class="detail-row">
+                <span class="detail-label">CC:</span>
+                <span class="detail-value">{{ formatRecipientsList(email.ccRecipients) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Date:</span>
+                <span class="detail-value">{{ formatFullDate(email.receivedAt.toString()) }}</span>
+              </div>
+            </div>
+          </details>
 
           <!-- Attachments -->
           <div *ngIf="hasAttachments(email)" class="attachments-section">
             <div class="attachments-header">
-              <i class="bi bi-paperclip"></i>
+              <i class="fa-solid fa-paperclip"></i>
               <strong>Attachments ({{ email.attachmentCount }})</strong>
             </div>
             <div class="attachments-note">
-              <i class="bi bi-info-circle"></i>
+              <i class="fa-solid fa-circle-info"></i>
               <span>This email has {{ email.attachmentCount }} attachment{{ email.attachmentCount !== 1 ? 's' : '' }}</span>
             </div>
           </div>
 
           <!-- Internal Note Badge -->
           <div *ngIf="email.isPrivateNote" class="internal-note-badge">
-            <i class="bi bi-lock-fill"></i>
+            <i class="fa-solid fa-lock"></i>
             <strong>Internal Note</strong> - This message is only visible to staff members
           </div>
 
-          <!-- Email Actions - Enhanced -->
+          <!-- Individual Email Actions -->
           <div class="email-actions" *ngIf="showActions">
-            <!-- Reply Button (Inbound Only) -->
-            <button
-              *ngIf="!email.isOutbound"
-              class="btn btn-sm btn-primary btn-action-reply"
-              (click)="onReplyClick(email); $event.stopPropagation()"
-              [disabled]="isActionLoading(email.id, 'reply')"
-              title="Reply to this email"
-              aria-label="Reply to this email">
-              <i class="bi" [ngClass]="isActionLoading(email.id, 'reply') ? 'bi-hourglass-split spinner-icon' : 'bi-reply-fill'"></i>
-              <span>{{ isActionLoading(email.id, 'reply') ? 'Sending...' : 'Reply' }}</span>
-            </button>
-
-            <!-- Reply All Button (Inbound Only) -->
-            <button
-              *ngIf="!email.isOutbound"
-              class="btn btn-sm btn-primary btn-action-reply-all"
-              (click)="onReplyAllClick(email); $event.stopPropagation()"
-              [disabled]="isActionLoading(email.id, 'replyAll')"
-              title="Reply to all recipients"
-              aria-label="Reply to all recipients">
-              <i class="bi" [ngClass]="isActionLoading(email.id, 'replyAll') ? 'bi-hourglass-split spinner-icon' : 'bi-reply-all-fill'"></i>
-              <span>{{ isActionLoading(email.id, 'replyAll') ? 'Sending...' : 'Reply All' }}</span>
-            </button>
-
-            <!-- Forward Button (All Emails) -->
-            <button
-              class="btn btn-sm btn-secondary btn-action-forward"
-              (click)="onForwardClick(email); $event.stopPropagation()"
-              [disabled]="isActionLoading(email.id, 'forward')"
-              title="Forward this email"
-              aria-label="Forward this email">
-              <i class="bi" [ngClass]="isActionLoading(email.id, 'forward') ? 'bi-hourglass-split spinner-icon' : 'bi-forward-fill'"></i>
-              <span>{{ isActionLoading(email.id, 'forward') ? 'Loading...' : 'Forward' }}</span>
-            </button>
-
-            <!-- Private Note Button (All Emails) -->
-            <button
-              class="btn btn-sm btn-warning btn-action-private-note"
-              (click)="onPrivateNoteClick(email); $event.stopPropagation()"
-              [disabled]="isActionLoading(email.id, 'privateNote')"
-              title="Add internal note (not sent to customer)"
-              aria-label="Add internal note">
-              <i class="bi" [ngClass]="isActionLoading(email.id, 'privateNote') ? 'bi-hourglass-split spinner-icon' : 'bi-sticky-fill'"></i>
-              <span>{{ isActionLoading(email.id, 'privateNote') ? 'Loading...' : 'Internal Note' }}</span>
-            </button>
-
-            <!-- View Details Button (Outbound Emails) -->
-            <button
-              *ngIf="email.isOutbound"
-              class="btn btn-sm btn-info btn-action-view-details"
-              (click)="$event.stopPropagation()"
-              title="View email details"
-              aria-label="View email details">
-              <i class="bi bi-eye-fill"></i>
-              <span>View Details</span>
-            </button>
+            <div class="email-actions-left">
+              <button
+                class="btn btn-sm btn-primary"
+                (click)="onReplyClick(email); $event.stopPropagation()"
+                [disabled]="email.isOutbound"
+                title="Reply to this email">
+                <i class="fa-solid fa-reply"></i>
+                <span>Reply</span>
+              </button>
+              <button
+                class="btn btn-sm btn-outline"
+                (click)="onReplyAllClick(email); $event.stopPropagation()"
+                [disabled]="email.isOutbound"
+                title="Reply to all recipients">
+                <i class="fa-solid fa-reply-all"></i>
+                <span>Reply All</span>
+              </button>
+              <button
+                class="btn btn-sm btn-outline"
+                (click)="onForwardClick(email); $event.stopPropagation()"
+                title="Forward this email">
+                <i class="fa-solid fa-share"></i>
+                <span>Forward</span>
+              </button>
+            </div>
+            <div class="email-actions-right">
+              <button
+                class="btn btn-sm btn-outline btn-close-email"
+                (click)="toggleEmail(email); $event.stopPropagation()"
+                title="Collapse this email">
+                <i class="fa-solid fa-xmark"></i>
+                <span>Close</span>
+              </button>
+            </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reply Section (Always Visible) -->
+    <div class="reply-section" *ngIf="showActions">
+      <!-- Rich Text Editor -->
+      <div class="reply-editor">
+        <!-- Formatting Toolbar -->
+        <div class="editor-toolbar">
+          <button type="button" class="toolbar-btn" title="Bold">
+            <i class="fa-solid fa-bold"></i>
+          </button>
+          <button type="button" class="toolbar-btn" title="Italic">
+            <i class="fa-solid fa-italic"></i>
+          </button>
+          <button type="button" class="toolbar-btn" title="Underline">
+            <i class="fa-solid fa-underline"></i>
+          </button>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="toolbar-btn" title="Bullet List">
+            <i class="fa-solid fa-list-ul"></i>
+          </button>
+          <button type="button" class="toolbar-btn" title="Numbered List">
+            <i class="fa-solid fa-list-ol"></i>
+          </button>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="toolbar-btn" title="Insert Link">
+            <i class="fa-solid fa-link"></i>
+          </button>
+          <button type="button" class="toolbar-btn" title="Insert Image">
+            <i class="fa-solid fa-image"></i>
+          </button>
+          <button type="button" class="toolbar-btn" title="Quote">
+            <i class="fa-solid fa-quote-left"></i>
+          </button>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="toolbar-btn" title="Attach File">
+            <i class="fa-solid fa-paperclip"></i>
+          </button>
+        </div>
+
+        <!-- Text Area -->
+        <textarea
+          class="reply-textarea"
+          [(ngModel)]="replyContent"
+          placeholder="Type your message here..."
+          rows="6"></textarea>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="reply-actions">
+        <div class="actions-left">
+          <button
+            class="btn btn-primary btn-reply"
+            (click)="onReplyToLatest()"
+            [disabled]="!hasInboundEmails()"
+            title="Reply to the latest email">
+            <i class="fa-solid fa-reply"></i>
+            <span>Reply</span>
+          </button>
+          <button
+            class="btn btn-outline btn-reply-all"
+            (click)="onReplyAllToLatest()"
+            [disabled]="!hasInboundEmails()"
+            title="Reply to all recipients">
+            <i class="fa-solid fa-reply-all"></i>
+            <span>Reply All</span>
+          </button>
+          <button
+            class="btn btn-outline btn-forward"
+            (click)="onForwardLatest()"
+            [disabled]="emails.length === 0"
+            title="Forward the latest email">
+            <i class="fa-solid fa-share"></i>
+            <span>Forward</span>
+          </button>
+        </div>
+        <div class="actions-right">
+          <button
+            class="btn btn-secondary btn-internal-note"
+            (click)="onAddInternalNote()"
+            title="Add an internal note visible only to staff">
+            <i class="fa-solid fa-note-sticky"></i>
+            <span>Add Internal Note</span>
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Thread Footer -->
     <div class="thread-footer">
-      <small class="text-muted">
+      <span class="footer-text">
         Showing {{ emails.length }} email{{ emails.length !== 1 ? 's' : '' }} •
-        {{ sortOrder === 'newest-first' ? 'Newest first' : 'Oldest first' }}
-      </small>
+        Unread first, then {{ sortOrder === 'newest-first' ? 'newest' : 'oldest' }}
+      </span>
+      <div class="footer-actions">
+        <button
+          class="btn-icon"
+          (click)="toggleSortOrder()"
+          [title]="sortOrder === 'newest-first' ? 'Sort oldest first' : 'Sort newest first'"
+          [attr.aria-label]="sortOrder === 'newest-first' ? 'Sort oldest first' : 'Sort newest first'">
+          <i class="fa-solid" [ngClass]="sortOrder === 'newest-first' ? 'fa-sort-down' : 'fa-sort-up'"></i>
+        </button>
+        <button
+          class="btn-icon"
+          (click)="expandAll()"
+          title="Expand all emails"
+          aria-label="Expand all emails">
+          <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+        </button>
+        <button
+          class="btn-icon"
+          (click)="collapseAll()"
+          title="Collapse all emails"
+          aria-label="Collapse all emails">
+          <i class="fa-solid fa-down-left-and-up-right-to-center"></i>
+        </button>
+        <button
+          class="btn-icon"
+          (click)="refresh()"
+          title="Refresh email thread"
+          aria-label="Refresh email thread">
+          <i class="fa-solid fa-rotate"></i>
+        </button>
+      </div>
     </div>
   </div>
 </div>

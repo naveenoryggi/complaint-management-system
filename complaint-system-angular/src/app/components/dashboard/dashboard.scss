@@ -420,6 +420,18 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
   margin: 0;
 }
 
+.page-subtitle {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: $text-secondary;
+  margin: 0.25rem 0 0 0;
+}
+
+.header-title-section {
+  display: flex;
+  flex-direction: column;
+}
+
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -492,7 +504,7 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
   border: 1px solid $border-light;
   border-radius: $radius-lg;
   box-shadow: $shadow-soft;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .time-btn {
@@ -554,6 +566,59 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
   width: 1px;
   height: 24px;
   background: $border-light;
+}
+
+// Team Member Filter (Admin only)
+.team-member-filter {
+  position: relative;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+
+    i {
+      color: $primary;
+      font-size: 0.875rem;
+    }
+  }
+
+  .select-wrapper {
+    select {
+      min-width: 180px;
+      padding-right: 2.5rem;
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+    }
+  }
+}
+
+// Clear filter button
+.clear-filter-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba($status-red, 0.1);
+  border: none;
+  border-radius: $radius-md;
+  color: $status-red;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-left: 0.25rem;
+
+  i {
+    font-size: 0.75rem;
+  }
+
+  &:hover {
+    background: $status-red;
+    color: white;
+  }
 }
 
 .select-wrapper {
@@ -630,6 +695,21 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
     transform: translateY(-2px);
     box-shadow: $shadow-md;
   }
+
+  // Clickable stat card (e.g., for navigation)
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-lg;
+      border-color: rgba($primary, 0.3);
+    }
+
+    &:active {
+      transform: translateY(-1px);
+    }
+  }
 }
 
 .stat-header {
@@ -672,6 +752,10 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
 
   &.icon-orange {
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  &.icon-amber {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   }
 
   &.icon-purple {
@@ -1296,6 +1380,27 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
     i {
       color: white !important;
     }
+
+    .filter-count {
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+    }
+  }
+
+  // Filter count badge
+  .filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: #fbbf24;
+    color: #78350f;
+    border-radius: 9999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    margin-left: 2px;
   }
 }
 
@@ -1397,6 +1502,7 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
 .text-icon-purple { color: #8b5cf6 !important; }
 .text-icon-green { color: #22c55e !important; }
 .text-icon-orange { color: #f59e0b !important; }
+.text-icon-amber { color: #fbbf24 !important; }
 .text-icon-red { color: #ef4444 !important; }
 .text-icon-teal { color: #14b8a6 !important; }
 .text-icon-pink { color: #ec4899 !important; }
@@ -1442,6 +1548,7 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
 .id-badge {
   display: inline-flex;
   align-items: center;
+  gap: 0.5rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.8125rem;
   font-weight: 600;
@@ -1449,6 +1556,55 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
   background: rgba($primary, 0.08);
   padding: 0.25rem 0.5rem;
   border-radius: $radius-md;
+
+  &.has-response {
+    background: rgba(245, 158, 11, 0.15);
+    font-weight: 700;
+  }
+}
+
+// Customer Response Indicator - Email icon for tickets awaiting response
+.email-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  border-radius: 50%;
+  animation: pulse-email 2s ease-in-out infinite;
+
+  i {
+    font-size: 10px;
+    color: white;
+  }
+}
+
+@keyframes pulse-email {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(245, 158, 11, 0);
+  }
+}
+
+// Bold row styling for tickets with customer responses
+.has-customer-response {
+  background: rgba(245, 158, 11, 0.05) !important;
+
+  td {
+    font-weight: 600 !important;
+  }
+
+  .complaint-subject {
+    font-weight: 600 !important;
+    color: $text-primary;
+  }
+
+  &:hover {
+    background: rgba(245, 158, 11, 0.1) !important;
+  }
 }
 
 // Customer Cell with Avatar
@@ -1943,5 +2099,229 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
   .modal-container {
     max-height: 100vh;
     border-radius: 0;
+  }
+}
+
+/* ===== CUSTOM DATE RANGE PICKER DROPDOWN ===== */
+
+// Wrapper for the custom range button to enable relative positioning
+.custom-range-wrapper {
+  position: relative;
+  display: inline-flex;
+
+  // Ensure the button inherits proper styling within the wrapper
+  .time-btn {
+    border-radius: 0 0.625rem 0.625rem 0;
+  }
+}
+
+// Backdrop for closing dropdown when clicking outside
+.date-picker-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  // Transparent backdrop - just for click detection
+}
+
+// Dropdown container
+.date-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: $card-light;
+  border: 1px solid $border-light;
+  border-radius: $radius-xl;
+  width: 320px;
+  z-index: 1000;
+  box-shadow: $shadow-lg;
+  animation: dropdownSlide 0.2s ease;
+
+  // Prevent text selection while interacting
+  user-select: none;
+}
+
+// Arrow pointing to the button
+.date-picker-arrow {
+  position: absolute;
+  top: -8px;
+  left: 24px;
+  width: 16px;
+  height: 16px;
+  background: $card-light;
+  border-left: 1px solid $border-light;
+  border-top: 1px solid $border-light;
+  transform: rotate(45deg);
+  z-index: 1;
+}
+
+// Dropdown animation
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.date-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid $border-light;
+  position: relative;
+  z-index: 2;
+  background: $card-light;
+  border-radius: $radius-xl $radius-xl 0 0;
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    color: $text-primary;
+  }
+}
+
+.date-picker-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: $radius-md;
+  color: $text-secondary;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  i {
+    font-size: 0.875rem;
+  }
+
+  &:hover {
+    background: $background-light;
+    color: $text-primary;
+  }
+}
+
+.date-picker-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.date-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: $text-secondary;
+  }
+}
+
+.date-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  font-family: $font-family;
+  color: $text-primary;
+  background: $card-light;
+  border: 1px solid $border-light;
+  border-radius: $radius-lg;
+  transition: all 0.15s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  &:hover:not(:focus) {
+    border-color: darken($border-light, 10%);
+  }
+}
+
+.date-picker-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.875rem 1.25rem;
+  border-top: 1px solid $border-light;
+  background: $background-light;
+  border-radius: 0 0 $radius-xl $radius-xl;
+
+  .btn-secondary,
+  .btn-primary {
+    height: 36px;
+    font-size: 0.8125rem;
+    padding: 0 0.875rem;
+  }
+}
+
+// Responsive adjustments for mobile
+@media (max-width: 640px) {
+  .custom-range-wrapper {
+    position: static;
+  }
+
+  .date-picker-dropdown {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    border-radius: $radius-xl $radius-xl 0 0;
+    animation: slideUpMobile 0.25s ease;
+  }
+
+  .date-picker-arrow {
+    display: none;
+  }
+
+  .date-picker-backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  @keyframes slideUpMobile {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .date-picker-header {
+    padding: 1.25rem 1.5rem;
+    border-radius: $radius-xl $radius-xl 0 0;
+
+    h3 {
+      font-size: 1.125rem;
+    }
+  }
+
+  .date-picker-body {
+    padding: 1.5rem;
+  }
+
+  .date-picker-footer {
+    padding: 1rem 1.5rem 1.5rem;
+    // Add safe area for phones with home indicator
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0));
   }
 }

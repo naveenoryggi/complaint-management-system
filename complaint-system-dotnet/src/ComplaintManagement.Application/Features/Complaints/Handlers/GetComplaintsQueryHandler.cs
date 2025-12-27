@@ -67,6 +67,19 @@ public class GetComplaintsQueryHandler : IRequestHandler<GetComplaintsQuery, Res
                 allComplaints = allComplaints.Where(c => c.ComplainantId == request.ComplainantId.Value);
             }
 
+            // Filter for unassigned complaints only
+            if (request.UnassignedOnly)
+            {
+                allComplaints = allComplaints.Where(c => c.AssignedToId == null);
+            }
+
+            // Filter for complaints waiting for response (customer has replied)
+            if (request.WaitingForResponseOnly)
+            {
+                // Waiting for response = HasCustomerResponse is true (customer replied, awaiting handler action)
+                allComplaints = allComplaints.Where(c => c.HasCustomerResponse);
+            }
+
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 var searchTerm = request.SearchTerm.ToLower();
@@ -77,9 +90,11 @@ public class GetComplaintsQueryHandler : IRequestHandler<GetComplaintsQuery, Res
             }
 
             // Order and paginate
+            // Sort by HasCustomerResponse first (customer replies appear at top), then by SubmittedAt
             var totalCount = allComplaints.Count();
             var complaints = allComplaints
-                .OrderByDescending(c => c.SubmittedAt)
+                .OrderByDescending(c => c.HasCustomerResponse)
+                .ThenByDescending(c => c.SubmittedAt)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToList();
@@ -141,7 +156,12 @@ public class GetComplaintsQueryHandler : IRequestHandler<GetComplaintsQuery, Res
                 IsAnonymous = c.IsAnonymous,
                 Tags = c.Tags,
                 CommentCount = c.Comments?.Count ?? 0,
-                AttachmentCount = c.Attachments?.Count ?? 0
+                AttachmentCount = c.Attachments?.Count ?? 0,
+
+                // Email response tracking
+                HasCustomerResponse = c.HasCustomerResponse,
+                LastResponseFrom = c.LastResponseFrom,
+                LastResponseAt = c.LastResponseAt
             }).ToList();
 
             var pagedResult = new PagedResult<ComplaintDto>

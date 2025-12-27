@@ -1,6 +1,3 @@
-<!-- Shared Navigation Header -->
-<app-header [activeNavLink]="'complaints'"></app-header>
-
 <div class="complaint-form-page">
   <div class="content-wrapper">
     <!-- Page Header -->
@@ -210,26 +207,41 @@
       <section class="form-section">
         <h2 class="section-title">Attachments</h2>
 
-        <div class="upload-zone" (click)="fileInput.click()" [class.disabled]="selectedFiles.length >= 10">
-          <input
-            #fileInput
-            type="file"
-            multiple
-            (change)="onFileSelect($event)"
-            accept="image/*,.pdf,.doc,.docx,.txt"
-            style="display: none;">
+        <div class="upload-container">
+          <!-- Upload Icon and Info -->
+          <div class="upload-info">
+            <div class="upload-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+            <div class="upload-text-container">
+              <p class="upload-title">Upload your files</p>
+              <p class="upload-hint">PNG, JPG, PDF, MP4, WebM, MOV up to 10MB each (max 10 files)</p>
+            </div>
+          </div>
 
-          <div class="upload-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Styled upload button using label -->
+          <label class="upload-btn" for="fileUploadInput" [class.disabled]="selectedFiles.length >= 10">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="17 8 12 3 7 8"></polyline>
               <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
-          </div>
-          <div class="upload-text">
-            <span class="upload-link">Upload a file</span> or drag and drop
-          </div>
-          <div class="upload-hint">PNG, JPG, PDF up to 10MB</div>
+            <span>Choose Files</span>
+          </label>
+          <!-- Hidden file input - positioned off-screen but still accessible -->
+          <input
+            #fileInput
+            type="file"
+            id="fileUploadInput"
+            multiple
+            (change)="onFileSelect($event)"
+            accept="image/*,.pdf,.doc,.docx,.txt,video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.avi,.mkv"
+            class="file-input-hidden"
+            [disabled]="selectedFiles.length >= 10">
         </div>
 
         <div class="error-message" *ngIf="fileUploadError">
@@ -238,6 +250,10 @@
 
         <!-- Selected Files List -->
         <div class="files-list" *ngIf="selectedFiles.length > 0">
+          <div class="files-header">
+            <span class="files-count">{{ selectedFiles.length }} file(s) selected</span>
+            <button type="button" class="clear-all-btn" (click)="clearAllFiles()">Clear all</button>
+          </div>
           <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
             <div class="file-info">
               <i class="bi" [ngClass]="getFileIcon(file.name)"></i>

@@ -12,9 +12,11 @@ public class FileStorageService : IFileStorageService
 {
     private readonly IHostEnvironment _environment;
     private readonly ILogger<FileStorageService> _logger;
-    private const long MaxFileSize = 5 * 1024 * 1024; // 5MB
+    private const long MaxFileSize = 10 * 1024 * 1024; // 10MB
     private readonly string[] _allowedImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp" };
     private readonly string[] _allowedImageMimeTypes = { "image/jpeg", "image/png", "image/gif", "image/svg+xml", "image/webp" };
+    private readonly string[] _allowedVideoExtensions = { ".mp4", ".webm", ".mov", ".avi", ".mkv" };
+    private readonly string[] _allowedVideoMimeTypes = { "video/mp4", "video/webm", "video/quicktime", "video/x-msvideo", "video/x-matroska" };
 
     public FileStorageService(IHostEnvironment environment, ILogger<FileStorageService> logger)
     {
@@ -105,6 +107,15 @@ public class FileStorageService : IFileStorageService
             ".gif" => "image/gif",
             ".svg" => "image/svg+xml",
             ".webp" => "image/webp",
+            ".mp4" => "video/mp4",
+            ".webm" => "video/webm",
+            ".mov" => "video/quicktime",
+            ".avi" => "video/x-msvideo",
+            ".mkv" => "video/x-matroska",
+            ".pdf" => "application/pdf",
+            ".doc" => "application/msword",
+            ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".txt" => "text/plain",
             _ => "application/octet-stream"
         };
     }

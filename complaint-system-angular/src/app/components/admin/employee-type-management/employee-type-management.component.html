@@ -1,35 +1,36 @@
 <div class="employee-type-management-container">
-  <div class="page-header">
-    <div class="header-content">
-      <h1>
-        <i class="fas fa-user-tag"></i>
-        Employee Type Management
-      </h1>
-      <p class="header-description">Manage employee classifications and types</p>
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="header-content">
+        <h1>Employee Type Management</h1>
+        <p class="header-subtitle">Manage employee classifications and types</p>
+      </div>
     </div>
     <button class="btn btn-primary" (click)="openCreateModal()">
       <i class="fas fa-plus"></i>
-      Add Employee Type
+      <span>Add Employee Type</span>
     </button>
-  </div>
+  </section>
 
   <!-- Info Banner -->
-  <div class="info-banner">
+  <section class="info-banner">
     <div class="info-icon">
       <i class="fas fa-info-circle"></i>
     </div>
     <div class="info-content">
       <h3>About Employee Types</h3>
-      <p>
-        <strong>Employee Types</strong> are used to classify employees based on their employment status or contract type.
-      </p>
+      <p>Employee Types are used to classify employees based on their employment status or contract type.</p>
       <ul>
         <li><strong>Purpose:</strong> Categorize employees (e.g., Full-time, Part-time, Contract, Intern)</li>
-        <li><strong>Usage:</strong> Used in HR reporting, access control, and workflow routing</li>
+        <li><strong>Usage:</strong> Used in HR reporting, access control, and workflow routing.</li>
         <li><strong>Benefits:</strong> Better employee segmentation and targeted policies</li>
       </ul>
     </div>
-  </div>
+  </section>
 
   <!-- Success Message -->
   <div *ngIf="successMessage" class="alert alert-success">
@@ -44,7 +45,7 @@
   </div>
 
   <!-- Search and Filter -->
-  <div class="filter-section">
+  <section class="filter-section">
     <div class="search-box">
       <i class="fas fa-search"></i>
       <input
@@ -54,13 +55,19 @@
         class="search-input"
       />
     </div>
-    <div class="filter-options">
-      <label class="checkbox-label">
-        <input type="checkbox" [(ngModel)]="showInactive" />
-        Show Inactive Employee Types
-      </label>
+    <div class="filter-toggle">
+      <span class="toggle-label">Show inactive Employee Types</span>
+      <button
+        type="button"
+        class="toggle-switch"
+        [class.active]="showInactive"
+        (click)="showInactive = !showInactive"
+        role="switch"
+        [attr.aria-checked]="showInactive">
+        <span class="toggle-slider"></span>
+      </button>
     </div>
-  </div>
+  </section>
 
   <!-- Loading State -->
   <div *ngIf="loading && employeeTypes.length === 0" class="loading-state">
@@ -70,81 +77,79 @@
 
   <!-- Empty State -->
   <div *ngIf="!loading && filteredEmployeeTypes.length === 0" class="empty-state">
-    <i class="fas fa-user-tag"></i>
+    <div class="empty-icon">
+      <i class="fas fa-user-tag"></i>
+    </div>
     <h3>No Employee Types Found</h3>
     <p *ngIf="searchTerm">Try adjusting your search criteria</p>
     <p *ngIf="!searchTerm">Get started by creating your first employee type</p>
     <button class="btn btn-primary" (click)="openCreateModal()">
       <i class="fas fa-plus"></i>
-      Add Employee Type
+      <span>Add Employee Type</span>
     </button>
   </div>
 
   <!-- Employee Types Grid -->
-  <div *ngIf="!loading && filteredEmployeeTypes.length > 0" class="employee-types-grid">
-    <div *ngFor="let employeeType of filteredEmployeeTypes; trackBy: trackByEmployeeTypeId" class="employee-type-card" [class.inactive]="!employeeType.isActive">
+  <section *ngIf="!loading && filteredEmployeeTypes.length > 0" class="employee-types-grid">
+    <div
+      *ngFor="let employeeType of filteredEmployeeTypes; let i = index; trackBy: trackByEmployeeTypeId"
+      class="employee-type-card"
+      [class.inactive]="!employeeType.isActive">
+
       <div class="card-header">
-        <div class="employee-type-info">
-          <h3>{{ employeeType.name }}</h3>
-          <span class="employee-type-code">{{ employeeType.code }}</span>
-          <span class="status-badge" [class.active]="employeeType.isActive" [class.inactive]="!employeeType.isActive">
-            {{ employeeType.isActive ? 'Active' : 'Inactive' }}
-          </span>
+        <div class="card-title-section">
+          <div class="type-icon" [ngClass]="getIconColorClass(i)">
+            <i [class]="getTypeIcon(i)"></i>
+          </div>
+          <h3 class="type-name">{{ employeeType.name }}</h3>
         </div>
         <div class="card-actions">
-          <button
-            class="btn-icon"
-            (click)="openEditModal(employeeType)"
-            title="Edit Employee Type"
-          >
-            <i class="fas fa-edit"></i>
+          <button class="action-btn" title="View Details" (click)="openEditModal(employeeType)">
+            <i class="fas fa-eye"></i>
           </button>
-          <button
-            class="btn-icon"
-            (click)="toggleEmployeeTypeStatus(employeeType)"
-            [title]="employeeType.isActive ? 'Deactivate' : 'Activate'"
-          >
-            <i [class]="employeeType.isActive ? 'fas fa-toggle-on' : 'fas fa-toggle-off'"></i>
+          <button class="action-btn" title="Edit" (click)="openEditModal(employeeType)">
+            <i class="fas fa-pencil"></i>
           </button>
-          <button
-            class="btn-icon btn-delete"
-            (click)="openDeleteModal(employeeType)"
-            title="Delete Employee Type"
-          >
+          <button class="action-btn action-delete" title="Delete" (click)="openDeleteModal(employeeType)">
             <i class="fas fa-trash"></i>
           </button>
         </div>
       </div>
 
       <div class="card-body">
-        <div *ngIf="employeeType.description" class="employee-type-description">
-          <p>{{ employeeType.description }}</p>
-        </div>
+        <p *ngIf="employeeType.description" class="type-description">{{ employeeType.description }}</p>
+        <p *ngIf="employeeType.code" class="type-code">{{ employeeType.code }}</p>
+      </div>
+
+      <div class="card-status">
+        <span class="status-badge" [class.active]="employeeType.isActive" [class.inactive]="!employeeType.isActive">
+          {{ employeeType.isActive ? 'ACTIVE' : 'INACTIVE' }}
+        </span>
       </div>
 
       <div class="card-footer">
-        <small>
-          Created: {{ employeeType.createdAt | utcToLocal:'medium' }}
-        </small>
+        <span class="created-date">Created {{ employeeType.createdAt | utcToLocal:'short' }}</span>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Summary Stats -->
-  <div *ngIf="employeeTypes.length > 0" class="summary-stats">
-    <div class="stat-item">
-      <span class="stat-label">Total Employee Types:</span>
-      <span class="stat-value">{{ employeeTypes.length }}</span>
+  <!-- Summary Footer -->
+  <footer *ngIf="employeeTypes.length > 0" class="summary-footer">
+    <div class="summary-stats">
+      <div class="stat-item">
+        <span class="stat-label">Total Employee Types</span>
+        <span class="stat-value">{{ employeeTypes.length }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Active</span>
+        <span class="stat-value stat-active">{{ getActiveEmployeeTypesCount() }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Inactive</span>
+        <span class="stat-value stat-inactive">{{ getInactiveEmployeeTypesCount() }}</span>
+      </div>
     </div>
-    <div class="stat-item">
-      <span class="stat-label">Active:</span>
-      <span class="stat-value stat-active">{{ getActiveEmployeeTypesCount() }}</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-label">Inactive:</span>
-      <span class="stat-value stat-inactive">{{ getInactiveEmployeeTypesCount() }}</span>
-    </div>
-  </div>
+  </footer>
 </div>
 
 <!-- Create/Edit Modal -->

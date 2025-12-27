@@ -54,6 +54,11 @@ export interface Complaint {
   tags?: string;
   commentCount: number;
   attachmentCount: number;
+
+  // Customer response tracking
+  hasCustomerResponse?: boolean;  // True if customer has replied and awaiting handler response
+  lastResponseFrom?: 'customer' | 'handler' | 'system';  // Who sent the last response
+  lastResponseAt?: string;  // Timestamp of last response
 }
 
 export interface CreateComplaintRequest {

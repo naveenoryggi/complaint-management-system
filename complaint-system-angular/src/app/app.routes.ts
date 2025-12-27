@@ -173,5 +173,15 @@ export const routes: Routes = [
     loadComponent: () => import('./components/admin/notification-preferences/notification-preferences.component').then(m => m.NotificationPreferencesComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'notifications',
+    loadComponent: () => import('./components/notifications/notification-center/notification-center.component').then(m => m.NotificationCenterComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'team-performance',
+    loadComponent: () => import('./components/team-performance/team-performance.component').then(m => m.TeamPerformanceComponent),
+    canActivate: [authGuard]
+  },
   { path: '**', redirectTo: '/login' }
 ];

@@ -7,8 +7,10 @@ import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth.service';
 import { CompanyService } from '../../../services/company.service';
 import { AdminMenuConfigService, MenuCategory } from '../../../services/admin-menu-config.service';
+import { NotificationService } from '../../../services/notification.service';
 import { User } from '../../../models/user.model';
 import { Company } from '../../../models/company.model';
+import { AppNotification, getNotificationIcon, getNotificationColor, NotificationType } from '../../../models/notification.model';
 
 @Component({
   selector: 'app-header',
@@ -35,8 +37,13 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
   companyLogoUrl: string | null = null;
   showAdminMenu = false;
   showUserMenu = false;
+  showNotificationDropdown = false;
   searchTerm: string = '';
   menuCategories: MenuCategory[] = [];
+
+  // Notification state
+  notifications: AppNotification[] = [];
+  unreadNotificationCount = 0;
 
   private destroy$ = new Subject<void>();
 
@@ -44,6 +51,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private companyService: CompanyService,
     private adminMenuConfig: AdminMenuConfigService,
+    private notificationService: NotificationService,
     private router: Router
   ) {
     this.menuCategories = this.adminMenuConfig.getMenuCategories();
@@ -57,6 +65,42 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
         if (user && user.companyId) {
           this.loadCompanyDetails(user.companyId);
         }
+        // Initialize notifications when user is available
+        if (user && user.id) {
+          this.initializeNotifications(user.id);
+        }
+      });
+  }
+
+  /**
+   * Initialize notification service and subscriptions
+   */
+  private initializeNotifications(userId: string): void {
+    // Initialize the notification service
+    this.notificationService.initialize(userId);
+
+    // Subscribe to notifications
+    this.notificationService.notifications$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(notifications => {
+        this.notifications = notifications.slice(0, 10); // Show max 10 in dropdown
+      });
+
+    // Subscribe to unread count
+    this.notificationService.unreadCount$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(count => {
+        this.unreadNotificationCount = count;
+        // Also update the input binding for backward compatibility
+        this.notificationCount = count;
+      });
+
+    // Subscribe to new notifications for toast/alerts
+    this.notificationService.newNotification$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(notification => {
+        // Could show a toast notification here
+        console.log('New notification received:', notification);
       });
   }
 
@@ -72,6 +116,9 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
     if (!target.closest('.user-avatar-dropdown') && !target.closest('.nav-dropdown')) {
       this.showUserMenu = false;
       this.showAdminMenu = false;
+    }
+    if (!target.closest('.notification-dropdown-wrapper')) {
+      this.showNotificationDropdown = false;
     }
   }
 
@@ -145,8 +192,65 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
   }
 
   // Notifications
+  toggleNotificationDropdown(): void {
+    this.showNotificationDropdown = !this.showNotificationDropdown;
+    this.showUserMenu = false;
+    this.showAdminMenu = false;
+
+    // Load notifications when opening dropdown
+    if (this.showNotificationDropdown) {
+      this.notificationService.loadNotifications({ pageSize: 10 });
+    }
+  }
+
   onNotificationClick(): void {
     this.notificationClick.emit();
+  }
+
+  onNotificationItemClick(notification: AppNotification): void {
+    // Mark as read
+    if (!notification.isRead) {
+      this.notificationService.markAsRead(notification.id).subscribe();
+    }
+
+    // Close dropdown
+    this.showNotificationDropdown = false;
+
+    // Navigate to related entity
+    const url = this.notificationService.getNotificationUrl(notification);
+    this.router.navigate([url]);
+  }
+
+  markAllNotificationsAsRead(): void {
+    this.notificationService.markAllAsRead().subscribe();
+  }
+
+  viewAllNotifications(): void {
+    this.showNotificationDropdown = false;
+    this.router.navigate(['/notifications']);
+  }
+
+  getNotificationIcon(type: NotificationType): string {
+    return getNotificationIcon(type);
+  }
+
+  getNotificationColor(type: NotificationType): string {
+    return getNotificationColor(type);
+  }
+
+  getTimeAgo(date: Date | string): string {
+    const now = new Date();
+    const notificationDate = new Date(date);
+    const diffMs = now.getTime() - notificationDate.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return notificationDate.toLocaleDateString();
   }
 
   // Auth

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { SectionService } from '../../../services/section.service';
 import { DepartmentService } from '../../../services/department.service';
 import { BranchService } from '../../../services/branch.service';
@@ -39,6 +38,9 @@ export class SectionManagementComponent
   departments: Department[] = [];
   selectedBranchId = '';
   selectedDepartmentId = '';
+
+  // Status filter for sections (3-way filter like Department)
+  statusFilter: 'all' | 'active' | 'inactive' = 'active';
 
   protected override get entityName(): string {
     return 'Section';
@@ -86,30 +88,12 @@ export class SectionManagementComponent
     (this.form as any).hrResponsibleId = value;
   }
 
-  // Map base class showActiveOnly to Section's showInactive (inverted logic)
-  get showInactive(): boolean {
-    return !this.showActiveOnly;
-  }
-
-  set showInactive(value: boolean) {
-    this.showActiveOnly = !value;
-  }
-
-  // Override base class method to reload data from API instead of just filtering
-  override onActiveFilterChange(): void {
-    // Section management needs to reload from API with new activeOnly parameter
-    if (this.selectedDepartmentId) {
-      this.loadItems();
-    }
-  }
-
   constructor(
     private sectionService: SectionService,
     private departmentService: DepartmentService,
     private branchService: BranchService,
     authService: AuthService,
-    logger: LoggerService,
-    private router: Router
+    logger: LoggerService
   ) {
     super(authService, logger);
     this.form = this.getEmptyForm();
@@ -205,7 +189,8 @@ export class SectionManagementComponent
     this.loading = true;
     this.errorMessage = '';
 
-    this.sectionService.getSections(this.selectedDepartmentId, this.showActiveOnly).subscribe({
+    // Load all sections (not filtered by active status from API)
+    this.sectionService.getSections(this.selectedDepartmentId, false).subscribe({
       next: (data) => {
         this.items = data;
         this.filterItems();
@@ -222,10 +207,13 @@ export class SectionManagementComponent
   protected override filterItems(): void {
     let filtered = this.items;
 
-    // Filter by active status (uses showActiveOnly from base class)
-    if (this.showActiveOnly) {
+    // Filter by active status (3-way filter)
+    if (this.statusFilter === 'active') {
       filtered = filtered.filter(s => s.isActive);
+    } else if (this.statusFilter === 'inactive') {
+      filtered = filtered.filter(s => !s.isActive);
     }
+    // 'all' shows both active and inactive
 
     // Filter by search term
     if (this.searchTerm) {
@@ -238,6 +226,11 @@ export class SectionManagementComponent
     }
 
     this.filteredItems = filtered;
+  }
+
+  setStatusFilter(filter: 'all' | 'active' | 'inactive'): void {
+    this.statusFilter = filter;
+    this.filterItems();
   }
 
   protected override createItem(request: CreateSectionRequest): Observable<ApiResponse<Section>> {
@@ -489,10 +482,6 @@ export class SectionManagementComponent
     return this.sections.filter(s => !s.isActive).length;
   }
 
-  navigateBack(): void {
-    this.router.navigate(['/dashboard']);
-  }
-
   // User selection handlers
   onHeadSelected(user: UserSearchResult | null): void {
     this.headId = user?.id;
@@ -507,5 +496,18 @@ export class SectionManagementComponent
   onHrResponsibleSelected(user: UserSearchResult | null): void {
     this.hrResponsibleId = user?.id;
     this.hrResponsibleName = user?.fullName;
+  }
+
+  // TrackBy functions for *ngFor optimization
+  trackByBranchId(index: number, branch: Branch): string {
+    return branch.id;
+  }
+
+  trackByDepartmentId(index: number, department: Department): string {
+    return department.id;
+  }
+
+  trackBySectionId(index: number, section: Section): string {
+    return section.id;
   }
 }

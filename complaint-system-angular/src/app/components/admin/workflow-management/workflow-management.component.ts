@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { WorkflowService } from '../../../services/workflow.service';
 import { AuthService } from '../../../services/auth.service';
 import { CategoryService } from '../../../services/category.service';
 import { StatusMasterService } from '../../../services/status-master.service';
-import { CategoryWorkflow, CreateWorkflowRequest, AddStatusRequest, AddTransitionRequest } from '../../../models/workflow.model';
+import { CategoryWorkflow, CreateWorkflowRequest, AddStatusRequest, AddTransitionRequest, CategoryWorkflowStatus, CategoryWorkflowTransition } from '../../../models/workflow.model';
 
 @Component({
   selector: 'app-workflow-management',
@@ -15,6 +15,8 @@ import { CategoryWorkflow, CreateWorkflowRequest, AddStatusRequest, AddTransitio
   styleUrls: ['./workflow-management.component.scss']
 })
 export class WorkflowManagementComponent implements OnInit {
+  @ViewChild('workflowsGrid') workflowsGrid!: ElementRef;
+
   workflows: CategoryWorkflow[] = [];
   categories: any[] = [];
   statusMasters: any[] = [];
@@ -30,8 +32,8 @@ export class WorkflowManagementComponent implements OnInit {
   transitionForm: FormGroup;
 
   loading = false;
-  error: string | null = null;
-  success: string | null = null;
+  error: string = '';
+  success: string = '';
 
   companyId: string = '';
 
@@ -84,7 +86,7 @@ export class WorkflowManagementComponent implements OnInit {
 
   loadWorkflows(): void {
     this.loading = true;
-    this.error = null;
+    this.error = '';
 
     this.workflowService.getAllWorkflows(this.companyId).subscribe({
       next: (response) => {
@@ -127,6 +129,19 @@ export class WorkflowManagementComponent implements OnInit {
     });
   }
 
+  // Workflow Card Scroll
+  scrollWorkflows(direction: 'left' | 'right'): void {
+    if (this.workflowsGrid) {
+      const scrollAmount = 300;
+      const container = this.workflowsGrid.nativeElement;
+      if (direction === 'left') {
+        container.scrollLeft -= scrollAmount;
+      } else {
+        container.scrollLeft += scrollAmount;
+      }
+    }
+  }
+
   openCreateModal(): void {
     this.workflowForm.reset({
       isActive: true,
@@ -147,7 +162,7 @@ export class WorkflowManagementComponent implements OnInit {
     }
 
     this.loading = true;
-    this.error = null;
+    this.error = '';
 
     const request: CreateWorkflowRequest = {
       ...this.workflowForm.value,
@@ -160,7 +175,7 @@ export class WorkflowManagementComponent implements OnInit {
         this.closeCreateModal();
         this.loadWorkflows();
         this.loading = false;
-        setTimeout(() => this.success = null, 3000);
+        setTimeout(() => this.success = '', 3000);
       },
       error: (error) => {
         this.error = 'Failed to create workflow';
@@ -172,6 +187,23 @@ export class WorkflowManagementComponent implements OnInit {
 
   selectWorkflow(workflow: CategoryWorkflow): void {
     this.selectedWorkflow = workflow;
+  }
+
+  openEditWorkflowModal(workflow?: CategoryWorkflow): void {
+    const wf = workflow || this.selectedWorkflow;
+    if (!wf) {
+      this.error = 'Please select a workflow first';
+      return;
+    }
+    this.selectedWorkflow = wf;
+    this.workflowForm.patchValue({
+      categoryId: wf.categoryId,
+      name: wf.name,
+      description: wf.description,
+      isActive: wf.isActive,
+      isDefault: wf.isDefault
+    });
+    this.showCreateModal = true;
   }
 
   openStatusModal(): void {
@@ -198,7 +230,7 @@ export class WorkflowManagementComponent implements OnInit {
     }
 
     this.loading = true;
-    this.error = null;
+    this.error = '';
 
     const request: AddStatusRequest = {
       workflowId: this.selectedWorkflow.id,
@@ -211,7 +243,7 @@ export class WorkflowManagementComponent implements OnInit {
         this.closeStatusModal();
         this.loadWorkflows();
         this.loading = false;
-        setTimeout(() => this.success = null, 3000);
+        setTimeout(() => this.success = '', 3000);
       },
       error: (error) => {
         this.error = 'Failed to add status';
@@ -219,6 +251,45 @@ export class WorkflowManagementComponent implements OnInit {
         console.error('Error adding status:', error);
       }
     });
+  }
+
+  editStatus(status: CategoryWorkflowStatus): void {
+    if (!this.selectedWorkflow) {
+      this.error = 'Please select a workflow first';
+      return;
+    }
+    this.statusForm.patchValue({
+      statusMasterId: status.statusMasterId,
+      displayOrder: status.displayOrder,
+      isInitialStatus: status.isInitialStatus,
+      defaultSLAHours: status.defaultSLAHours,
+      escalationHours: status.escalationHours,
+      requiresApproval: status.requiresApproval
+    });
+    this.showStatusModal = true;
+  }
+
+  confirmDeleteStatus(status: CategoryWorkflowStatus): void {
+    if (!this.selectedWorkflow) {
+      this.error = 'Please select a workflow first';
+      return;
+    }
+    if (confirm(`Are you sure you want to delete the status "${status.statusName}"?`)) {
+      this.loading = true;
+      this.workflowService.removeStatusFromWorkflow(this.selectedWorkflow.id, status.id).subscribe({
+        next: () => {
+          this.success = 'Status removed successfully';
+          this.loadWorkflows();
+          this.loading = false;
+          setTimeout(() => this.success = '', 3000);
+        },
+        error: (error) => {
+          this.error = 'Failed to remove status';
+          this.loading = false;
+          console.error('Error removing status:', error);
+        }
+      });
+    }
   }
 
   openTransitionModal(): void {
@@ -251,7 +322,7 @@ export class WorkflowManagementComponent implements OnInit {
     }
 
     this.loading = true;
-    this.error = null;
+    this.error = '';
 
     const request: AddTransitionRequest = {
       workflowId: this.selectedWorkflow.id,
@@ -264,7 +335,7 @@ export class WorkflowManagementComponent implements OnInit {
         this.closeTransitionModal();
         this.loadWorkflows();
         this.loading = false;
-        setTimeout(() => this.success = null, 3000);
+        setTimeout(() => this.success = '', 3000);
       },
       error: (error) => {
         this.error = 'Failed to add transition';
@@ -274,9 +345,80 @@ export class WorkflowManagementComponent implements OnInit {
     });
   }
 
+  editTransition(transition: CategoryWorkflowTransition): void {
+    if (!this.selectedWorkflow) {
+      this.error = 'Please select a workflow first';
+      return;
+    }
+    this.transitionForm.patchValue({
+      fromStatusId: transition.fromStatusId,
+      toStatusId: transition.toStatusId,
+      transitionName: transition.transitionName,
+      description: transition.description,
+      requiresComment: transition.requiresComment,
+      requiresApproval: transition.requiresApproval,
+      displayOrder: transition.displayOrder,
+      buttonColor: transition.buttonColor,
+      iconClass: transition.iconClass
+    });
+    this.showTransitionModal = true;
+  }
+
+  confirmDeleteTransition(transition: CategoryWorkflowTransition): void {
+    if (!this.selectedWorkflow) {
+      this.error = 'Please select a workflow first';
+      return;
+    }
+    if (confirm(`Are you sure you want to delete the transition "${transition.transitionName}"?`)) {
+      this.loading = true;
+      this.workflowService.removeTransitionRule(this.selectedWorkflow.id, transition.id).subscribe({
+        next: () => {
+          this.success = 'Transition removed successfully';
+          this.loadWorkflows();
+          this.loading = false;
+          setTimeout(() => this.success = '', 3000);
+        },
+        error: (error) => {
+          this.error = 'Failed to remove transition';
+          this.loading = false;
+          console.error('Error removing transition:', error);
+        }
+      });
+    }
+  }
+
   getStatusName(statusId: string): string {
     if (!this.selectedWorkflow) return '';
     const status = this.selectedWorkflow.workflowStatuses.find(s => s.statusMasterId === statusId);
     return status ? status.statusName : '';
+  }
+
+  getCategoryName(categoryId: string): string {
+    const category = this.categories.find(c => c.id === categoryId);
+    return category ? category.name : 'Unknown Category';
+  }
+
+  getTransitionFromStatusName(transition: CategoryWorkflowTransition): string {
+    if (!this.selectedWorkflow) return '';
+    const status = this.selectedWorkflow.workflowStatuses.find(s => s.id === transition.fromStatusId || s.statusMasterId === transition.fromStatusId);
+    return status ? status.statusName : '';
+  }
+
+  getTransitionToStatusName(transition: CategoryWorkflowTransition): string {
+    if (!this.selectedWorkflow) return '';
+    const status = this.selectedWorkflow.workflowStatuses.find(s => s.id === transition.toStatusId || s.statusMasterId === transition.toStatusId);
+    return status ? status.statusName : '';
+  }
+
+  getTransitionFromStatusColor(transition: CategoryWorkflowTransition): string {
+    if (!this.selectedWorkflow) return '#6B7280';
+    const status = this.selectedWorkflow.workflowStatuses.find(s => s.id === transition.fromStatusId || s.statusMasterId === transition.fromStatusId);
+    return status?.statusColorCode || '#6B7280';
+  }
+
+  getTransitionToStatusColor(transition: CategoryWorkflowTransition): string {
+    if (!this.selectedWorkflow) return '#3B82F6';
+    const status = this.selectedWorkflow.workflowStatuses.find(s => s.id === transition.toStatusId || s.statusMasterId === transition.toStatusId);
+    return status?.statusColorCode || '#3B82F6';
   }
 }

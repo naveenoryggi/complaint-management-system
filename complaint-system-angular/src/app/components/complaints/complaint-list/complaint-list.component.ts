@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ComplaintService } from '../../../services/complaint.service';
@@ -35,6 +35,9 @@ export class ComplaintListComponent implements OnInit, OnDestroy {
 
   // Search term
   searchTerm = '';
+
+  // Quick filter (for waitingResponse, unassigned, etc.)
+  quickFilter: string = 'all';
 
   // SLA Status Map
   slaStatusMap = new Map<string, SLAStatusSummary>();
@@ -127,6 +130,7 @@ export class ComplaintListComponent implements OnInit, OnDestroy {
     private masterDataService: MasterDataService,
     private slaService: SLAService,
     private router: Router,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {
     // CRITICAL FIX: Initialize formatters in constructor to bind 'this' context
@@ -184,6 +188,13 @@ export class ComplaintListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Check for filter query param (e.g., filter=waitingResponse)
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      if (params['filter']) {
+        this.quickFilter = params['filter'];
+      }
+    });
+
     this.loadMasterData();
     this.loadComplaints();
   }
@@ -257,12 +268,20 @@ export class ComplaintListComponent implements OnInit, OnDestroy {
     this.error = null;
     this.cdr.markForCheck();
 
+    // Determine if we need to apply special filters
+    const waitingForResponseOnly = this.quickFilter === 'waitingResponse';
+    const unassignedOnly = this.quickFilter === 'unassigned';
+
     this.complaintService.getComplaints(
       this.currentPage,
       this.pageSize,
       this.statusFilter,
       this.priorityFilter,
-      this.searchTerm
+      this.searchTerm,
+      undefined, // assignedToId
+      undefined, // complainantId
+      unassignedOnly,
+      waitingForResponseOnly
     ).subscribe({
       next: (response) => {
         if (response.isSuccess && response.data) {
@@ -356,8 +375,37 @@ export class ComplaintListComponent implements OnInit, OnDestroy {
     this.statusFilter = undefined;
     this.priorityFilter = undefined;
     this.searchTerm = '';
+    this.quickFilter = 'all';
     this.currentPage = 1;
     this.loadComplaints();
+  }
+
+  setQuickFilter(filter: string): void {
+    this.quickFilter = filter;
+    this.currentPage = 1;
+    this.loadComplaints();
+  }
+
+  getPageTitle(): string {
+    switch (this.quickFilter) {
+      case 'waitingResponse':
+        return 'Waiting for Response';
+      case 'unassigned':
+        return 'Unassigned Complaints';
+      default:
+        return 'All Complaints';
+    }
+  }
+
+  getPageSubtitle(): string {
+    switch (this.quickFilter) {
+      case 'waitingResponse':
+        return 'Tickets where customers have replied and are awaiting your response';
+      case 'unassigned':
+        return 'Tickets that have not been assigned to any handler';
+      default:
+        return 'Manage and track all customer complaints';
+    }
   }
 
   goHome(): void {

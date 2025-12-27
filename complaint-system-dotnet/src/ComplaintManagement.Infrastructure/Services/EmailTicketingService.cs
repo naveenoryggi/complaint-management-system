@@ -668,8 +668,9 @@ public class EmailTicketingService : IEmailTicketingService
                 (subject, body) = GetDefaultAutoAcknowledgement(complaint, config);
             }
 
-            // Send the email
-            await SendTicketReplyAsync(
+            // Send the email - IMPORTANT: Capture and check the result!
+            _logger.LogInformation("AUTO-ACK: Calling SendTicketReplyAsync for complaint {ComplaintId} to {ToEmail}", complaintId, toEmail);
+            var sendResult = await SendTicketReplyAsync(
                 complaintId,
                 toEmail,
                 subject,
@@ -678,8 +679,15 @@ public class EmailTicketingService : IEmailTicketingService
                 isInternal: false,
                 cancellationToken: cancellationToken);
 
-            _logger.LogInformation("Sent auto-acknowledgement for complaint {ComplaintId} to {Email}",
-                complaintId, toEmail);
+            if (!sendResult.IsSuccess)
+            {
+                _logger.LogError("AUTO-ACK: SendTicketReplyAsync FAILED for complaint {ComplaintId}: {Error}",
+                    complaintId, sendResult.Message);
+                return Result.Failure($"Failed to send email: {sendResult.Message}");
+            }
+
+            _logger.LogInformation("AUTO-ACK: SUCCESS - Sent auto-acknowledgement for complaint {ComplaintId} to {Email}, EmailMessageId: {EmailId}",
+                complaintId, toEmail, sendResult.Data);
 
             return Result.Success();
         }
@@ -993,9 +1001,16 @@ public class EmailTicketingService : IEmailTicketingService
         var complaint = await _unitOfWork.Repository<Complaint>().GetByIdAsync(complaintId, cancellationToken);
         if (complaint != null)
         {
-            // Logic to update status based on business rules
-            // For now, just log - you may want to implement status transition logic
-            _logger.LogInformation("New email received for complaint {ComplaintId}", complaintId);
+            // Mark complaint as having a customer response that needs attention
+            complaint.HasCustomerResponse = true;
+            complaint.LastResponseFrom = "Customer";
+            complaint.LastResponseAt = DateTime.UtcNow;
+            complaint.UpdatedAt = DateTime.UtcNow;
+
+            _unitOfWork.Repository<Complaint>().Update(complaint);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("New email received for complaint {ComplaintId} - HasCustomerResponse set to true", complaintId);
         }
     }
 

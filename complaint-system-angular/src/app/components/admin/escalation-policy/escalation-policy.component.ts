@@ -1,8 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, KeyValue } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { EscalationService } from '../../../services/escalation.service';
+import { BranchService } from '../../../services/branch.service';
+import { DepartmentService } from '../../../services/department.service';
+import { SectionService } from '../../../services/section.service';
+import { CategoryService } from '../../../services/category.service';
 import { AuthService } from '../../../services/auth.service';
+import { LoggerService } from '../../../core/services/logger.service';
 import {
   EscalationPolicy,
   CreateEscalationPolicyRequest,
@@ -40,6 +45,10 @@ export class EscalationPolicyComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
 
+  // Delete confirmation
+  showDeleteConfirm = false;
+  policyToDelete: EscalationPolicy | null = null;
+
   testResult: PolicyResolutionResult | null = null;
 
   // Mock data - in real app, fetch from API
@@ -61,7 +70,12 @@ export class EscalationPolicyComponent implements OnInit {
 
   constructor(
     private escalationService: EscalationService,
+    private branchService: BranchService,
+    private departmentService: DepartmentService,
+    private sectionService: SectionService,
+    private categoryService: CategoryService,
     private authService: AuthService,
+    private logger: LoggerService,
     private fb: FormBuilder
   ) {
     this.initForms();
@@ -135,27 +149,50 @@ export class EscalationPolicyComponent implements OnInit {
   }
 
   loadOrganizationalUnits(): void {
-    // Mock data - in real app, fetch from API
-    this.branches = [
-      { id: '1', name: 'Main Branch' },
-      { id: '2', name: 'North Branch' }
-    ];
-    this.departments = [
-      { id: '1', name: 'IT Department' },
-      { id: '2', name: 'HR Department' },
-      { id: '3', name: 'Finance Department' }
-    ];
-    this.sections = [
-      { id: '1', name: 'Development' },
-      { id: '2', name: 'Support' },
-      { id: '3', name: 'Operations' }
-    ];
-    this.categories = [
-      { id: '1', name: 'Technical Issue' },
-      { id: '2', name: 'Service Request' },
-      { id: '3', name: 'Bug Report' },
-      { id: '4', name: 'Feature Request' }
-    ];
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser) return;
+
+    // Load branches from API
+    this.branchService.getBranches(currentUser.companyId, false).subscribe({
+      next: (data) => {
+        this.branches = data.map(b => ({ id: b.id, name: b.name }));
+        // Load departments for each branch
+        data.forEach(branch => {
+          this.departmentService.getDepartments(branch.id, false).subscribe({
+            next: (depts) => {
+              depts.forEach(dept => {
+                if (!this.departments.find(d => d.id === dept.id)) {
+                  this.departments.push({ id: dept.id, name: dept.name });
+                }
+                // Load sections for each department
+                this.sectionService.getSections(dept.id, false).subscribe({
+                  next: (sects) => {
+                    sects.forEach(sect => {
+                      if (!this.sections.find(s => s.id === sect.id)) {
+                        this.sections.push({ id: sect.id, name: sect.name });
+                      }
+                    });
+                  }
+                });
+              });
+            }
+          });
+        });
+      },
+      error: (error) => {
+        this.logger.error('Error loading branches', error, 'EscalationPolicyComponent');
+      }
+    });
+
+    // Load categories from API
+    this.categoryService.getCategories().subscribe({
+      next: (response) => {
+        this.categories = (response.data || []).map((c: any) => ({ id: c.id, name: c.name }));
+      },
+      error: (error) => {
+        this.logger.error('Error loading categories', error, 'EscalationPolicyComponent');
+      }
+    });
   }
 
   get filteredPolicies(): EscalationPolicy[] {
@@ -332,22 +369,9 @@ export class EscalationPolicyComponent implements OnInit {
   }
 
   deletePolicy(policy: EscalationPolicy): void {
-    if (!confirm(`Are you sure you want to delete "${policy.name}"? This action cannot be undone.`)) {
-      return;
-    }
-
-    this.loading = true;
-    this.escalationService.deletePolicy(policy.id).subscribe({
-      next: () => {
-        this.successMessage = 'Escalation policy deleted successfully!';
-        this.loadPolicies();
-        setTimeout(() => this.successMessage = '', 3000);
-      },
-      error: (error) => {
-        this.errorMessage = error.error?.message || 'Failed to delete escalation policy.';
-        this.loading = false;
-      }
-    });
+    this.policyToDelete = policy;
+    this.showDeleteConfirm = true;
+    this.errorMessage = '';
   }
 
   toggleTestPanel(): void {
@@ -396,10 +420,10 @@ export class EscalationPolicyComponent implements OnInit {
   }
 
   getScopeColor(policy: EscalationPolicy): string {
-    if (policy.categoryId) return 'purple';
-    if (policy.sectionId) return 'orange';
-    if (policy.departmentId) return 'blue';
-    if (policy.branchId) return 'green';
+    if (policy.categoryId) return 'pink';
+    if (policy.sectionId) return 'purple';
+    if (policy.departmentId) return 'indigo';
+    if (policy.branchId) return 'blue';
     return 'gray';
   }
 
@@ -443,5 +467,100 @@ export class EscalationPolicyComponent implements OnInit {
 
   trackByGroupKey(index: number, item: any): string {
     return item.key;
+  }
+
+  // Time ago helper
+  getTimeAgo(date: Date | string | undefined): string {
+    if (!date) return 'Unknown';
+
+    const now = new Date();
+    const past = new Date(date);
+    const diffMs = now.getTime() - past.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 30) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+
+    return past.toLocaleDateString();
+  }
+
+  // Delete confirmation methods
+  openDeleteConfirm(policy: EscalationPolicy): void {
+    this.policyToDelete = policy;
+    this.showDeleteConfirm = true;
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm = false;
+    this.policyToDelete = null;
+  }
+
+  confirmDelete(): void {
+    if (!this.policyToDelete) return;
+
+    this.loading = true;
+    this.escalationService.deletePolicy(this.policyToDelete.id).subscribe({
+      next: () => {
+        this.successMessage = 'Escalation policy deleted successfully!';
+        this.loadPolicies();
+        this.cancelDelete();
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (error) => {
+        this.errorMessage = error.error?.message || 'Failed to delete escalation policy.';
+        this.loading = false;
+        this.cancelDelete();
+      }
+    });
+  }
+
+  // keyvalue pipe order preservation
+  originalOrder = (): number => 0;
+
+  // Group icon helper
+  getGroupIcon(groupKey: string): string {
+    const iconMap: { [key: string]: string } = {
+      'Company-wide': 'business',
+      'Branch-specific': 'location_on',
+      'Department-specific': 'apartment',
+      'Section-specific': 'groups',
+      'Category-specific': 'category'
+    };
+    return iconMap[groupKey] || 'folder';
+  }
+
+  // Scope type helper
+  getScopeType(policy: EscalationPolicy): string {
+    if (policy.categoryId) return 'category';
+    if (policy.sectionId) return 'section';
+    if (policy.departmentId) return 'department';
+    if (policy.branchId) return 'branch';
+    return 'company';
+  }
+
+  // Material icon for scope
+  getScopeMaterialIcon(policy: EscalationPolicy): string {
+    if (policy.categoryId) return 'category';
+    if (policy.sectionId) return 'groups';
+    if (policy.departmentId) return 'apartment';
+    if (policy.branchId) return 'location_on';
+    return 'business';
+  }
+
+  // Scope description helper
+  getScopeDescription(policy: EscalationPolicy): string {
+    const parts: string[] = [];
+
+    if (policy.branchName) parts.push(policy.branchName);
+    if (policy.departmentName) parts.push(policy.departmentName);
+    if (policy.sectionName) parts.push(policy.sectionName);
+    if (policy.categoryName) parts.push(policy.categoryName);
+
+    if (parts.length === 0) return 'Company-wide policy';
+    return parts.join(' > ');
   }
 }

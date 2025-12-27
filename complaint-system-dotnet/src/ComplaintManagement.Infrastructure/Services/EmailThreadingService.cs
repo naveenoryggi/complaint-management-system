@@ -122,13 +122,15 @@ public class EmailThreadingService : IEmailThreadingService
 
                 if (toAddresses.Any())
                 {
+                    // Don't pass 'from'/'fromName' - let EmailService use the configured
+                    // EmailServerSettings.FromEmail which matches the authenticated SMTP account.
+                    // This prevents "SendAsDenied" errors from Microsoft 365/Exchange.
+                    // The emailMessage stores the user's email for display in the UI thread view.
                     await _emailService.SendEmailAsync(
                         toAddresses,
                         request.Subject,
                         request.HtmlBody,
                         isHtml: true,
-                        from: emailMessage.FromEmail,
-                        fromName: emailMessage.FromName,
                         cancellationToken: cancellationToken);
 
                     emailMessage.Status = EmailStatus.Sent;
@@ -157,7 +159,15 @@ public class EmailThreadingService : IEmailThreadingService
             // Step 10: Update complaint participants
             await UpdateComplaintParticipantsAsync(complaint.Id, recipients, currentUserId, cancellationToken);
 
+            // Step 11: Clear HasCustomerResponse flag since handler has replied
+            complaint.HasCustomerResponse = false;
+            complaint.LastResponseFrom = "Handler";
+            complaint.LastResponseAt = DateTime.UtcNow;
+            complaint.UpdatedAt = DateTime.UtcNow;
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Handler replied to complaint {ComplaintId} - HasCustomerResponse cleared", complaint.Id);
 
             return (true, "Email sent successfully", emailMessage);
         }
@@ -183,6 +193,7 @@ public class EmailThreadingService : IEmailThreadingService
 
     /// <summary>
     /// Mark email as read by user
+    /// When a customer reply is read, clear the HasCustomerResponse flag
     /// </summary>
     public async Task MarkAsReadAsync(Guid emailMessageId, Guid userId, CancellationToken cancellationToken = default)
     {
@@ -195,23 +206,57 @@ public class EmailThreadingService : IEmailThreadingService
             emailMessage.ReadBy = userId;
             emailMessage.ReadAt = DateTime.UtcNow;
 
+            // If this is an inbound customer email, clear the HasCustomerResponse flag on the complaint
+            if (emailMessage.ComplaintId.HasValue && emailMessage.Direction == EmailDirection.Inbound)
+            {
+                var complaint = await _unitOfWork.Complaints.GetByIdAsync(emailMessage.ComplaintId.Value, cancellationToken);
+                if (complaint != null && complaint.HasCustomerResponse)
+                {
+                    complaint.HasCustomerResponse = false;
+                    complaint.UpdatedAt = DateTime.UtcNow;
+                    _logger.LogInformation("Cleared HasCustomerResponse for complaint {ComplaintId} - email marked as read by user {UserId}",
+                        complaint.Id, userId);
+                }
+            }
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 
     /// <summary>
     /// Mark all emails in complaint as read
+    /// When all customer replies are read, clear the HasCustomerResponse flag
     /// </summary>
     public async Task MarkAllAsReadAsync(Guid complaintId, Guid userId, CancellationToken cancellationToken = default)
     {
         var emailMessages = await _unitOfWork.Repository<EmailMessage>()
             .FindAsync(em => em.ComplaintId == complaintId && !em.IsRead, cancellationToken);
 
+        bool hasUnreadInboundEmails = false;
         foreach (var email in emailMessages)
         {
             email.IsRead = true;
             email.ReadBy = userId;
             email.ReadAt = DateTime.UtcNow;
+
+            // Track if any inbound (customer) emails were marked as read
+            if (email.Direction == EmailDirection.Inbound)
+            {
+                hasUnreadInboundEmails = true;
+            }
+        }
+
+        // If any inbound emails were marked as read, clear HasCustomerResponse
+        if (hasUnreadInboundEmails)
+        {
+            var complaint = await _unitOfWork.Complaints.GetByIdAsync(complaintId, cancellationToken);
+            if (complaint != null && complaint.HasCustomerResponse)
+            {
+                complaint.HasCustomerResponse = false;
+                complaint.UpdatedAt = DateTime.UtcNow;
+                _logger.LogInformation("Cleared HasCustomerResponse for complaint {ComplaintId} - all emails marked as read by user {UserId}",
+                    complaintId, userId);
+            }
         }
 
         if (emailMessages.Any())

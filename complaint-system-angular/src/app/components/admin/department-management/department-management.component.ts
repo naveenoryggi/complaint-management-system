@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { DepartmentService } from '../../../services/department.service';
 import { BranchService } from '../../../services/branch.service';
 import { AuthService } from '../../../services/auth.service';
@@ -89,8 +88,7 @@ export class DepartmentManagementComponent
     private departmentService: DepartmentService,
     private branchService: BranchService,
     authService: AuthService,
-    logger: LoggerService,
-    private router: Router
+    logger: LoggerService
   ) {
     super(authService, logger);
     this.form = this.getEmptyForm();
@@ -464,10 +462,6 @@ export class DepartmentManagementComponent
   onHrResponsibleSelected(user: UserSearchResult | null): void {
     this.hrResponsibleId = user?.id;
     this.hrResponsibleName = user?.fullName;
-  }
-
-  navigateBack(): void {
-    this.router.navigate(['/dashboard']);
   }
 
   // TrackBy functions for *ngFor optimization

@@ -1,12 +1,15 @@
 <div class="sla-management-container">
   <div class="page-header">
     <div class="header-content">
-      <h2><i class="bi bi-clock-history"></i> SLA Management</h2>
+      <div class="title-row">
+        <span class="material-icons-round header-icon">schedule</span>
+        <h2>SLA Management</h2>
+      </div>
       <p class="text-muted">Configure Service Level Agreements for your complaint system</p>
     </div>
     <div class="header-actions">
       <button class="btn btn-outline-secondary" (click)="setupService.markStepCompleted('global-sla-settings')">
-        <i class="bi bi-check-circle"></i> Mark as Configured
+        <span class="material-icons-round">check_circle</span> Mark as Configured
       </button>
     </div>
   </div>
@@ -14,16 +17,16 @@
   <!-- Tab Navigation -->
   <div class="tab-navigation">
     <button class="tab-button" [class.active]="activeTab() === 'global'" (click)="setActiveTab('global')">
-      <i class="bi bi-gear-fill"></i> Global Settings
+      <span class="material-icons-round">settings</span> Global Settings
     </button>
     <button class="tab-button" [class.active]="activeTab() === 'levels'" (click)="setActiveTab('levels')">
-      <i class="bi bi-bar-chart-steps"></i> SLA Levels
+      <span class="material-icons-round">stacked_bar_chart</span> SLA Levels
     </button>
     <button class="tab-button" [class.active]="activeTab() === 'category'" (click)="setActiveTab('category')">
-      <i class="bi bi-tags-fill"></i> Category SLA
+      <span class="material-icons-round">category</span> Category SLA
     </button>
     <button class="tab-button" [class.active]="activeTab() === 'priority'" (click)="setActiveTab('priority')">
-      <i class="bi bi-flag-fill"></i> Priority SLA
+      <span class="material-icons-round">flag</span> Priority SLA
     </button>
   </div>
 
@@ -161,7 +164,7 @@
 
           <div class="form-actions">
             <button type="button" class="btn btn-primary" (click)="saveGlobalSettings()">
-              <i class="bi bi-save"></i> Save Global Settings
+              <span class="material-icons-round">save</span> Save Global Settings
             </button>
           </div>
         </form>
@@ -174,7 +177,7 @@
         <div class="panel-header">
           <h3>SLA Level Tiers</h3>
           <button class="btn btn-primary" (click)="openLevelForm()">
-            <i class="bi bi-plus-circle"></i> Add SLA Level
+            <span class="material-icons-round">add_circle</span> Add SLA Level
           </button>
         </div>
 
@@ -186,21 +189,21 @@
                   <span class="level-color" [style.background-color]="level.colorCode"></span>
                   <h4>{{ level.name }}</h4>
                   <span class="status-badge" [class.active]="level.isActive">
-                    {{ getStatusDot(level.isActive) }} {{ level.isActive ? 'Active' : 'Inactive' }}
+                    {{ level.isActive ? 'Active' : 'Inactive' }}
                   </span>
                 </div>
                 <div class="level-actions">
                   <button class="btn-icon" (click)="moveLevelUp(level)" title="Move Up">
-                    <i class="bi bi-arrow-up"></i>
+                    <span class="material-icons-round">arrow_upward</span>
                   </button>
                   <button class="btn-icon" (click)="moveLevelDown(level)" title="Move Down">
-                    <i class="bi bi-arrow-down"></i>
+                    <span class="material-icons-round">arrow_downward</span>
                   </button>
                   <button class="btn-icon" (click)="openLevelForm(level)" title="Edit">
-                    <i class="bi bi-pencil"></i>
+                    <span class="material-icons-round">edit</span>
                   </button>
                   <button class="btn-icon btn-danger" (click)="deleteSLALevel(level)" title="Delete">
-                    <i class="bi bi-trash"></i>
+                    <span class="material-icons-round">delete</span>
                   </button>
                 </div>
               </div>
@@ -209,14 +212,14 @@
 
               <div class="level-metrics">
                 <div class="metric">
-                  <i class="bi bi-clock"></i>
+                  <span class="material-icons-round">schedule</span>
                   <div>
                     <span class="metric-label">Response Time</span>
                     <span class="metric-value">{{ formatTimeDisplay(level.defaultResponseTime, level.responseTimeUnit) }}</span>
                   </div>
                 </div>
                 <div class="metric">
-                  <i class="bi bi-check-circle"></i>
+                  <span class="material-icons-round">task_alt</span>
                   <div>
                     <span class="metric-label">Resolution Time</span>
                     <span class="metric-value">{{ formatTimeDisplay(level.defaultResolutionTime, level.resolutionTimeUnit) }}</span>
@@ -231,6 +234,17 @@
           }
         </div>
 
+        @if (slaLevels().length === 0 && !loading()) {
+          <div class="empty-state">
+            <span class="material-icons-round">layers</span>
+            <h4>No SLA Levels</h4>
+            <p>Create your first SLA level to define response and resolution times</p>
+            <button class="btn btn-primary" (click)="openLevelForm()">
+              <span class="material-icons-round">add_circle</span> Create First Level
+            </button>
+          </div>
+        }
+
         <!-- SLA Level Form Modal -->
         @if (showLevelForm()) {
           <div class="modal-overlay" (click)="closeLevelForm()">
@@ -238,7 +252,7 @@
               <div class="modal-header">
                 <h3>{{ editingLevel() ? 'Edit' : 'Create' }} SLA Level</h3>
                 <button class="btn-close" (click)="closeLevelForm()">
-                  <i class="bi bi-x-lg"></i>
+                  <span class="material-icons-round">close</span>
                 </button>
               </div>
 
@@ -336,7 +350,7 @@
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" (click)="closeLevelForm()">Cancel</button>
                   <button type="submit" class="btn btn-primary" [disabled]="slaLevelForm.invalid">
-                    <i class="bi bi-save"></i> {{ editingLevel() ? 'Update' : 'Create' }} Level
+                    <span class="material-icons-round">save</span> {{ editingLevel() ? 'Update' : 'Create' }} Level
                   </button>
                 </div>
               </form>
@@ -350,7 +364,7 @@
     @if (activeTab() === 'category') {
       <div class="mapping-panel">
         <div class="info-banner">
-          <i class="bi bi-info-circle"></i>
+          <span class="material-icons-round">info</span>
           <div>
             <strong>Category SLA Configuration</strong>
             <p>Assign SLA levels to each complaint category. When a complaint is created with a specific category, it will automatically use the configured SLA times. You can override response/resolution times per category.</p>
@@ -360,21 +374,21 @@
         <div class="panel-header">
           <h3>Category SLA Mappings</h3>
           <button class="btn btn-primary" (click)="openCategoryMappingForm()">
-            <i class="bi bi-plus-circle"></i> Add Category Mapping
+            <span class="material-icons-round">add_circle</span> Add Category Mapping
           </button>
         </div>
 
         @if (loading()) {
           <div class="loading-state">
-            <i class="bi bi-hourglass-split"></i> Loading mappings...
+            <span class="material-icons-round spinning">hourglass_empty</span> Loading mappings...
           </div>
         } @else if (categoryMappings().length === 0) {
           <div class="empty-state">
-            <i class="bi bi-inbox"></i>
+            <span class="material-icons-round">inbox</span>
             <h4>No Category Mappings</h4>
             <p>Create your first category SLA mapping to assign SLA levels to categories</p>
             <button class="btn btn-primary" (click)="openCategoryMappingForm()">
-              <i class="bi bi-plus-circle"></i> Create First Mapping
+              <span class="material-icons-round">add_circle</span> Create First Mapping
             </button>
           </div>
         } @else {
@@ -405,7 +419,7 @@
                       {{ mapping.effectiveResponseTimeDisplay }}
                       @if (mapping.overrideResponseTime) {
                         <span class="override-badge" title="Override applied">
-                          <i class="bi bi-pencil-square"></i>
+                          <span class="material-icons-round">edit_note</span>
                         </span>
                       }
                     </td>
@@ -413,21 +427,21 @@
                       {{ mapping.effectiveResolutionTimeDisplay }}
                       @if (mapping.overrideResolutionTime) {
                         <span class="override-badge" title="Override applied">
-                          <i class="bi bi-pencil-square"></i>
+                          <span class="material-icons-round">edit_note</span>
                         </span>
                       }
                     </td>
                     <td>
                       <span class="status-badge" [class.active]="mapping.isActive">
-                        {{ getStatusDot(mapping.isActive) }} {{ mapping.isActive ? 'Active' : 'Inactive' }}
+                        {{ mapping.isActive ? 'Active' : 'Inactive' }}
                       </span>
                     </td>
                     <td class="action-buttons">
                       <button class="btn-icon" (click)="openCategoryMappingForm(mapping)" title="Edit">
-                        <i class="bi bi-pencil"></i>
+                        <span class="material-icons-round">edit</span>
                       </button>
                       <button class="btn-icon btn-danger" (click)="deleteCategoryMapping(mapping)" title="Delete">
-                        <i class="bi bi-trash"></i>
+                        <span class="material-icons-round">delete</span>
                       </button>
                     </td>
                   </tr>
@@ -444,7 +458,7 @@
               <div class="modal-header">
                 <h3>{{ editingCategoryMapping() ? 'Edit' : 'Create' }} Category SLA Mapping</h3>
                 <button class="btn-close" (click)="closeCategoryMappingForm()">
-                  <i class="bi bi-x-lg"></i>
+                  <span class="material-icons-round">close</span>
                 </button>
               </div>
 
@@ -503,9 +517,9 @@
                   <button type="button" class="btn btn-secondary" (click)="closeCategoryMappingForm()">Cancel</button>
                   <button type="submit" class="btn btn-primary" [disabled]="categoryMappingForm.invalid || savingCategoryMapping()">
                     @if (savingCategoryMapping()) {
-                      <i class="bi bi-hourglass-split"></i> Saving...
+                      <span class="material-icons-round spinning">hourglass_empty</span> Saving...
                     } @else {
-                      <i class="bi bi-save"></i> {{ editingCategoryMapping() ? 'Update' : 'Create' }} Mapping
+                      <span class="material-icons-round">save</span> {{ editingCategoryMapping() ? 'Update' : 'Create' }} Mapping
                     }
                   </button>
                 </div>
@@ -520,7 +534,7 @@
     @if (activeTab() === 'priority') {
       <div class="mapping-panel">
         <div class="info-banner">
-          <i class="bi bi-info-circle"></i>
+          <span class="material-icons-round">info</span>
           <div>
             <strong>Priority SLA Configuration</strong>
             <p>Assign SLA levels to each priority. Critical priorities get faster response times. The system will use the shortest SLA time between category and priority mappings. You can override response/resolution times per priority.</p>
@@ -530,21 +544,21 @@
         <div class="panel-header">
           <h3>Priority SLA Mappings</h3>
           <button class="btn btn-primary" (click)="openPriorityMappingForm()">
-            <i class="bi bi-plus-circle"></i> Add Priority Mapping
+            <span class="material-icons-round">add_circle</span> Add Priority Mapping
           </button>
         </div>
 
         @if (loading()) {
           <div class="loading-state">
-            <i class="bi bi-hourglass-split"></i> Loading mappings...
+            <span class="material-icons-round spinning">hourglass_empty</span> Loading mappings...
           </div>
         } @else if (priorityMappings().length === 0) {
           <div class="empty-state">
-            <i class="bi bi-inbox"></i>
+            <span class="material-icons-round">inbox</span>
             <h4>No Priority Mappings</h4>
             <p>Create your first priority SLA mapping to assign SLA levels to priorities</p>
             <button class="btn btn-primary" (click)="openPriorityMappingForm()">
-              <i class="bi bi-plus-circle"></i> Create First Mapping
+              <span class="material-icons-round">add_circle</span> Create First Mapping
             </button>
           </div>
         } @else {
@@ -575,7 +589,7 @@
                       {{ mapping.effectiveResponseTimeDisplay }}
                       @if (mapping.overrideResponseTime) {
                         <span class="override-badge" title="Override applied">
-                          <i class="bi bi-pencil-square"></i>
+                          <span class="material-icons-round">edit_note</span>
                         </span>
                       }
                     </td>
@@ -583,21 +597,21 @@
                       {{ mapping.effectiveResolutionTimeDisplay }}
                       @if (mapping.overrideResolutionTime) {
                         <span class="override-badge" title="Override applied">
-                          <i class="bi bi-pencil-square"></i>
+                          <span class="material-icons-round">edit_note</span>
                         </span>
                       }
                     </td>
                     <td>
                       <span class="status-badge" [class.active]="mapping.isActive">
-                        {{ getStatusDot(mapping.isActive) }} {{ mapping.isActive ? 'Active' : 'Inactive' }}
+                        {{ mapping.isActive ? 'Active' : 'Inactive' }}
                       </span>
                     </td>
                     <td class="action-buttons">
                       <button class="btn-icon" (click)="openPriorityMappingForm(mapping)" title="Edit">
-                        <i class="bi bi-pencil"></i>
+                        <span class="material-icons-round">edit</span>
                       </button>
                       <button class="btn-icon btn-danger" (click)="deletePriorityMapping(mapping)" title="Delete">
-                        <i class="bi bi-trash"></i>
+                        <span class="material-icons-round">delete</span>
                       </button>
                     </td>
                   </tr>
@@ -614,7 +628,7 @@
               <div class="modal-header">
                 <h3>{{ editingPriorityMapping() ? 'Edit' : 'Create' }} Priority SLA Mapping</h3>
                 <button class="btn-close" (click)="closePriorityMappingForm()">
-                  <i class="bi bi-x-lg"></i>
+                  <span class="material-icons-round">close</span>
                 </button>
               </div>
 
@@ -673,9 +687,9 @@
                   <button type="button" class="btn btn-secondary" (click)="closePriorityMappingForm()">Cancel</button>
                   <button type="submit" class="btn btn-primary" [disabled]="priorityMappingForm.invalid || savingPriorityMapping()">
                     @if (savingPriorityMapping()) {
-                      <i class="bi bi-hourglass-split"></i> Saving...
+                      <span class="material-icons-round spinning">hourglass_empty</span> Saving...
                     } @else {
-                      <i class="bi bi-save"></i> {{ editingPriorityMapping() ? 'Update' : 'Create' }} Mapping
+                      <span class="material-icons-round">save</span> {{ editingPriorityMapping() ? 'Update' : 'Create' }} Mapping
                     }
                   </button>
                 </div>

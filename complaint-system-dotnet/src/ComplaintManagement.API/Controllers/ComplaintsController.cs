@@ -52,6 +52,8 @@ public class ComplaintsController : ControllerBase
     /// <param name="assignedToId">Filter by assigned user</param>
     /// <param name="complainantId">Filter by complainant user</param>
     /// <param name="searchTerm">Search in title and description</param>
+    /// <param name="unassignedOnly">When true, returns only unassigned complaints</param>
+    /// <param name="waitingForResponseOnly">When true, returns only complaints awaiting handler response</param>
     /// <returns>Paginated list of complaints</returns>
     [HttpGet]
     [ProducesResponseType(typeof(Result<PagedResult<ComplaintDto>>), StatusCodes.Status200OK)]
@@ -64,7 +66,9 @@ public class ComplaintsController : ControllerBase
         [FromQuery] Guid? companyId = null,
         [FromQuery] Guid? assignedToId = null,
         [FromQuery] Guid? complainantId = null,
-        [FromQuery] string? searchTerm = null)
+        [FromQuery] string? searchTerm = null,
+        [FromQuery] bool unassignedOnly = false,
+        [FromQuery] bool waitingForResponseOnly = false)
     {
         try
         {
@@ -110,7 +114,9 @@ public class ComplaintsController : ControllerBase
                 CompanyId = companyId,
                 AssignedToId = assignedToId,
                 ComplainantId = complainantId,
-                SearchTerm = searchTerm
+                SearchTerm = searchTerm,
+                UnassignedOnly = unassignedOnly,
+                WaitingForResponseOnly = waitingForResponseOnly
             };
 
             var result = await _mediator.Send(query);
@@ -504,10 +510,10 @@ public class ComplaintsController : ControllerBase
     /// Upload attachments for a complaint
     /// </summary>
     /// <param name="id">Complaint ID</param>
-    /// <param name="files">Files to upload (max 10 files, 5MB each)</param>
+    /// <param name="files">Files to upload (max 10 files, 10MB each)</param>
     /// <returns>List of uploaded attachments</returns>
     [HttpPost("{id}/attachments")]
-    [RequestSizeLimit(52428800)] // 50MB total (10 files * 5MB)
+    [RequestSizeLimit(104857600)] // 100MB total (10 files * 10MB)
     [ProducesResponseType(typeof(Result<List<ComplaintAttachment>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -536,12 +542,12 @@ public class ComplaintsController : ControllerBase
                 return BadRequest(new { message = "Maximum 10 files allowed per upload" });
             }
 
-            const long maxFileSize = 5 * 1024 * 1024; // 5MB
+            const long maxFileSize = 10 * 1024 * 1024; // 10MB
             foreach (var file in files)
             {
                 if (file.Length > maxFileSize)
                 {
-                    return BadRequest(new { message = $"File '{file.FileName}' exceeds maximum size of 5MB" });
+                    return BadRequest(new { message = $"File '{file.FileName}' exceeds maximum size of 10MB" });
                 }
             }
 

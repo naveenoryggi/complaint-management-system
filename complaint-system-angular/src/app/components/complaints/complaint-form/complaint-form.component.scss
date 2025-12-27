@@ -261,35 +261,41 @@ $font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
   margin-top: 6px;
 }
 
-// Upload Zone
-.upload-zone {
+// Upload Container - new cleaner design
+.upload-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 40px 24px; // px-6 py-10
-  margin-top: 24px; // mt-6
-  background-color: rgba(255, 255, 255, 0.5); // bg-white/50
-  border: 1px dashed rgba(15, 23, 42, 0.25); // border-dashed border-slate-900/25
-  border-radius: 8px; // rounded-lg
-  cursor: pointer;
-  transition: all 0.2s ease;
+  gap: 24px;
+  padding: 32px 24px;
+  margin-top: 24px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px dashed rgba(15, 23, 42, 0.25);
+  border-radius: 8px;
 
-  &:hover:not(.disabled) {
-    background-color: rgba(255, 255, 255, 0.7);
-    border-color: rgba(15, 23, 42, 0.4);
+  @media (min-width: 640px) {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 24px 32px;
   }
+}
 
-  &.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.upload-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    text-align: left;
   }
 }
 
 .upload-icon {
   color: $muted-light;
-  margin-bottom: 16px; // mt-4
-  font-size: 3rem; // text-5xl
+  flex-shrink: 0;
 
   svg {
     width: 48px;
@@ -297,27 +303,84 @@ $font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
   }
 }
 
-.upload-text {
-  font-size: 0.875rem; // text-sm
-  color: $muted-light;
-  line-height: 1.5; // leading-6
+.upload-text-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.upload-link {
-  color: $primary;
-  font-weight: 600; // font-semibold
-  cursor: pointer;
-
-  &:hover {
-    color: rgba($primary, 0.8);
-  }
+.upload-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: $text-light;
+  margin: 0;
 }
 
 .upload-hint {
-  font-size: 0.75rem; // text-xs
+  font-size: 0.8125rem;
   color: $muted-light;
-  line-height: 1.25; // leading-5
-  margin-top: 4px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+// Hidden file input - positioned off-screen for Chrome compatibility
+// Using opacity:0 and position:absolute instead of display:none
+// because Chrome blocks file dialogs when input has display:none
+.file-input-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+// Styled upload button (label element)
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: white;
+  background-color: $primary;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+  }
+
+  span {
+    pointer-events: none;
+  }
+
+  &:hover:not(.disabled) {
+    background-color: $primary-hover;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($primary, 0.3);
+  }
+
+  &:active:not(.disabled) {
+    transform: translateY(0);
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: $muted-light;
+    pointer-events: none;
+  }
 }
 
 // Files List
@@ -326,6 +389,36 @@ $font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.files-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  margin-bottom: 4px;
+}
+
+.files-count {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-light;
+}
+
+.clear-all-btn {
+  background: none;
+  border: none;
+  color: $primary;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background-color: rgba($primary, 0.1);
+  }
 }
 
 .file-item {
@@ -530,9 +623,13 @@ $font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
   .label-hint,
   .checkbox-hint,
   .upload-hint,
-  .upload-text,
-  .file-size {
+  .file-size,
+  .files-count {
     color: #9CA3AF;
+  }
+
+  .upload-title {
+    color: #F9FAFB;
   }
 
   .form-label,
@@ -555,7 +652,7 @@ $font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
     }
   }
 
-  .upload-zone {
+  .upload-container {
     background-color: rgba(30, 41, 59, 0.2);
     border-color: rgba(248, 250, 252, 0.25);
   }

@@ -1,86 +1,12 @@
 <div class="dashboard-redesign">
-  <!-- Modern Header -->
-  <header class="main-header">
-    <div class="header-container">
-      <div class="header-left">
-        <div class="logo-section">
-          <div class="logo-icon">
-            <img *ngIf="companyLogoUrl" [src]="companyLogoUrl" [alt]="company?.name || 'Company Logo'" class="company-logo">
-            <svg *ngIf="!companyLogoUrl" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z" fill="currentColor"></path>
-            </svg>
-          </div>
-          <h2 class="company-name">{{ company?.name || 'OryggiTech' }}</h2>
-        </div>
-        <nav class="main-nav">
-          <a class="nav-link active" (click)="navigateToPage('/dashboard')">Dashboard</a>
-          <a class="nav-link" (click)="navigateToPage('/complaints')">All Complaints</a>
-          <a class="nav-link" (click)="navigateToPage('/reports')" *ngIf="isAdmin()">Reports</a>
-          <div class="nav-dropdown" *ngIf="isAdmin()">
-            <button class="nav-link dropdown-trigger" (click)="toggleAdminMenu()">
-              <span>Admin Panel</span>
-              <i class="fa-solid" [ngClass]="showAdminMenu ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-            </button>
-            <div class="dropdown-menu" *ngIf="showAdminMenu">
-              <div class="menu-category" *ngFor="let category of menuCategories">
-                <div class="category-header" (click)="toggleMenuCategory(category.id)">
-                  <div class="category-title">
-                    <i class="fa-solid" [ngClass]="category.icon" [style.color]="category.color"></i>
-                    <span>{{ category.label }}</span>
-                  </div>
-                  <i class="fa-solid" [ngClass]="category.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
-                </div>
-                <div class="category-items" *ngIf="category.expanded">
-                  <a class="menu-item" *ngFor="let item of category.items" (click)="navigateToAdmin(item.route)">
-                    <i class="fa-solid" [ngClass]="item.icon"></i>
-                    <span>{{ item.label }}</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </nav>
-      </div>
-      <div class="header-right">
-        <div class="search-box">
-          <i class="fa-solid fa-search"></i>
-          <input type="search" placeholder="Search..." [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
-        </div>
-        <button class="notification-btn">
-          <i class="fa-regular fa-bell"></i>
-          <span class="notification-badge" *ngIf="stats.submitted > 0">{{ stats.submitted > 99 ? '99+' : stats.submitted }}</span>
-        </button>
-        <div class="user-avatar-dropdown" (click)="toggleUserMenu()">
-          <div class="avatar">
-            <i class="fa-regular fa-circle-user"></i>
-          </div>
-          <div class="user-menu" *ngIf="showUserMenu">
-            <div class="user-info">
-              <span class="user-name">{{ currentUser?.fullName }}</span>
-              <span class="user-role">{{ getRoleNames() }}</span>
-            </div>
-            <div class="menu-divider"></div>
-            <a class="menu-item" (click)="navigateToPage('/change-password')">
-              <i class="fa-solid fa-key"></i>
-              <span>Change Password</span>
-            </a>
-            <a class="menu-item logout" (click)="logout()">
-              <i class="fa-solid fa-right-from-bracket"></i>
-              <span>Logout</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
   <!-- Main Content -->
   <main class="main-content">
     <div class="content-wrapper">
       <!-- Page Header -->
       <div class="page-header">
         <div class="header-title-section">
-          <h1 class="page-title">Dashboard</h1>
+          <h1 class="page-title">{{ getDashboardTitle() }}</h1>
+          <p class="page-subtitle">{{ getDashboardSubtitle() }}</p>
         </div>
         <button class="btn-primary" (click)="createComplaint()">
           <i class="fa-solid fa-circle-plus"></i>
@@ -94,10 +20,49 @@
           <button class="time-btn" [class.active]="selectedTimeRange === 'today'" (click)="setTimeRange('today')">Today</button>
           <button class="time-btn" [class.active]="selectedTimeRange === 'week'" (click)="setTimeRange('week')">Last 7 Days</button>
           <button class="time-btn" [class.active]="selectedTimeRange === 'month'" (click)="setTimeRange('month')">This Month</button>
-          <button class="time-btn" [class.active]="selectedTimeRange === 'custom'" (click)="setTimeRange('custom')">
-            <i class="fa-regular fa-calendar"></i>
-            <span>Custom Range</span>
-          </button>
+          <!-- Custom Range Button with Dropdown -->
+          <div class="custom-range-wrapper">
+            <button class="time-btn" [class.active]="selectedTimeRange === 'custom'" (click)="setTimeRange('custom')">
+              <i class="fa-regular fa-calendar"></i>
+              <span>{{ customDateRangeLabel || 'Custom Range' }}</span>
+            </button>
+            <!-- Custom Date Range Picker Dropdown -->
+            <div class="date-picker-dropdown" *ngIf="showDateRangePicker" (click)="$event.stopPropagation()">
+              <div class="date-picker-arrow"></div>
+              <div class="date-picker-header">
+                <h3>Select Date Range</h3>
+                <button class="date-picker-close" (click)="closeDateRangePicker()">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+              <div class="date-picker-body">
+                <div class="date-input-group">
+                  <label for="startDate">Start Date</label>
+                  <input
+                    type="date"
+                    id="startDate"
+                    [(ngModel)]="customStartDate"
+                    class="date-input"
+                    [max]="customEndDate || ''">
+                </div>
+                <div class="date-input-group">
+                  <label for="endDate">End Date</label>
+                  <input
+                    type="date"
+                    id="endDate"
+                    [(ngModel)]="customEndDate"
+                    class="date-input"
+                    [min]="customStartDate || ''">
+                </div>
+              </div>
+              <div class="date-picker-footer">
+                <button class="btn-secondary" (click)="closeDateRangePicker()">Cancel</button>
+                <button class="btn-primary" (click)="applyCustomDateRange()" [disabled]="!customStartDate || !customEndDate">
+                  Apply Range
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="dropdown-filters">
           <div class="filter-group">
@@ -121,6 +86,26 @@
               <i class="fa-solid fa-chevron-down"></i>
             </div>
           </div>
+          <!-- Team Member Filter (Admin only) -->
+          <ng-container *ngIf="isAdmin()">
+            <div class="filter-divider"></div>
+            <div class="filter-group team-member-filter">
+              <label>
+                <i class="fa-solid fa-users"></i>
+                Team Member:
+              </label>
+              <div class="select-wrapper">
+                <select [(ngModel)]="selectedTeamMemberId" (change)="onTeamMemberChange()" [disabled]="loadingTeamMembers">
+                  <option value="">All Team Members</option>
+                  <option *ngFor="let member of teamMembers" [value]="member.id">{{ member.fullName || member.email }}</option>
+                </select>
+                <i class="fa-solid fa-chevron-down"></i>
+              </div>
+              <button class="clear-filter-btn" *ngIf="selectedTeamMemberId" (click)="clearTeamMemberFilter()" title="Clear filter">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </ng-container>
         </div>
       </div>
 
@@ -128,7 +113,7 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-header">
-            <p class="stat-label">New Complaints Today</p>
+            <p class="stat-label">{{ getStatLabel('today') }}</p>
             <div class="stat-icon-wrapper icon-blue">
               <i class="fa-solid fa-inbox"></i>
             </div>
@@ -139,9 +124,22 @@
             <span>+5.2%</span>
           </p>
         </div>
+        <div class="stat-card clickable" (click)="navigateToWaitingResponse()" title="Click to view complaints awaiting response">
+          <div class="stat-header">
+            <p class="stat-label">{{ getStatLabel('waiting') }}</p>
+            <div class="stat-icon-wrapper icon-amber">
+              <i class="fa-solid fa-envelope-open-text"></i>
+            </div>
+          </div>
+          <p class="stat-value">{{ waitingForResponseCount }}</p>
+          <p class="stat-trend" [class.negative]="waitingForResponseCount > 5" [class.neutral]="waitingForResponseCount <= 5 && waitingForResponseCount > 0" [class.positive]="waitingForResponseCount === 0">
+            <i class="fa-solid" [ngClass]="waitingForResponseCount > 5 ? 'fa-arrow-up' : (waitingForResponseCount === 0 ? 'fa-check' : 'fa-minus')"></i>
+            <span>{{ waitingForResponseCount > 0 ? 'Customer replied' : 'All responded' }}</span>
+          </p>
+        </div>
         <div class="stat-card">
           <div class="stat-header">
-            <p class="stat-label">Unassigned Complaints</p>
+            <p class="stat-label">{{ getStatLabel('unassigned') }}</p>
             <div class="stat-icon-wrapper icon-orange">
               <i class="fa-solid fa-user-clock"></i>
             </div>
@@ -154,7 +152,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-header">
-            <p class="stat-label">Total Open Cases</p>
+            <p class="stat-label">{{ getStatLabel('open') }}</p>
             <div class="stat-icon-wrapper icon-purple">
               <i class="fa-solid fa-folder-open"></i>
             </div>
@@ -167,7 +165,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-header">
-            <p class="stat-label">Avg. Resolution Time</p>
+            <p class="stat-label">{{ getStatLabel('resolution') }}</p>
             <div class="stat-icon-wrapper icon-green">
               <i class="fa-solid fa-clock"></i>
             </div>
@@ -180,7 +178,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-header">
-            <p class="stat-label">Overdue Complaints</p>
+            <p class="stat-label">{{ getStatLabel('overdue') }}</p>
             <div class="stat-icon-wrapper icon-red">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
@@ -263,6 +261,10 @@
                 <button class="filter-chip" [class.active]="quickFilter === 'unassigned'" (click)="setQuickFilter('unassigned')">
                   <i class="fa-solid fa-user-clock text-icon-orange"></i> Unassigned
                 </button>
+                <button class="filter-chip" [class.active]="quickFilter === 'waitingResponse'" (click)="setQuickFilter('waitingResponse')">
+                  <i class="fa-solid fa-envelope-open-text text-icon-amber"></i> Waiting Response
+                  <span class="filter-count" *ngIf="waitingForResponseCount > 0">{{ waitingForResponseCount }}</span>
+                </button>
                 <button class="filter-chip" [class.active]="quickFilter === 'urgent'" (click)="setQuickFilter('urgent')">
                   <i class="fa-solid fa-bolt text-icon-red"></i> Urgent
                 </button>
@@ -338,9 +340,14 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let complaint of complaints" (click)="viewComplaint(complaint.id)" class="table-row-hover">
+                <tr *ngFor="let complaint of complaints" (click)="viewComplaint(complaint.id)" class="table-row-hover" [class.has-customer-response]="complaint.hasCustomerResponse">
                   <td class="complaint-id">
-                    <span class="id-badge">#{{ complaint.complaintNumber }}</span>
+                    <span class="id-badge" [class.has-response]="complaint.hasCustomerResponse">
+                      <span class="email-indicator" *ngIf="complaint.hasCustomerResponse" title="Customer has replied - awaiting response">
+                        <i class="fa-solid fa-envelope"></i>
+                      </span>
+                      #{{ complaint.complaintNumber }}
+                    </span>
                   </td>
                   <td class="complaint-subject">{{ complaint.title }}</td>
                   <td class="complaint-customer">
@@ -539,4 +546,7 @@
     (close)="showCustomizer = false"
     (save)="onSavePreferences($event)">
   </app-dashboard-customizer>
+
+  <!-- Backdrop for closing dropdown when clicking outside -->
+  <div class="date-picker-backdrop" *ngIf="showDateRangePicker" (click)="closeDateRangePicker()"></div>
 </div>

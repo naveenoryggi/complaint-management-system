@@ -57,4 +57,9 @@ public class ComplaintDto
     public string? Tags { get; set; }
     public int CommentCount { get; set; }
     public int AttachmentCount { get; set; }
+
+    // Email response tracking
+    public bool HasCustomerResponse { get; set; }
+    public string? LastResponseFrom { get; set; }
+    public DateTime? LastResponseAt { get; set; }
 }

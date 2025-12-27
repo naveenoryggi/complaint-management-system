@@ -1,1180 +1,1198 @@
-<div class="container-fluid mt-4">
-  <!-- Header -->
-  <div class="row mb-3">
-    <div class="col">
-      <div class="btn-group mb-2" role="group">
-        <button class="btn btn-outline-primary" (click)="goHome()">
-          <i class="bi bi-house-door"></i> Home
-        </button>
-        <button class="btn btn-outline-secondary" (click)="goBack()">
-          <i class="bi bi-arrow-left"></i> Back
-        </button>
-      </div>
-      <h2 *ngIf="complaint">Complaint Details: {{ complaint.complaintNumber }}</h2>
-    </div>
-  </div>
-
+<!-- Complaint Detail Page - Modern Tabbed Design -->
+<div class="complaint-detail-container">
   <!-- Loading Spinner -->
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-    <p class="mt-2">Loading complaint details...</p>
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading complaint details...</p>
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
-    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+  <div *ngIf="error && !loading" class="alert alert-error">
+    <i class="bi bi-exclamation-triangle"></i>
+    <span>{{ error }}</span>
   </div>
 
   <!-- Success Message -->
-  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="bi bi-check-circle"></i> {{ successMessage }}
-    <button type="button" class="btn-close" (click)="successMessage = null"></button>
-  </div>
-
-  <!-- Complaint Details -->
-  <div *ngIf="complaint && !loading" class="row">
-    <!-- Main Details -->
-    <div class="col-md-8">
-      <!-- Basic Info Card -->
-      <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Complaint Information</h5>
-          <div>
-            <!-- Edit Button (visible to handlers with edit permissions) -->
-            <button
-              *ngIf="canEditComplaint() && !isEditMode"
-              class="btn btn-sm btn-outline-primary me-2"
-              (click)="enterEditMode()"
-              title="Edit Complaint">
-              <i class="bi bi-pencil"></i> Edit
-            </button>
-
-            <span [class]="getStatusClass(complaint.status)" class="me-2">
-              {{ getStatusLabel(complaint.status) }}
-            </span>
-            <span [class]="getPriorityClass(complaint.priority)">
-              {{ getPriorityLabel(complaint.priority) }}
-            </span>
-          </div>
-        </div>
-        <div class="card-body">
-          <!-- View Mode -->
-          <div *ngIf="!isEditMode">
-            <h4>{{ complaint.title }}</h4>
-            <p class="mt-3">{{ complaint.description }}</p>
-          </div>
-
-          <!-- Edit Mode -->
-          <div *ngIf="isEditMode" class="edit-mode">
-            <div class="alert alert-info mb-3">
-              <i class="bi bi-info-circle"></i>
-              <strong>Edit Mode:</strong> You are editing this complaint. The original complaint message and complainant details cannot be modified.
-            </div>
-
-            <div class="row">
-              <div class="col-md-12 mb-3">
-                <label class="form-label">
-                  <strong>Title</strong>
-                  <span class="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="editForm.title"
-                  placeholder="Enter complaint title"
-                  [disabled]="actionLoading">
-              </div>
-
-              <div class="col-md-12 mb-3">
-                <label class="form-label">
-                  <strong>Description</strong>
-                  <span class="text-danger">*</span>
-                  <small class="text-muted">(Read-only - Original submission cannot be modified)</small>
-                </label>
-                <textarea
-                  class="form-control"
-                  rows="4"
-                  [(ngModel)]="editForm.description"
-                  [disabled]="true"
-                  style="background-color: #f8f9fa; cursor: not-allowed;">
-                </textarea>
-                <small class="text-muted">Original complaint description is read-only to maintain audit trail</small>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label class="form-label">
-                  <strong>Category</strong>
-                  <span class="text-danger">*</span>
-                </label>
-                <select
-                  class="form-select"
-                  [(ngModel)]="editForm.categoryId"
-                  [disabled]="actionLoading">
-                  <option value="">Select Category</option>
-                  <option *ngFor="let category of categories" [value]="category.id">
-                    {{ category.name }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label class="form-label">
-                  <strong>Priority</strong>
-                  <span class="text-danger">*</span>
-                </label>
-                <select
-                  class="form-select"
-                  [(ngModel)]="editForm.priorityMasterId"
-                  [disabled]="actionLoading">
-                  <option value="">Select Priority</option>
-                  <option *ngFor="let priority of priorities" [value]="priority.id">
-                    {{ priority.name }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label class="form-label">
-                  <strong>Status</strong>
-                  <span class="text-danger">*</span>
-                </label>
-                <select
-                  class="form-select"
-                  [(ngModel)]="editForm.statusMasterId"
-                  [disabled]="actionLoading">
-                  <option value="">Select Status</option>
-                  <option *ngFor="let status of statuses" [value]="status.id">
-                    {{ status.name }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label class="form-label">
-                  <strong>Assigned To</strong>
-                </label>
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="userSearchTerm"
-                    (input)="onAssignedUserSearchChange()"
-                    placeholder="Search user by name, email..."
-                    [disabled]="actionLoading">
-                  <button
-                    class="btn btn-outline-secondary"
-                    type="button"
-                    (click)="editForm.assignedToId = ''; userSearchTerm = ''"
-                    [disabled]="actionLoading">
-                    <i class="bi bi-x"></i>
-                  </button>
-                </div>
-
-                <!-- User Search Results -->
-                <div *ngIf="userSearchTerm && userSearchTerm.length >= minSearchLength && filteredUsers.length > 0"
-                     class="list-group mt-2"
-                     style="max-height: 200px; overflow-y: auto;">
-                  <button
-                    *ngFor="let user of filteredUsers"
-                    type="button"
-                    class="list-group-item list-group-item-action"
-                    [class.active]="editForm.assignedToId === user.id"
-                    (click)="editForm.assignedToId = user.id; userSearchTerm = user.fullName"
-                    [disabled]="actionLoading">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <strong>{{ user.fullName }}</strong>
-                        <div class="small text-muted">{{ user.email }}</div>
-                      </div>
-                      <span *ngIf="user.employeeCode" class="badge bg-secondary">{{ user.employeeCode }}</span>
-                    </div>
-                  </button>
-                </div>
-
-                <small class="text-muted">
-                  Current: {{ complaint.assignedToName || 'Unassigned' }}
-                </small>
-              </div>
-
-              <div class="col-md-12 mb-3">
-                <label class="form-label">
-                  <strong>Tags</strong>
-                  <small class="text-muted">(Optional, comma-separated)</small>
-                </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="editForm.tags"
-                  placeholder="e.g., urgent, customer-facing, technical"
-                  [disabled]="actionLoading">
-              </div>
-            </div>
-
-            <!-- Edit Mode Actions -->
-            <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top">
-              <button
-                class="btn btn-secondary"
-                (click)="cancelEdit()"
-                [disabled]="actionLoading">
-                <i class="bi bi-x-circle"></i> Cancel
-              </button>
-              <button
-                class="btn btn-primary"
-                (click)="saveEdit()"
-                [disabled]="actionLoading">
-                <span *ngIf="actionLoading" class="spinner-border spinner-border-sm me-1"></span>
-                <i *ngIf="!actionLoading" class="bi bi-check-circle"></i>
-                Save Changes
-              </button>
-            </div>
-          </div>
-
-          <div class="row mt-4" *ngIf="!isEditMode">
-            <div class="col-md-6">
-              <table class="table table-sm">
-                <tr>
-                  <th>Complaint #:</th>
-                  <td>{{ complaint.complaintNumber }}</td>
-                </tr>
-                <tr>
-                  <th>Category:</th>
-                  <td>{{ complaint.categoryName }}</td>
-                </tr>
-                <tr>
-                  <th>Company:</th>
-                  <td>{{ complaint.companyName }}</td>
-                </tr>
-                <tr *ngIf="complaint.branchName">
-                  <th>Branch:</th>
-                  <td>{{ complaint.branchName }}</td>
-                </tr>
-                <tr *ngIf="complaint.departmentName">
-                  <th>Department:</th>
-                  <td>{{ complaint.departmentName }}</td>
-                </tr>
-                <tr *ngIf="complaint.sectionName">
-                  <th>Section:</th>
-                  <td>{{ complaint.sectionName }}</td>
-                </tr>
-              </table>
-            </div>
-            <div class="col-md-6">
-              <table class="table table-sm">
-                <tr>
-                  <th>Submitted:</th>
-                  <td>{{ formatDate(complaint.submittedAt) }}</td>
-                </tr>
-                <tr *ngIf="complaint.dueDate">
-                  <th>Due Date:</th>
-                  <td>{{ formatDate(complaint.dueDate) }}</td>
-                </tr>
-                <tr>
-                  <th>Assigned To:</th>
-                  <td>{{ complaint.assignedToName || 'Unassigned' }}</td>
-                </tr>
-                <tr>
-                  <th>Escalation Level:</th>
-                  <td>{{ complaint.currentEscalationLevel }}</td>
-                </tr>
-                <tr *ngIf="complaint.resolvedAt">
-                  <th>Resolved:</th>
-                  <td>{{ formatDate(complaint.resolvedAt) }}</td>
-                </tr>
-                <tr *ngIf="complaint.closedAt">
-                  <th>Closed:</th>
-                  <td>{{ formatDate(complaint.closedAt) }}</td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div *ngIf="complaint.resolutionNotes" class="mt-3">
-            <h6>Resolution Notes:</h6>
-            <p class="text-muted">{{ complaint.resolutionNotes }}</p>
-          </div>
-
-          <div *ngIf="complaint.tags" class="mt-3">
-            <h6>Tags:</h6>
-            <span class="badge bg-secondary me-1" *ngFor="let tag of complaint.tags.split(',')">
-              {{ tag.trim() }}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Complainant Information Card -->
-      <div class="card mb-3">
-        <div class="card-header">
-          <h5 class="mb-0">Complainant Information</h5>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <!-- Personal Details -->
-            <div class="col-md-6">
-              <h6 class="text-muted">Personal Details</h6>
-              <table class="table table-sm">
-                <tr>
-                  <th>Name:</th>
-                  <td>{{ complaint.complainantName }}</td>
-                </tr>
-                <tr *ngIf="complaint.complainantEmployeeCode">
-                  <th>Employee Code:</th>
-                  <td>{{ complaint.complainantEmployeeCode }}</td>
-                </tr>
-                <tr *ngIf="complaint.contactEmail">
-                  <th>Email:</th>
-                  <td>
-                    <a [href]="'mailto:' + complaint.contactEmail">{{ complaint.contactEmail }}</a>
-                  </td>
-                </tr>
-                <tr *ngIf="complaint.contactPhone">
-                  <th>Phone:</th>
-                  <td>
-                    <a [href]="'tel:' + complaint.contactPhone">{{ complaint.contactPhone }}</a>
-                  </td>
-                </tr>
-                <tr *ngIf="complaint.alternatePhone">
-                  <th>Alternate Phone:</th>
-                  <td>
-                    <a [href]="'tel:' + complaint.alternatePhone">{{ complaint.alternatePhone }}</a>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Preferred Contact:</th>
-                  <td>
-                    <span class="badge bg-info">
-                      {{ getPreferredContactLabel(complaint.preferredContactMethod) }}
-                    </span>
-                  </td>
-                </tr>
-              </table>
-            </div>
-
-            <!-- Organizational Hierarchy -->
-            <div class="col-md-6">
-              <h6 class="text-muted">Organizational Details</h6>
-              <table class="table table-sm">
-                <tr>
-                  <th>Company:</th>
-                  <td>{{ complaint.companyName }}</td>
-                </tr>
-                <tr *ngIf="complaint.complainantBranchName">
-                  <th>Branch:</th>
-                  <td>{{ complaint.complainantBranchName }}</td>
-                </tr>
-                <tr *ngIf="complaint.complainantDepartmentName">
-                  <th>Department:</th>
-                  <td>{{ complaint.complainantDepartmentName }}</td>
-                </tr>
-                <tr *ngIf="complaint.complainantSectionName">
-                  <th>Section:</th>
-                  <td>{{ complaint.complainantSectionName }}</td>
-                </tr>
-              </table>
-
-              <!-- Manager Details -->
-              <div *ngIf="complaint.complainantManagerName">
-                <h6 class="text-muted mt-3">Manager Details</h6>
-                <table class="table table-sm">
-                  <tr>
-                    <th>Name:</th>
-                    <td>{{ complaint.complainantManagerName }}</td>
-                  </tr>
-                  <tr *ngIf="complaint.complainantManagerEmail">
-                    <th>Email:</th>
-                    <td>
-                      <a [href]="'mailto:' + complaint.complainantManagerEmail">
-                        {{ complaint.complainantManagerEmail }}
-                      </a>
-                    </td>
-                  </tr>
-                  <tr *ngIf="complaint.complainantManagerPhone">
-                    <th>Phone:</th>
-                    <td>
-                      <a [href]="'tel:' + complaint.complainantManagerPhone">
-                        {{ complaint.complainantManagerPhone }}
-                      </a>
-                    </td>
-                  </tr>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- History Section -->
-      <div class="card mt-3" *ngIf="showHistory">
-        <div class="card-header">
-          <h5 class="mb-0">
-            <i class="bi bi-clock-history"></i> Complaint History
-          </h5>
-        </div>
-        <div class="card-body">
-          <!-- Loading State -->
-          <div *ngIf="loadingHistory" class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading history...</span>
-            </div>
-            <p class="mt-2">Loading history...</p>
-          </div>
-
-          <!-- Error State -->
-          <div *ngIf="historyError && !loadingHistory" class="alert alert-danger" role="alert">
-            <i class="bi bi-exclamation-triangle"></i> {{ historyError }}
-          </div>
-
-          <!-- History Timeline -->
-          <div *ngIf="complaintHistory && !loadingHistory && !historyError">
-            <div *ngIf="complaintHistory.events.length === 0" class="text-center text-muted py-4">
-              <i class="bi bi-info-circle"></i> No history events found
-            </div>
-
-            <div *ngIf="complaintHistory.events.length > 0" class="timeline">
-              <div *ngFor="let event of complaintHistory.events" class="timeline-item mb-3">
-                <div class="d-flex">
-                  <div class="me-3">
-                    <i [class]="'bi ' + getEventIcon(event.eventType) + ' fs-4 ' + getEventClass(event.eventType)"></i>
-                  </div>
-                  <div class="flex-grow-1">
-                    <div class="d-flex justify-content-between align-items-start">
-                      <div>
-                        <strong>{{ event.description }}</strong>
-                        <div class="text-muted small">
-                          <span *ngIf="event.performedByName">by {{ event.performedByName }}</span>
-                          <span *ngIf="!event.performedByName && event.performedBy">by User {{ event.performedBy }}</span>
-                        </div>
-                      </div>
-                      <div class="text-muted small text-end">
-                        {{ formatDate(event.timestamp) }}
-                      </div>
-                    </div>
-                    <div *ngIf="event.metadata" class="mt-2">
-                      <small class="text-muted">
-                        <div *ngFor="let meta of event.metadata | keyvalue">
-                          <strong>{{ meta.key }}:</strong> {{ meta.value }}
-                        </div>
-                      </small>
-                    </div>
-                  </div>
-                </div>
-                <hr class="mt-2 mb-2">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Actions Sidebar -->
-    <div class="col-md-4">
-      <!-- SLA Information Panel -->
-      <app-sla-info-panel
-        *ngIf="complaint?.id"
-        [complaintId]="complaint!.id"
-        [showExplanation]="true"
-        [viewMode]="canAssign() ? 'handler' : 'user'"
-        [autoRefreshInterval]="60"
-        class="mb-3">
-      </app-sla-info-panel>
-
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0">Actions</h5>
-        </div>
-        <div class="card-body">
-          <div class="d-grid gap-2">
-            <!-- Workflow Transitions (if available) -->
-            <div *ngIf="availableTransitions.length > 0">
-              <h6 class="mb-2">
-                <i class="bi bi-diagram-3"></i> Status Transitions
-              </h6>
-              <button
-                *ngFor="let transition of availableTransitions"
-                class="btn w-100 mb-2"
-                [style.background-color]="transition.buttonColor || '#17a2b8'"
-                [style.border-color]="transition.buttonColor || '#17a2b8'"
-                [style.color]="'white'"
-                (click)="openTransitionModal(transition)"
-                [disabled]="loadingTransitions">
-                <i class="bi" [class]="transition.iconClass || 'bi-arrow-right'"></i>
-                {{ transition.transitionName || 'Move to ' + transition.toStatusName }}
-                <span *ngIf="transition.requiresComment" class="badge bg-light text-dark ms-1">
-                  <i class="bi bi-chat-text"></i>
-                </span>
-                <span *ngIf="transition.requiresApproval" class="badge bg-light text-dark ms-1">
-                  <i class="bi bi-shield-check"></i>
-                </span>
-              </button>
-              <hr>
-            </div>
-
-            <!-- Legacy Action Buttons (fallback when no workflow configured) -->
-            <button class="btn btn-primary" *ngIf="canAssign()" (click)="openAssignModal()">
-              <i class="bi bi-person-plus"></i> Assign Complaint
-            </button>
-            <button class="btn btn-warning" *ngIf="canEscalate()" (click)="openEscalateModal()">
-              <i class="bi bi-arrow-up-circle"></i> Escalate
-            </button>
-            <button class="btn btn-success" *ngIf="canClose()" (click)="openCloseModal()">
-              <i class="bi bi-check-circle"></i> Close Complaint
-            </button>
-            <button class="btn btn-info" *ngIf="canReopen()" (click)="openReopenModal()">
-              <i class="bi bi-arrow-counterclockwise"></i> Reopen Complaint
-            </button>
-            <hr>
-            <button class="btn btn-outline-secondary" (click)="toggleHistory()">
-              <i class="bi bi-clock-history"></i> {{ showHistory ? 'Hide History' : 'View History' }}
-            </button>
-          </div>
-
-          <div *ngIf="actionError" class="alert alert-danger mt-3" role="alert">
-            {{ actionError }}
-          </div>
-        </div>
-      </div>
-
-      <!-- Metadata Card -->
-      <div class="card mt-3">
-        <div class="card-header">
-          <h5 class="mb-0">Metadata</h5>
-        </div>
-        <div class="card-body">
-          <p class="mb-2">
-            <strong>Comments:</strong> {{ complaint.commentCount }}
-          </p>
-          <p class="mb-2">
-            <strong>Attachments:</strong> {{ complaint.attachmentCount }}
-          </p>
-          <p class="mb-0">
-            <strong>Anonymous:</strong> {{ complaint.isAnonymous ? 'Yes' : 'No' }}
-          </p>
-        </div>
-      </div>
-
-      <!-- Comments Section -->
-      <div class="card mt-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Comments ({{ complaint.commentCount || 0 }})</h5>
-          <button class="btn btn-sm btn-outline-secondary" (click)="toggleComments()">
-            <i class="bi" [class]="showComments ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-            {{ showComments ? 'Hide' : 'Show' }}
-          </button>
-        </div>
-        <div class="card-body" *ngIf="showComments">
-          <!-- Success/Error Messages -->
-          <div *ngIf="actionSuccess" class="alert alert-success" role="alert">
-            {{ actionSuccess }}
-          </div>
-          <div *ngIf="commentError" class="alert alert-danger" role="alert">
-            {{ commentError }}
-          </div>
-
-          <!-- Add Comment Form -->
-          <div class="mb-4">
-            <h6>Add a Comment</h6>
-            <div class="mb-3">
-              <textarea
-                class="form-control"
-                [(ngModel)]="newComment"
-                rows="3"
-                placeholder="Type your comment here..."
-                [disabled]="submittingComment">
-              </textarea>
-            </div>
-            <button
-              class="btn btn-primary"
-              (click)="addComment()"
-              [disabled]="submittingComment || !newComment.trim()">
-              <span *ngIf="!submittingComment">
-                <i class="bi bi-send"></i> Add Comment
-              </span>
-              <span *ngIf="submittingComment">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                Adding...
-              </span>
-            </button>
-          </div>
-
-          <!-- Comments List -->
-          <div *ngIf="loadingComments" class="text-center py-3">
-            <div class="spinner-border" role="status">
-              <span class="visually-hidden">Loading comments...</span>
-            </div>
-          </div>
-
-          <div *ngIf="!loadingComments && comments.length === 0" class="text-muted text-center py-3">
-            No comments yet. Be the first to comment!
-          </div>
-
-          <div *ngIf="!loadingComments && comments.length > 0" class="comments-list">
-            <div *ngFor="let comment of comments" class="comment-item mb-3 p-3 border rounded">
-              <div class="d-flex justify-content-between mb-2">
-                <strong>{{ comment.userName || 'Unknown User' }}</strong>
-                <small class="text-muted">{{ formatDate(comment.createdAt) }}</small>
-              </div>
-              <div class="comment-content">
-                {{ comment.comment }}
-              </div>
-              <div *ngIf="comment.isInternal" class="mt-2">
-                <span class="badge bg-warning text-dark">Internal</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Email Thread Section - Now inside container-fluid -->
-  <div class="card mt-3">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 class="mb-0">
-      <i class="bi bi-envelope-open-text"></i>
-      Email Thread
-    </h5>
-    <button
-      *ngIf="complaint"
-      class="btn btn-sm btn-primary"
-      (click)="openEmailComposer()"
-      title="Compose Email">
-      <i class="bi bi-pencil-square"></i> Compose Email
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="bi bi-check-circle"></i>
+    <span>{{ successMessage }}</span>
+    <button type="button" class="alert-close" (click)="successMessage = null">
+      <i class="bi bi-x"></i>
     </button>
   </div>
-  <div class="card-body">
-    <app-email-thread-viewer
-      *ngIf="complaint && !showEmailReplyComposer"
-      [complaintId]="complaint.id"
-      [showActions]="true"
-      (replyClicked)="onEmailReplyClicked($event)"
-      (replyAllClicked)="onEmailReplyAllClicked($event)"
-      (forwardClicked)="onEmailForwardClicked($event)">
-    </app-email-thread-viewer>
 
-    <!-- Email Reply Composer -->
-    <app-email-reply-composer
-      *ngIf="complaint && showEmailReplyComposer"
-      [complaintId]="complaint.id"
-      [replyTo]="emailReplyTo"
-      [emailThread]="emailThread"
-      [replyType]="emailReplyType"
-      [showCannedResponses]="true"
-      (emailSent)="onEmailReplySent($event)"
-      (cancelled)="onEmailReplyCancelled()">
-    </app-email-reply-composer>
-  </div>
-</div>
-</div>
-
-<!-- Email Composer Modal - DEPRECATED: Now using unified email-reply-composer component -->
-<!-- The openEmailComposer() method now sets showEmailReplyComposer = true to use the unified component -->
-<!--
-<app-email-composer-modal
-  *ngIf="complaint"
-  [complaintId]="complaint.id"
-  [defaultTo]="emailComposerDefaultTo"
-  [defaultSubject]="emailComposerDefaultSubject"
-  [replyToEmailId]="emailComposerReplyToEmailId"
-  [isVisible]="showEmailComposerModal"
-  (closeModal)="closeEmailComposer()"
-  (emailSent)="onEmailSent()">
-</app-email-composer-modal>
--->
-
-<!-- Advanced Assignment Modal -->
-<div class="modal" [class.show]="showAssignModal" [style.display]="showAssignModal ? 'block' : 'none'" tabindex="-1">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="bi bi-person-plus"></i> Advanced Complaint Assignment
-        </h5>
-        <button type="button" class="btn-close" (click)="closeModal()"></button>
+  <!-- Main Content -->
+  <main *ngIf="complaint && !loading" class="detail-main">
+    <!-- Page Title and Status Badges -->
+    <div class="page-title-section">
+      <h1 class="page-title">Complaint Details: {{ complaint.complaintNumber }}</h1>
+      <div class="status-badges">
+        <span [class]="'status-badge ' + getStatusBadgeClass(complaint.status)">
+          {{ getStatusLabel(complaint.status) }}
+        </span>
+        <span [class]="'priority-badge ' + getPriorityBadgeClass(complaint.priority)">
+          {{ getPriorityLabel(complaint.priority) }}
+        </span>
       </div>
-      <div class="modal-body">
-        <!-- Complaint Info -->
-        <div class="alert alert-info mb-3">
-          <i class="bi bi-info-circle"></i>
-          <strong>{{ complaint?.complaintNumber }}</strong> - {{ complaint?.title }}
-          <div class="mt-2">
-            <span class="badge me-1" [class]="getPriorityClass(complaint?.priority)">
-              {{ getPriorityLabel(complaint?.priority) }}
-            </span>
-            <span class="badge" [class]="getStatusClass(complaint?.status)">
-              {{ getStatusLabel(complaint?.status) }}
-            </span>
-            <span class="badge bg-secondary ms-1">{{ complaint?.categoryName }}</span>
-          </div>
-        </div>
+    </div>
 
-        <!-- Assignment Type Selection -->
-        <div class="card mb-3">
-          <div class="card-header">
-            <h6 class="mb-0"><i class="bi bi-gear"></i> Assignment Type</h6>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="assignmentType"
-                         [(ngModel)]="assignmentType" value="auto" id="autoAssign">
-                  <label class="form-check-label" for="autoAssign">
-                    <i class="bi bi-magic text-primary me-1"></i>
-                    <strong>Auto Assignment</strong>
-                    <div class="text-muted small">Let the system find the best candidate</div>
-                  </label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="assignmentType"
-                         [(ngModel)]="assignmentType" value="pool" id="poolAssign">
-                  <label class="form-check-label" for="poolAssign">
-                    <i class="bi bi-people text-success me-1"></i>
-                    <strong>Resource Pool</strong>
-                    <div class="text-muted small">Assign from a specific resource pool</div>
-                  </label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="assignmentType"
-                         [(ngModel)]="assignmentType" value="user" id="userAssign">
-                  <label class="form-check-label" for="userAssign">
-                    <i class="bi bi-person text-info me-1"></i>
-                    <strong>Direct User</strong>
-                    <div class="text-muted small">Search and assign to a specific user</div>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <!-- Tabs Navigation -->
+    <div class="tabs-container">
+      <nav class="tabs-nav">
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'details'"
+          (click)="activeTab = 'details'">
+          Complaint Details
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'complainant'"
+          (click)="activeTab = 'complainant'">
+          Complainant Information
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'thread'"
+          (click)="activeTab = 'thread'; markEmailsAsRead()">
+          <span class="tab-label">Email Thread</span>
+          <span *ngIf="unreadEmailCount > 0" class="tab-badge tab-badge-warning" [title]="unreadEmailCount + ' unread email(s)'">
+            {{ unreadEmailCount }}
+          </span>
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'comments'"
+          (click)="activeTab = 'comments'; markCommentsAsSeen()">
+          <span class="tab-label">Comments & Activity</span>
+          <span *ngIf="unreadCommentCount > 0" class="tab-badge tab-badge-info" [title]="unreadCommentCount + ' unread comment(s)'">
+            {{ unreadCommentCount }}
+          </span>
+        </button>
+      </nav>
+    </div>
 
-        <!-- Auto Assignment Options -->
-        <div *ngIf="assignmentType === 'auto'" class="card mb-3">
-          <div class="card-header">
-            <h6 class="mb-0"><i class="bi bi-magic"></i> Auto Assignment Configuration</h6>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Assignment Reason</label>
-                  <input type="text" class="form-control" [(ngModel)]="autoAssignReason"
-                         placeholder="e.g., Initial assignment, Reassignment">
-                </div>
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- ===================== DETAILS TAB ===================== -->
+      <div class="tab-panel" *ngIf="activeTab === 'details'">
+        <div class="grid-layout">
+          <!-- Left Column - Main Content -->
+          <div class="main-column">
+            <!-- Complaint Details Card -->
+            <div class="detail-card">
+              <div class="card-header-row">
+                <h2 class="card-title">Complaint Details</h2>
+                <button
+                  *ngIf="canEditComplaint() && !isEditMode"
+                  class="btn-edit"
+                  (click)="enterEditMode()">
+                  Edit
+                </button>
               </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Priority Level</label>
-                  <select class="form-select" [(ngModel)]="autoAssignPriority">
-                    <option value="low">Low Priority</option>
-                    <option value="normal" selected>Normal Priority</option>
-                    <option value="high">High Priority</option>
-                    <option value="critical">Critical Priority</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" [(ngModel)]="forceAssignment">
-                  <label class="form-check-label">Force assignment even if no perfect match</label>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" [(ngModel)]="bypassRules">
-                  <label class="form-check-label">Bypass assignment rules</label>
-                </div>
-              </div>
-            </div>
-            <div class="mt-3">
-              <button class="btn btn-primary" (click)="showAssignmentCandidates()" [disabled]="loadingCandidates">
-                <span *ngIf="loadingCandidates" class="spinner-border spinner-border-sm me-1"></span>
-                <i class="bi bi-search me-1"></i>
-                Find Candidates
-              </button>
-              <button class="btn btn-success ms-2" (click)="performAutoAssign()"
-                      [disabled]="!hasCandidates || actionLoading">
-                <span *ngIf="actionLoading" class="spinner-border spinner-border-sm me-1"></span>
-                <i class="bi bi-check-circle me-1"></i>
-                Auto Assign
-              </button>
-            </div>
-          </div>
-        </div>
 
-        <!-- Resource Pool Assignment -->
-        <div *ngIf="assignmentType === 'pool'" class="card mb-3">
-          <div class="card-header">
-            <h6 class="mb-0"><i class="bi bi-people"></i> Resource Pool Assignment</h6>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Select Resource Pool</label>
-                  <select class="form-select" [(ngModel)]="selectedResourcePoolId" (change)="onResourcePoolChange()">
-                    <option value="">Select a resource pool...</option>
-                    <option *ngFor="let pool of availableResourcePools" [value]="pool.id">
-                      {{ pool.name }} ({{ pool.type }}) - {{ pool.memberCount }} members
-                    </option>
-                  </select>
+              <!-- View Mode -->
+              <div class="card-content" *ngIf="!isEditMode">
+                <div class="detail-field">
+                  <label class="field-label">Title</label>
+                  <p class="field-value">{{ complaint.title }}</p>
+                </div>
+
+                <div class="detail-field">
+                  <label class="field-label">Description</label>
+                  <div class="field-value description-text">{{ complaint.description }}</div>
+                </div>
+
+                <div class="detail-field" *ngIf="complaint.tags">
+                  <label class="field-label">Tags</label>
+                  <div class="tags-list">
+                    <span class="tag" *ngFor="let tag of complaint.tags.split(',')">
+                      {{ tag.trim() }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="detail-field" *ngIf="complaint.resolutionNotes">
+                  <label class="field-label">Resolution Notes</label>
+                  <p class="field-value">{{ complaint.resolutionNotes }}</p>
                 </div>
               </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Assignment Method</label>
-                  <select class="form-select" [(ngModel)]="poolAssignmentMethod">
-                    <option value="0">Manual</option>
-                    <option value="1">Round Robin</option>
-                    <option value="2">Least Busy</option>
-                    <option value="3">Skill Based</option>
-                    <option value="4">Priority Based</option>
-                    <option value="5">Workload Balanced</option>
-                    <option value="6" selected>Best Fit</option>
-                    <option value="7">Experience Based</option>
-                  </select>
+
+              <!-- Edit Mode -->
+              <div class="card-content edit-mode" *ngIf="isEditMode">
+                <div class="edit-notice">
+                  <i class="bi bi-info-circle"></i>
+                  <span><strong>Edit Mode:</strong> You are editing this complaint. The original description cannot be modified.</span>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label class="form-label">
+                      Title <span class="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-input"
+                      [(ngModel)]="editForm.title"
+                      placeholder="Enter complaint title"
+                      [disabled]="actionLoading">
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label class="form-label">
+                      Description
+                      <span class="readonly-hint">(Read-only)</span>
+                    </label>
+                    <textarea
+                      class="form-textarea readonly"
+                      rows="4"
+                      [(ngModel)]="editForm.description"
+                      [disabled]="true">
+                    </textarea>
+                    <small class="form-hint">Original description is read-only to maintain audit trail</small>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">
+                      Category <span class="required">*</span>
+                    </label>
+                    <select
+                      class="form-select"
+                      [(ngModel)]="editForm.categoryId"
+                      [disabled]="actionLoading">
+                      <option value="">Select Category</option>
+                      <option *ngFor="let category of categories" [value]="category.id">
+                        {{ category.name }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">
+                      Priority <span class="required">*</span>
+                    </label>
+                    <select
+                      class="form-select"
+                      [(ngModel)]="editForm.priorityMasterId"
+                      [disabled]="actionLoading">
+                      <option value="">Select Priority</option>
+                      <option *ngFor="let priority of priorities" [value]="priority.id">
+                        {{ priority.name }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">
+                      Status <span class="required">*</span>
+                    </label>
+                    <select
+                      class="form-select"
+                      [(ngModel)]="editForm.statusMasterId"
+                      [disabled]="actionLoading">
+                      <option value="">Select Status</option>
+                      <option *ngFor="let status of statuses" [value]="status.id">
+                        {{ status.name }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Assigned To</label>
+                    <div class="input-with-action">
+                      <input
+                        type="text"
+                        class="form-input"
+                        [(ngModel)]="userSearchTerm"
+                        (input)="onAssignedUserSearchChange()"
+                        placeholder="Search user by name, email..."
+                        [disabled]="actionLoading">
+                      <button
+                        class="input-action-btn"
+                        type="button"
+                        (click)="editForm.assignedToId = ''; userSearchTerm = ''"
+                        [disabled]="actionLoading">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+
+                    <!-- User Search Results -->
+                    <div *ngIf="userSearchTerm && userSearchTerm.length >= minSearchLength && filteredUsers.length > 0"
+                         class="search-results">
+                      <button
+                        *ngFor="let user of filteredUsers"
+                        type="button"
+                        class="search-result-item"
+                        [class.selected]="editForm.assignedToId === user.id"
+                        (click)="editForm.assignedToId = user.id; userSearchTerm = user.fullName"
+                        [disabled]="actionLoading">
+                        <div class="result-info">
+                          <strong>{{ user.fullName }}</strong>
+                          <span class="result-email">{{ user.email }}</span>
+                        </div>
+                        <span *ngIf="user.employeeCode" class="result-badge">{{ user.employeeCode }}</span>
+                      </button>
+                    </div>
+                    <small class="form-hint">Current: {{ complaint.assignedToName || 'Unassigned' }}</small>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label class="form-label">Tags <span class="optional">(Optional, comma-separated)</span></label>
+                    <input
+                      type="text"
+                      class="form-input"
+                      [(ngModel)]="editForm.tags"
+                      placeholder="e.g., urgent, customer-facing, technical"
+                      [disabled]="actionLoading">
+                  </div>
+                </div>
+
+                <!-- Edit Actions -->
+                <div class="edit-actions">
+                  <button
+                    class="btn btn-secondary"
+                    (click)="cancelEdit()"
+                    [disabled]="actionLoading">
+                    <i class="bi bi-x-circle"></i> Cancel
+                  </button>
+                  <button
+                    class="btn btn-primary"
+                    (click)="saveEdit()"
+                    [disabled]="actionLoading">
+                    <span *ngIf="actionLoading" class="btn-spinner"></span>
+                    <i *ngIf="!actionLoading" class="bi bi-check-circle"></i>
+                    Save Changes
+                  </button>
                 </div>
               </div>
             </div>
 
-            <!-- Pool Members -->
-            <div *ngIf="selectedResourcePoolId && poolMembers.length > 0" class="mt-3">
-              <h6><i class="bi bi-people"></i> Available Pool Members</h6>
-              <div class="row">
-                <div *ngFor="let member of poolMembers" class="col-md-6 mb-2">
-                  <div class="card">
-                    <div class="card-body p-2">
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="poolMember"
-                               [(ngModel)]="selectedPoolMemberId" [value]="member.userId">
-                        <label class="form-check-label w-100">
-                          <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                              <strong>{{ member.fullName }}</strong>
-                              <div class="text-muted small">{{ member.email }}</div>
-                              <div class="mt-1">
-                                <span class="badge bg-info">Workload: {{ member.currentWorkload }}</span>
-                                <span class="badge bg-success">Success: {{ member.successRate }}%</span>
-                              </div>
-                            </div>
-                            <div class="text-end">
-                              <div class="text-warning" *ngIf="member.isAvailable">
-                                <i class="bi bi-circle-fill"></i> Available
-                              </div>
-                              <div class="text-danger" *ngIf="!member.isAvailable">
-                                <i class="bi bi-circle"></i> Busy
-                              </div>
-                            </div>
+            <!-- SLA Card -->
+            <div class="detail-card">
+              <div class="card-header-row">
+                <h2 class="card-title">Service Level Agreement</h2>
+              </div>
+              <div class="card-content">
+                <app-sla-info-panel
+                  *ngIf="complaint?.id"
+                  [complaintId]="complaint!.id"
+                  [showExplanation]="true"
+                  [viewMode]="canAssign() ? 'handler' : 'user'"
+                  [autoRefreshInterval]="60">
+                </app-sla-info-panel>
+              </div>
+            </div>
+
+            <!-- History Section (Collapsible) -->
+            <div class="detail-card" *ngIf="showHistory">
+              <div class="card-header-row">
+                <h2 class="card-title">
+                  <i class="bi bi-clock-history"></i> Complaint History
+                </h2>
+              </div>
+              <div class="card-content">
+                <!-- Loading State -->
+                <div *ngIf="loadingHistory" class="loading-inline">
+                  <div class="spinner-small"></div>
+                  <span>Loading history...</span>
+                </div>
+
+                <!-- Error State -->
+                <div *ngIf="historyError && !loadingHistory" class="alert alert-error inline">
+                  <i class="bi bi-exclamation-triangle"></i> {{ historyError }}
+                </div>
+
+                <!-- History Timeline -->
+                <div *ngIf="complaintHistory && !loadingHistory && !historyError">
+                  <div *ngIf="complaintHistory.events.length === 0" class="empty-state">
+                    <i class="bi bi-info-circle"></i>
+                    <span>No history events found</span>
+                  </div>
+
+                  <div *ngIf="complaintHistory.events.length > 0" class="timeline">
+                    <div *ngFor="let event of complaintHistory.events" class="timeline-item">
+                      <div class="timeline-icon" [class]="getEventClass(event.eventType)">
+                        <i [class]="'bi ' + getEventIcon(event.eventType)"></i>
+                      </div>
+                      <div class="timeline-content">
+                        <div class="timeline-header">
+                          <strong>{{ event.description }}</strong>
+                          <span class="timeline-date">{{ formatDate(event.timestamp) }}</span>
+                        </div>
+                        <div class="timeline-meta" *ngIf="event.performedByName || event.performedBy">
+                          by {{ event.performedByName || ('User ' + event.performedBy) }}
+                        </div>
+                        <div *ngIf="event.metadata" class="timeline-metadata">
+                          <div *ngFor="let meta of event.metadata | keyvalue">
+                            <strong>{{ meta.key }}:</strong> {{ meta.value }}
                           </div>
-                        </label>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div class="mt-3">
-              <button class="btn btn-primary" (click)="performPoolAssign()"
-                      [disabled]="!selectedResourcePoolId || actionLoading">
-                <span *ngIf="actionLoading" class="spinner-border spinner-border-sm me-1"></span>
-                <i class="bi bi-check-circle me-1"></i>
-                Assign from Pool
-              </button>
-            </div>
           </div>
-        </div>
 
-        <!-- Direct User Assignment -->
-        <div *ngIf="assignmentType === 'user'" class="card mb-3">
-          <div class="card-header">
-            <h6 class="mb-0"><i class="bi bi-person"></i> Direct User Assignment</h6>
-          </div>
-          <div class="card-body">
-            <!-- Search Box -->
-            <div class="mb-3">
-              <label class="form-label">Search Users</label>
-              <input
-                type="text"
-                class="form-control"
-                [(ngModel)]="userSearchTerm"
-                (input)="onUserSearchChange()"
-                placeholder="Type at least 3 characters to search...">
-              <small class="text-muted">
-                <i class="bi bi-lightbulb"></i> Search by name, email, employee code, or phone number (min {{ minSearchLength }} characters)
-              </small>
+          <!-- Right Column - Sidebar -->
+          <div class="sidebar-column">
+            <!-- Quick Info Card -->
+            <div class="detail-card compact">
+              <div class="card-content">
+                <dl class="info-list">
+                  <div class="info-item">
+                    <dt>Category</dt>
+                    <dd>{{ complaint.categoryName }}</dd>
+                  </div>
+                  <div class="info-item">
+                    <dt>Company</dt>
+                    <dd>{{ complaint.companyName }}</dd>
+                  </div>
+                  <div class="info-item" *ngIf="complaint.branchName">
+                    <dt>Branch</dt>
+                    <dd>{{ complaint.branchName }}</dd>
+                  </div>
+                  <div class="info-item" *ngIf="complaint.departmentName">
+                    <dt>Department</dt>
+                    <dd>{{ complaint.departmentName }}</dd>
+                  </div>
+                  <div class="info-item" *ngIf="complaint.sectionName">
+                    <dt>Section</dt>
+                    <dd>{{ complaint.sectionName }}</dd>
+                  </div>
+                  <div class="info-item">
+                    <dt>Assigned To</dt>
+                    <dd>{{ complaint.assignedToName || 'Unassigned' }}</dd>
+                  </div>
+                  <div class="info-item">
+                    <dt>Submitted</dt>
+                    <dd>{{ formatDate(complaint.submittedAt) }}</dd>
+                  </div>
+                  <div class="info-item" *ngIf="complaint.dueDate">
+                    <dt>Due Date</dt>
+                    <dd>{{ formatDate(complaint.dueDate) }}</dd>
+                  </div>
+                  <div class="info-item">
+                    <dt>Escalation Level</dt>
+                    <dd>{{ complaint.currentEscalationLevel }}</dd>
+                  </div>
+                  <div class="info-item" *ngIf="complaint.resolvedAt">
+                    <dt>Resolved</dt>
+                    <dd>{{ formatDate(complaint.resolvedAt) }}</dd>
+                  </div>
+                  <div class="info-item" *ngIf="complaint.closedAt">
+                    <dt>Closed</dt>
+                    <dd>{{ formatDate(complaint.closedAt) }}</dd>
+                  </div>
+                </dl>
+              </div>
             </div>
 
-            <!-- User Selection -->
-            <div class="user-selection-container">
-              <h6 class="mb-3">
-                <i class="bi bi-people"></i> Select User to Assign
-                <span class="badge bg-primary">{{ filteredUsers.length }} users</span>
-              </h6>
-
-              <!-- Loading State -->
-              <div *ngIf="loadingUsers" class="text-center py-4">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Loading users...</span>
-                </div>
-                <p class="mt-2 text-muted">Loading users...</p>
+            <!-- Actions Card -->
+            <div class="detail-card">
+              <div class="card-header-row">
+                <h2 class="card-title">Actions</h2>
               </div>
-
-              <!-- No Users Found / Prompt to Search -->
-              <div *ngIf="!loadingUsers && filteredUsers.length === 0" class="text-center py-4">
-                <i class="bi bi-search" style="font-size: 3rem; color: #9ca3af;"></i>
-                <p class="text-muted mt-2" *ngIf="!userSearchTerm || userSearchTerm.length < minSearchLength">
-                  Type at least {{ minSearchLength }} characters to search for users
-                </p>
-                <p class="text-muted mt-2" *ngIf="userSearchTerm && userSearchTerm.length >= minSearchLength">
-                  No users found matching "{{ userSearchTerm }}"
-                </p>
-              </div>
-
-              <!-- User List -->
-              <div *ngIf="!loadingUsers && filteredUsers.length > 0" class="user-list">
-                <label *ngFor="let user of filteredUsers" class="user-item" [class.selected]="selectedUserId === user.id">
-                  <input
-                    type="radio"
-                    name="selectedUser"
-                    [value]="user.id"
-                    [(ngModel)]="selectedUserId"
-                    class="form-check-input me-2">
-                  <div class="user-details">
-                    <div class="user-name">
-                      <i class="bi bi-person-circle me-1"></i>
-                      <strong>{{ user.fullName }}</strong>
-                      <span *ngIf="user.employeeCode" class="badge bg-secondary ms-2">{{ user.employeeCode }}</span>
-                    </div>
-                    <div class="user-info">
-                      <span *ngIf="user.email" class="text-muted">
-                        <i class="bi bi-envelope"></i> {{ user.email }}
+              <div class="card-content">
+                <div class="action-buttons">
+                  <!-- Workflow Transitions -->
+                  <div *ngIf="availableTransitions.length > 0" class="workflow-transitions">
+                    <h6 class="section-label">
+                      <i class="bi bi-diagram-3"></i> Status Transitions
+                    </h6>
+                    <button
+                      *ngFor="let transition of availableTransitions"
+                      class="btn btn-workflow"
+                      [style.background-color]="transition.buttonColor || '#0ea5e9'"
+                      [style.border-color]="transition.buttonColor || '#0ea5e9'"
+                      (click)="openTransitionModal(transition)"
+                      [disabled]="loadingTransitions">
+                      <i class="bi" [class]="transition.iconClass || 'bi-arrow-right'"></i>
+                      {{ transition.transitionName || 'Move to ' + transition.toStatusName }}
+                      <span *ngIf="transition.requiresComment" class="transition-badge" title="Requires comment">
+                        <i class="bi bi-chat-text"></i>
                       </span>
-                      <span *ngIf="user.branchName" class="badge bg-info ms-2">{{ user.branchName }}</span>
-                      <span *ngIf="user.departmentName" class="badge bg-success ms-1">{{ user.departmentName }}</span>
-                      <span *ngIf="user.sectionName" class="badge bg-warning ms-1">{{ user.sectionName }}</span>
-                    </div>
+                      <span *ngIf="transition.requiresApproval" class="transition-badge" title="Requires approval">
+                        <i class="bi bi-shield-check"></i>
+                      </span>
+                    </button>
+                    <hr class="action-divider">
                   </div>
-                </label>
+
+                  <!-- Standard Actions -->
+                  <button class="btn btn-primary full-width" *ngIf="canAssign()" (click)="openAssignModal()">
+                    <i class="bi bi-person-plus"></i> Assign Complaint
+                  </button>
+                  <button class="btn btn-warning full-width" *ngIf="canEscalate()" (click)="openEscalateModal()">
+                    <i class="bi bi-arrow-up-circle"></i> Escalate
+                  </button>
+                  <button class="btn btn-success full-width" *ngIf="canClose()" (click)="openCloseModal()">
+                    <i class="bi bi-check-circle"></i> Close Complaint
+                  </button>
+                  <button class="btn btn-info full-width" *ngIf="canReopen()" (click)="openReopenModal()">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reopen Complaint
+                  </button>
+                </div>
+
+                <div class="action-footer">
+                  <button class="btn-link" (click)="toggleHistory()">
+                    {{ showHistory ? 'Hide History' : 'View History' }}
+                  </button>
+                </div>
+
+                <div *ngIf="actionError" class="alert alert-error inline">
+                  {{ actionError }}
+                </div>
               </div>
             </div>
 
-            <div class="mt-3">
-              <button class="btn btn-primary" (click)="performDirectAssign()"
-                      [disabled]="!selectedUserId || actionLoading">
-                <span *ngIf="actionLoading" class="spinner-border spinner-border-sm me-1"></span>
-                <i class="bi bi-check-circle me-1"></i>
-                Assign to Selected User
-              </button>
+            <!-- Metadata Card -->
+            <div class="detail-card compact">
+              <div class="card-header-row">
+                <h2 class="card-title">Metadata</h2>
+              </div>
+              <div class="card-content">
+                <dl class="info-list">
+                  <div class="info-item">
+                    <dt>Comments</dt>
+                    <dd>{{ complaint.commentCount }}</dd>
+                  </div>
+                  <div class="info-item">
+                    <dt>Attachments</dt>
+                    <dd>{{ complaint.attachmentCount }}</dd>
+                  </div>
+                  <div class="info-item">
+                    <dt>Anonymous</dt>
+                    <dd>{{ complaint.isAnonymous ? 'Yes' : 'No' }}</dd>
+                  </div>
+                </dl>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Assignment Candidates Display -->
-        <div *ngIf="assignmentCandidates.length > 0" class="card mb-3">
-          <div class="card-header">
-            <h6 class="mb-0"><i class="bi bi-list-check"></i> Recommended Assignment Candidates</h6>
+      <!-- ===================== COMPLAINANT TAB ===================== -->
+      <div class="tab-panel" *ngIf="activeTab === 'complainant'">
+        <div class="detail-card">
+          <div class="card-header-row">
+            <h2 class="card-title">Complainant Information</h2>
           </div>
-          <div class="card-body">
-            <div class="row">
-              <div *ngFor="let candidate of assignmentCandidates" class="col-md-6 mb-3">
-                <div class="card border-primary">
-                  <div class="card-header bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <strong>{{ candidate.resourcePoolName }}</strong>
-                      <span class="badge bg-primary">{{ candidate.suitabilityScore | number:'1.2' }}% Match</span>
+          <div class="card-content">
+            <!-- Personal Details -->
+            <div class="info-section">
+              <h3 class="section-title">Personal Details</h3>
+              <div class="info-grid">
+                <div class="info-field">
+                  <label>Name:</label>
+                  <span>{{ complaint.complainantName }}</span>
+                </div>
+                <div class="info-field" *ngIf="complaint.complainantEmployeeCode">
+                  <label>Employee Code:</label>
+                  <span>{{ complaint.complainantEmployeeCode }}</span>
+                </div>
+                <div class="info-field" *ngIf="complaint.contactEmail">
+                  <label>Email:</label>
+                  <a [href]="'mailto:' + complaint.contactEmail">{{ complaint.contactEmail }}</a>
+                </div>
+                <div class="info-field" *ngIf="complaint.contactPhone">
+                  <label>Phone:</label>
+                  <a [href]="'tel:' + complaint.contactPhone">{{ complaint.contactPhone }}</a>
+                </div>
+                <div class="info-field" *ngIf="complaint.alternatePhone">
+                  <label>Alternate Phone:</label>
+                  <a [href]="'tel:' + complaint.alternatePhone">{{ complaint.alternatePhone }}</a>
+                </div>
+                <div class="info-field">
+                  <label>Preferred Contact:</label>
+                  <span class="contact-badge">
+                    {{ getPreferredContactLabel(complaint.preferredContactMethod) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Organizational Details -->
+            <div class="info-section">
+              <h3 class="section-title">Organizational Details</h3>
+              <div class="info-grid">
+                <div class="info-field">
+                  <label>Company:</label>
+                  <span>{{ complaint.companyName }}</span>
+                </div>
+                <div class="info-field" *ngIf="complaint.complainantBranchName">
+                  <label>Branch:</label>
+                  <span>{{ complaint.complainantBranchName }}</span>
+                </div>
+                <div class="info-field" *ngIf="complaint.complainantDepartmentName">
+                  <label>Department:</label>
+                  <span>{{ complaint.complainantDepartmentName }}</span>
+                </div>
+                <div class="info-field" *ngIf="complaint.complainantSectionName">
+                  <label>Section:</label>
+                  <span>{{ complaint.complainantSectionName }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Manager Details -->
+            <div class="info-section" *ngIf="complaint.complainantManagerName">
+              <h3 class="section-title">Manager Details</h3>
+              <div class="info-grid">
+                <div class="info-field">
+                  <label>Name:</label>
+                  <span>{{ complaint.complainantManagerName }}</span>
+                </div>
+                <div class="info-field" *ngIf="complaint.complainantManagerEmail">
+                  <label>Email:</label>
+                  <a [href]="'mailto:' + complaint.complainantManagerEmail">
+                    {{ complaint.complainantManagerEmail }}
+                  </a>
+                </div>
+                <div class="info-field" *ngIf="complaint.complainantManagerPhone">
+                  <label>Phone:</label>
+                  <a [href]="'tel:' + complaint.complainantManagerPhone">
+                    {{ complaint.complainantManagerPhone }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== EMAIL THREAD TAB ===================== -->
+      <div class="tab-panel" *ngIf="activeTab === 'thread'">
+        <div class="detail-card">
+          <div class="card-header-row">
+            <h2 class="card-title">
+              <i class="bi bi-envelope-open-text"></i> Email Thread
+            </h2>
+            <button
+              *ngIf="complaint"
+              class="btn btn-primary"
+              (click)="openEmailComposer()"
+              title="Compose Email">
+              <i class="bi bi-pencil-square"></i> Compose Email
+            </button>
+          </div>
+          <div class="card-content">
+            <app-email-thread-viewer
+              *ngIf="complaint && !showEmailReplyComposer"
+              [complaintId]="complaint.id"
+              [showActions]="true"
+              (replyClicked)="onEmailReplyClicked($event)"
+              (replyAllClicked)="onEmailReplyAllClicked($event)"
+              (forwardClicked)="onEmailForwardClicked($event)"
+              (privateNoteClicked)="onAddInternalNoteClicked()">
+            </app-email-thread-viewer>
+
+            <!-- Email Reply Composer -->
+            <app-email-reply-composer
+              *ngIf="complaint && showEmailReplyComposer"
+              [complaintId]="complaint.id"
+              [replyTo]="emailReplyTo"
+              [emailThread]="emailThread"
+              [replyType]="emailReplyType"
+              [initialContent]="emailInitialContent"
+              [showCannedResponses]="true"
+              (emailSent)="onEmailReplySent($event)"
+              (cancelled)="onEmailReplyCancelled()">
+            </app-email-reply-composer>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== COMMENTS TAB ===================== -->
+      <div class="tab-panel" *ngIf="activeTab === 'comments'">
+        <div class="detail-card">
+          <div class="card-header-row">
+            <h2 class="card-title">Comments ({{ complaint.commentCount || 0 }})</h2>
+          </div>
+          <div class="card-content">
+            <!-- Success/Error Messages -->
+            <div *ngIf="actionSuccess" class="alert alert-success inline">
+              {{ actionSuccess }}
+            </div>
+            <div *ngIf="commentError" class="alert alert-error inline">
+              {{ commentError }}
+            </div>
+
+            <!-- Add Comment Form - Modern Tabbed Composer Design -->
+            <div class="comment-composer" [class.internal-mode]="isInternalNote">
+              <!-- Mode Toggle Tabs -->
+              <div class="composer-tabs">
+                <button
+                  type="button"
+                  class="composer-tab"
+                  [class.active]="!isInternalNote"
+                  (click)="isInternalNote = false"
+                  [disabled]="submittingComment">
+                  <i class="bi bi-chat-dots"></i>
+                  <span>Comment</span>
+                </button>
+                <button
+                  type="button"
+                  class="composer-tab internal"
+                  [class.active]="isInternalNote"
+                  (click)="isInternalNote = true"
+                  [disabled]="submittingComment">
+                  <i class="bi bi-shield-lock-fill"></i>
+                  <span>Internal Note</span>
+                </button>
+              </div>
+
+              <!-- Composer Body -->
+              <div class="composer-body">
+                <!-- Internal Note Indicator -->
+                <div *ngIf="isInternalNote" class="internal-indicator">
+                  <i class="bi bi-eye-slash-fill"></i>
+                  <span>Only visible to staff members</span>
+                </div>
+
+                <!-- Textarea with @mention support -->
+                <div class="composer-input-wrapper">
+                  <textarea
+                    #commentTextarea
+                    class="composer-textarea"
+                    [(ngModel)]="newComment"
+                    (input)="onCommentInput($event)"
+                    (keydown)="onCommentKeydown($event)"
+                    rows="3"
+                    [placeholder]="isInternalNote ? 'Write an internal note... Use @name to mention team members' : 'Write a comment... Use @name to mention someone'"
+                    [disabled]="submittingComment">
+                  </textarea>
+
+                  <!-- @Mention Dropdown -->
+                  <div *ngIf="showMentionDropdown && mentionSuggestions.length > 0" class="mention-dropdown">
+                    <div class="mention-header">
+                      <i class="bi bi-people"></i>
+                      <span>Mention a team member</span>
+                    </div>
+                    <div
+                      *ngFor="let user of mentionSuggestions; let i = index"
+                      class="mention-item"
+                      [class.selected]="i === selectedMentionIndex"
+                      (click)="selectMention(user)"
+                      (mouseenter)="selectedMentionIndex = i">
+                      <div class="mention-avatar">{{ getUserInitials(user.displayName) }}</div>
+                      <div class="mention-info">
+                        <span class="mention-name">{{ user.displayName }}</span>
+                        <span class="mention-role">{{ user.role }}</span>
+                      </div>
                     </div>
                   </div>
-                  <div class="card-body">
-                    <div class="mb-2">
-                      <small class="text-muted">Type:</small> {{ candidate.poolType }}
-                    </div>
-                    <div class="mb-2">
-                      <small class="text-muted">Available:</small> {{ candidate.availableMemberCount }}/{{ candidate.totalMemberCount }} members
-                    </div>
-                    <div class="mb-2">
-                      <small class="text-muted">Avg Workload:</small> {{ candidate.averageWorkload | number:'1.1' }}
-                    </div>
-                    <div class="mb-2">
-                      <small class="text-muted">Success Rate:</small> {{ candidate.successRate }}%
-                    </div>
-                    <div *ngIf="candidate.bestUserCandidate" class="mt-2 p-2 bg-light rounded">
-                      <small class="text-muted">Best Match:</small><br>
-                      <strong>{{ candidate.bestUserCandidate.fullName }}</strong>
-                      <div class="text-muted small">{{ candidate.bestUserCandidate.email }}</div>
-                    </div>
+                </div>
+
+                <!-- Mentioned Users Tags -->
+                <div *ngIf="mentionedUsers.length > 0" class="mentioned-users">
+                  <span class="mentioned-label">
+                    <i class="bi bi-bell"></i> Will notify:
+                  </span>
+                  <span *ngFor="let user of mentionedUsers" class="mention-tag">
+                    @{{ user.displayName }}
+                    <button type="button" class="remove-mention" (click)="removeMention(user)">
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Composer Footer -->
+              <div class="composer-footer">
+                <div class="composer-hint">
+                  <i class="bi bi-lightbulb"></i>
+                  <span>Tip: Use <kbd>@</kbd> to mention team members</span>
+                </div>
+                <button
+                  type="button"
+                  class="btn composer-submit"
+                  [class.btn-internal]="isInternalNote"
+                  [class.btn-primary]="!isInternalNote"
+                  (click)="addComment()"
+                  [disabled]="submittingComment || !newComment.trim()">
+                  <span *ngIf="!submittingComment">
+                    <i class="bi" [ngClass]="isInternalNote ? 'bi-shield-check' : 'bi-send-fill'"></i>
+                    {{ isInternalNote ? 'Add Internal Note' : 'Post Comment' }}
+                  </span>
+                  <span *ngIf="submittingComment" class="submitting">
+                    <span class="btn-spinner"></span> Posting...
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Comments List -->
+            <div class="comments-section">
+              <div *ngIf="loadingComments" class="loading-inline">
+                <div class="spinner-small"></div>
+                <span>Loading comments...</span>
+              </div>
+
+              <div *ngIf="!loadingComments && comments.length === 0" class="empty-state">
+                <i class="bi bi-chat-square-text"></i>
+                <p>No comments yet. Be the first to comment!</p>
+              </div>
+
+              <div *ngIf="!loadingComments && comments.length > 0" class="comments-list">
+                <div *ngFor="let comment of comments" class="comment-item">
+                  <div class="comment-header">
+                    <strong class="comment-author">{{ comment.userName || 'Unknown User' }}</strong>
+                    <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
+                  </div>
+                  <div class="comment-body">
+                    {{ comment.comment }}
+                  </div>
+                  <div *ngIf="comment.isInternal" class="comment-badge">
+                    <span class="badge-internal">Internal</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </main>
+</div>
 
-        <!-- Action Error -->
-        <div *ngIf="actionError" class="alert alert-danger mt-3">
-          <i class="bi bi-exclamation-triangle"></i> {{ actionError }}
-        </div>
+<!-- ===================== MODALS ===================== -->
 
-        <!-- Action Success -->
-        <div *ngIf="actionSuccess" class="alert alert-success mt-3">
-          <i class="bi bi-check-circle"></i> {{ actionSuccess }}
+<!-- Advanced Assignment Modal -->
+<div class="modal-overlay" [class.show]="showAssignModal" *ngIf="showAssignModal">
+  <div class="modal-container modal-xl">
+    <div class="modal-header">
+      <h5 class="modal-title">
+        <i class="bi bi-person-plus"></i> Advanced Complaint Assignment
+      </h5>
+      <button type="button" class="modal-close" (click)="closeModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Complaint Info -->
+      <div class="modal-info-box">
+        <i class="bi bi-info-circle"></i>
+        <div>
+          <strong>{{ complaint?.complaintNumber }}</strong> - {{ complaint?.title }}
+          <div class="modal-badges">
+            <span [class]="'priority-badge ' + getPriorityBadgeClass(complaint?.priority)">
+              {{ getPriorityLabel(complaint?.priority) }}
+            </span>
+            <span [class]="'status-badge ' + getStatusBadgeClass(complaint?.status)">
+              {{ getStatusLabel(complaint?.status) }}
+            </span>
+            <span class="category-badge">{{ complaint?.categoryName }}</span>
+          </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="actionLoading">
-          <i class="bi bi-x-circle"></i> Cancel
-        </button>
+
+      <!-- Assignment Type Selection -->
+      <div class="assignment-types">
+        <h6 class="section-label"><i class="bi bi-gear"></i> Assignment Type</h6>
+        <div class="type-options">
+          <label class="type-option">
+            <input type="radio" name="assignmentType" [(ngModel)]="assignmentType" value="auto">
+            <div class="type-content">
+              <i class="bi bi-magic text-primary"></i>
+              <strong>Auto Assignment</strong>
+              <span>Let the system find the best candidate</span>
+            </div>
+          </label>
+          <label class="type-option">
+            <input type="radio" name="assignmentType" [(ngModel)]="assignmentType" value="pool">
+            <div class="type-content">
+              <i class="bi bi-people text-success"></i>
+              <strong>Resource Pool</strong>
+              <span>Assign from a specific resource pool</span>
+            </div>
+          </label>
+          <label class="type-option">
+            <input type="radio" name="assignmentType" [(ngModel)]="assignmentType" value="user">
+            <div class="type-content">
+              <i class="bi bi-person text-info"></i>
+              <strong>Direct User</strong>
+              <span>Search and assign to a specific user</span>
+            </div>
+          </label>
+        </div>
       </div>
+
+      <!-- Auto Assignment Options -->
+      <div *ngIf="assignmentType === 'auto'" class="assignment-panel">
+        <h6 class="section-label"><i class="bi bi-magic"></i> Auto Assignment Configuration</h6>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Assignment Reason</label>
+            <input type="text" class="form-input" [(ngModel)]="autoAssignReason"
+                   placeholder="e.g., Initial assignment, Reassignment">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Priority Level</label>
+            <select class="form-select" [(ngModel)]="autoAssignPriority">
+              <option value="low">Low Priority</option>
+              <option value="normal" selected>Normal Priority</option>
+              <option value="high">High Priority</option>
+              <option value="critical">Critical Priority</option>
+            </select>
+          </div>
+        </div>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="forceAssignment">
+            <span>Force assignment even if no perfect match</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="bypassRules">
+            <span>Bypass assignment rules</span>
+          </label>
+        </div>
+        <div class="panel-actions">
+          <button class="btn btn-secondary" (click)="showAssignmentCandidates()" [disabled]="loadingCandidates">
+            <span *ngIf="loadingCandidates" class="btn-spinner"></span>
+            <i class="bi bi-search"></i> Find Candidates
+          </button>
+          <button class="btn btn-primary" (click)="performAutoAssign()"
+                  [disabled]="!hasCandidates || actionLoading">
+            <span *ngIf="actionLoading" class="btn-spinner"></span>
+            <i class="bi bi-check-circle"></i> Auto Assign
+          </button>
+        </div>
+      </div>
+
+      <!-- Resource Pool Assignment -->
+      <div *ngIf="assignmentType === 'pool'" class="assignment-panel">
+        <h6 class="section-label"><i class="bi bi-people"></i> Resource Pool Assignment</h6>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Select Resource Pool</label>
+            <select class="form-select" [(ngModel)]="selectedResourcePoolId" (change)="onResourcePoolChange()">
+              <option value="">Select a resource pool...</option>
+              <option *ngFor="let pool of availableResourcePools" [value]="pool.id">
+                {{ pool.name }} ({{ pool.type }}) - {{ pool.memberCount }} members
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Assignment Method</label>
+            <select class="form-select" [(ngModel)]="poolAssignmentMethod">
+              <option value="0">Manual</option>
+              <option value="1">Round Robin</option>
+              <option value="2">Least Busy</option>
+              <option value="3">Skill Based</option>
+              <option value="4">Priority Based</option>
+              <option value="5">Workload Balanced</option>
+              <option value="6" selected>Best Fit</option>
+              <option value="7">Experience Based</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Pool Members -->
+        <div *ngIf="selectedResourcePoolId && poolMembers.length > 0" class="pool-members">
+          <h6 class="section-label"><i class="bi bi-people"></i> Available Pool Members</h6>
+          <div class="members-grid">
+            <label *ngFor="let member of poolMembers" class="member-card">
+              <input type="radio" name="poolMember" [(ngModel)]="selectedPoolMemberId" [value]="member.userId">
+              <div class="member-content">
+                <div class="member-info">
+                  <strong>{{ member.fullName }}</strong>
+                  <span class="member-email">{{ member.email }}</span>
+                  <div class="member-stats">
+                    <span class="stat-badge info">Workload: {{ member.currentWorkload }}</span>
+                    <span class="stat-badge success">Success: {{ member.successRate }}%</span>
+                  </div>
+                </div>
+                <div class="member-status">
+                  <span *ngIf="member.isAvailable" class="status-available">
+                    <i class="bi bi-circle-fill"></i> Available
+                  </span>
+                  <span *ngIf="!member.isAvailable" class="status-busy">
+                    <i class="bi bi-circle"></i> Busy
+                  </span>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel-actions">
+          <button class="btn btn-primary" (click)="performPoolAssign()"
+                  [disabled]="!selectedResourcePoolId || actionLoading">
+            <span *ngIf="actionLoading" class="btn-spinner"></span>
+            <i class="bi bi-check-circle"></i> Assign from Pool
+          </button>
+        </div>
+      </div>
+
+      <!-- Direct User Assignment -->
+      <div *ngIf="assignmentType === 'user'" class="assignment-panel">
+        <h6 class="section-label"><i class="bi bi-person"></i> Direct User Assignment</h6>
+
+        <div class="form-group">
+          <label class="form-label">Search Users</label>
+          <input
+            type="text"
+            class="form-input"
+            [(ngModel)]="userSearchTerm"
+            (input)="onUserSearchChange()"
+            placeholder="Type at least 3 characters to search...">
+          <small class="form-hint">
+            <i class="bi bi-lightbulb"></i> Search by name, email, employee code, or phone number (min {{ minSearchLength }} characters)
+          </small>
+        </div>
+
+        <div class="user-selection">
+          <h6 class="section-label">
+            <i class="bi bi-people"></i> Select User to Assign
+            <span class="count-badge">{{ filteredUsers.length }} users</span>
+          </h6>
+
+          <!-- Loading State -->
+          <div *ngIf="loadingUsers" class="loading-inline">
+            <div class="spinner-small"></div>
+            <span>Loading users...</span>
+          </div>
+
+          <!-- No Users Found -->
+          <div *ngIf="!loadingUsers && filteredUsers.length === 0" class="empty-state">
+            <i class="bi bi-search"></i>
+            <p *ngIf="!userSearchTerm || userSearchTerm.length < minSearchLength">
+              Type at least {{ minSearchLength }} characters to search for users
+            </p>
+            <p *ngIf="userSearchTerm && userSearchTerm.length >= minSearchLength">
+              No users found matching "{{ userSearchTerm }}"
+            </p>
+          </div>
+
+          <!-- User List -->
+          <div *ngIf="!loadingUsers && filteredUsers.length > 0" class="user-list">
+            <label *ngFor="let user of filteredUsers" class="user-item" [class.selected]="selectedUserId === user.id">
+              <input
+                type="radio"
+                name="selectedUser"
+                [value]="user.id"
+                [(ngModel)]="selectedUserId">
+              <div class="user-details">
+                <div class="user-name">
+                  <i class="bi bi-person-circle"></i>
+                  <strong>{{ user.fullName }}</strong>
+                  <span *ngIf="user.employeeCode" class="emp-code">{{ user.employeeCode }}</span>
+                </div>
+                <div class="user-meta">
+                  <span *ngIf="user.email" class="user-email">
+                    <i class="bi bi-envelope"></i> {{ user.email }}
+                  </span>
+                  <span *ngIf="user.branchName" class="meta-badge info">{{ user.branchName }}</span>
+                  <span *ngIf="user.departmentName" class="meta-badge success">{{ user.departmentName }}</span>
+                  <span *ngIf="user.sectionName" class="meta-badge warning">{{ user.sectionName }}</span>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel-actions">
+          <button class="btn btn-primary" (click)="performDirectAssign()"
+                  [disabled]="!selectedUserId || actionLoading">
+            <span *ngIf="actionLoading" class="btn-spinner"></span>
+            <i class="bi bi-check-circle"></i> Assign to Selected User
+          </button>
+        </div>
+      </div>
+
+      <!-- Assignment Candidates Display -->
+      <div *ngIf="assignmentCandidates.length > 0" class="candidates-panel">
+        <h6 class="section-label"><i class="bi bi-list-check"></i> Recommended Assignment Candidates</h6>
+        <div class="candidates-grid">
+          <div *ngFor="let candidate of assignmentCandidates" class="candidate-card">
+            <div class="candidate-header">
+              <strong>{{ candidate.resourcePoolName }}</strong>
+              <span class="match-score">{{ candidate.suitabilityScore | number:'1.2' }}% Match</span>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-stat"><span class="label">Type:</span> {{ candidate.poolType }}</div>
+              <div class="candidate-stat"><span class="label">Available:</span> {{ candidate.availableMemberCount }}/{{ candidate.totalMemberCount }} members</div>
+              <div class="candidate-stat"><span class="label">Avg Workload:</span> {{ candidate.averageWorkload | number:'1.1' }}</div>
+              <div class="candidate-stat"><span class="label">Success Rate:</span> {{ candidate.successRate }}%</div>
+              <div *ngIf="candidate.bestUserCandidate" class="best-match">
+                <span class="label">Best Match:</span>
+                <strong>{{ candidate.bestUserCandidate.fullName }}</strong>
+                <span class="email">{{ candidate.bestUserCandidate.email }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Messages -->
+      <div *ngIf="actionError" class="alert alert-error">
+        <i class="bi bi-exclamation-triangle"></i> {{ actionError }}
+      </div>
+      <div *ngIf="actionSuccess" class="alert alert-success">
+        <i class="bi bi-check-circle"></i> {{ actionSuccess }}
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="actionLoading">
+        <i class="bi bi-x-circle"></i> Cancel
+      </button>
     </div>
   </div>
 </div>
 
 <!-- Escalate Modal -->
-<div class="modal" [class.show]="showEscalateModal" [style.display]="showEscalateModal ? 'block' : 'none'" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Escalate Complaint</h5>
-        <button type="button" class="btn-close" (click)="closeModal()"></button>
+<div class="modal-overlay" [class.show]="showEscalateModal" *ngIf="showEscalateModal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h5 class="modal-title">Escalate Complaint</h5>
+      <button type="button" class="modal-close" (click)="closeModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Escalation Reason</label>
+        <textarea
+          class="form-textarea"
+          rows="4"
+          [(ngModel)]="escalationReason"
+          placeholder="Explain why this complaint needs to be escalated">
+        </textarea>
       </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">Escalation Reason</label>
-          <textarea class="form-control" rows="4" [(ngModel)]="escalationReason" placeholder="Explain why this complaint needs to be escalated"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
-        <button type="button" class="btn btn-warning" (click)="escalateComplaint()" [disabled]="!escalationReason || actionLoading">
-          <span *ngIf="actionLoading" class="spinner-border spinner-border-sm me-1"></span>
-          Escalate
-        </button>
-      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-warning" (click)="escalateComplaint()" [disabled]="!escalationReason || actionLoading">
+        <span *ngIf="actionLoading" class="btn-spinner"></span>
+        Escalate
+      </button>
     </div>
   </div>
 </div>
 
 <!-- Close Modal -->
-<div class="modal" [class.show]="showCloseModal" [style.display]="showCloseModal ? 'block' : 'none'" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Close Complaint</h5>
-        <button type="button" class="btn-close" (click)="closeModal()"></button>
+<div class="modal-overlay" [class.show]="showCloseModal" *ngIf="showCloseModal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h5 class="modal-title">Close Complaint</h5>
+      <button type="button" class="modal-close" (click)="closeModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Resolution Notes</label>
+        <textarea
+          class="form-textarea"
+          rows="4"
+          [(ngModel)]="resolutionNotes"
+          placeholder="Describe how the complaint was resolved">
+        </textarea>
       </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">Resolution Notes</label>
-          <textarea class="form-control" rows="4" [(ngModel)]="resolutionNotes" placeholder="Describe how the complaint was resolved"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
-        <button type="button" class="btn btn-success" (click)="closeComplaint()" [disabled]="!resolutionNotes || actionLoading">
-          <span *ngIf="actionLoading" class="spinner-border spinner-border-sm me-1"></span>
-          Close
-        </button>
-      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-success" (click)="closeComplaint()" [disabled]="!resolutionNotes || actionLoading">
+        <span *ngIf="actionLoading" class="btn-spinner"></span>
+        Close
+      </button>
     </div>
   </div>
 </div>
 
 <!-- Reopen Modal -->
-<div class="modal" [class.show]="showReopenModal" [style.display]="showReopenModal ? 'block' : 'none'" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Reopen Complaint</h5>
-        <button type="button" class="btn-close" (click)="closeModal()"></button>
+<div class="modal-overlay" [class.show]="showReopenModal" *ngIf="showReopenModal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h5 class="modal-title">Reopen Complaint</h5>
+      <button type="button" class="modal-close" (click)="closeModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Reason for Reopening</label>
+        <textarea
+          class="form-textarea"
+          rows="4"
+          [(ngModel)]="reopenReason"
+          placeholder="Explain why this complaint needs to be reopened">
+        </textarea>
       </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">Reason for Reopening</label>
-          <textarea class="form-control" rows="4" [(ngModel)]="reopenReason" placeholder="Explain why this complaint needs to be reopened"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
-        <button type="button" class="btn btn-info" (click)="reopenComplaint()" [disabled]="!reopenReason || actionLoading">
-          <span *ngIf="actionLoading" class="spinner-border spinner-border-sm me-1"></span>
-          Reopen
-        </button>
-      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-info" (click)="reopenComplaint()" [disabled]="!reopenReason || actionLoading">
+        <span *ngIf="actionLoading" class="btn-spinner"></span>
+        Reopen
+      </button>
     </div>
   </div>
 </div>
 
 <!-- Workflow Transition Modal -->
-<div class="modal" [class.show]="showTransitionModal" [style.display]="showTransitionModal ? 'block' : 'none'" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="bi" [class]="selectedTransition?.iconClass || 'bi-arrow-right'"></i>
-          {{ selectedTransition?.transitionName || 'Change Status' }}
-        </h5>
-        <button type="button" class="btn-close" (click)="closeTransitionModal()"></button>
-      </div>
-      <div class="modal-body">
-        <div *ngIf="selectedTransition" class="mb-3">
-          <div class="alert alert-info">
-            <strong>From:</strong> {{ getStatusLabel(complaint?.status) }}<br>
-            <strong>To:</strong> {{ selectedTransition.toStatusName }}
-          </div>
+<div class="modal-overlay" [class.show]="showTransitionModal" *ngIf="showTransitionModal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h5 class="modal-title">
+        <i class="bi" [class]="selectedTransition?.iconClass || 'bi-arrow-right'"></i>
+        {{ selectedTransition?.transitionName || 'Change Status' }}
+      </h5>
+      <button type="button" class="modal-close" (click)="closeTransitionModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="selectedTransition">
+        <div class="transition-info">
+          <strong>From:</strong> {{ getStatusLabel(complaint?.status) }}
+          <i class="bi bi-arrow-right"></i>
+          <strong>To:</strong> {{ selectedTransition.toStatusName }}
+        </div>
 
-          <div *ngIf="selectedTransition.description" class="mb-3">
-            <p class="text-muted">{{ selectedTransition.description }}</p>
-          </div>
+        <p *ngIf="selectedTransition.description" class="transition-desc">
+          {{ selectedTransition.description }}
+        </p>
 
-          <div class="mb-3">
-            <label class="form-label">
-              Comment
-              <span *ngIf="selectedTransition.requiresComment" class="text-danger">*</span>
-            </label>
-            <textarea
-              class="form-control"
-              rows="4"
-              [(ngModel)]="transitionComment"
-              [placeholder]="selectedTransition.requiresComment ? 'A comment is required for this transition' : 'Optional comment about this status change'">
-            </textarea>
-          </div>
+        <div class="form-group">
+          <label class="form-label">
+            Comment
+            <span *ngIf="selectedTransition.requiresComment" class="required">*</span>
+          </label>
+          <textarea
+            class="form-textarea"
+            rows="4"
+            [(ngModel)]="transitionComment"
+            [placeholder]="selectedTransition.requiresComment ? 'A comment is required for this transition' : 'Optional comment about this status change'">
+          </textarea>
+        </div>
 
-          <div *ngIf="selectedTransition.requiresApproval" class="alert alert-warning">
-            <i class="bi bi-shield-check"></i> This transition requires approval
-          </div>
+        <div *ngIf="selectedTransition.requiresApproval" class="approval-notice">
+          <i class="bi bi-shield-check"></i> This transition requires approval
+        </div>
 
-          <div *ngIf="actionError" class="alert alert-danger">
-            <i class="bi bi-exclamation-triangle"></i> {{ actionError }}
-          </div>
+        <div *ngIf="actionError" class="alert alert-error inline">
+          <i class="bi bi-exclamation-triangle"></i> {{ actionError }}
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeTransitionModal()" [disabled]="actionLoading">
-          Cancel
-        </button>
-        <button
-          type="button"
-          class="btn"
-          [style.background-color]="selectedTransition?.buttonColor || '#17a2b8'"
-          [style.border-color]="selectedTransition?.buttonColor || '#17a2b8'"
-          [style.color]="'white'"
-          (click)="executeTransition()"
-          [disabled]="actionLoading || (selectedTransition?.requiresComment && !transitionComment.trim())">
-          <span *ngIf="actionLoading" class="spinner-border spinner-border-sm me-1"></span>
-          <i class="bi" [class]="selectedTransition?.iconClass || 'bi-arrow-right'"></i>
-          {{ selectedTransition?.transitionName || 'Execute Transition' }}
-        </button>
-      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeTransitionModal()" [disabled]="actionLoading">
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        [style.background-color]="selectedTransition?.buttonColor || '#2563eb'"
+        [style.border-color]="selectedTransition?.buttonColor || '#2563eb'"
+        (click)="executeTransition()"
+        [disabled]="actionLoading || (selectedTransition?.requiresComment && !transitionComment.trim())">
+        <span *ngIf="actionLoading" class="btn-spinner"></span>
+        <i class="bi" [class]="selectedTransition?.iconClass || 'bi-arrow-right'"></i>
+        {{ selectedTransition?.transitionName || 'Execute Transition' }}
+      </button>
     </div>
   </div>
 </div>
-
-<!-- Modal Backdrop -->
-<div class="modal-backdrop fade" [class.show]="showAssignModal || showEscalateModal || showCloseModal || showReopenModal || showTransitionModal" *ngIf="showAssignModal || showEscalateModal || showCloseModal || showReopenModal || showTransitionModal"></div>

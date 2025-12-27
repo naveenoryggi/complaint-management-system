@@ -14,4 +14,14 @@ public class GetComplaintsQuery : IRequest<Result<PagedResult<ComplaintDto>>>
     public Guid? AssignedToId { get; set; }
     public Guid? ComplainantId { get; set; }
     public string? SearchTerm { get; set; }
+
+    /// <summary>
+    /// When true, returns only unassigned complaints (where AssignedToId is null)
+    /// </summary>
+    public bool UnassignedOnly { get; set; } = false;
+
+    /// <summary>
+    /// When true, returns only complaints with customer responses awaiting handler response
+    /// </summary>
+    public bool WaitingForResponseOnly { get; set; } = false;
 }

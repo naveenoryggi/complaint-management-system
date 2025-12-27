@@ -1,54 +1,59 @@
-<div class="status-master-management">
+<div class="status-management">
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-content">
-      <h1>
-        <i class="fas fa-circle-notch"></i>
-        Status Master Management
-      </h1>
-      <p class="page-description">Manage complaint status definitions and configurations</p>
+      <div class="title-row">
+        <span class="material-icons-round header-icon">toggle_on</span>
+        <h1>Status Master Management</h1>
+      </div>
+      <p class="page-description">
+        Manage complaint status definitions, configure colors, icons, and workflow states for your support system.
+      </p>
     </div>
-    <button
-      *ngIf="canManageSettings"
-      class="btn btn-primary"
-      (click)="openCreateModal()">
-      <i class="fas fa-plus"></i> Add Status
+    <button class="btn btn-primary btn-add" *ngIf="canManageSettings" (click)="openCreateModal()">
+      <span class="material-icons-round">add</span>
+      Add Status
     </button>
   </div>
 
-  <!-- Help Section -->
+  <!-- Info Banner -->
   <div class="info-banner">
-    <div class="info-icon">
-      <i class="fas fa-info-circle"></i>
+    <div class="info-icon-wrapper">
+      <span class="material-icons-round">info</span>
     </div>
     <div class="info-content">
       <h3>Understanding Status Masters</h3>
-      <p>
-        Status masters define the lifecycle states of complaints in your system:
-      </p>
-      <ul>
-        <li><strong>System Statuses:</strong> Built-in statuses (e.g., "Open", "In Progress", "Closed") that cannot be edited or deleted</li>
-        <li><strong>Custom Statuses:</strong> Company-specific statuses that you can create and customize</li>
-      </ul>
-      <p>
-        <strong>Configuration:</strong> Each status can have a unique color code, icon, and display order.
-        Use the <code>isFinal</code> flag to mark statuses that represent completed complaints.
+      <div class="info-grid">
+        <div class="info-item">
+          <p class="info-label">System Statuses</p>
+          <p>Built-in statuses (e.g., "Open", "In Progress", "Closed") that cannot be edited or deleted.</p>
+        </div>
+        <div class="info-item">
+          <p class="info-label">Custom Statuses</p>
+          <p>Company-specific statuses that you can create, customize, and manage freely.</p>
+        </div>
+      </div>
+      <p class="info-tip">
+        <span class="material-icons-round">lightbulb</span>
+        Tip: Mark statuses as "Final" to indicate completed complaint states. Use colors and icons for quick visual identification.
       </p>
     </div>
   </div>
 
   <!-- Success/Error Messages -->
   <div class="alert alert-success" *ngIf="successMessage">
-    <i class="fas fa-check-circle"></i> {{ successMessage }}
+    <span class="material-icons-round">check_circle</span>
+    {{ successMessage }}
   </div>
   <div class="alert alert-error" *ngIf="errorMessage && !showModal && !showDeleteConfirm">
-    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+    <span class="material-icons-round">error</span>
+    {{ errorMessage }}
   </div>
 
-  <!-- Filters and Search -->
+  <!-- Filters and Search Bar -->
   <div class="filters-bar">
     <div class="search-box">
-      <i class="fas fa-search"></i>
+      <span class="material-icons-round search-icon">search</span>
       <input
         type="text"
         [(ngModel)]="searchTerm"
@@ -57,7 +62,7 @@
         class="search-input"
       />
     </div>
-    <div class="filter-toggle">
+    <div class="filter-actions">
       <label class="toggle-label">
         <input
           type="checkbox"
@@ -66,6 +71,13 @@
         />
         <span>Show Active Only</span>
       </label>
+      <div class="view-divider"></div>
+      <button class="view-btn active" title="Grid View">
+        <span class="material-icons-round">grid_view</span>
+      </button>
+      <button class="view-btn" title="List View">
+        <span class="material-icons-round">view_list</span>
+      </button>
     </div>
   </div>
 
@@ -78,31 +90,33 @@
   <!-- Statuses Grid -->
   <div class="statuses-grid" *ngIf="!loading && filteredStatuses.length > 0">
     <div
-      *ngFor="let status of filteredStatuses"
+      *ngFor="let status of filteredStatuses; trackBy: trackById"
       class="status-card"
       [class.inactive]="!status.isActive"
       [class.system-status]="status.isSystem"
     >
       <!-- Card Header -->
       <div class="card-header">
-        <div class="status-icon" [style.color]="status.colorCode || '#6c757d'">
-          <i class="fas" [ngClass]="status.iconClass || 'fa-circle-notch'"></i>
-        </div>
-        <div class="status-info">
-          <h3>
-            {{ status.name }}
-            <span *ngIf="status.isSystem" class="system-badge" title="System-defined status">
-              <i class="fas fa-lock"></i> System
-            </span>
-          </h3>
-          <span class="status-code">{{ status.code }}</span>
+        <div class="header-left">
+          <div class="status-icon" [style.background-color]="status.colorCode || '#6c757d'">
+            <span class="material-icons-round">{{ getStatusIcon(status) }}</span>
+          </div>
+          <div class="status-info">
+            <h3 class="status-name">
+              {{ status.name }}
+              <span *ngIf="status.isSystem" class="system-badge">
+                <span class="material-icons-round">lock</span> System
+              </span>
+            </h3>
+            <code class="status-code">{{ status.code }}</code>
+          </div>
         </div>
         <div class="badge-group">
           <span class="status-badge" [class.active]="status.isActive">
-            {{ status.isActive ? 'Active' : 'Inactive' }}
+            {{ status.isActive ? 'ACTIVE' : 'INACTIVE' }}
           </span>
-          <span *ngIf="status.isFinal" class="final-badge" title="Final/Terminal status">
-            <i class="fas fa-flag-checkered"></i> Final
+          <span *ngIf="status.isFinal" class="final-badge">
+            <span class="material-icons-round">flag</span> Final
           </span>
         </div>
       </div>
@@ -113,64 +127,50 @@
           {{ status.description }}
         </p>
         <p class="no-description" *ngIf="!status.description">
-          <i>No description provided</i>
+          No description provided
         </p>
 
         <!-- Status Details -->
         <div class="status-details">
           <div class="detail-row">
-            <div class="detail-item">
-              <i class="fas fa-palette"></i>
-              <span class="detail-label">Color:</span>
-              <span class="color-preview" [style.background-color]="status.colorCode || '#6c757d'">
-                {{ status.colorCode || 'Default' }}
-              </span>
+            <div class="detail-left">
+              <span class="material-icons-round">palette</span>
+              <span>Color</span>
             </div>
+            <span class="color-preview" [style.background-color]="status.colorCode || '#6c757d'">
+              {{ status.colorCode || '#6c757d' }}
+            </span>
           </div>
 
           <div class="detail-row">
-            <div class="detail-item">
-              <i class="fas fa-icons"></i>
-              <span class="detail-label">Icon Class:</span>
-              <span class="detail-value">{{ status.iconClass || 'Default' }}</span>
+            <div class="detail-left">
+              <span class="material-icons-round">sort</span>
+              <span>Display Order</span>
             </div>
-          </div>
-
-          <div class="detail-row">
-            <div class="detail-item">
-              <i class="fas fa-sort"></i>
-              <span class="detail-label">Display Order:</span>
-              <span class="detail-value">{{ status.displayOrder }}</span>
-            </div>
+            <span class="detail-value">{{ status.displayOrder }}</span>
           </div>
 
           <div class="detail-row" *ngIf="status.companyId">
-            <div class="detail-item">
-              <i class="fas fa-building"></i>
-              <span class="detail-label">Scope:</span>
-              <span class="detail-value">Company-Specific</span>
+            <div class="detail-left">
+              <span class="material-icons-round">business</span>
+              <span>Scope</span>
             </div>
+            <span class="detail-value">Company-Specific</span>
           </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="card-actions" *ngIf="canManageSettings">
-          <button
-            class="btn btn-secondary btn-sm"
-            (click)="openEditModal(status)">
-            <i class="fas fa-edit"></i> Edit
-            <span *ngIf="status.isSystem" class="system-indicator">⚠</span>
+          <button class="btn btn-edit" (click)="openEditModal(status)">
+            <span class="material-icons-round">edit</span> Edit
           </button>
-          <button
-            class="btn btn-danger btn-sm"
-            (click)="openDeleteConfirm(status)">
-            <i class="fas fa-trash"></i> Delete
-            <span *ngIf="status.isSystem" class="system-indicator">⚠</span>
+          <button class="btn btn-delete" (click)="openDeleteConfirm(status)">
+            <span class="material-icons-round">delete</span> Delete
           </button>
         </div>
         <div class="card-actions" *ngIf="!canManageSettings">
           <p class="no-permission-text">
-            <i class="fas fa-lock"></i> View Only - No edit permission
+            <span class="material-icons-round">lock</span> View Only - No edit permission
           </p>
         </div>
       </div>
@@ -179,16 +179,23 @@
 
   <!-- No Results -->
   <div class="no-results" *ngIf="!loading && filteredStatuses.length === 0">
-    <i class="fas fa-inbox"></i>
+    <div class="no-results-icon">
+      <span class="material-icons-round">inbox</span>
+    </div>
     <h3>No Statuses Found</h3>
     <p *ngIf="searchTerm">Try adjusting your search or filters</p>
     <p *ngIf="!searchTerm && showActiveOnly">Try showing inactive statuses</p>
-    <button
-      *ngIf="!searchTerm && canManageSettings"
-      class="btn btn-primary"
-      (click)="openCreateModal()">
-      <i class="fas fa-plus"></i> Create First Status
+    <button class="btn btn-primary" *ngIf="!searchTerm && canManageSettings" (click)="openCreateModal()">
+      <span class="material-icons-round">add</span> Create First Status
     </button>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-bar" *ngIf="!loading && filteredStatuses.length > 0">
+    <div class="results-info">
+      Showing <span class="highlight">{{ filteredStatuses.length }}</span> of
+      <span class="highlight">{{ statuses.length }}</span> statuses
+    </div>
   </div>
 </div>
 
@@ -198,22 +205,23 @@
     <div class="modal-header">
       <h2>{{ modalTitle }}</h2>
       <button class="close-btn" (click)="closeModal()">
-        <i class="fas fa-times"></i>
+        <span class="material-icons-round">close</span>
       </button>
     </div>
 
     <div class="modal-body">
       <div class="alert alert-error" *ngIf="errorMessage">
-        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+        <span class="material-icons-round">error</span>
+        {{ errorMessage }}
       </div>
 
       <!-- System Record Warning -->
       <div class="alert alert-warning" *ngIf="isEditingSystemStatus()">
         <div class="warning-content">
-          <i class="fas fa-exclamation-triangle"></i>
+          <span class="material-icons-round">warning</span>
           <div>
             <strong>Warning: Editing System-Defined Status</strong>
-            <p>You are editing a system-defined status. Changes will affect all complaints using this status across the system. Please proceed with caution.</p>
+            <p>You are editing a system-defined status. Changes will affect all complaints using this status across the system.</p>
           </div>
         </div>
       </div>
@@ -246,7 +254,7 @@
               [(ngModel)]="statusCode"
               name="code"
               class="form-control"
-              placeholder="Enter unique code (e.g., PENDING_REVIEW)"
+              placeholder="e.g., PENDING_REVIEW"
               maxlength="50"
               [disabled]="modalMode === 'edit'"
               required
@@ -264,7 +272,7 @@
             [(ngModel)]="statusForm.description"
             name="description"
             class="form-control"
-            placeholder="Enter status description"
+            placeholder="Enter a brief description of this status..."
             rows="3"
             maxlength="500"
           ></textarea>
@@ -274,8 +282,8 @@
           <div class="form-group">
             <label for="colorCode">
               Color Code
-              <span class="label-help">
-                <i class="fas fa-question-circle" title="Hex color code for visual representation"></i>
+              <span class="label-help" title="Hex color code for visual representation">
+                <span class="material-icons-round">help_outline</span>
               </span>
             </label>
             <div class="color-input-group">
@@ -293,7 +301,6 @@
                 class="form-control"
                 placeholder="#6c757d"
                 maxlength="7"
-                pattern="^#[0-9A-Fa-f]{6}$"
               />
             </div>
             <small class="form-help-text">
@@ -302,33 +309,10 @@
           </div>
 
           <div class="form-group">
-            <label for="iconClass">
-              Icon Class
-              <span class="label-help">
-                <i class="fas fa-question-circle" title="FontAwesome icon class"></i>
-              </span>
-            </label>
-            <input
-              type="text"
-              id="iconClass"
-              [(ngModel)]="statusForm.iconClass"
-              name="iconClass"
-              class="form-control"
-              placeholder="e.g., fa-circle-notch"
-              maxlength="100"
-            />
-            <small class="form-help-text">
-              FontAwesome icon class without 'fas' prefix
-            </small>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
             <label for="displayOrder">
               Display Order
-              <span class="label-help">
-                <i class="fas fa-question-circle" title="Lower numbers appear first"></i>
+              <span class="label-help" title="Lower numbers appear first">
+                <span class="material-icons-round">help_outline</span>
               </span>
             </label>
             <input
@@ -341,38 +325,33 @@
               max="9999"
               placeholder="0"
             />
-            <small class="form-help-text">
-              Controls the order statuses appear (lower numbers first).
-            </small>
           </div>
+        </div>
 
-          <div class="form-group">
+        <div class="form-row checkbox-row">
+          <div class="form-group checkbox-group">
             <label class="checkbox-label">
               <input
                 type="checkbox"
                 [(ngModel)]="statusForm.isFinal"
                 name="isFinal"
               />
-              <span>Is Final Status</span>
-              <span class="label-help">
-                <i class="fas fa-question-circle" title="Marks this as a terminal/completed status"></i>
-              </span>
+              <span class="checkbox-text">Is Final Status</span>
+              <span class="checkbox-description">Marks this as a terminal/completed status</span>
             </label>
-            <small class="form-help-text">
-              Check if this status represents a completed complaint
-            </small>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [(ngModel)]="statusForm.isActive"
-              name="isActive"
-            />
-            <span>Active</span>
-          </label>
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="statusForm.isActive"
+                name="isActive"
+              />
+              <span class="checkbox-text">Active</span>
+              <span class="checkbox-description">Enable this status for use in complaints</span>
+            </label>
+          </div>
         </div>
       </form>
     </div>
@@ -383,11 +362,12 @@
       </button>
       <button class="btn btn-primary" (click)="saveStatus()" [disabled]="loading">
         <span *ngIf="!loading">
-          <i class="fas" [ngClass]="modalMode === 'create' ? 'fa-plus' : 'fa-save'"></i>
-          {{ modalMode === 'create' ? 'Create' : 'Update' }}
+          <span class="material-icons-round">{{ modalMode === 'create' ? 'add' : 'save' }}</span>
+          {{ modalMode === 'create' ? 'Create Status' : 'Save Changes' }}
         </span>
-        <span *ngIf="loading">
-          <i class="fas fa-spinner fa-spin"></i> Saving...
+        <span *ngIf="loading" class="loading-state">
+          <span class="spinner-small"></span>
+          Saving...
         </span>
       </button>
     </div>
@@ -397,34 +377,40 @@
 <!-- Delete Confirmation Modal -->
 <div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="closeDeleteConfirm()">
   <div class="modal-container modal-sm" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>Confirm Delete</h2>
+    <div class="modal-header modal-header-danger">
+      <h2>Delete Status</h2>
       <button class="close-btn" (click)="closeDeleteConfirm()">
-        <i class="fas fa-times"></i>
+        <span class="material-icons-round">close</span>
       </button>
     </div>
 
     <div class="modal-body">
       <div class="alert alert-error" *ngIf="errorMessage">
-        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+        <span class="material-icons-round">error</span>
+        {{ errorMessage }}
       </div>
 
       <!-- System Record Warning -->
       <div class="alert alert-warning" *ngIf="statusToDelete?.isSystem">
         <div class="warning-content">
-          <i class="fas fa-exclamation-triangle"></i>
+          <span class="material-icons-round">warning</span>
           <div>
             <strong>Critical Warning: Deleting System-Defined Status</strong>
-            <p>You are about to delete a system-defined status. This may cause issues with existing complaints and workflows. This action is not recommended.</p>
+            <p>You are about to delete a system-defined status. This may cause issues with existing complaints and workflows.</p>
           </div>
         </div>
       </div>
 
       <div class="delete-confirm-content">
-        <i class="fas fa-exclamation-triangle warning-icon"></i>
-        <p>Are you sure you want to delete the status:</p>
+        <div class="warning-icon-wrapper">
+          <span class="material-icons-round">warning</span>
+        </div>
+        <p class="delete-message">Are you sure you want to delete this status?</p>
         <p class="status-name-highlight">{{ statusToDelete?.name }}</p>
-        <p class="warning-text">This action cannot be undone.</p>
+        <p class="warning-text">
+          <span class="material-icons-round">info</span>
+          This action cannot be undone. Any complaints using this status may be affected.
+        </p>
       </div>
     </div>
 
@@ -434,10 +420,11 @@
       </button>
       <button class="btn btn-danger" (click)="executeDeleteConfirm()" [disabled]="deleteLoading">
         <span *ngIf="!deleteLoading">
-          <i class="fas fa-trash"></i> Delete
+          <span class="material-icons-round">delete</span> Delete Status
         </span>
-        <span *ngIf="deleteLoading">
-          <i class="fas fa-spinner fa-spin"></i> Deleting...
+        <span *ngIf="deleteLoading" class="loading-state">
+          <span class="spinner-small"></span>
+          Deleting...
         </span>
       </button>
     </div>

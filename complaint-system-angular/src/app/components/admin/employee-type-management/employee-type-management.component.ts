@@ -271,4 +271,25 @@ export class EmployeeTypeManagementComponent implements OnInit {
   trackByEmployeeTypeId(index: number, employeeType: EmployeeType): string {
     return employeeType.id;
   }
+
+  // Get icon color class based on index (cycles through colors)
+  getIconColorClass(index: number): string {
+    const colors = ['icon-blue', 'icon-purple', 'icon-green', 'icon-red', 'icon-orange'];
+    return colors[index % colors.length];
+  }
+
+  // Get icon based on index (cycles through icons)
+  getTypeIcon(index: number): string {
+    const icons = [
+      'fas fa-flask',
+      'fas fa-briefcase',
+      'fas fa-user-graduate',
+      'fas fa-chalkboard-teacher',
+      'fas fa-clock',
+      'fas fa-user-tie',
+      'fas fa-laptop-code',
+      'fas fa-tools'
+    ];
+    return icons[index % icons.length];
+  }
 }

@@ -37,7 +37,9 @@ export class ComplaintService {
     priorityMasterId?: string,  // Changed from enum to Master ID (GUID)
     searchTerm?: string,
     assignedToId?: string,  // Filter by assigned user (for handlers)
-    complainantId?: string  // Filter by complainant (for complainants)
+    complainantId?: string,  // Filter by complainant (for complainants)
+    unassignedOnly?: boolean,  // Filter for unassigned complaints only
+    waitingForResponseOnly?: boolean  // Filter for complaints awaiting handler response
   ): Observable<ApiResponse<PagedResult<Complaint>>> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -48,6 +50,8 @@ export class ComplaintService {
     if (searchTerm) params = params.set('searchTerm', searchTerm);
     if (assignedToId) params = params.set('assignedToId', assignedToId);
     if (complainantId) params = params.set('complainantId', complainantId);
+    if (unassignedOnly) params = params.set('unassignedOnly', 'true');
+    if (waitingForResponseOnly) params = params.set('waitingForResponseOnly', 'true');
 
     return this.http.get<ApiResponse<PagedResult<Complaint>>>(this.apiUrl, { params });
   }

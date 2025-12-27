@@ -51,9 +51,17 @@ export class WorkflowService {
     return this.http.post(`${this.apiUrl}/${workflowId}/statuses`, request);
   }
 
+  removeStatusFromWorkflow(workflowId: string, statusId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${workflowId}/statuses/${statusId}`);
+  }
+
   // Transition Management
   addTransitionRule(workflowId: string, request: AddTransitionRequest): Observable<any> {
     return this.http.post(`${this.apiUrl}/${workflowId}/transitions`, request);
+  }
+
+  removeTransitionRule(workflowId: string, transitionId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${workflowId}/transitions/${transitionId}`);
   }
 
   getAllowedTransitions(categoryId: string, currentStatusId: string): Observable<AllowedTransitionsResponse> {

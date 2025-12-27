@@ -377,4 +377,43 @@ export class PriorityMasterManagementComponent
   onFilterChange(): void {
     this.onActiveFilterChange();
   }
+
+  // TrackBy function for *ngFor optimization
+  override trackById(index: number, item: ComplaintPriorityMaster): string {
+    return item.id;
+  }
+
+  // Get Material Icon based on priority level/name
+  getPriorityIcon(priority: ComplaintPriorityMaster): string {
+    const level = priority.level;
+    const code = priority.code?.toLowerCase() || '';
+    const name = priority.name?.toLowerCase() || '';
+
+    // Map priority levels/codes to Material Icons
+    if (level === 5 || code.includes('critical') || code.includes('urgent')) {
+      return 'priority_high';
+    } else if (level === 4 || code.includes('high')) {
+      return 'arrow_upward';
+    } else if (level === 3 || code.includes('medium') || code.includes('normal')) {
+      return 'remove';
+    } else if (level === 2 || code.includes('low')) {
+      return 'arrow_downward';
+    } else if (level === 1 || code.includes('lowest') || code.includes('minor')) {
+      return 'keyboard_double_arrow_down';
+    }
+
+    // Check by name as fallback
+    if (name.includes('urgent') || name.includes('critical')) {
+      return 'priority_high';
+    } else if (name.includes('high')) {
+      return 'arrow_upward';
+    } else if (name.includes('medium') || name.includes('normal')) {
+      return 'remove';
+    } else if (name.includes('low')) {
+      return 'arrow_downward';
+    }
+
+    // Default icon
+    return 'flag';
+  }
 }
