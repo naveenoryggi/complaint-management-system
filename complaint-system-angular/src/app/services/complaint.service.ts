@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   Complaint,
   CreateComplaintRequest,
@@ -26,7 +26,7 @@ import {
   providedIn: 'root'
 })
 export class ComplaintService {
-  private apiUrl = `${environment.apiUrl}/complaints`;
+  private get apiUrl() { return `${runtimeConfig.apiUrl}/complaints`; }
 
   constructor(private http: HttpClient) {}
 

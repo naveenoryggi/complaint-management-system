@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import { CacheService } from './cache.service';
 import {
   DashboardPreferences,
@@ -21,7 +21,7 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class DashboardService {
-  private apiUrl = `${environment.apiUrl}/dashboard`;
+  private get apiUrl() { return `${runtimeConfig.apiUrl}/dashboard`; }
 
   constructor(
     private http: HttpClient,

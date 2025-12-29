@@ -13,17 +13,42 @@ public class ErrorLoggingMiddleware
     private readonly ILogger<ErrorLoggingMiddleware> _logger;
     private readonly string _logDirectory;
 
-    public ErrorLoggingMiddleware(RequestDelegate next, ILogger<ErrorLoggingMiddleware> logger, IWebHostEnvironment env)
+    public ErrorLoggingMiddleware(RequestDelegate next, ILogger<ErrorLoggingMiddleware> logger, IWebHostEnvironment env, IConfiguration configuration)
     {
         _next = next;
         _logger = logger;
-        _logDirectory = Path.Combine(env.ContentRootPath, "Logs");
+
+        // Use configurable log path, fallback to ProgramData which has write permissions
+        var configuredPath = configuration["Logging:LogPath"];
+        if (!string.IsNullOrEmpty(configuredPath))
+        {
+            _logDirectory = configuredPath;
+        }
+        else
+        {
+            // Default to ProgramData which has write permissions for all users
+            _logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "ComplaintManagement", "Logs");
+        }
 
         // Ensure log directory exists
-        if (!Directory.Exists(_logDirectory))
+        try
         {
-            Directory.CreateDirectory(_logDirectory);
+            if (!Directory.Exists(_logDirectory))
+            {
+                Directory.CreateDirectory(_logDirectory);
+            }
         }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not create log directory at {LogDirectory}, falling back to temp", _logDirectory);
+            _logDirectory = Path.Combine(Path.GetTempPath(), "ComplaintManagement", "Logs");
+            if (!Directory.Exists(_logDirectory))
+            {
+                Directory.CreateDirectory(_logDirectory);
+            }
+        }
+
+        _logger.LogInformation("Logging to directory: {LogDirectory}", _logDirectory);
     }
 
     public async Task InvokeAsync(HttpContext context)

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import { User, CreateUserRequest, UpdateUserRequest } from '../models/user.model';
 
 export interface ApiResponse<T> {
@@ -15,7 +15,7 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = `${environment.apiUrl}/users`;
+  private get apiUrl() { return `${runtimeConfig.apiUrl}/users`; }
 
   constructor(private http: HttpClient) {}
 

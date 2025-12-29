@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, catchError, throwError, timer, switchMap, of } from 'rxjs';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import { LoginRequest, LoginResponse, User } from '../models/user.model';
 
 @Injectable({
@@ -58,7 +58,7 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, credentials)
+    return this.http.post<LoginResponse>(`${runtimeConfig.apiUrl}/auth/login`, credentials)
       .pipe(
         tap(response => {
           if (response.isSuccess && response.data) {
@@ -94,7 +94,7 @@ export class AuthService {
     // Call backend logout to revoke refresh tokens
     const token = this.token;
     if (token) {
-      this.http.post(`${environment.apiUrl}/auth/logout`, {}).subscribe({
+      this.http.post(`${runtimeConfig.apiUrl}/auth/logout`, {}).subscribe({
         next: () => {
           console.log('Logout successful on server');
         },
@@ -276,7 +276,7 @@ export class AuthService {
     this.isRefreshing = true;
     this.refreshTokenSubject.next(null);
 
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/refresh`, {
+    return this.http.post<LoginResponse>(`${runtimeConfig.apiUrl}/auth/refresh`, {
       refreshToken: refreshToken
     }).pipe(
       tap(response => {

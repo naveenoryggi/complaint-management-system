@@ -10,7 +10,35 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
+// Set the content root to the application directory (required for Windows Service)
+// When running as a service, the working directory is C:\Windows\System32
+Directory.SetCurrentDirectory(AppContext.BaseDirectory);
+
+// Setup startup logging directory
+var startupLogDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "ComplaintManagement", "Logs");
+try { Directory.CreateDirectory(startupLogDir); } catch { }
+
+void LogStartup(string message, bool isError = false)
+{
+    try
+    {
+        var logFile = Path.Combine(startupLogDir, $"startup_{DateTime.Now:yyyyMMdd}.log");
+        var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        var level = isError ? "ERROR" : "INFO";
+        File.AppendAllText(logFile, $"[{timestamp}] [{level}] {message}{Environment.NewLine}");
+    }
+    catch { }
+}
+
+LogStartup($"Application starting... Version: 1.1.1, Directory: {AppContext.BaseDirectory}");
+
+try
+{
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Enable Windows Service support
+builder.Host.UseWindowsService();
 
 // Configure Kestrel for long-running operations (like sync)
 builder.WebHost.ConfigureKestrel(serverOptions =>
@@ -80,12 +108,14 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
-// Configure CORS
+// Configure CORS - read allowed origins from configuration
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:4200", "http://localhost" };
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "http://localhost:4201", "http://localhost:4202", "http://localhost")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -163,6 +193,15 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Configure path base for IIS sub-application hosting
+// When hosted under IIS at /api, this ensures routes work correctly
+var pathBase = Environment.GetEnvironmentVariable("ASPNETCORE_PATHBASE");
+if (!string.IsNullOrEmpty(pathBase))
+{
+    app.UsePathBase(pathBase);
+    LogStartup($"Using path base: {pathBase}");
+}
+
 // Seed database
 await app.SeedDatabaseAsync();
 
@@ -195,8 +234,43 @@ app.UseErrorLogging();
 // Enable static file serving for uploaded files
 app.UseStaticFiles();
 
+// For Windows Service mode: Serve Angular frontend from WWW folder (sibling to API folder)
+// This allows the API to serve the frontend when not using IIS
+var wwwPath = Path.Combine(AppContext.BaseDirectory, "..", "WWW");
+if (Directory.Exists(wwwPath))
+{
+    LogStartup($"Serving frontend from: {wwwPath}");
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(Path.GetFullPath(wwwPath)),
+        RequestPath = ""
+    });
+
+    // Serve index.html for SPA routes (Angular routing support)
+    app.MapFallbackToFile("index.html", new StaticFileOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(Path.GetFullPath(wwwPath))
+    });
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+LogStartup("Application configured successfully, starting to listen on port 5000...");
 app.Run();
+LogStartup("Application stopped normally.");
+
+}
+catch (Exception ex)
+{
+    LogStartup($"FATAL ERROR during startup: {ex.Message}", true);
+    LogStartup($"Exception Type: {ex.GetType().FullName}", true);
+    LogStartup($"Stack Trace: {ex.StackTrace}", true);
+    if (ex.InnerException != null)
+    {
+        LogStartup($"Inner Exception: {ex.InnerException.Message}", true);
+        LogStartup($"Inner Stack Trace: {ex.InnerException.StackTrace}", true);
+    }
+    throw;
+}

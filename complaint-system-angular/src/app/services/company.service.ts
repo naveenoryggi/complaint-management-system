@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import { Company, CompanyResponse, UpdateCompanyRequest, UploadLogoResponse } from '../models/company.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CompanyService {
-  private apiUrl = `${environment.apiUrl}/company`;
+  private get apiUrl() { return `${runtimeConfig.apiUrl}/company`; }
 
   constructor(private http: HttpClient) {}
 
@@ -52,6 +52,6 @@ export class CompanyService {
       return logoPath;
     }
     // Otherwise, append to API base URL
-    return `${environment.apiUrl.replace('/api', '')}${logoPath}`;
+    return `${runtimeConfig.apiUrl.replace('/api', '')}${logoPath}`;
   }
 }
