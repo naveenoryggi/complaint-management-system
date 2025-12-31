@@ -118,6 +118,24 @@ public static class DependencyInjection
         // Register Auto-Response Service for automated email notifications
         services.AddScoped<IAutoResponseService, AutoResponseService>();
 
+        // Register License Service for module-based licensing
+        services.AddScoped<ILicenseService, LicenseService>();
+
+        // Register Product Service for CRM_Product module
+        services.AddScoped<IProductService, ProductService>();
+
+        // Register Contract Service for ServiceContract module
+        services.AddScoped<IContractService, ContractService>();
+
+        // Register Asset Service for AssetManagement module
+        services.AddScoped<IAssetService, AssetService>();
+
+        // Register Portal Service for CustomerPortal module
+        services.AddScoped<IPortalService, PortalService>();
+
+        // Register Customer Service for CRM_Customer module
+        services.AddScoped<ICustomerService, CustomerService>();
+
         // Register OAuth Service for Office 365 Email Authentication
         services.AddSingleton<EmailOAuthService>();
 

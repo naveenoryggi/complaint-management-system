@@ -1,0 +1,355 @@
+<div class="customer-management">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="fa-solid fa-users"></i> Customer Management</h1>
+      <p class="subtitle">Manage your customers and their information</p>
+    </div>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      <i class="fa-solid fa-plus"></i> Add Customer
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    <i class="fa-solid fa-check-circle"></i>
+    {{ successMessage }}
+    <button class="alert-close" (click)="dismissSuccess()"><i class="fa-solid fa-times"></i></button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <i class="fa-solid fa-exclamation-circle"></i>
+    {{ errorMessage }}
+    <button class="alert-close" (click)="dismissError()"><i class="fa-solid fa-times"></i></button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fa-solid fa-search"></i>
+      <input type="text" placeholder="Search customers..." [ngModel]="searchTerm" (ngModelChange)="onSearch($event)">
+    </div>
+
+    <div class="filter-group">
+      <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+        <option [ngValue]="null">All Statuses</option>
+        <option *ngFor="let status of customerStatuses" [ngValue]="status.value">{{ status.label }}</option>
+      </select>
+
+      <select [(ngModel)]="filterType" (change)="applyFilters()">
+        <option [ngValue]="null">All Types</option>
+        <option *ngFor="let type of customerTypes" [ngValue]="type.value">{{ type.label }}</option>
+      </select>
+
+      <select [(ngModel)]="filterSegment" (change)="applyFilters()">
+        <option [ngValue]="null">All Segments</option>
+        <option *ngFor="let segment of customerSegments" [ngValue]="segment.value">{{ segment.label }}</option>
+      </select>
+
+      <button class="btn btn-secondary btn-sm" (click)="clearFilters()">
+        <i class="fa-solid fa-times"></i> Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Customer Table -->
+  <div class="table-container">
+    <div class="loading-overlay" *ngIf="loading">
+      <div class="spinner"></div>
+      <span>Loading customers...</span>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>City</th>
+          <th>Type</th>
+          <th>Segment</th>
+          <th>Status</th>
+          <th>Tickets</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let customer of customers" (click)="viewCustomer(customer)" class="clickable">
+          <td class="code-cell">{{ customer.code }}</td>
+          <td class="name-cell">{{ customer.name }}</td>
+          <td>{{ customer.primaryEmail }}</td>
+          <td>{{ customer.billingCity || '-' }}</td>
+          <td><span class="badge badge-type">{{ customer.typeName }}</span></td>
+          <td><span class="badge badge-segment" *ngIf="customer.segmentName">{{ customer.segmentName }}</span></td>
+          <td><span class="badge" [ngClass]="getStatusClass(customer.status)">{{ customer.statusName }}</span></td>
+          <td class="text-center">{{ customer.activeTicketCount }}</td>
+          <td class="actions-cell" (click)="$event.stopPropagation()">
+            <button class="btn-icon" title="Edit" (click)="openEditModal(customer)">
+              <i class="fa-solid fa-edit"></i>
+            </button>
+            <button class="btn-icon btn-danger" title="Delete" (click)="deleteCustomer(customer)">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="customers.length === 0 && !loading">
+          <td colspan="9" class="empty-state">
+            <i class="fa-solid fa-users-slash"></i>
+            <p>No customers found</p>
+            <button class="btn btn-primary" (click)="openAddModal()">Add First Customer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <div class="pagination-info">
+      Showing {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalCustomers) }} of {{ totalCustomers }}
+    </div>
+    <div class="pagination-controls">
+      <button class="btn-page" [disabled]="currentPage === 1" (click)="goToPage(1)">
+        <i class="fa-solid fa-angles-left"></i>
+      </button>
+      <button class="btn-page" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+        <i class="fa-solid fa-angle-left"></i>
+      </button>
+      <button *ngFor="let page of visiblePages" class="btn-page" [class.active]="page === currentPage" (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      <button class="btn-page" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+        <i class="fa-solid fa-angle-right"></i>
+      </button>
+      <button class="btn-page" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">
+        <i class="fa-solid fa-angles-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Customer Detail Sidebar -->
+  <div class="detail-sidebar" *ngIf="selectedCustomer" [class.open]="selectedCustomer">
+    <div class="sidebar-header">
+      <h2>{{ selectedCustomer.name }}</h2>
+      <button class="btn-close" (click)="closeDetail()"><i class="fa-solid fa-times"></i></button>
+    </div>
+    <div class="sidebar-content">
+      <div class="detail-section">
+        <h3><i class="fa-solid fa-info-circle"></i> Basic Information</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>Code</label>
+            <span>{{ selectedCustomer.code }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Type</label>
+            <span>{{ selectedCustomer.typeName }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Status</label>
+            <span class="badge" [ngClass]="getStatusClass(selectedCustomer.status)">{{ selectedCustomer.statusName }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Segment</label>
+            <span>{{ selectedCustomer.segmentName || '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3><i class="fa-solid fa-envelope"></i> Contact</h3>
+        <div class="detail-grid">
+          <div class="detail-item full-width">
+            <label>Email</label>
+            <span>{{ selectedCustomer.primaryEmail }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Phone</label>
+            <span>{{ selectedCustomer.primaryPhone || '-' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Website</label>
+            <span>{{ selectedCustomer.website || '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3><i class="fa-solid fa-location-dot"></i> Address</h3>
+        <p class="address-text">
+          {{ selectedCustomer.billingAddressLine1 || '' }}
+          {{ selectedCustomer.billingAddressLine2 ? ', ' + selectedCustomer.billingAddressLine2 : '' }}<br>
+          {{ selectedCustomer.billingCity || '' }}{{ selectedCustomer.billingState ? ', ' + selectedCustomer.billingState : '' }}<br>
+          {{ selectedCustomer.billingCountry || '' }} {{ selectedCustomer.billingPostalCode || '' }}
+        </p>
+      </div>
+
+      <div class="detail-section">
+        <h3><i class="fa-solid fa-chart-bar"></i> Statistics</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value">{{ selectedCustomer.locationCount }}</div>
+            <div class="stat-label">Locations</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ selectedCustomer.contactCount }}</div>
+            <div class="stat-label">Contacts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ selectedCustomer.activeTicketCount }}</div>
+            <div class="stat-label">Active Tickets</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ selectedCustomer.contractCount }}</div>
+            <div class="stat-label">Contracts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? 'Edit Customer' : 'Add Customer' }}</h2>
+        <button class="btn-close" (click)="closeModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="code">Customer Code *</label>
+              <input type="text" id="code" [(ngModel)]="customerForm.code" [disabled]="isEditMode" placeholder="e.g., CUST001" required>
+            </div>
+            <div class="form-group">
+              <label for="name">Company Name *</label>
+              <input type="text" id="name" [(ngModel)]="customerForm.name" placeholder="Company name" required>
+            </div>
+            <div class="form-group">
+              <label for="legalName">Legal Name</label>
+              <input type="text" id="legalName" [(ngModel)]="customerForm.legalName" placeholder="Legal entity name">
+            </div>
+            <div class="form-group">
+              <label for="type">Customer Type *</label>
+              <select id="type" [(ngModel)]="customerForm.type">
+                <option *ngFor="let type of customerTypes" [ngValue]="type.value">{{ type.label }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Contact Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="email">Primary Email *</label>
+              <input type="email" id="email" [(ngModel)]="customerForm.primaryEmail" placeholder="email@company.com" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" [(ngModel)]="customerForm.primaryPhone" placeholder="+91-XXXXXXXXXX">
+            </div>
+            <div class="form-group full-width">
+              <label for="website">Website</label>
+              <input type="url" id="website" [(ngModel)]="customerForm.website" placeholder="https://www.company.com">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Billing Address</h3>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label for="address1">Address Line 1</label>
+              <input type="text" id="address1" [(ngModel)]="customerForm.billingAddressLine1" placeholder="Street address">
+            </div>
+            <div class="form-group full-width">
+              <label for="address2">Address Line 2</label>
+              <input type="text" id="address2" [(ngModel)]="customerForm.billingAddressLine2" placeholder="Suite, floor, etc.">
+            </div>
+            <div class="form-group">
+              <label for="city">City</label>
+              <input type="text" id="city" [(ngModel)]="customerForm.billingCity" placeholder="City">
+            </div>
+            <div class="form-group">
+              <label for="state">State</label>
+              <input type="text" id="state" [(ngModel)]="customerForm.billingState" placeholder="State">
+            </div>
+            <div class="form-group">
+              <label for="country">Country</label>
+              <input type="text" id="country" [(ngModel)]="customerForm.billingCountry" placeholder="Country" value="India">
+            </div>
+            <div class="form-group">
+              <label for="postal">Postal Code</label>
+              <input type="text" id="postal" [(ngModel)]="customerForm.billingPostalCode" placeholder="PIN Code">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Business Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="industry">Industry</label>
+              <input type="text" id="industry" [(ngModel)]="customerForm.industry" placeholder="e.g., Manufacturing">
+            </div>
+            <div class="form-group">
+              <label for="segment">Segment</label>
+              <select id="segment" [(ngModel)]="customerForm.segment">
+                <option [ngValue]="null">Select Segment</option>
+                <option *ngFor="let segment of customerSegments" [ngValue]="segment.value">{{ segment.label }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="employees">Employee Count</label>
+              <input type="number" id="employees" [(ngModel)]="customerForm.employeeCount" placeholder="Number of employees">
+            </div>
+            <div class="form-group">
+              <label for="revenue">Annual Revenue</label>
+              <input type="number" id="revenue" [(ngModel)]="customerForm.annualRevenue" placeholder="Annual revenue">
+            </div>
+            <div class="form-group">
+              <label for="taxId">Tax ID / GSTIN</label>
+              <input type="text" id="taxId" [(ngModel)]="customerForm.taxId" placeholder="GSTIN">
+            </div>
+            <div class="form-group">
+              <label for="pan">PAN Number</label>
+              <input type="text" id="pan" [(ngModel)]="customerForm.panNumber" placeholder="PAN">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Additional</h3>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label for="notes">Notes</label>
+              <textarea id="notes" [(ngModel)]="customerForm.notes" rows="3" placeholder="Internal notes about this customer"></textarea>
+            </div>
+            <div class="form-group full-width">
+              <label for="tags">Tags</label>
+              <input type="text" id="tags" [(ngModel)]="customerForm.tags" placeholder="Comma-separated tags">
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="customerForm.portalEnabled">
+                <span>Enable Customer Portal Access</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveCustomer()" [disabled]="loading">
+          <i class="fa-solid fa-spinner fa-spin" *ngIf="loading"></i>
+          {{ isEditMode ? 'Update Customer' : 'Create Customer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
