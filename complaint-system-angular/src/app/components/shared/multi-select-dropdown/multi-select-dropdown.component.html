@@ -1,0 +1,76 @@
+<div class="multi-select-container" [class.disabled]="disabled" [class.open]="isOpen">
+  <!-- Display Area -->
+  <div class="select-display" (click)="toggleDropdown()">
+    <div class="selected-items" *ngIf="selectedIds.length > 0; else placeholderTemplate">
+      <span class="selected-tag" *ngFor="let option of selectedOptions.slice(0, maxDisplayItems)">
+        {{ option.label }}
+        <button type="button" class="remove-tag" (click)="removeItem(option.id, $event)">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+      <span class="more-count" *ngIf="selectedOptions.length > maxDisplayItems">
+        +{{ selectedOptions.length - maxDisplayItems }} more
+      </span>
+    </div>
+    <ng-template #placeholderTemplate>
+      <span class="placeholder">{{ placeholder }}</span>
+    </ng-template>
+    <div class="dropdown-icon">
+      <i class="bi" [ngClass]="isOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+    </div>
+  </div>
+
+  <!-- Dropdown Panel -->
+  <div class="dropdown-panel" *ngIf="isOpen">
+    <!-- Search -->
+    <div class="search-container">
+      <i class="bi bi-search search-icon"></i>
+      <input
+        type="text"
+        class="search-input"
+        [(ngModel)]="searchTerm"
+        placeholder="Search..."
+        (click)="$event.stopPropagation()">
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-bar">
+      <button type="button" class="action-btn" (click)="selectAll(); $event.stopPropagation()">
+        <i class="bi bi-check-all"></i> Select All
+      </button>
+      <button type="button" class="action-btn" (click)="clearAll(); $event.stopPropagation()">
+        <i class="bi bi-x-circle"></i> Clear All
+      </button>
+    </div>
+
+    <!-- Options List -->
+    <div class="options-list">
+      <div class="no-results" *ngIf="filteredOptions.length === 0">
+        No options found
+      </div>
+      <label
+        class="option-item"
+        *ngFor="let option of filteredOptions"
+        [class.selected]="isSelected(option.id)"
+        [class.has-children]="option.hasChildren"
+        (click)="$event.stopPropagation()">
+        <input
+          type="checkbox"
+          [checked]="isSelected(option.id)"
+          (change)="toggleOption(option, $event)"
+          class="option-checkbox">
+        <span class="option-label">
+          <span class="indent">{{ getIndent(option.level) }}</span>
+          <span class="prefix">{{ getPrefix(option.level) }}</span>
+          {{ option.label }}
+          <span class="option-code" *ngIf="option.code">({{ option.code }})</span>
+        </span>
+      </label>
+    </div>
+
+    <!-- Selection Count -->
+    <div class="selection-footer" *ngIf="selectedIds.length > 0">
+      {{ selectedIds.length }} item(s) selected
+    </div>
+  </div>
+</div>

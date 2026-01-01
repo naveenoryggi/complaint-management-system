@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ComplaintService } from '../../../services/complaint.service';
@@ -10,12 +10,19 @@ import { BranchService } from '../../../services/branch.service';
 import { DepartmentService } from '../../../services/department.service';
 import { SectionService } from '../../../services/section.service';
 import { PriorityMasterService } from '../../../services/priority-master.service';
+import { CustomerService } from '../../../services/customer.service';
+import { ProjectService } from '../../../services/project.service';
+import { ProductService } from '../../../services/product.service';
 import { PreferredContactMethod, ComplaintPriority } from '../../../models/complaint.model';
+import { CustomerLookup } from '../../../models/customer.model';
+import { ProjectLookup } from '../../../models/project.model';
+import { CategoryLookup, ProductLookup, CategoryTreeNode } from '../../../models/product.model';
+import { MultiSelectDropdownComponent, MultiSelectOption } from '../../shared/multi-select-dropdown/multi-select-dropdown.component';
 
 @Component({
   selector: 'app-complaint-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MultiSelectDropdownComponent],
   templateUrl: './complaint-form.component.html',
   styleUrls: ['./complaint-form.component.scss']
 })
@@ -33,6 +40,23 @@ export class ComplaintFormComponent implements OnInit {
   branches: any[] = [];
   departments: any[] = [];
   sections: any[] = [];
+
+  // Enterprise fields data
+  customers: CustomerLookup[] = [];
+  projects: ProjectLookup[] = [];
+  parentCategories: CategoryLookup[] = [];  // Top-level categories
+  subCategories: CategoryLookup[] = [];     // Child categories of selected parent
+  productCategories: CategoryLookup[] = []; // All categories (for backward compatibility)
+  products: ProductLookup[] = [];
+  isPortalUser = false;
+  enterpriseSectionExpanded = true;
+
+  // Hierarchical categories for complaint form with indentation
+  flattenedCategories: { id: string; code: string; name: string; level: number; hasChildren: boolean }[] = [];
+
+  // Multi-select options for category and product
+  categoryMultiSelectOptions: MultiSelectOption[] = [];
+  productMultiSelectOptions: MultiSelectOption[] = [];
 
   // File upload
   selectedFiles: File[] = [];
@@ -62,6 +86,9 @@ export class ComplaintFormComponent implements OnInit {
     private departmentService: DepartmentService,
     private sectionService: SectionService,
     private priorityMasterService: PriorityMasterService,
+    private customerService: CustomerService,
+    private projectService: ProjectService,
+    private productService: ProductService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -78,7 +105,13 @@ export class ComplaintFormComponent implements OnInit {
       alternatePhone: [''],
       preferredContactMethod: [PreferredContactMethod.Both],
       isAnonymous: [false],
-      tags: ['']
+      tags: [''],
+      // Enterprise fields
+      customerId: [''],
+      projectId: [''],
+      parentCategoryIds: [[]],    // Multi-select category IDs (array)
+      productCategoryId: [''],   // Subcategory selection (kept for compatibility)
+      productIds: [[]]           // Multi-select product IDs (array)
     });
   }
 
@@ -87,6 +120,15 @@ export class ComplaintFormComponent implements OnInit {
     this.loadBranches();
     this.loadPriorities();
     this.autoPopulateUserInfo();
+
+    // Check if user is portal user (hide project field for portal users)
+    const currentUser = this.authService.currentUserValue;
+    this.isPortalUser = currentUser?.isPortalUser || false;
+
+    // Load enterprise data
+    this.loadCustomers();
+    this.loadParentCategories();
+    this.loadAllProducts(); // Load all products initially
 
     // Check if we're in edit mode
     const id = this.route.snapshot.paramMap.get('id');
@@ -241,6 +283,255 @@ export class ComplaintFormComponent implements OnInit {
     });
   }
 
+  // ============ Enterprise Fields Methods ============
+
+  loadCustomers(): void {
+    this.customerService.getCustomerLookup().subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data) {
+          this.customers = response.data;
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load customers', err);
+      }
+    });
+  }
+
+  loadParentCategories(): void {
+    // Load category tree for hierarchical display
+    this.productService.getCategoryTree().subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data) {
+          // Flatten tree for dropdown display with indentation info
+          this.flattenedCategories = this.flattenCategoryTree(response.data);
+          // Also set parentCategories for backward compatibility (top-level only)
+          this.parentCategories = response.data.map(c => ({
+            id: c.id,
+            code: c.code,
+            name: c.name,
+            fullPath: c.name,
+            level: c.level
+          }));
+          // Create multi-select options from flattened categories
+          this.categoryMultiSelectOptions = this.flattenedCategories.map(c => ({
+            id: c.id,
+            label: c.name,
+            code: c.code,
+            level: c.level,
+            hasChildren: c.hasChildren
+          }));
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load categories', err);
+        // Fallback to flat lookup if tree fails
+        this.productService.getCategoryLookup().subscribe({
+          next: (fallbackResponse) => {
+            if (fallbackResponse.isSuccess && fallbackResponse.data) {
+              this.parentCategories = fallbackResponse.data.filter(c => c.level === 0 || c.level === 1);
+              this.flattenedCategories = fallbackResponse.data.map(c => ({
+                id: c.id,
+                code: c.code,
+                name: c.name,
+                level: c.level,
+                hasChildren: false
+              }));
+              // Create multi-select options from flattened categories
+              this.categoryMultiSelectOptions = this.flattenedCategories.map(c => ({
+                id: c.id,
+                label: c.name,
+                code: c.code,
+                level: c.level,
+                hasChildren: c.hasChildren
+              }));
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // Flatten category tree for dropdown display
+  private flattenCategoryTree(nodes: CategoryTreeNode[], result: { id: string; code: string; name: string; level: number; hasChildren: boolean }[] = []): { id: string; code: string; name: string; level: number; hasChildren: boolean }[] {
+    for (const node of nodes) {
+      result.push({
+        id: node.id,
+        code: node.code,
+        name: node.name,
+        level: node.level,
+        hasChildren: node.hasChildren
+      });
+      if (node.children && node.children.length > 0) {
+        this.flattenCategoryTree(node.children, result);
+      }
+    }
+    return result;
+  }
+
+  // Get indentation for category display
+  getCategoryIndent(level: number): string {
+    return '\u00A0\u00A0\u00A0\u00A0'.repeat(level); // 4 non-breaking spaces per level
+  }
+
+  loadSubCategories(parentCategoryId: string): void {
+    if (!parentCategoryId) {
+      this.subCategories = [];
+      return;
+    }
+
+    // Load subcategories by parent ID
+    this.productService.getCategories({ parentId: parentCategoryId, isActive: true }).subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data?.items) {
+          this.subCategories = response.data.items.map(c => ({
+            id: c.id,
+            code: c.code,
+            name: c.name,
+            fullPath: c.fullPath || c.name,
+            level: c.level
+          }));
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load subcategories', err);
+        this.subCategories = [];
+      }
+    });
+  }
+
+  loadProjectsByCustomer(customerId: string): void {
+    if (!customerId) {
+      this.projects = [];
+      return;
+    }
+
+    this.projectService.getProjectLookup(customerId).subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data) {
+          this.projects = response.data;
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load projects', err);
+        this.projects = [];
+      }
+    });
+  }
+
+  loadProductsByCategory(categoryId: string): void {
+    if (!categoryId) {
+      this.products = [];
+      this.productMultiSelectOptions = [];
+      return;
+    }
+
+    this.productService.getProductLookup(undefined, categoryId).subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data) {
+          this.products = response.data;
+          // Create multi-select options from products
+          this.productMultiSelectOptions = response.data.map(p => ({
+            id: p.id,
+            label: p.name,
+            code: p.productCode
+          }));
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load products', err);
+        this.products = [];
+        this.productMultiSelectOptions = [];
+      }
+    });
+  }
+
+  loadAllProducts(): void {
+    this.productService.getProductLookup().subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data) {
+          this.products = response.data;
+          // Create multi-select options from products
+          this.productMultiSelectOptions = response.data.map(p => ({
+            id: p.id,
+            label: p.name,
+            code: p.productCode
+          }));
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load products', err);
+      }
+    });
+  }
+
+  onCustomerChange(customerId: string): void {
+    // Clear project selection when customer changes
+    this.complaintForm.patchValue({ projectId: '' });
+    this.projects = [];
+
+    // Load projects for the selected customer (only for non-portal users)
+    if (customerId && !this.isPortalUser) {
+      this.loadProjectsByCustomer(customerId);
+    }
+  }
+
+  onParentCategoryChange(categoryId: string): void {
+    // Clear product selection when category changes
+    this.complaintForm.patchValue({ productCategoryId: '', productIds: [] });
+    this.subCategories = [];
+    this.products = [];
+    this.productMultiSelectOptions = [];
+
+    // Load products for the selected category (or all products if no category)
+    if (categoryId) {
+      this.loadProductsByCategory(categoryId);
+      // Also load subcategories in case they're needed
+      this.loadSubCategories(categoryId);
+    } else {
+      // Load all products when no category selected
+      this.loadAllProducts();
+    }
+  }
+
+  // Handler for multi-select category selection changes
+  onCategorySelectionChange(selectedCategoryIds: string[]): void {
+    // Clear product selection when categories change
+    this.complaintForm.patchValue({ productIds: [] });
+    this.products = [];
+    this.productMultiSelectOptions = [];
+
+    // If categories are selected, load products for those categories
+    if (selectedCategoryIds && selectedCategoryIds.length > 0) {
+      // Load products for first selected category (or implement multi-category product loading)
+      this.loadProductsByCategory(selectedCategoryIds[0]);
+    } else {
+      // Load all products when no category selected
+      this.loadAllProducts();
+    }
+  }
+
+  // Handler for multi-select product selection changes
+  onProductSelectionChange(selectedProductIds: string[]): void {
+    // Products selected - can be used for any additional logic
+    console.log('Selected products:', selectedProductIds);
+  }
+
+  onProductCategoryChange(categoryId: string): void {
+    // Clear product selection when subcategory changes
+    this.complaintForm.patchValue({ productId: '' });
+    this.products = [];
+
+    // Load products for the selected subcategory
+    if (categoryId) {
+      this.loadProductsByCategory(categoryId);
+    }
+  }
+
+  toggleEnterpriseSection(): void {
+    this.enterpriseSectionExpanded = !this.enterpriseSectionExpanded;
+  }
+
   autoPopulateUserInfo(): void {
     const currentUser = this.authService.currentUserValue;
 
@@ -282,12 +573,25 @@ export class ComplaintFormComponent implements OnInit {
             description: complaint.description,
             categoryId: complaint.categoryId,
             priorityMasterId: complaint.priorityId,  // Changed from priority to priorityId
-            tags: complaint.tags || ''
+            tags: complaint.tags || '',
+            // Enterprise fields (productCategoryId is not stored - it's a UI filter)
+            customerId: complaint.customerId || '',
+            projectId: complaint.projectId || '',
+            productId: complaint.productId || ''
           });
 
           // Load sections for department
           if (complaint.departmentId) {
             this.loadSections(complaint.departmentId);
+          }
+
+          // Load cascading enterprise data
+          if (complaint.customerId && !this.isPortalUser) {
+            this.loadProjectsByCustomer(complaint.customerId);
+          }
+          // If complaint has a productId, load all products so the current selection is shown
+          if (complaint.productId) {
+            this.loadAllProducts();
           }
         }
         this.loading = false;
@@ -330,6 +634,10 @@ export class ComplaintFormComponent implements OnInit {
       // Get form value including disabled fields
       const formValue = this.complaintForm.getRawValue();
 
+      // Handle multi-select fields - convert arrays to first item for now (API expects single values)
+      const productCategoryIds: string[] = formValue.parentCategoryIds || [];
+      const productIds: string[] = formValue.productIds || [];
+
       if (this.isEditMode && this.complaintId) {
         // Update existing complaint
         const updateRequest = {
@@ -338,7 +646,14 @@ export class ComplaintFormComponent implements OnInit {
           description: formValue.description,
           categoryId: formValue.categoryId,
           priorityMasterId: formValue.priorityMasterId,  // Changed from priority to priorityMasterId
-          tags: formValue.tags
+          tags: formValue.tags,
+          // Enterprise fields - use first selected for API (supports single value)
+          customerId: formValue.customerId || null,
+          projectId: formValue.projectId || null,
+          productId: productIds.length > 0 ? productIds[0] : null,
+          // Store all selected IDs as comma-separated in tags or notes if needed
+          productCategoryIds: productCategoryIds.length > 0 ? productCategoryIds : null,
+          productIds: productIds.length > 0 ? productIds : null
         };
 
         this.complaintService.updateComplaint(this.complaintId, updateRequest).subscribe({
@@ -363,8 +678,18 @@ export class ComplaintFormComponent implements OnInit {
           departmentId: formValue.departmentId || null,
           sectionId: formValue.sectionId || null,
           alternatePhone: formValue.alternatePhone || null,
-          tags: formValue.tags || null
+          tags: formValue.tags || null,
+          // Enterprise fields - use first selected for API (supports single value)
+          customerId: formValue.customerId || null,
+          projectId: formValue.projectId || null,
+          productId: productIds.length > 0 ? productIds[0] : null,
+          // Store all selected IDs arrays
+          productCategoryIds: productCategoryIds.length > 0 ? productCategoryIds : null,
+          productIds: productIds.length > 0 ? productIds : null
         };
+        // Remove UI-only fields before sending to API
+        delete (createRequest as any).productCategoryId;
+        delete (createRequest as any).parentCategoryIds;
 
         this.complaintService.createComplaint(createRequest).subscribe({
           next: (response) => {
@@ -591,4 +916,5 @@ export class ComplaintFormComponent implements OnInit {
     const section = this.sections.find(s => s.id === sectionId);
     return section?.name || '';
   }
+
 }

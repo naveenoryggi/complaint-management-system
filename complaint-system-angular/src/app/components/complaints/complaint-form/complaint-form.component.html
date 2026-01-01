@@ -105,6 +105,88 @@
         </div>
       </section>
 
+      <!-- Enterprise Details Section (Collapsible) -->
+      <section class="form-section enterprise-section">
+        <div class="section-header-toggle" (click)="toggleEnterpriseSection()">
+          <h2 class="section-title">
+            <i class="bi" [ngClass]="enterpriseSectionExpanded ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+            Enterprise Details
+            <span class="label-hint">(Optional)</span>
+          </h2>
+        </div>
+
+        <div class="form-grid" *ngIf="enterpriseSectionExpanded">
+          <!-- Customer -->
+          <div class="form-group">
+            <label for="customerId" class="form-label">Customer / Organization</label>
+            <select
+              class="form-input form-select"
+              id="customerId"
+              formControlName="customerId"
+              (change)="onCustomerChange($any($event.target).value)">
+              <option value="">-- Select Customer --</option>
+              <option *ngFor="let customer of customers" [value]="customer.id">
+                {{ customer.name }} ({{ customer.code }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Project (Hidden for portal users) -->
+          <div class="form-group" *ngIf="!isPortalUser">
+            <label for="projectId" class="form-label">Project</label>
+            <select
+              class="form-input form-select"
+              id="projectId"
+              formControlName="projectId"
+              [disabled]="!complaintForm.get('customerId')?.value || projects.length === 0">
+              <option value="">-- Select Project --</option>
+              <option *ngFor="let project of projects" [value]="project.id">
+                {{ project.name }} ({{ project.projectCode }})
+              </option>
+            </select>
+            <div class="field-hint" *ngIf="complaintForm.get('customerId')?.value && projects.length === 0">
+              No projects available for this customer
+            </div>
+          </div>
+
+          <!-- Product Category (Multi-select with hierarchy) -->
+          <div class="form-group full-width">
+            <label for="parentCategoryIds" class="form-label">
+              Product Category <span class="label-hint">(Multi-select with hierarchy)</span>
+            </label>
+            <app-multi-select-dropdown
+              [options]="categoryMultiSelectOptions"
+              placeholder="Select categories..."
+              [showHierarchy]="true"
+              formControlName="parentCategoryIds"
+              (selectionChange)="onCategorySelectionChange($event)">
+            </app-multi-select-dropdown>
+            <div class="field-hint">
+              Select one or more categories. Hierarchy shown with indentation.
+            </div>
+          </div>
+
+          <!-- Product Selection (Multi-select) -->
+          <div class="form-group full-width">
+            <label for="productIds" class="form-label">
+              Product <span class="label-hint">(Multi-select)</span>
+            </label>
+            <app-multi-select-dropdown
+              [options]="productMultiSelectOptions"
+              placeholder="Select products..."
+              formControlName="productIds"
+              (selectionChange)="onProductSelectionChange($event)">
+            </app-multi-select-dropdown>
+            <div class="field-hint" *ngIf="complaintForm.get('parentCategoryIds')?.value?.length > 0 && productMultiSelectOptions.length === 0">
+              No products available for selected categories. Products may not be assigned to categories yet.
+            </div>
+            <div class="field-hint" *ngIf="!complaintForm.get('parentCategoryIds')?.value?.length">
+              Select categories first to filter products, or choose from all products
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Contact Information Section -->
       <section class="form-section">
         <h2 class="section-title">Contact Information</h2>
@@ -301,3 +383,4 @@
     </form>
   </div>
 </div>
+

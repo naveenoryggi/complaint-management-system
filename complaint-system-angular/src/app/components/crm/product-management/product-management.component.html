@@ -1,0 +1,612 @@
+<div class="product-management">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="fa-solid fa-box"></i> Product Catalog</h1>
+      <p class="subtitle">Manage your products, pricing, and inventory</p>
+    </div>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      <i class="fa-solid fa-plus"></i> Add Product
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    <i class="fa-solid fa-check-circle"></i>
+    {{ successMessage }}
+    <button class="alert-close" (click)="dismissSuccess()"><i class="fa-solid fa-times"></i></button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <i class="fa-solid fa-exclamation-circle"></i>
+    {{ errorMessage }}
+    <button class="alert-close" (click)="dismissError()"><i class="fa-solid fa-times"></i></button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fa-solid fa-search"></i>
+      <input type="text" placeholder="Search products..." [ngModel]="searchTerm" (ngModelChange)="onSearch($event)">
+    </div>
+
+    <div class="filter-group">
+      <select [(ngModel)]="filterCategory" (change)="applyFilters()">
+        <option [ngValue]="null">All Categories</option>
+        <option *ngFor="let category of categories" [ngValue]="category.id">{{ category.name }}</option>
+      </select>
+
+      <select [(ngModel)]="filterType" (change)="applyFilters()">
+        <option [ngValue]="null">All Types</option>
+        <option *ngFor="let type of productTypes" [ngValue]="type.value">{{ type.label }}</option>
+      </select>
+
+      <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+        <option [ngValue]="null">All Statuses</option>
+        <option *ngFor="let status of productStatuses" [ngValue]="status.value">{{ status.label }}</option>
+      </select>
+
+      <select [(ngModel)]="filterInStock" (change)="applyFilters()">
+        <option [ngValue]="null">All Stock</option>
+        <option [ngValue]="true">In Stock</option>
+        <option [ngValue]="false">Out of Stock</option>
+      </select>
+
+      <button class="btn btn-secondary btn-sm" (click)="clearFilters()">
+        <i class="fa-solid fa-times"></i> Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Product Table -->
+  <div class="table-container">
+    <div class="loading-overlay" *ngIf="loading">
+      <div class="spinner"></div>
+      <span>Loading products...</span>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Type</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products" (click)="viewProduct(product)" class="clickable">
+          <td class="code-cell">{{ product.productCode }}</td>
+          <td class="name-cell">
+            <div class="product-info">
+              <img *ngIf="product.thumbnailUrl" [src]="product.thumbnailUrl" class="product-thumb" alt="">
+              <div class="product-details">
+                <span class="product-name">{{ product.name }}</span>
+                <span class="product-sku" *ngIf="product.sku">SKU: {{ product.sku }}</span>
+              </div>
+            </div>
+          </td>
+          <td>{{ product.categoryName || '-' }}</td>
+          <td><span class="badge" [ngClass]="getTypeClass(product.type)">{{ product.typeName }}</span></td>
+          <td class="price-cell">{{ formatCurrency(product.unitPrice, product.currency) }}</td>
+          <td class="stock-cell">
+            <span class="stock-indicator" [class.in-stock]="product.inStock" [class.out-of-stock]="!product.inStock">
+              <i class="fa-solid" [ngClass]="product.inStock ? 'fa-check-circle' : 'fa-times-circle'"></i>
+              {{ product.quantityAvailable ?? 0 }}
+            </span>
+          </td>
+          <td><span class="badge" [ngClass]="getStatusClass(product.status)">{{ product.statusName }}</span></td>
+          <td class="actions-cell" (click)="$event.stopPropagation()">
+            <button class="btn-icon" title="Edit" (click)="openEditModal(product)">
+              <i class="fa-solid fa-edit"></i>
+            </button>
+            <button class="btn-icon" title="Clone" (click)="cloneProduct(product)">
+              <i class="fa-solid fa-clone"></i>
+            </button>
+            <button class="btn-icon btn-danger" title="Delete" (click)="deleteProduct(product)">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="products.length === 0 && !loading">
+          <td colspan="8" class="empty-state">
+            <i class="fa-solid fa-box-open"></i>
+            <p>No products found</p>
+            <button class="btn btn-primary" (click)="openAddModal()">Add First Product</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <div class="pagination-info">
+      Showing {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalProducts) }} of {{ totalProducts }}
+    </div>
+    <div class="pagination-controls">
+      <button class="btn-page" [disabled]="currentPage === 1" (click)="goToPage(1)">
+        <i class="fa-solid fa-angles-left"></i>
+      </button>
+      <button class="btn-page" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+        <i class="fa-solid fa-angle-left"></i>
+      </button>
+      <button *ngFor="let page of visiblePages" class="btn-page" [class.active]="page === currentPage" (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      <button class="btn-page" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+        <i class="fa-solid fa-angle-right"></i>
+      </button>
+      <button class="btn-page" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">
+        <i class="fa-solid fa-angles-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Product Detail Sidebar -->
+  <div class="detail-sidebar" *ngIf="selectedProduct" [class.open]="selectedProduct">
+    <div class="sidebar-header">
+      <h2>{{ selectedProduct.name }}</h2>
+      <button class="btn-close" (click)="closeDetail()"><i class="fa-solid fa-times"></i></button>
+    </div>
+    <div class="sidebar-content">
+      <div class="detail-section">
+        <h3><i class="fa-solid fa-info-circle"></i> Basic Information</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>Code</label>
+            <span>{{ selectedProduct.productCode }}</span>
+          </div>
+          <div class="detail-item">
+            <label>SKU</label>
+            <span>{{ selectedProduct.sku || '-' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Type</label>
+            <span class="badge" [ngClass]="getTypeClass(selectedProduct.type)">{{ selectedProduct.typeName }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Status</label>
+            <span class="badge" [ngClass]="getStatusClass(selectedProduct.status)">{{ selectedProduct.statusName }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Category</label>
+            <span>{{ selectedProduct.categoryName || '-' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Brand</label>
+            <span>{{ selectedProduct.brandName || selectedProduct.brand || '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3><i class="fa-solid fa-indian-rupee-sign"></i> Pricing</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>Unit Price</label>
+            <span class="price">{{ formatCurrency(selectedProduct.unitPrice, selectedProduct.currency) }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Cost Price</label>
+            <span>{{ selectedProduct.costPrice ? formatCurrency(selectedProduct.costPrice, selectedProduct.currency) : '-' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>MSRP</label>
+            <span>{{ selectedProduct.msrp ? formatCurrency(selectedProduct.msrp, selectedProduct.currency) : '-' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Tax Rate</label>
+            <span>{{ selectedProduct.taxRate ? selectedProduct.taxRate + '%' : '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3><i class="fa-solid fa-boxes-stacked"></i> Inventory</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>In Stock</label>
+            <span class="stock-indicator" [class.in-stock]="selectedProduct.inStock" [class.out-of-stock]="!selectedProduct.inStock">
+              {{ selectedProduct.quantityInStock ?? 0 }}
+            </span>
+          </div>
+          <div class="detail-item">
+            <label>Available</label>
+            <span>{{ selectedProduct.quantityAvailable ?? 0 }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Reserved</label>
+            <span>{{ selectedProduct.quantityReserved ?? 0 }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Reorder Level</label>
+            <span>{{ selectedProduct.reorderLevel ?? '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section" *ngIf="selectedProduct.shortDescription || selectedProduct.description">
+        <h3><i class="fa-solid fa-align-left"></i> Description</h3>
+        <p class="description-text">{{ selectedProduct.shortDescription || selectedProduct.description }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? 'Edit Product' : 'Add Product' }}</h2>
+        <button class="btn-close" (click)="closeModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+
+      <!-- Modal Tabs -->
+      <div class="modal-tabs">
+        <button class="tab-btn" [class.active]="activeTab === 'basic'" (click)="setActiveTab('basic')">
+          <i class="fa-solid fa-info-circle"></i> Basic Info
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'pricing'" (click)="setActiveTab('pricing')">
+          <i class="fa-solid fa-indian-rupee-sign"></i> Pricing
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'inventory'" (click)="setActiveTab('inventory')">
+          <i class="fa-solid fa-boxes-stacked"></i> Inventory
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'details'" (click)="setActiveTab('details')">
+          <i class="fa-solid fa-cog"></i> Details
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Error in modal -->
+        <div class="alert alert-error" *ngIf="errorMessage && showModal">
+          <i class="fa-solid fa-exclamation-circle"></i>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Basic Info Tab -->
+        <div class="tab-content" *ngIf="activeTab === 'basic'">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="productCode">Product Code *</label>
+              <input type="text" id="productCode" [(ngModel)]="productForm.productCode" [disabled]="isEditMode" placeholder="e.g., PROD001" required>
+            </div>
+            <div class="form-group">
+              <label for="name">Product Name *</label>
+              <input type="text" id="name" [(ngModel)]="productForm.name" placeholder="Product name" required>
+            </div>
+            <div class="form-group">
+              <label for="sku">SKU</label>
+              <input type="text" id="sku" [(ngModel)]="productForm.sku" placeholder="Stock Keeping Unit">
+            </div>
+            <div class="form-group">
+              <label for="type">Product Type *</label>
+              <select id="type" [(ngModel)]="productForm.type">
+                <option *ngFor="let type of productTypes" [ngValue]="type.value">{{ type.label }}</option>
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label for="category">Category <span class="label-hint">(Multi-select with hierarchy)</span></label>
+              <div class="input-with-action category-multiselect-wrapper">
+                <app-multi-select-dropdown
+                  [options]="categoryMultiSelectOptions"
+                  placeholder="Select categories..."
+                  [showHierarchy]="true"
+                  [(ngModel)]="selectedCategoryIds"
+                  (selectionChange)="onCategorySelectionChange($event)">
+                </app-multi-select-dropdown>
+                <button type="button" class="btn-add-inline" title="Add New Category" (click)="openQuickAddCategory()">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="subType">Sub-Type</label>
+              <div class="input-with-action">
+                <select id="subType" [(ngModel)]="productForm.subTypeId" [disabled]="!productForm.categoryId || subTypes.length === 0">
+                  <option [ngValue]="undefined">{{ productForm.categoryId ? (subTypes.length > 0 ? 'Select Sub-Type' : 'No sub-types available') : 'Select a category first' }}</option>
+                  <option *ngFor="let subType of subTypes" [ngValue]="subType.id">{{ subType.name }}</option>
+                </select>
+                <button type="button" class="btn-add-inline" title="Add New Sub-Type" (click)="openQuickAddSubType()" [disabled]="!productForm.categoryId">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="brandId">Brand</label>
+              <div class="input-with-action">
+                <select id="brandId" [(ngModel)]="productForm.brandId">
+                  <option [ngValue]="null">Select Brand</option>
+                  <option *ngFor="let brand of brands" [ngValue]="brand.id">{{ brand.name }}</option>
+                </select>
+                <button type="button" class="btn-add-inline" title="Add New Brand" (click)="openQuickAddBrand()">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label for="shortDescription">Short Description</label>
+              <input type="text" id="shortDescription" [(ngModel)]="productForm.shortDescription" placeholder="Brief description">
+            </div>
+            <div class="form-group full-width">
+              <label for="description">Full Description</label>
+              <textarea id="description" [(ngModel)]="productForm.description" rows="3" placeholder="Detailed product description"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing Tab -->
+        <div class="tab-content" *ngIf="activeTab === 'pricing'">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="unitPrice">Unit Price *</label>
+              <input type="number" id="unitPrice" [(ngModel)]="productForm.unitPrice" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label for="currency">Currency</label>
+              <select id="currency" [(ngModel)]="productForm.currency">
+                <option value="INR">INR - Indian Rupee</option>
+                <option value="USD">USD - US Dollar</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="GBP">GBP - British Pound</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="costPrice">Cost Price</label>
+              <input type="number" id="costPrice" [(ngModel)]="productForm.costPrice" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+              <label for="msrp">MSRP</label>
+              <input type="number" id="msrp" [(ngModel)]="productForm.msrp" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+              <label for="minimumPrice">Minimum Price</label>
+              <input type="number" id="minimumPrice" [(ngModel)]="productForm.minimumPrice" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+              <label for="unitOfMeasure">Unit of Measure</label>
+              <select id="unitOfMeasure" [(ngModel)]="productForm.unitOfMeasure">
+                <option *ngFor="let uom of unitsOfMeasure" [ngValue]="uom.value">{{ uom.label }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="taxRate">Tax Rate (%)</label>
+              <input type="number" id="taxRate" [(ngModel)]="productForm.taxRate" min="0" max="100" step="0.01">
+            </div>
+            <div class="form-group">
+              <label for="taxType">Tax Type</label>
+              <select id="taxType" [(ngModel)]="productForm.taxType">
+                <option *ngFor="let tax of taxTypes" [ngValue]="tax.value">{{ tax.label }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="hsnCode">HSN Code</label>
+              <input type="text" id="hsnCode" [(ngModel)]="productForm.hsnCode" placeholder="HSN/SAC Code">
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="productForm.isTaxable">
+                <span>Taxable</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inventory Tab -->
+        <div class="tab-content" *ngIf="activeTab === 'inventory'">
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="productForm.trackInventory">
+                <span>Track Inventory</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label for="quantityInStock">Quantity In Stock</label>
+              <input type="number" id="quantityInStock" [(ngModel)]="productForm.quantityInStock" min="0" [disabled]="!productForm.trackInventory">
+            </div>
+            <div class="form-group">
+              <label for="reorderLevel">Reorder Level</label>
+              <input type="number" id="reorderLevel" [(ngModel)]="productForm.reorderLevel" min="0" [disabled]="!productForm.trackInventory">
+            </div>
+            <div class="form-group">
+              <label for="reorderQuantity">Reorder Quantity</label>
+              <input type="number" id="reorderQuantity" [(ngModel)]="productForm.reorderQuantity" min="0" [disabled]="!productForm.trackInventory">
+            </div>
+            <div class="form-group">
+              <label for="leadTimeDays">Lead Time (Days)</label>
+              <input type="number" id="leadTimeDays" [(ngModel)]="productForm.leadTimeDays" min="0" [disabled]="!productForm.trackInventory">
+            </div>
+            <div class="form-group">
+              <label for="minOrderQuantity">Min Order Quantity</label>
+              <input type="number" id="minOrderQuantity" [(ngModel)]="productForm.minOrderQuantity" min="1">
+            </div>
+            <div class="form-group">
+              <label for="maxOrderQuantity">Max Order Quantity</label>
+              <input type="number" id="maxOrderQuantity" [(ngModel)]="productForm.maxOrderQuantity" min="1">
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="productForm.allowBackorder" [disabled]="!productForm.trackInventory">
+                <span>Allow Backorder</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="productForm.requireSerialNumber">
+                <span>Require Serial Number</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details Tab -->
+        <div class="tab-content" *ngIf="activeTab === 'details'">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="manufacturer">Manufacturer</label>
+              <input type="text" id="manufacturer" [(ngModel)]="productForm.manufacturer" placeholder="Manufacturer name">
+            </div>
+            <div class="form-group">
+              <label for="model">Model</label>
+              <input type="text" id="model" [(ngModel)]="productForm.model" placeholder="Model number">
+            </div>
+            <div class="form-group">
+              <label for="version">Version</label>
+              <input type="text" id="version" [(ngModel)]="productForm.version" placeholder="Version">
+            </div>
+            <div class="form-group">
+              <label for="countryOfOrigin">Country of Origin</label>
+              <input type="text" id="countryOfOrigin" [(ngModel)]="productForm.countryOfOrigin" placeholder="Country">
+            </div>
+            <div class="form-group">
+              <label for="weight">Weight (kg)</label>
+              <input type="number" id="weight" [(ngModel)]="productForm.weight" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+              <label for="defaultWarrantyMonths">Warranty (Months)</label>
+              <input type="number" id="defaultWarrantyMonths" [(ngModel)]="productForm.defaultWarrantyMonths" min="0">
+            </div>
+            <div class="form-group">
+              <label for="imageUrl">Image URL</label>
+              <input type="url" id="imageUrl" [(ngModel)]="productForm.imageUrl" placeholder="https://...">
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="productForm.isFeatured">
+                <span>Featured Product</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="productForm.isPublic">
+                <span>Public (Show in Portal)</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="productForm.isServiceable">
+                <span>Serviceable</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="productForm.requiresInstallation">
+                <span>Requires Installation</span>
+              </label>
+            </div>
+            <div class="form-group full-width">
+              <label for="notes">Notes</label>
+              <textarea id="notes" [(ngModel)]="productForm.notes" rows="3" placeholder="Internal notes"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveProduct()" [disabled]="loading">
+          <i class="fa-solid fa-spinner fa-spin" *ngIf="loading"></i>
+          {{ isEditMode ? 'Update Product' : 'Create Product' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Add Category Modal -->
+  <div class="modal-overlay quick-add-modal" *ngIf="showQuickAddCategory" (click)="closeQuickAddCategory()">
+    <div class="modal-content modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-folder-plus"></i> Quick Add Category</h3>
+        <button class="btn-close" (click)="closeQuickAddCategory()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="quickCategoryCode">Category Code *</label>
+          <input type="text" id="quickCategoryCode" [(ngModel)]="quickCategoryForm.code" placeholder="e.g., ELECTRONICS">
+        </div>
+        <div class="form-group">
+          <label for="quickCategoryName">Category Name *</label>
+          <input type="text" id="quickCategoryName" [(ngModel)]="quickCategoryForm.name" placeholder="e.g., Electronics">
+        </div>
+        <div class="form-group">
+          <label for="quickCategoryDescription">Description</label>
+          <textarea id="quickCategoryDescription" [(ngModel)]="quickCategoryForm.description" rows="2" placeholder="Optional description"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeQuickAddCategory()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveQuickCategory()" [disabled]="quickAddLoading">
+          <i class="fa-solid fa-spinner fa-spin" *ngIf="quickAddLoading"></i>
+          Create Category
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Add Brand Modal -->
+  <div class="modal-overlay quick-add-modal" *ngIf="showQuickAddBrand" (click)="closeQuickAddBrand()">
+    <div class="modal-content modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-award"></i> Quick Add Brand</h3>
+        <button class="btn-close" (click)="closeQuickAddBrand()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="quickBrandCode">Brand Code *</label>
+          <input type="text" id="quickBrandCode" [(ngModel)]="quickBrandForm.code" placeholder="e.g., APPLE">
+        </div>
+        <div class="form-group">
+          <label for="quickBrandName">Brand Name *</label>
+          <input type="text" id="quickBrandName" [(ngModel)]="quickBrandForm.name" placeholder="e.g., Apple Inc.">
+        </div>
+        <div class="form-group">
+          <label for="quickBrandCountry">Country</label>
+          <input type="text" id="quickBrandCountry" [(ngModel)]="quickBrandForm.country" placeholder="e.g., USA">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeQuickAddBrand()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveQuickBrand()" [disabled]="quickAddLoading">
+          <i class="fa-solid fa-spinner fa-spin" *ngIf="quickAddLoading"></i>
+          Create Brand
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Add Sub-Type Modal -->
+  <div class="modal-overlay quick-add-modal" *ngIf="showQuickAddSubType" (click)="closeQuickAddSubType()">
+    <div class="modal-content modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-layer-group"></i> Quick Add Sub-Type</h3>
+        <button class="btn-close" (click)="closeQuickAddSubType()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="quickSubTypeCode">Sub-Type Code *</label>
+          <input type="text" id="quickSubTypeCode" [(ngModel)]="quickSubTypeForm.code" placeholder="e.g., LAPTOP">
+        </div>
+        <div class="form-group">
+          <label for="quickSubTypeName">Sub-Type Name *</label>
+          <input type="text" id="quickSubTypeName" [(ngModel)]="quickSubTypeForm.name" placeholder="e.g., Laptops">
+        </div>
+        <div class="form-group">
+          <label for="quickSubTypeDescription">Description</label>
+          <textarea id="quickSubTypeDescription" [(ngModel)]="quickSubTypeForm.description" rows="2" placeholder="Optional description"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeQuickAddSubType()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveQuickSubType()" [disabled]="quickAddLoading">
+          <i class="fa-solid fa-spinner fa-spin" *ngIf="quickAddLoading"></i>
+          Create Sub-Type
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
