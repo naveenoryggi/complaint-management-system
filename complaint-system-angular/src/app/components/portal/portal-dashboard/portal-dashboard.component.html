@@ -1,0 +1,124 @@
+<div class="dashboard">
+  <div class="dashboard-header">
+    <div class="welcome">
+      <h1>Welcome back, {{ user()?.firstName }}!</h1>
+      <p>Here's an overview of your support tickets</p>
+    </div>
+    <a routerLink="/portal/tickets/new" class="create-ticket-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+      Create New Ticket
+    </a>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading dashboard...</p>
+    </div>
+  } @else {
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats().total }}</span>
+          <span class="stat-label">Total Tickets</span>
+        </div>
+      </div>
+
+      <div class="stat-card open">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats().open }}</span>
+          <span class="stat-label">Open</span>
+        </div>
+      </div>
+
+      <div class="stat-card in-progress">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats().inProgress }}</span>
+          <span class="stat-label">In Progress</span>
+        </div>
+      </div>
+
+      <div class="stat-card resolved">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats().resolved }}</span>
+          <span class="stat-label">Resolved</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Tickets -->
+    <div class="recent-tickets-section">
+      <div class="section-header">
+        <h2>Recent Tickets</h2>
+        <a routerLink="/portal/tickets" class="view-all-link">View All</a>
+      </div>
+
+      @if (recentTickets().length === 0) {
+        <div class="empty-state">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+          </svg>
+          <h3>No tickets yet</h3>
+          <p>Create your first support ticket to get started</p>
+          <a routerLink="/portal/tickets/new" class="create-first-btn">Create Ticket</a>
+        </div>
+      } @else {
+        <div class="tickets-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Ticket #</th>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (ticket of recentTickets(); track ticket.id) {
+                <tr [routerLink]="['/portal/tickets', ticket.id]">
+                  <td class="ticket-number">{{ ticket.ticketNumber }}</td>
+                  <td class="ticket-subject">{{ ticket.subject }}</td>
+                  <td>
+                    <span class="status-badge" [class]="getStatusClass(ticket.status)">
+                      {{ ticket.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="priority-badge" [class]="getPriorityClass(ticket.priority)">
+                      {{ ticket.priority }}
+                    </span>
+                  </td>
+                  <td class="ticket-date">{{ ticket.createdAt | date:'MMM d, y' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</div>

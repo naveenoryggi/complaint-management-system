@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { CustomerService } from '../../../services/customer.service';
+import { ProjectService } from '../../../services/project.service';
 import {
   Customer,
   CustomerSummary,
@@ -15,11 +17,12 @@ import {
   CustomerStatusLabels,
   CustomerSegmentLabels
 } from '../../../models/customer.model';
+import { ProjectSummary, ProjectStatusLabels } from '../../../models/project.model';
 
 @Component({
   selector: 'app-customer-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './customer-management.component.html',
   styleUrls: ['./customer-management.component.scss']
 })
@@ -31,6 +34,11 @@ export class CustomerManagementComponent implements OnInit, OnDestroy {
   errorMessage = '';
   successMessage = '';
   searchTerm = '';
+
+  // Customer Projects
+  customerProjects: ProjectSummary[] = [];
+  projectsLoading = false;
+  ProjectStatusLabels = ProjectStatusLabels;
 
   Math = Math;
 
@@ -60,7 +68,10 @@ export class CustomerManagementComponent implements OnInit, OnDestroy {
   customerStatuses = Object.entries(CustomerStatusLabels).map(([key, value]) => ({ value: +key, label: value }));
   customerSegments = Object.entries(CustomerSegmentLabels).map(([key, value]) => ({ value: +key, label: value }));
 
-  constructor(private customerService: CustomerService) {}
+  constructor(
+    private customerService: CustomerService,
+    private projectService: ProjectService
+  ) {}
 
   ngOnInit(): void {
     this.loadCustomers();
@@ -155,10 +166,12 @@ export class CustomerManagementComponent implements OnInit, OnDestroy {
   // Customer Detail
   viewCustomer(customer: CustomerSummary): void {
     this.detailLoading = true;
+    this.customerProjects = [];
     this.customerService.getCustomerById(customer.id).subscribe({
       next: (response) => {
         if (response.isSuccess) {
           this.selectedCustomer = response.data;
+          this.loadCustomerProjects(customer.id);
         }
         this.detailLoading = false;
       },
@@ -168,8 +181,36 @@ export class CustomerManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadCustomerProjects(customerId: string): void {
+    this.projectsLoading = true;
+    this.projectService.getProjectsByCustomer(customerId).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.customerProjects = response.data;
+        }
+        this.projectsLoading = false;
+      },
+      error: () => {
+        this.projectsLoading = false;
+      }
+    });
+  }
+
   closeDetail(): void {
     this.selectedCustomer = null;
+    this.customerProjects = [];
+  }
+
+  getProjectStatusClass(status: number): string {
+    switch (status) {
+      case 0: return 'status-draft';
+      case 1: return 'status-planning';
+      case 2: return 'status-active';
+      case 3: return 'status-on-hold';
+      case 4: return 'status-completed';
+      case 5: return 'status-cancelled';
+      default: return '';
+    }
   }
 
   // Modal Operations

@@ -59,6 +59,14 @@ export interface Complaint {
   hasCustomerResponse?: boolean;  // True if customer has replied and awaiting handler response
   lastResponseFrom?: 'customer' | 'handler' | 'system';  // Who sent the last response
   lastResponseAt?: string;  // Timestamp of last response
+
+  // Enterprise fields
+  customerId?: string;
+  customerName?: string;
+  projectId?: string;
+  projectName?: string;
+  productId?: string;
+  productName?: string;
 }
 
 export interface CreateComplaintRequest {

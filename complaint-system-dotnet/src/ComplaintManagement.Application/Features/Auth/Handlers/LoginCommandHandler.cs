@@ -68,8 +68,15 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
             .Distinct()
             .ToList();
 
+        // Extract role codes
+        var roleCodes = userWithRoles.UserComplaintRoles
+            .Where(r => r.IsActive)
+            .Select(r => r.ComplaintRole.Code)
+            .Distinct()
+            .ToList();
+
         // Generate tokens
-        var tokenResult = _jwtTokenService.GenerateAccessToken(userWithRoles, permissions);
+        var tokenResult = _jwtTokenService.GenerateAccessToken(userWithRoles, permissions, roleCodes);
         var refreshTokenValue = _jwtTokenService.GenerateRefreshToken();
 
         // Create refresh token entity and save to database

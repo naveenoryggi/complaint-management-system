@@ -23,6 +23,7 @@ export interface User {
   roles: UserRole[];
   permissions: string[];
   isActive?: boolean;
+  isPortalUser?: boolean;  // True if user is a customer portal user
 
   // Timezone & Localization
   timeZone: string; // Resolved timezone (fallback chain applied)

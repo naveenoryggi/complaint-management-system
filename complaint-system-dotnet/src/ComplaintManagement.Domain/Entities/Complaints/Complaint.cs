@@ -143,6 +143,70 @@ public class Complaint : BaseEntity
     /// </summary>
     public Guid? RelatedComplaintId { get; set; }
 
+    #region Customer Portal Fields
+
+    /// <summary>
+    /// Customer ID (for portal tickets)
+    /// </summary>
+    public Guid? CustomerId { get; set; }
+
+    /// <summary>
+    /// Customer contact ID (portal user who created the ticket)
+    /// </summary>
+    public Guid? CustomerContactId { get; set; }
+
+    /// <summary>
+    /// Customer location ID (site where the issue is)
+    /// </summary>
+    public Guid? CustomerLocationId { get; set; }
+
+    /// <summary>
+    /// Asset ID (asset related to the complaint)
+    /// </summary>
+    public Guid? AssetId { get; set; }
+
+    /// <summary>
+    /// Contract ID (contract covering the service)
+    /// </summary>
+    public Guid? ContractId { get; set; }
+
+    /// <summary>
+    /// Product ID (product related to the complaint)
+    /// </summary>
+    public Guid? ProductId { get; set; }
+
+    /// <summary>
+    /// Project ID (project related to the complaint)
+    /// </summary>
+    public Guid? ProjectId { get; set; }
+
+    /// <summary>
+    /// Source/channel from which the ticket was created
+    /// </summary>
+    public TicketSource Source { get; set; } = TicketSource.Internal;
+
+    /// <summary>
+    /// Whether the complaint is covered under warranty
+    /// </summary>
+    public bool IsUnderWarranty { get; set; }
+
+    /// <summary>
+    /// Whether the complaint is covered under a service contract
+    /// </summary>
+    public bool IsUnderContract { get; set; }
+
+    /// <summary>
+    /// Customer satisfaction rating (1-5)
+    /// </summary>
+    public int? CustomerSatisfactionRating { get; set; }
+
+    /// <summary>
+    /// Customer feedback text
+    /// </summary>
+    public string? CustomerFeedback { get; set; }
+
+    #endregion
+
     /// <summary>
     /// Indicates if there is a customer response awaiting handler action
     /// </summary>
@@ -203,6 +267,41 @@ public class Complaint : BaseEntity
     /// Related complaint (if any)
     /// </summary>
     public Complaint? RelatedComplaint { get; set; }
+
+    /// <summary>
+    /// Customer (for portal tickets)
+    /// </summary>
+    public CRM.Customer? Customer { get; set; }
+
+    /// <summary>
+    /// Customer contact (portal user)
+    /// </summary>
+    public CRM.CustomerContact? CustomerContact { get; set; }
+
+    /// <summary>
+    /// Customer location
+    /// </summary>
+    public CRM.CustomerLocation? CustomerLocation { get; set; }
+
+    /// <summary>
+    /// Related asset
+    /// </summary>
+    public Service.Asset? Asset { get; set; }
+
+    /// <summary>
+    /// Related contract
+    /// </summary>
+    public Service.Contract? Contract { get; set; }
+
+    /// <summary>
+    /// Related product
+    /// </summary>
+    public Product.Product? Product { get; set; }
+
+    /// <summary>
+    /// Related project
+    /// </summary>
+    public CRM.Project? Project { get; set; }
 
     /// <summary>
     /// Status master (when using configurable statuses)

@@ -1,0 +1,101 @@
+<div class="ticket-list-page">
+  <div class="page-header">
+    <div class="header-left">
+      <h1>My Tickets</h1>
+      <p>View and manage your support tickets</p>
+    </div>
+    <a routerLink="/portal/tickets/new" class="create-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+      Create Ticket
+    </a>
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-box">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+      </svg>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Search tickets..."
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+
+    <select [(ngModel)]="selectedStatus" (change)="onStatusChange()">
+      <option value="">All Statuses</option>
+      <option value="Open">Open</option>
+      <option value="In Progress">In Progress</option>
+      <option value="Resolved">Resolved</option>
+      <option value="Closed">Closed</option>
+    </select>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading tickets...</p>
+    </div>
+  } @else {
+    @if (tickets().length === 0) {
+      <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+        </svg>
+        <h3>No tickets found</h3>
+        <p>Create a new ticket to get started</p>
+        <a routerLink="/portal/tickets/new" class="create-first-btn">Create Ticket</a>
+      </div>
+    } @else {
+      <div class="tickets-table-container">
+        <table class="tickets-table">
+          <thead>
+            <tr>
+              <th>Ticket #</th>
+              <th>Subject</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Created</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ticket of tickets(); track ticket.id) {
+              <tr [routerLink]="['/portal/tickets', ticket.id]">
+                <td class="ticket-number">{{ ticket.ticketNumber }}</td>
+                <td class="ticket-subject">{{ ticket.subject }}</td>
+                <td>
+                  <span class="status-badge" [class]="getStatusClass(ticket.status)">
+                    {{ ticket.status }}
+                  </span>
+                </td>
+                <td>
+                  <span class="priority-badge" [class]="getPriorityClass(ticket.priority)">
+                    {{ ticket.priority }}
+                  </span>
+                </td>
+                <td class="ticket-date">{{ ticket.createdAt | date:'MMM d, y' }}</td>
+                <td class="ticket-date">{{ ticket.updatedAt | date:'MMM d, y' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">
+            Previous
+          </button>
+          <span class="page-info">Page {{ currentPage() }} of {{ totalPages() }}</span>
+          <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">
+            Next
+          </button>
+        </div>
+      }
+    }
+  }
+</div>

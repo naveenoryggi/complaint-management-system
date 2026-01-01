@@ -1,0 +1,257 @@
+<app-header [showAdminPanel]="true" activeNavLink="admin"></app-header>
+
+<div class="license-management-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>License Management</h1>
+      <p class="subtitle">Manage your software license and enabled modules</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="loadLicenseData()" [disabled]="isLoading">
+        <i class="fa-solid fa-refresh" [class.fa-spin]="isLoading"></i>
+        Refresh
+      </button>
+      <button class="btn btn-primary" (click)="openActivateModal()">
+        <i class="fa-solid fa-key"></i>
+        Activate License
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading license information...</p>
+  </div>
+
+  <!-- No License State -->
+  <div class="no-license-state" *ngIf="!isLoading && !licenseInfo">
+    <div class="empty-state-icon">
+      <i class="fa-solid fa-shield-halved"></i>
+    </div>
+    <h2>No Active License</h2>
+    <p>Start a free trial or activate your license key to unlock all features.</p>
+    <div class="empty-state-actions">
+      <button class="btn btn-primary" (click)="createTrialLicense()">
+        <i class="fa-solid fa-rocket"></i>
+        Start 30-Day Trial
+      </button>
+      <button class="btn btn-outline" (click)="openActivateModal()">
+        <i class="fa-solid fa-key"></i>
+        Enter License Key
+      </button>
+    </div>
+  </div>
+
+  <!-- License Info -->
+  <div class="license-content" *ngIf="!isLoading && licenseInfo">
+    <!-- License Overview Card -->
+    <div class="license-overview-card">
+      <div class="license-badge" [ngClass]="getStatusClass(licenseInfo.status)">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>{{ licenseInfo.status }}</span>
+      </div>
+
+      <div class="license-details">
+        <div class="license-type">
+          <h2>{{ getLicenseTypeLabel(licenseInfo.licenseType) }}</h2>
+          <span class="license-name" *ngIf="licenseInfo.name">{{ licenseInfo.name }}</span>
+        </div>
+
+        <div class="license-meta">
+          <div class="meta-item">
+            <span class="meta-label">Activated</span>
+            <span class="meta-value">{{ formatDate(licenseInfo.activatedAt) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Expires</span>
+            <span class="meta-value" [class.expiring-soon]="licenseInfo.daysRemaining < 30">
+              {{ formatDate(licenseInfo.expiresAt) }}
+              <span class="days-badge" *ngIf="licenseInfo.daysRemaining > 0">
+                {{ licenseInfo.daysRemaining }} days left
+              </span>
+            </span>
+          </div>
+          <div class="meta-item" *ngIf="licenseInfo.activatedBy">
+            <span class="meta-label">Activated By</span>
+            <span class="meta-value">{{ licenseInfo.activatedBy }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="license-actions">
+        <button class="btn btn-outline btn-sm" (click)="openActivateModal()">
+          <i class="fa-solid fa-arrow-up"></i>
+          Upgrade
+        </button>
+      </div>
+    </div>
+
+    <!-- Validation Warnings -->
+    <div class="validation-alerts" *ngIf="validationResult && (validationResult.warnings.length > 0 || validationResult.errors.length > 0)">
+      <div class="alert alert-warning" *ngFor="let warning of validationResult.warnings">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        {{ warning }}
+      </div>
+      <div class="alert alert-error" *ngFor="let error of validationResult.errors">
+        <i class="fa-solid fa-circle-xmark"></i>
+        {{ error }}
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon modules">
+          <i class="fa-solid fa-cube"></i>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ getEnabledModulesCount() }}/{{ getTotalModulesCount() }}</span>
+          <span class="stat-label">Modules Enabled</span>
+        </div>
+      </div>
+
+      <div class="stat-card" *ngIf="licenseInfo.maxUsers">
+        <div class="stat-icon users" [ngClass]="getUsageClass(licenseInfo.currentUsers, licenseInfo.maxUsers)">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ licenseInfo.currentUsers }}/{{ licenseInfo.maxUsers }}</span>
+          <span class="stat-label">Users</span>
+          <div class="usage-bar">
+            <div class="usage-fill" [style.width.%]="getUsagePercentage(licenseInfo.currentUsers, licenseInfo.maxUsers)"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card" *ngIf="licenseInfo.maxCustomers">
+        <div class="stat-icon customers" [ngClass]="getUsageClass(licenseInfo.currentCustomers, licenseInfo.maxCustomers)">
+          <i class="fa-solid fa-building"></i>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ licenseInfo.currentCustomers }}/{{ licenseInfo.maxCustomers }}</span>
+          <span class="stat-label">Customers</span>
+          <div class="usage-bar">
+            <div class="usage-fill" [style.width.%]="getUsagePercentage(licenseInfo.currentCustomers, licenseInfo.maxCustomers)"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card" *ngIf="licenseInfo.maxProducts">
+        <div class="stat-icon products" [ngClass]="getUsageClass(licenseInfo.currentProducts, licenseInfo.maxProducts)">
+          <i class="fa-solid fa-boxes-stacked"></i>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ licenseInfo.currentProducts }}/{{ licenseInfo.maxProducts }}</span>
+          <span class="stat-label">Products</span>
+          <div class="usage-bar">
+            <div class="usage-fill" [style.width.%]="getUsagePercentage(licenseInfo.currentProducts, licenseInfo.maxProducts)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modules Grid -->
+    <div class="modules-section">
+      <h3 class="section-title">
+        <i class="fa-solid fa-grid-2"></i>
+        Licensed Modules
+      </h3>
+
+      <div class="modules-grid">
+        <div
+          class="module-card"
+          *ngFor="let module of modules"
+          [class.enabled]="module.isEnabled"
+          [class.disabled]="!module.isEnabled">
+          <div class="module-icon" [style.background-color]="getModuleColor(module) + '15'" [style.color]="getModuleColor(module)">
+            <i class="fa-solid" [ngClass]="getModuleIcon(module)"></i>
+            <i class="fa-solid fa-lock lock-icon" *ngIf="!module.isEnabled"></i>
+          </div>
+          <div class="module-info">
+            <h4>{{ module.moduleName }}</h4>
+            <p *ngIf="module.description">{{ module.description }}</p>
+          </div>
+          <div class="module-status">
+            <span class="status-badge" [class.active]="module.isEnabled">
+              {{ module.isEnabled ? 'Active' : 'Locked' }}
+            </span>
+          </div>
+          <div class="module-features" *ngIf="module.isEnabled && module.features && module.features.length > 0">
+            <span class="feature-tag" *ngFor="let feature of module.features.slice(0, 3)">
+              {{ feature.featureName }}
+            </span>
+            <span class="feature-more" *ngIf="module.features.length > 3">
+              +{{ module.features.length - 3 }} more
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Limit Violations -->
+    <div class="limits-section" *ngIf="limitsResult && limitsResult.hasExceededLimits">
+      <h3 class="section-title warning">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        License Limit Violations
+      </h3>
+      <div class="violations-list">
+        <div class="violation-item" *ngFor="let violation of limitsResult.violations">
+          <div class="violation-icon">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </div>
+          <div class="violation-content">
+            <span class="violation-type">{{ violation.limitType }}</span>
+            <span class="violation-message">{{ violation.message }}</span>
+            <span class="violation-stats">Current: {{ violation.current }} / Limit: {{ violation.limit }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Activate License Modal -->
+<div class="modal-overlay" *ngIf="showActivateModal" (click)="closeActivateModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Activate License</h2>
+      <button class="modal-close" (click)="closeActivateModal()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="success-message" *ngIf="activationSuccess">
+        <i class="fa-solid fa-check-circle"></i>
+        {{ activationSuccess }}
+      </div>
+
+      <div class="error-message" *ngIf="activationError">
+        <i class="fa-solid fa-circle-xmark"></i>
+        {{ activationError }}
+      </div>
+
+      <form [formGroup]="activateForm" (ngSubmit)="activateLicense()">
+        <div class="form-group">
+          <label for="licenseKey">License Key</label>
+          <input
+            type="text"
+            id="licenseKey"
+            formControlName="licenseKey"
+            placeholder="Enter your license key (e.g., PROFESSIONAL-50-100-500-365-XXXXX)"
+            class="form-control">
+          <span class="form-hint">Enter the license key provided by your administrator</span>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" (click)="closeActivateModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="activateForm.invalid || isActivating">
+            <i class="fa-solid fa-spinner fa-spin" *ngIf="isActivating"></i>
+            {{ isActivating ? 'Activating...' : 'Activate' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,577 @@
+<div class="project-management">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="fa-solid fa-diagram-project"></i> Project Management</h1>
+      <p class="subtitle">Manage projects, milestones, tasks, and team members</p>
+    </div>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      <i class="fa-solid fa-plus"></i> New Project
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    <i class="fa-solid fa-check-circle"></i>
+    {{ successMessage }}
+    <button class="alert-close" (click)="dismissSuccess()"><i class="fa-solid fa-times"></i></button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <i class="fa-solid fa-exclamation-circle"></i>
+    {{ errorMessage }}
+    <button class="alert-close" (click)="dismissError()"><i class="fa-solid fa-times"></i></button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fa-solid fa-search"></i>
+      <input type="text" placeholder="Search projects..." [ngModel]="searchTerm" (ngModelChange)="onSearch($event)">
+    </div>
+
+    <div class="filter-group">
+      <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+        <option [ngValue]="null">All Statuses</option>
+        <option *ngFor="let status of projectStatuses" [ngValue]="status.value">{{ status.label }}</option>
+      </select>
+
+      <select [(ngModel)]="filterCustomerId" (change)="applyFilters()">
+        <option [ngValue]="null">All Customers</option>
+        <option *ngFor="let customer of customers" [ngValue]="customer.id">{{ customer.name }}</option>
+      </select>
+
+      <button class="btn btn-secondary btn-sm" (click)="clearFilters()">
+        <i class="fa-solid fa-times"></i> Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Projects Table -->
+  <div class="table-container">
+    <div class="loading-overlay" *ngIf="loading">
+      <div class="spinner"></div>
+      <span>Loading projects...</span>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th>Progress</th>
+          <th>Timeline</th>
+          <th>Budget</th>
+          <th>Manager</th>
+          <th>Tasks</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let project of projects" (click)="viewProject(project)" class="clickable">
+          <td class="code-cell">{{ project.projectCode }}</td>
+          <td class="name-cell">{{ project.name }}</td>
+          <td>{{ project.customerName }}</td>
+          <td><span class="badge" [ngClass]="getStatusClass(project.status)">{{ project.statusName }}</span></td>
+          <td>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="project.progressPercentage"></div>
+              <span class="progress-text">{{ project.progressPercentage }}%</span>
+            </div>
+          </td>
+          <td class="timeline-cell">
+            <span *ngIf="project.plannedStartDate">{{ formatDate(project.plannedStartDate) }}</span>
+            <span *ngIf="project.plannedEndDate"> - {{ formatDate(project.plannedEndDate) }}</span>
+            <span *ngIf="!project.plannedStartDate && !project.plannedEndDate">-</span>
+          </td>
+          <td>{{ formatCurrency(project.budget) }}</td>
+          <td>{{ project.projectManagerName || '-' }}</td>
+          <td class="text-center">{{ project.taskCount }}</td>
+          <td class="actions-cell" (click)="$event.stopPropagation()">
+            <button class="btn-icon" title="Edit" (click)="openEditModal(project)">
+              <i class="fa-solid fa-edit"></i>
+            </button>
+            <button class="btn-icon btn-danger" title="Delete" (click)="deleteProject(project)">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="projects.length === 0 && !loading">
+          <td colspan="10" class="empty-state">
+            <i class="fa-solid fa-folder-open"></i>
+            <p>No projects found</p>
+            <button class="btn btn-primary" (click)="openAddModal()">Create First Project</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <div class="pagination-info">
+      Showing {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalProjects) }} of {{ totalProjects }}
+    </div>
+    <div class="pagination-controls">
+      <button class="btn-page" [disabled]="currentPage === 1" (click)="goToPage(1)">
+        <i class="fa-solid fa-angles-left"></i>
+      </button>
+      <button class="btn-page" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+        <i class="fa-solid fa-angle-left"></i>
+      </button>
+      <button *ngFor="let page of visiblePages" class="btn-page" [class.active]="page === currentPage" (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      <button class="btn-page" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+        <i class="fa-solid fa-angle-right"></i>
+      </button>
+      <button class="btn-page" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">
+        <i class="fa-solid fa-angles-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Project Detail Sidebar -->
+  <div class="detail-sidebar" *ngIf="selectedProject" [class.open]="selectedProject">
+    <div class="sidebar-header">
+      <div>
+        <span class="project-code">{{ selectedProject.projectCode }}</span>
+        <h2>{{ selectedProject.name }}</h2>
+      </div>
+      <button class="btn-close" (click)="closeDetail()"><i class="fa-solid fa-times"></i></button>
+    </div>
+
+    <!-- Sidebar Tabs -->
+    <div class="sidebar-tabs">
+      <button [class.active]="activeTab === 'basic'" (click)="activeTab = 'basic'">
+        <i class="fa-solid fa-info-circle"></i> Overview
+      </button>
+      <button [class.active]="activeTab === 'milestones'" (click)="activeTab = 'milestones'">
+        <i class="fa-solid fa-flag"></i> Milestones ({{ selectedProject.milestones?.length || 0 }})
+      </button>
+      <button [class.active]="activeTab === 'tasks'" (click)="activeTab = 'tasks'">
+        <i class="fa-solid fa-tasks"></i> Tasks ({{ selectedProject.tasks?.length || 0 }})
+      </button>
+      <button [class.active]="activeTab === 'team'" (click)="activeTab = 'team'">
+        <i class="fa-solid fa-users"></i> Team ({{ selectedProject.teamMembers?.length || 0 }})
+      </button>
+    </div>
+
+    <div class="sidebar-content">
+      <!-- Overview Tab -->
+      <div *ngIf="activeTab === 'basic'" class="tab-content">
+        <div class="detail-section">
+          <h3><i class="fa-solid fa-info-circle"></i> Basic Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Customer</label>
+              <span>{{ selectedProject.customerName }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Status</label>
+              <span class="badge" [ngClass]="getStatusClass(selectedProject.status)">{{ selectedProject.statusName }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Manager</label>
+              <span>{{ selectedProject.projectManagerName || '-' }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Progress</label>
+              <div class="progress-bar large">
+                <div class="progress-fill" [style.width.%]="selectedProject.progressPercentage"></div>
+                <span class="progress-text">{{ selectedProject.progressPercentage }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3><i class="fa-solid fa-calendar"></i> Timeline</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Planned Start</label>
+              <span>{{ formatDate(selectedProject.plannedStartDate) }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Planned End</label>
+              <span>{{ formatDate(selectedProject.plannedEndDate) }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Actual Start</label>
+              <span>{{ formatDate(selectedProject.actualStartDate) }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Actual End</label>
+              <span>{{ formatDate(selectedProject.actualEndDate) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3><i class="fa-solid fa-indian-rupee-sign"></i> Budget</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Budget</label>
+              <span>{{ formatCurrency(selectedProject.budget) }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Actual Cost</label>
+              <span>{{ formatCurrency(selectedProject.actualCost) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section" *ngIf="selectedProject.description">
+          <h3><i class="fa-solid fa-align-left"></i> Description</h3>
+          <p class="description-text">{{ selectedProject.description }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3><i class="fa-solid fa-chart-bar"></i> Statistics</h3>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value">{{ selectedProject.milestoneCount }}</div>
+              <div class="stat-label">Milestones</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">{{ selectedProject.taskCount }}</div>
+              <div class="stat-label">Tasks</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">{{ selectedProject.teamMemberCount }}</div>
+              <div class="stat-label">Team</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">{{ selectedProject.ticketCount }}</div>
+              <div class="stat-label">Tickets</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Milestones Tab -->
+      <div *ngIf="activeTab === 'milestones'" class="tab-content">
+        <div class="tab-header">
+          <h3><i class="fa-solid fa-flag"></i> Milestones</h3>
+          <button class="btn btn-primary btn-sm" (click)="openAddMilestoneModal()">
+            <i class="fa-solid fa-plus"></i> Add
+          </button>
+        </div>
+        <div class="entity-list">
+          <div class="entity-card" *ngFor="let milestone of selectedProject.milestones">
+            <div class="entity-header">
+              <span class="entity-name">{{ milestone.name }}</span>
+              <span class="badge" [ngClass]="getMilestoneStatusClass(milestone.status)">{{ MilestoneStatusLabels[milestone.status] }}</span>
+            </div>
+            <div class="entity-meta">
+              <span><i class="fa-solid fa-calendar"></i> Due: {{ formatDate(milestone.dueDate) }}</span>
+              <span><i class="fa-solid fa-tasks"></i> {{ milestone.completedTaskCount }}/{{ milestone.taskCount }} tasks</span>
+            </div>
+            <div class="entity-actions">
+              <button class="btn-icon" title="Edit" (click)="openEditMilestoneModal(milestone)">
+                <i class="fa-solid fa-edit"></i>
+              </button>
+              <button class="btn-icon btn-danger" title="Delete" (click)="deleteMilestone(milestone)">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+          <div class="empty-list" *ngIf="!selectedProject.milestones?.length">
+            <i class="fa-solid fa-flag"></i>
+            <p>No milestones yet</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks Tab -->
+      <div *ngIf="activeTab === 'tasks'" class="tab-content">
+        <div class="tab-header">
+          <h3><i class="fa-solid fa-tasks"></i> Tasks</h3>
+          <button class="btn btn-primary btn-sm" (click)="openAddTaskModal()">
+            <i class="fa-solid fa-plus"></i> Add
+          </button>
+        </div>
+        <div class="entity-list">
+          <div class="entity-card" *ngFor="let task of selectedProject.tasks">
+            <div class="entity-header">
+              <span class="entity-name">{{ task.title }}</span>
+              <span class="badge" [ngClass]="getTaskStatusClass(task.status)">{{ ProjectTaskStatusLabels[task.status] }}</span>
+            </div>
+            <div class="entity-meta">
+              <span class="badge priority-badge" [ngClass]="getPriorityClass(task.priority)">{{ TaskPriorityLabels[task.priority] }}</span>
+              <span *ngIf="task.assigneeName"><i class="fa-solid fa-user"></i> {{ task.assigneeName }}</span>
+              <span *ngIf="task.dueDate"><i class="fa-solid fa-calendar"></i> {{ formatDate(task.dueDate) }}</span>
+            </div>
+            <div class="entity-actions">
+              <button class="btn-icon" title="Edit" (click)="openEditTaskModal(task)">
+                <i class="fa-solid fa-edit"></i>
+              </button>
+              <button class="btn-icon btn-danger" title="Delete" (click)="deleteTask(task)">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+          <div class="empty-list" *ngIf="!selectedProject.tasks?.length">
+            <i class="fa-solid fa-tasks"></i>
+            <p>No tasks yet</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Tab -->
+      <div *ngIf="activeTab === 'team'" class="tab-content">
+        <div class="tab-header">
+          <h3><i class="fa-solid fa-users"></i> Team Members</h3>
+          <button class="btn btn-primary btn-sm" (click)="openAddTeamModal()">
+            <i class="fa-solid fa-plus"></i> Add
+          </button>
+        </div>
+        <div class="entity-list">
+          <div class="entity-card" *ngFor="let member of selectedProject.teamMembers">
+            <div class="entity-header">
+              <span class="entity-name">{{ member.employeeName }}</span>
+              <span class="badge" [ngClass]="member.isActive ? 'status-active' : 'status-inactive'">
+                {{ member.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+            <div class="entity-meta">
+              <span *ngIf="member.role"><i class="fa-solid fa-briefcase"></i> {{ member.role }}</span>
+              <span *ngIf="member.allocationPercentage"><i class="fa-solid fa-chart-pie"></i> {{ member.allocationPercentage }}%</span>
+              <span><i class="fa-solid fa-calendar"></i> Joined: {{ formatDate(member.joinedDate) }}</span>
+            </div>
+            <div class="entity-actions">
+              <button class="btn-icon btn-danger" title="Remove" (click)="removeTeamMember(member)">
+                <i class="fa-solid fa-user-minus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="empty-list" *ngIf="!selectedProject.teamMembers?.length">
+            <i class="fa-solid fa-users"></i>
+            <p>No team members yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Project Modal -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? 'Edit Project' : 'New Project' }}</h2>
+        <button class="btn-close" (click)="closeModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="projectCode">Project Code *</label>
+              <input type="text" id="projectCode" [(ngModel)]="projectForm.projectCode" [disabled]="isEditMode" placeholder="e.g., PRJ001">
+            </div>
+            <div class="form-group">
+              <label for="name">Project Name *</label>
+              <input type="text" id="name" [(ngModel)]="projectForm.name" placeholder="Project name">
+            </div>
+            <div class="form-group">
+              <label for="customer">Customer *</label>
+              <select id="customer" [(ngModel)]="projectForm.customerId">
+                <option value="">Select Customer</option>
+                <option *ngFor="let customer of customers" [value]="customer.id">{{ customer.code }} - {{ customer.name }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status" [(ngModel)]="projectForm.status">
+                <option *ngFor="let status of projectStatuses" [ngValue]="status.value">{{ status.label }}</option>
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label for="description">Description</label>
+              <textarea id="description" [(ngModel)]="projectForm.description" rows="3" placeholder="Project description"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Timeline</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="startDate">Planned Start Date</label>
+              <input type="date" id="startDate" [ngModel]="projectForm.plannedStartDate | date:'yyyy-MM-dd'" (ngModelChange)="projectForm.plannedStartDate = $event">
+            </div>
+            <div class="form-group">
+              <label for="endDate">Planned End Date</label>
+              <input type="date" id="endDate" [ngModel]="projectForm.plannedEndDate | date:'yyyy-MM-dd'" (ngModelChange)="projectForm.plannedEndDate = $event">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Budget</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="budget">Budget Amount</label>
+              <input type="number" id="budget" [(ngModel)]="projectForm.budget" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label for="currency">Currency</label>
+              <select id="currency" [(ngModel)]="projectForm.currency">
+                <option value="INR">INR (Indian Rupee)</option>
+                <option value="USD">USD (US Dollar)</option>
+                <option value="EUR">EUR (Euro)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Additional</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="priority">Priority</label>
+              <input type="number" id="priority" [(ngModel)]="projectForm.priority" min="1" max="10" placeholder="1-10">
+            </div>
+            <div class="form-group">
+              <label for="tags">Tags</label>
+              <input type="text" id="tags" [(ngModel)]="projectForm.tags" placeholder="Comma-separated tags">
+            </div>
+            <div class="form-group full-width">
+              <label for="notes">Notes</label>
+              <textarea id="notes" [(ngModel)]="projectForm.notes" rows="2" placeholder="Internal notes"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveProject()" [disabled]="loading">
+          <i class="fa-solid fa-spinner fa-spin" *ngIf="loading"></i>
+          {{ isEditMode ? 'Update Project' : 'Create Project' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Milestone Modal -->
+  <div class="modal-overlay" *ngIf="showMilestoneModal" (click)="closeMilestoneModal()">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMilestone ? 'Edit Milestone' : 'Add Milestone' }}</h2>
+        <button class="btn-close" (click)="closeMilestoneModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="milestoneName">Name *</label>
+          <input type="text" id="milestoneName" [(ngModel)]="milestoneForm.name" placeholder="Milestone name">
+        </div>
+        <div class="form-group">
+          <label for="milestoneDue">Due Date *</label>
+          <input type="date" id="milestoneDue" [ngModel]="milestoneForm.dueDate | date:'yyyy-MM-dd'" (ngModelChange)="milestoneForm.dueDate = $event">
+        </div>
+        <div class="form-group">
+          <label for="milestoneDesc">Description</label>
+          <textarea id="milestoneDesc" [(ngModel)]="milestoneForm.description" rows="2" placeholder="Description"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="milestoneOrder">Sort Order</label>
+          <input type="number" id="milestoneOrder" [(ngModel)]="milestoneForm.sortOrder" min="0">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeMilestoneModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveMilestone()" [disabled]="loading">
+          {{ isEditMilestone ? 'Update' : 'Add' }} Milestone
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Modal -->
+  <div class="modal-overlay" *ngIf="showTaskModal" (click)="closeTaskModal()">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditTask ? 'Edit Task' : 'Add Task' }}</h2>
+        <button class="btn-close" (click)="closeTaskModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="taskTitle">Title *</label>
+          <input type="text" id="taskTitle" [(ngModel)]="taskForm.title" placeholder="Task title">
+        </div>
+        <div class="form-group">
+          <label for="taskMilestone">Milestone</label>
+          <select id="taskMilestone" [(ngModel)]="taskForm.milestoneId">
+            <option [ngValue]="null">No Milestone</option>
+            <option *ngFor="let m of selectedProject?.milestones" [ngValue]="m.id">{{ m.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="taskPriority">Priority</label>
+          <select id="taskPriority" [(ngModel)]="taskForm.priority">
+            <option *ngFor="let p of taskPriorities" [ngValue]="p.value">{{ p.label }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="taskDue">Due Date</label>
+          <input type="date" id="taskDue" [ngModel]="taskForm.dueDate | date:'yyyy-MM-dd'" (ngModelChange)="taskForm.dueDate = $event">
+        </div>
+        <div class="form-group">
+          <label for="taskHours">Estimated Hours</label>
+          <input type="number" id="taskHours" [(ngModel)]="taskForm.estimatedHours" min="0">
+        </div>
+        <div class="form-group">
+          <label for="taskDesc">Description</label>
+          <textarea id="taskDesc" [(ngModel)]="taskForm.description" rows="2" placeholder="Description"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeTaskModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveTask()" [disabled]="loading">
+          {{ isEditTask ? 'Update' : 'Add' }} Task
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Member Modal -->
+  <div class="modal-overlay" *ngIf="showTeamModal" (click)="closeTeamModal()">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Add Team Member</h2>
+        <button class="btn-close" (click)="closeTeamModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="teamEmployee">Employee *</label>
+          <select id="teamEmployee" [(ngModel)]="teamForm.employeeId">
+            <option value="">Select Employee</option>
+            <!-- In a real app, load employees from a service -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="teamRole">Role</label>
+          <input type="text" id="teamRole" [(ngModel)]="teamForm.role" placeholder="e.g., Developer, Designer">
+        </div>
+        <div class="form-group">
+          <label for="teamAlloc">Allocation %</label>
+          <input type="number" id="teamAlloc" [(ngModel)]="teamForm.allocationPercentage" min="0" max="100" placeholder="100">
+        </div>
+        <div class="form-group">
+          <label for="teamNotes">Notes</label>
+          <textarea id="teamNotes" [(ngModel)]="teamForm.notes" rows="2" placeholder="Notes"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeTeamModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveTeamMember()" [disabled]="loading">
+          Add Member
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

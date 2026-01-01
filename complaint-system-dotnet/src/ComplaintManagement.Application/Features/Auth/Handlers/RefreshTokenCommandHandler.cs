@@ -119,8 +119,15 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
                 .Distinct()
                 .ToList();
 
+            // Extract role codes
+            var roleCodes = user.UserComplaintRoles
+                .Where(r => r.IsActive)
+                .Select(r => r.ComplaintRole.Code)
+                .Distinct()
+                .ToList();
+
             // Generate new access token
-            var tokenResult = _jwtTokenService.GenerateAccessToken(user, permissions);
+            var tokenResult = _jwtTokenService.GenerateAccessToken(user, permissions, roleCodes);
 
             // Generate new refresh token (token rotation)
             var newRefreshToken = new RefreshToken

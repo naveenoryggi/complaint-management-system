@@ -1,0 +1,756 @@
+/* ========================================
+   LICENSE MANAGEMENT - Admin Component
+   Based on OryggiTech Design System
+   ======================================== */
+
+// Design System Variables
+$primary: #0057FF;
+$background-light: #F8F9FA;
+$card-light: #FFFFFF;
+$border-light: #E9ECEF;
+$text-primary: #0B1320;
+$text-secondary: #64748b;
+$text-muted: #94a3b8;
+
+$success: #10B981;
+$warning: #F59E0B;
+$error: #EF4444;
+$info: #3B82F6;
+
+$shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.12);
+
+$radius-sm: 0.375rem;
+$radius-md: 0.5rem;
+$radius-lg: 0.75rem;
+$radius-xl: 1rem;
+
+$font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+/* ===== CONTAINER ===== */
+.license-management-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: $font-family;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+/* ===== PAGE HEADER ===== */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  .header-content {
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0 0 0.25rem 0;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: $text-secondary;
+      margin: 0;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+
+  &-primary {
+    background: $primary;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: darken($primary, 8%);
+    }
+  }
+
+  &-outline {
+    background: white;
+    border: 1px solid $border-light;
+    color: $text-primary;
+
+    &:hover:not(:disabled) {
+      background: $background-light;
+      border-color: darken($border-light, 5%);
+    }
+  }
+
+  &-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* ===== LOADING STATE ===== */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid $border-light;
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: $text-secondary;
+    margin: 0;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== NO LICENSE STATE ===== */
+.no-license-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: $card-light;
+  border-radius: $radius-xl;
+  border: 1px solid $border-light;
+
+  .empty-state-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba($primary, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+
+    i {
+      font-size: 2rem;
+      color: $primary;
+    }
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    color: $text-primary;
+    margin: 0 0 0.5rem 0;
+  }
+
+  p {
+    color: $text-secondary;
+    margin: 0 0 1.5rem 0;
+    max-width: 400px;
+  }
+
+  .empty-state-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* ===== LICENSE OVERVIEW CARD ===== */
+.license-overview-card {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, $card-light 0%, rgba($primary, 0.03) 100%);
+  border: 1px solid $border-light;
+  border-radius: $radius-xl;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+.license-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: $radius-lg;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &.status-active {
+    background: rgba($success, 0.1);
+    color: $success;
+  }
+
+  &.status-expired {
+    background: rgba($error, 0.1);
+    color: $error;
+  }
+
+  &.status-warning {
+    background: rgba($warning, 0.1);
+    color: $warning;
+  }
+
+  &.status-pending {
+    background: rgba($info, 0.1);
+    color: $info;
+  }
+}
+
+.license-details {
+  flex: 1;
+
+  .license-type {
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $text-primary;
+      margin: 0 0 0.25rem 0;
+    }
+
+    .license-name {
+      font-size: 0.875rem;
+      color: $text-secondary;
+    }
+  }
+
+  .license-meta {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+
+    .meta-item {
+      .meta-label {
+        display: block;
+        font-size: 0.75rem;
+        color: $text-muted;
+        margin-bottom: 0.25rem;
+      }
+
+      .meta-value {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: $text-primary;
+
+        &.expiring-soon {
+          color: $warning;
+        }
+
+        .days-badge {
+          display: inline-block;
+          padding: 0.125rem 0.5rem;
+          background: rgba($warning, 0.1);
+          color: $warning;
+          font-size: 0.75rem;
+          border-radius: $radius-sm;
+          margin-left: 0.5rem;
+        }
+      }
+    }
+  }
+}
+
+/* ===== VALIDATION ALERTS ===== */
+.validation-alerts {
+  margin-bottom: 1.5rem;
+
+  .alert {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: $radius-md;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+
+    &-warning {
+      background: rgba($warning, 0.1);
+      color: darken($warning, 10%);
+      border: 1px solid rgba($warning, 0.2);
+    }
+
+    &-error {
+      background: rgba($error, 0.1);
+      color: $error;
+      border: 1px solid rgba($error, 0.2);
+    }
+
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: $card-light;
+  border: 1px solid $border-light;
+  border-radius: $radius-lg;
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: 1.25rem;
+    }
+
+    &.modules {
+      background: rgba($primary, 0.1);
+      color: $primary;
+    }
+
+    &.users {
+      background: rgba($success, 0.1);
+      color: $success;
+    }
+
+    &.customers {
+      background: rgba($info, 0.1);
+      color: $info;
+    }
+
+    &.products {
+      background: rgba(#8B5CF6, 0.1);
+      color: #8B5CF6;
+    }
+
+    &.usage-warning {
+      background: rgba($warning, 0.1);
+      color: $warning;
+    }
+
+    &.usage-critical {
+      background: rgba($error, 0.1);
+      color: $error;
+    }
+  }
+
+  .stat-content {
+    flex: 1;
+
+    .stat-value {
+      display: block;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $text-primary;
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 0.8125rem;
+      color: $text-secondary;
+      margin-bottom: 0.5rem;
+    }
+
+    .usage-bar {
+      height: 4px;
+      background: $background-light;
+      border-radius: 2px;
+      overflow: hidden;
+
+      .usage-fill {
+        height: 100%;
+        background: $success;
+        border-radius: 2px;
+        transition: width 0.3s ease;
+      }
+    }
+  }
+}
+
+/* ===== MODULES SECTION ===== */
+.modules-section {
+  margin-bottom: 2rem;
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 1rem;
+
+    i {
+      color: $text-muted;
+    }
+
+    &.warning {
+      color: $warning;
+
+      i {
+        color: $warning;
+      }
+    }
+  }
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.module-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  background: $card-light;
+  border: 1px solid $border-light;
+  border-radius: $radius-lg;
+  transition: all 0.2s ease;
+
+  &.enabled {
+    &:hover {
+      border-color: rgba($primary, 0.3);
+      box-shadow: $shadow-soft;
+    }
+  }
+
+  &.disabled {
+    opacity: 0.7;
+    background: $background-light;
+  }
+
+  .module-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    position: relative;
+
+    i {
+      font-size: 1.25rem;
+    }
+
+    .lock-icon {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      font-size: 0.625rem;
+      background: $card-light;
+      padding: 3px;
+      border-radius: 50%;
+      box-shadow: $shadow-soft;
+      color: $text-muted;
+    }
+  }
+
+  .module-info {
+    flex: 1;
+    margin-bottom: 0.75rem;
+
+    h4 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0 0 0.25rem 0;
+    }
+
+    p {
+      font-size: 0.8125rem;
+      color: $text-secondary;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+
+  .module-status {
+    margin-bottom: 0.75rem;
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: $radius-sm;
+      background: rgba($text-muted, 0.1);
+      color: $text-muted;
+
+      &.active {
+        background: rgba($success, 0.1);
+        color: $success;
+      }
+    }
+  }
+
+  .module-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+
+    .feature-tag {
+      padding: 0.125rem 0.5rem;
+      font-size: 0.6875rem;
+      background: $background-light;
+      color: $text-secondary;
+      border-radius: $radius-sm;
+    }
+
+    .feature-more {
+      font-size: 0.6875rem;
+      color: $text-muted;
+    }
+  }
+}
+
+/* ===== LIMITS SECTION ===== */
+.limits-section {
+  background: rgba($error, 0.03);
+  border: 1px solid rgba($error, 0.2);
+  border-radius: $radius-lg;
+  padding: 1.5rem;
+}
+
+.violations-list {
+  .violation-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: $card-light;
+    border-radius: $radius-md;
+    margin-bottom: 0.5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .violation-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba($error, 0.1);
+      border-radius: $radius-md;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      i {
+        color: $error;
+      }
+    }
+
+    .violation-content {
+      .violation-type {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: 0.25rem;
+      }
+
+      .violation-message {
+        display: block;
+        font-size: 0.8125rem;
+        color: $text-secondary;
+        margin-bottom: 0.25rem;
+      }
+
+      .violation-stats {
+        font-size: 0.75rem;
+        color: $error;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: $card-light;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-lg;
+  width: 100%;
+  max-width: 480px;
+  animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid $border-light;
+
+  h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0;
+  }
+
+  .modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    color: $text-muted;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: $background-light;
+      color: $text-primary;
+    }
+  }
+}
+
+.modal-body {
+  padding: 1.5rem;
+
+  .success-message,
+  .error-message {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: $radius-md;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .success-message {
+    background: rgba($success, 0.1);
+    color: $success;
+    border: 1px solid rgba($success, 0.2);
+  }
+
+  .error-message {
+    background: rgba($error, 0.1);
+    color: $error;
+    border: 1px solid rgba($error, 0.2);
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: $text-primary;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      border: 1px solid $border-light;
+      border-radius: $radius-md;
+      background: $background-light;
+      transition: all 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba($primary, 0.1);
+        background: $card-light;
+      }
+
+      &::placeholder {
+        color: $text-muted;
+      }
+    }
+
+    .form-hint {
+      display: block;
+      font-size: 0.75rem;
+      color: $text-muted;
+      margin-top: 0.5rem;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+  }
+}

@@ -205,6 +205,55 @@
           </div>
         </div>
       </div>
+
+      <!-- Projects Section -->
+      <div class="detail-section">
+        <div class="section-header">
+          <h3><i class="fa-solid fa-diagram-project"></i> Projects</h3>
+          <a [routerLink]="['/admin/projects']" [queryParams]="{customerId: selectedCustomer.id}" class="btn btn-sm btn-outline">
+            <i class="fa-solid fa-plus"></i> Add
+          </a>
+        </div>
+
+        <div class="loading-spinner-small" *ngIf="projectsLoading">
+          <i class="fa-solid fa-spinner fa-spin"></i> Loading projects...
+        </div>
+
+        <div *ngIf="!projectsLoading && customerProjects.length === 0" class="empty-state-small">
+          <i class="fa-solid fa-folder-open"></i>
+          <p>No projects found</p>
+        </div>
+
+        <div class="projects-list" *ngIf="!projectsLoading && customerProjects.length > 0">
+          <a *ngFor="let project of customerProjects"
+             [routerLink]="['/admin/projects']"
+             [queryParams]="{projectId: project.id}"
+             class="project-card">
+            <div class="project-header">
+              <span class="project-code">{{ project.projectCode }}</span>
+              <span class="badge" [ngClass]="getProjectStatusClass(project.status)">
+                {{ ProjectStatusLabels[project.status] || 'Unknown' }}
+              </span>
+            </div>
+            <div class="project-name">{{ project.name }}</div>
+            <div class="project-meta">
+              <span *ngIf="project.progressPercentage !== null">
+                <i class="fa-solid fa-chart-line"></i> {{ project.progressPercentage }}%
+              </span>
+              <span *ngIf="project.taskCount > 0">
+                <i class="fa-solid fa-tasks"></i> {{ project.completedTaskCount || 0 }}/{{ project.taskCount }}
+              </span>
+            </div>
+          </a>
+        </div>
+
+        <a *ngIf="customerProjects.length > 3"
+           [routerLink]="['/admin/projects']"
+           [queryParams]="{customerId: selectedCustomer.id}"
+           class="view-all-link">
+          View all {{ customerProjects.length }} projects →
+        </a>
+      </div>
     </div>
   </div>
 

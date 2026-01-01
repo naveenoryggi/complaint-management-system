@@ -1,10 +1,37 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login';
 import { authGuard } from './guards/auth.guard';
+import { portalAuthGuard } from './guards/portal-auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+
+  // Portal Routes
+  {
+    path: 'portal/login',
+    loadComponent: () => import('./components/portal/portal-login/portal-login.component').then(m => m.PortalLoginComponent)
+  },
+  {
+    path: 'portal',
+    loadComponent: () => import('./components/portal/portal-layout/portal-layout.component').then(m => m.PortalLayoutComponent),
+    canActivate: [portalAuthGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./components/portal/portal-dashboard/portal-dashboard.component').then(m => m.PortalDashboardComponent)
+      },
+      {
+        path: 'tickets',
+        loadComponent: () => import('./components/portal/portal-ticket-list/portal-ticket-list.component').then(m => m.PortalTicketListComponent)
+      },
+      {
+        path: 'tickets/new',
+        loadComponent: () => import('./components/portal/portal-ticket-create/portal-ticket-create.component').then(m => m.PortalTicketCreateComponent)
+      }
+    ]
+  },
   {
     path: 'forgot-password',
     loadComponent: () => import('./components/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
@@ -161,6 +188,76 @@ export const routes: Routes = [
   {
     path: 'admin/password-management',
     loadComponent: () => import('./components/admin/password-management/password-management.component').then(m => m.PasswordManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/license',
+    loadComponent: () => import('./components/admin/license-management/license-management.component').then(m => m.LicenseManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/crm',
+    loadComponent: () => import('./components/crm/customer-management/customer-management.component').then(m => m.CustomerManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'crm/customers',
+    loadComponent: () => import('./components/crm/customer-management/customer-management.component').then(m => m.CustomerManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/products',
+    loadComponent: () => import('./components/crm/product-management/product-management.component').then(m => m.ProductManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/products/categories',
+    loadComponent: () => import('./components/crm/product-category/product-category.component').then(m => m.ProductCategoryComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/products/brands',
+    loadComponent: () => import('./components/crm/brand-management/brand-management.component').then(m => m.BrandManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/products/subtypes',
+    loadComponent: () => import('./components/crm/product-subtype-management/product-subtype-management.component').then(m => m.ProductSubTypeManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'crm/products',
+    loadComponent: () => import('./components/crm/product-management/product-management.component').then(m => m.ProductManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/contracts',
+    loadComponent: () => import('./components/crm/contract-management/contract-management.component').then(m => m.ContractManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'crm/contracts',
+    loadComponent: () => import('./components/crm/contract-management/contract-management.component').then(m => m.ContractManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/warranties',
+    loadComponent: () => import('./components/crm/warranty-management/warranty-management.component').then(m => m.WarrantyManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'crm/warranties',
+    loadComponent: () => import('./components/crm/warranty-management/warranty-management.component').then(m => m.WarrantyManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/projects',
+    loadComponent: () => import('./components/crm/project-management/project-management.component').then(m => m.ProjectManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'crm/projects',
+    loadComponent: () => import('./components/crm/project-management/project-management.component').then(m => m.ProjectManagementComponent),
     canActivate: [authGuard]
   },
   {

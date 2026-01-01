@@ -752,6 +752,1354 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.ToTable("RefreshTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.Customer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AccountManagerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("AnnualRevenue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("AuthenticationProviderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BillingAddressLine1")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("BillingAddressLine2")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("BillingCity")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("BillingCountry")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("BillingPostalCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("BillingState")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("CreditLimit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("CreditTerms")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("INR");
+
+                    b.Property<string>("CustomFields")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CustomerRating")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CustomerSince")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("EmployeeCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ExternalCustomerId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Industry")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LegalName")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("PanNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("PortalEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PreferredLanguage")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("PreferredTimeZone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PrimaryEmail")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("PrimaryPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid?>("SecondaryAccountManagerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("Segment")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("TaxId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountManagerId");
+
+                    b.HasIndex("AuthenticationProviderId");
+
+                    b.HasIndex("ExternalCustomerId");
+
+                    b.HasIndex("PrimaryEmail");
+
+                    b.HasIndex("SecondaryAccountManagerId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("Type");
+
+                    b.HasIndex("CompanyId", "Code")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("Customers", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.CustomerContact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AuthType")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("CanApproveEscalations")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanCreateTickets")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanDownloadReports")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanManageContacts")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanViewAllCustomerTickets")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanViewAllLocationTickets")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanViewAssets")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanViewContracts")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Department")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("ExternalUserId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("FailedLoginAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsBillingContact")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPortalUser")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPrimaryContact")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsTechnicalContact")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JobTitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("LastPasswordChangeAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("LocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LockedUntil")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Mobile")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("MustChangePassword")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("NotificationPreferences")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("PasswordExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PasswordHash")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("PortalRole")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PreferredLanguage")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("PreferredTimeZone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("ReceiveEmailNotifications")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ReceiveSmsNotifications")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("Email");
+
+                    b.HasIndex("IsPortalUser");
+
+                    b.HasIndex("IsPrimaryContact");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("CustomerId", "Email")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("CustomerContacts", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.CustomerLocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccessInstructions")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("AddressLine1")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("AddressLine2")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ContactEmail")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("ContactPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("EmergencyContactName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("EmergencyContactPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ExternalLocationId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Fax")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsBillingAddress")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsShippingAddress")
+                        .HasColumnType("bit");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("OperatingHours")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("PostalCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("State")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("TimeZone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("City");
+
+                    b.HasIndex("IsPrimary");
+
+                    b.HasIndex("Type");
+
+                    b.HasIndex("CustomerId", "Code")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("CustomerLocations", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.Partner", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AccountManagerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AddressLine1")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("AddressLine2")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid?>("AuthenticationProviderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("CanCreateCustomerTickets")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanManageCustomers")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanViewAllCustomerTickets")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal?>("CommissionPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("CreditLimit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("DiscountPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("ExternalPartnerId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("IndustrySegment")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LegalName")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("PanNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("PartnerSince")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentTerms")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PortalBranding")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PortalEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PostalCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("PrimaryEmail")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("PrimaryPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid?>("SecondaryAccountManagerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("State")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("TaxId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Tier")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountManagerId");
+
+                    b.HasIndex("AuthenticationProviderId");
+
+                    b.HasIndex("ExternalPartnerId");
+
+                    b.HasIndex("PrimaryEmail");
+
+                    b.HasIndex("SecondaryAccountManagerId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("CompanyId", "Code")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("Partners", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.PartnerContact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AuthType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Department")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("ExternalUserId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("FailedLoginAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPortalUser")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPrimaryContact")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JobTitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("LastPasswordChangeAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LockedUntil")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Mobile")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("MustChangePassword")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("PartnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("PasswordExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PasswordHash")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("PortalRole")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PreferredLanguage")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("PreferredTimeZone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("ReceiveEmailNotifications")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ReceiveSmsNotifications")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email");
+
+                    b.HasIndex("IsPortalUser");
+
+                    b.HasIndex("IsPrimaryContact");
+
+                    b.HasIndex("PartnerId");
+
+                    b.HasIndex("PartnerId", "Email")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("PartnerContacts", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.PartnerCustomer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("CanCreateTickets")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanManageContacts")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanViewAllTickets")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanViewAssets")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("CanViewContracts")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("CommissionPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("DiscountPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("EndReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPrimaryPartner")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("PartnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("RelationshipEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RelationshipStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("IsPrimaryPartner");
+
+                    b.HasIndex("PartnerId", "CustomerId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("PartnerCustomers", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.Project", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("ActualCost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("ActualEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ActualStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("Budget")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("INR");
+
+                    b.Property<string>("CustomFields")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("PlannedEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("PlannedStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProgressPercentage")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProjectCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid?>("ProjectManagerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("PlannedEndDate");
+
+                    b.HasIndex("PlannedStartDate");
+
+                    b.HasIndex("ProjectManagerId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("CompanyId", "ProjectCode")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("Projects", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.ProjectDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UploadedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("UploadedAt");
+
+                    b.HasIndex("UploadedById");
+
+                    b.ToTable("ProjectDocuments", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.ProjectMilestone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DueDate");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("ProjectId", "SortOrder");
+
+                    b.ToTable("ProjectMilestones", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.ProjectTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("ActualHours")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("AssigneeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("EstimatedHours")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("MilestoneId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssigneeId");
+
+                    b.HasIndex("DueDate");
+
+                    b.HasIndex("MilestoneId");
+
+                    b.HasIndex("Priority");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("ProjectTasks", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.ProjectTeamMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("AllocationPercentage")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("JoinedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LeftDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Role")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("ProjectId", "EmployeeId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("ProjectTeamMembers", (string)null);
+                });
+
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Communication.CannedResponse", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1618,6 +2966,9 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.Property<string>("AlternatePhone")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("AssetId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("AssignedToId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1647,6 +2998,9 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.Property<string>("ContactPhone")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("ContractId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1654,6 +3008,21 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("CurrentEscalationLevel")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CustomerContactId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CustomerFeedback")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CustomerLocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("CustomerSatisfactionRating")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("DeletedAt")
@@ -1685,6 +3054,12 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsUnderContract")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsUnderWarranty")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("LastResponseAt")
                         .HasColumnType("datetime2");
 
@@ -1695,6 +3070,12 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<Guid>("PriorityMasterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("RelatedComplaintId")
@@ -1712,6 +3093,9 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
 
                     b.Property<Guid?>("SectionId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("StatusMasterId")
                         .HasColumnType("uniqueidentifier");
@@ -1736,6 +3120,8 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssetId");
+
                     b.HasIndex("AssignedToId");
 
                     b.HasIndex("BranchId");
@@ -1747,13 +3133,25 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.HasIndex("ComplaintNumber")
                         .IsUnique();
 
+                    b.HasIndex("ContractId");
+
                     b.HasIndex("CurrentEscalationLevel");
+
+                    b.HasIndex("CustomerContactId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("CustomerLocationId");
 
                     b.HasIndex("DepartmentId");
 
                     b.HasIndex("DueDate");
 
                     b.HasIndex("PriorityMasterId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ProjectId");
 
                     b.HasIndex("RelatedComplaintId");
 
@@ -3015,6 +4413,196 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.ToTable("EventTypes", (string)null);
                 });
 
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Licensing.License", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ActivatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ActivatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("GracePeriodDays")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("IssuedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastValidatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LicenseData")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LicenseKey")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("MachineId")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("MaxAssets")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaxContracts")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaxCustomers")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaxProducts")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaxUsers")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Signature")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ValidationFailures")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("LicenseKey");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("CompanyId", "IsActive");
+
+                    b.ToTable("Licenses", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Licensing.LicenseModuleActivation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EnabledAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("LicenseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ModuleConfig")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModuleLimits")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("LicenseId");
+
+                    b.HasIndex("LicenseId", "IsEnabled");
+
+                    b.HasIndex("LicenseId", "Module")
+                        .IsUnique();
+
+                    b.ToTable("LicenseModuleActivations", (string)null);
+                });
+
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.MasterData.Branch", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3302,7 +4890,7 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             Id = new Guid("20000000-0000-0000-0000-000000000001"),
                             Code = "LOW",
                             ColorCode = "#4CAF50",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 657, DateTimeKind.Utc).AddTicks(8837),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 422, DateTimeKind.Utc).AddTicks(9657),
                             Description = "Low priority - No immediate action required",
                             DisplayOrder = 1,
                             IconClass = "bi-arrow-down-circle",
@@ -3311,14 +4899,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsSystem = true,
                             Level = 1,
                             Name = "Low",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 657, DateTimeKind.Utc).AddTicks(9122)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 422, DateTimeKind.Utc).AddTicks(9796)
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000002"),
                             Code = "NORMAL",
                             ColorCode = "#2196F3",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 657, DateTimeKind.Utc).AddTicks(9480),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 423, DateTimeKind.Utc).AddTicks(10),
                             Description = "Normal priority - Standard processing time",
                             DisplayOrder = 2,
                             IconClass = "bi-dash-circle",
@@ -3327,14 +4915,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsSystem = true,
                             Level = 3,
                             Name = "Normal",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 657, DateTimeKind.Utc).AddTicks(9481)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 423, DateTimeKind.Utc).AddTicks(10)
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000003"),
                             Code = "HIGH",
                             ColorCode = "#FF9800",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 657, DateTimeKind.Utc).AddTicks(9486),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 423, DateTimeKind.Utc).AddTicks(12),
                             Description = "High priority - Requires expedited attention",
                             DisplayOrder = 3,
                             IconClass = "bi-exclamation-circle",
@@ -3343,14 +4931,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsSystem = true,
                             Level = 5,
                             Name = "High",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 657, DateTimeKind.Utc).AddTicks(9486)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 423, DateTimeKind.Utc).AddTicks(13)
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000004"),
                             Code = "CRITICAL",
                             ColorCode = "#F44336",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 657, DateTimeKind.Utc).AddTicks(9491),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 423, DateTimeKind.Utc).AddTicks(15),
                             Description = "Critical priority - Requires immediate attention",
                             DisplayOrder = 4,
                             IconClass = "bi-exclamation-triangle",
@@ -3359,14 +4947,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsSystem = true,
                             Level = 8,
                             Name = "Critical",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 657, DateTimeKind.Utc).AddTicks(9491)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 423, DateTimeKind.Utc).AddTicks(15)
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000005"),
                             Code = "URGENT",
                             ColorCode = "#9C27B0",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 657, DateTimeKind.Utc).AddTicks(9495),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 423, DateTimeKind.Utc).AddTicks(17),
                             Description = "Urgent priority - Highest priority level",
                             DisplayOrder = 5,
                             IconClass = "bi-lightning",
@@ -3375,7 +4963,7 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsSystem = true,
                             Level = 10,
                             Name = "Urgent",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 657, DateTimeKind.Utc).AddTicks(9496)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 423, DateTimeKind.Utc).AddTicks(18)
                         });
                 });
 
@@ -3463,7 +5051,7 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             Id = new Guid("10000000-0000-0000-0000-000000000001"),
                             Code = "SUBMITTED",
                             ColorCode = "#9E9E9E",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(681),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(388),
                             Description = "Complaint has been submitted but not yet reviewed",
                             DisplayOrder = 1,
                             IconClass = "bi-inbox",
@@ -3472,14 +5060,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Submitted",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(687)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(391)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000002"),
                             Code = "UNDER_REVIEW",
                             ColorCode = "#2196F3",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(715),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(400),
                             Description = "Complaint is being reviewed by the assigned handler",
                             DisplayOrder = 2,
                             IconClass = "bi-eye",
@@ -3488,14 +5076,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Under Review",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(716)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(401)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000003"),
                             Code = "IN_PROGRESS",
                             ColorCode = "#FF9800",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(719),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(403),
                             Description = "Complaint is currently being investigated",
                             DisplayOrder = 3,
                             IconClass = "bi-gear",
@@ -3504,14 +5092,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "In Progress",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(719)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(403)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000004"),
                             Code = "ESCALATED",
                             ColorCode = "#FF5722",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(722),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(406),
                             Description = "Complaint has been escalated to a higher level",
                             DisplayOrder = 4,
                             IconClass = "bi-arrow-up-circle",
@@ -3520,14 +5108,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Escalated",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(722)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(406)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000005"),
                             Code = "PENDING_INFO",
                             ColorCode = "#FFC107",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(725),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(408),
                             Description = "Complaint is awaiting information from the complainant",
                             DisplayOrder = 5,
                             IconClass = "bi-question-circle",
@@ -3536,14 +5124,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Pending Info",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(725)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(409)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000006"),
                             Code = "RESOLVED",
                             ColorCode = "#4CAF50",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(729),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(411),
                             Description = "Complaint has been resolved",
                             DisplayOrder = 6,
                             IconClass = "bi-check-circle",
@@ -3552,14 +5140,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Resolved",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(729)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(411)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000007"),
                             Code = "CLOSED",
                             ColorCode = "#607D8B",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(732),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(416),
                             Description = "Complaint has been closed (final state)",
                             DisplayOrder = 7,
                             IconClass = "bi-lock",
@@ -3568,14 +5156,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = true,
                             IsSystem = true,
                             Name = "Closed",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(732)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(416)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000008"),
                             Code = "REJECTED",
                             ColorCode = "#F44336",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(735),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(418),
                             Description = "Complaint has been rejected/dismissed",
                             DisplayOrder = 8,
                             IconClass = "bi-x-circle",
@@ -3584,14 +5172,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = true,
                             IsSystem = true,
                             Name = "Rejected",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(735)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(419)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000009"),
                             Code = "REOPENED",
                             ColorCode = "#E91E63",
-                            CreatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(738),
+                            CreatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(421),
                             Description = "Complaint has been reopened after closure",
                             DisplayOrder = 9,
                             IconClass = "bi-arrow-repeat",
@@ -3600,7 +5188,7 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Reopened",
-                            UpdatedAt = new DateTime(2025, 12, 28, 19, 44, 11, 662, DateTimeKind.Utc).AddTicks(738)
+                            UpdatedAt = new DateTime(2026, 1, 1, 4, 55, 4, 425, DateTimeKind.Utc).AddTicks(421)
                         });
                 });
 
@@ -4195,6 +5783,884 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.Brand", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("WebsiteUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Name");
+
+                    b.HasIndex("CompanyId", "Code")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("Brands", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccessoryProductIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("AllowBackorder")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AutoRenew")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("BillingFrequency")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Brand")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("BrandId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CancellationPolicy")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("CostPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("CountryOfOrigin")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CrossSellProductIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("INR");
+
+                    b.Property<string>("CustomFields")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomUnitName")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid?>("DefaultSLASettingsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DefaultWarehouse")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("DefaultWarrantyMonths")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Dimensions")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Documents")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EAN")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("EndOfLifeDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndOfSaleDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndOfSupportDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ExtendedWarrantyMonths")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ExternalProductId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Features")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HSNCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ISBN")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Images")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsConfigurable")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsServiceable")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSubscription")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsTaxable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Keywords")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("LaunchDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LeadTimeDays")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("MSRP")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Manufacturer")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal?>("MaxOrderQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("MetaDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("MetaTitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal?>("MinOrderQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("MinimumPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid?>("ParentProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PartNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PriceBook")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProductCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("QuantityInStock")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("QuantityIncrement")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int?>("QuantityPerPack")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("QuantityReserved")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RelatedProductIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ReorderLevel")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ReorderQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("ReplacementProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("RequireSerialNumber")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RequiresInstallation")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SACCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("SKU")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal?>("SetupFee")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("ShortDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Slug")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Specifications")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("SubTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SupportUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal?>("TaxRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("TaxType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ThumbnailUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("TrackInventory")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("TrialPeriodDays")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UPC")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("UnitOfMeasure")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("UnitPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("UpSellProductIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("VendorName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("VendorProductId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Version")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Videos")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WarrantyTerms")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<decimal?>("Weight")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Brand");
+
+                    b.HasIndex("BrandId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("DefaultSLASettingsId");
+
+                    b.HasIndex("ExternalProductId");
+
+                    b.HasIndex("HSNCode");
+
+                    b.HasIndex("IsFeatured");
+
+                    b.HasIndex("IsPublic");
+
+                    b.HasIndex("Manufacturer");
+
+                    b.HasIndex("ParentProductId");
+
+                    b.HasIndex("PartNumber");
+
+                    b.HasIndex("ReplacementProductId");
+
+                    b.HasIndex("SKU");
+
+                    b.HasIndex("Slug");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("SubTypeId");
+
+                    b.HasIndex("Type");
+
+                    b.HasIndex("CompanyId", "ProductCode")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("Products", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.ProductCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("AllowProducts")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AllowSubCategories")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CustomAttributes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DefaultHSNCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int?>("DefaultResolutionTimeHours")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DefaultResponseTimeHours")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DefaultSACCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid?>("DefaultSLASettingsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("DefaultTaxRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int?>("DefaultWarrantyMonths")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ExternalCategoryId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FullPath")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Keywords")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MetaDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("MetaTitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid?>("ParentCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Path")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("RequireSerialNumber")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Slug")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ThumbnailUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("TrackInventory")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefaultSLASettingsId");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Level");
+
+                    b.HasIndex("ParentCategoryId");
+
+                    b.HasIndex("Path");
+
+                    b.HasIndex("Slug");
+
+                    b.HasIndex("CompanyId", "Code")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("ProductCategories", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.ProductPriceList", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApprovalStatus")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Conditions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ContractId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("INR");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CustomerSegment")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal?>("DiscountAmount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("DiscountPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("MarkupPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal?>("MaxQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("MinOrderValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("MinQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid?>("PartnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PartnerTier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PromoCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TierPricing")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ValidFrom")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ValidTo")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("PartnerId");
+
+                    b.HasIndex("Priority");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("PromoCode");
+
+                    b.HasIndex("Type");
+
+                    b.HasIndex("ValidFrom");
+
+                    b.HasIndex("ValidTo");
+
+                    b.HasIndex("ProductId", "Type", "PartnerId", "CustomerId", "MinQuantity")
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("ProductPriceLists", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.ProductSubType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Name");
+
+                    b.HasIndex("CompanyId", "CategoryId", "Code")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("ProductSubTypes", (string)null);
+                });
+
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Roles.ComplaintRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4703,6 +7169,1393 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.HasIndex("IsEnabled");
 
                     b.ToTable("SLASettings", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.Asset", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("AccumulatedDepreciation")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("AssetTag")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid?>("AssignedUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("AverageDailyUsage")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Barcode")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Building")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("CommissionedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Condition")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Configuration")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ContractId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CostCenter")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("INR");
+
+                    b.Property<decimal?>("CurrentMeterReading")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("CurrentValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("CustomFields")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DepreciationMethod")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("DepreciationRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("DisposedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Documents")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("EndOfLifeDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExtendedWarrantyEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExternalAssetId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FirmwareVersion")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Floor")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Hostname")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("IPAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Images")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("InstallationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsOperational")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastMeterReadingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastServiceDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double?>("Latitude")
+                        .HasPrecision(10, 7)
+                        .HasColumnType("float(10)");
+
+                    b.Property<string>("LeaseAgreementNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("LeaseEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("LeasePayment")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("LeaseStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("LocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double?>("Longitude")
+                        .HasPrecision(10, 7)
+                        .HasColumnType("float(10)");
+
+                    b.Property<string>("MACAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal?>("MTBF")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal?>("MTTR")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("MaintenanceFrequency")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaintenanceIntervalDays")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ManufactureDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Manufacturer")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("MeterUnit")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime?>("NextServiceDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("OperatingSystem")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("OwnershipType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PONumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("ParentAssetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ProductCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ProductName")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime?>("PurchaseDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("PurchasePrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("RFIDTag")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Rack")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("RackUnit")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("ReceivedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("ReplacementCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("RetiredDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Room")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SKU")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal?>("SalvageValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("SerialNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("ServiceCallCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SoftwareVersion")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Specifications")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal?>("TotalDowntimeHours")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("UsefulLifeMonths")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Vendor")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Version")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("WarrantyEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("WarrantyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("WarrantyStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetTag")
+                        .IsUnique();
+
+                    b.HasIndex("Barcode");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("Condition");
+
+                    b.HasIndex("ContractId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("NextServiceDate");
+
+                    b.HasIndex("ParentAssetId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("RFIDTag");
+
+                    b.HasIndex("SerialNumber");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("Type");
+
+                    b.HasIndex("WarrantyEndDate");
+
+                    b.HasIndex("WarrantyId");
+
+                    b.HasIndex("CompanyId", "CustomerId");
+
+                    b.HasIndex("CompanyId", "Status");
+
+                    b.HasIndex("CustomerId", "Status");
+
+                    b.ToTable("Assets", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.AssetServiceHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Attachments")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ComplaintId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("ConditionAfter")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ConditionBefore")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConfigurationChanges")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ContractId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("INR");
+
+                    b.Property<string>("CustomFields")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerFeedback")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int?>("CustomerRating")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("CustomerSignedOff")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal?>("DowntimeHours")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal?>("DurationHours")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("ExternalReferenceNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FirmwareVersionAfter")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FirmwareVersionBefore")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FollowUpActions")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("InternalNotes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsBillable")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsContractCovered")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsWarrantyCovered")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("LaborCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int>("LocationType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("MeterReadingAfter")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("MeterReadingBefore")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("NextServiceDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("OtherCosts")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("PartsCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("PartsReplaced")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PartsUsed")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProblemDescription")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Recommendations")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("ReplacedPartSerials")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Resolution")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("Result")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RootCause")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("ScheduledDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ServiceAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ServiceEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ServiceLocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ServiceNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("ServiceStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ServiceType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("SignedOffAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SignedOffBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("SoftwareVersionAfter")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SoftwareVersionBefore")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("StatusAfter")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("StatusBefore")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid?>("TechnicianId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("TotalCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("TravelCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("TravelTimeHours")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("WorkPerformed")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("ComplaintId");
+
+                    b.HasIndex("ContractId");
+
+                    b.HasIndex("Result");
+
+                    b.HasIndex("ServiceEndDate");
+
+                    b.HasIndex("ServiceNumber")
+                        .IsUnique();
+
+                    b.HasIndex("ServiceStartDate");
+
+                    b.HasIndex("ServiceType");
+
+                    b.HasIndex("TechnicianId");
+
+                    b.HasIndex("AssetId", "ServiceStartDate");
+
+                    b.HasIndex("CompanyId", "ServiceStartDate");
+
+                    b.ToTable("AssetServiceHistory", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.Contract", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AccountManagerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ActivatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AdditionalDocuments")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("AmountPaid")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("AnnualValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<bool>("AutoRenew")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("BillingFrequency")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("CompletedPMVisits")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContractNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal?>("ContractValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int>("CoverageType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("INR");
+
+                    b.Property<string>("CustomFields")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("DocumentUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExcludedItems")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExternalContractId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("IncludedHours")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("IncludedIncidents")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IncludedItems")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("IncludedPMVisits")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IncludesConsumables")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IncludesLabor")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IncludesOnsite")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IncludesParts")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IncludesRemote")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IncludesTravel")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastRenewalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastServiceDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("MaxRenewals")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("MonthlyValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime?>("NextRenewalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<decimal?>("OutstandingBalance")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("PONumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("PartnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PaymentTerms")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("RenewalCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RenewalNoticeDays")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RenewalPeriodMonths")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ResolutionTimeHours")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ResponseTimeHours")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("SLASettingsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("SignedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SpecialConditions")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SupportHoursDefinition")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("SupportHoursType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal?>("TaxRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<Guid?>("TechnicalManagerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("TerminatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("TerminatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TerminationReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Terms")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("UptimeGuarantee")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int?>("UsedHours")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UsedIncidents")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("ContractNumber")
+                        .IsUnique();
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("EndDate");
+
+                    b.HasIndex("PartnerId");
+
+                    b.HasIndex("SLASettingsId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("Type");
+
+                    b.HasIndex("CompanyId", "Status");
+
+                    b.HasIndex("CustomerId", "Status");
+
+                    b.ToTable("Contracts", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.ContractItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("AddedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("AssetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ContractId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CoverageEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CoverageStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("INR");
+
+                    b.Property<string>("CustomFields")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("DiscountPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ItemDescription")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal?>("ItemValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("LastMaintenanceDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("LocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("MaintenanceIntervalDays")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("NextMaintenanceDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int?>("PriorityLevel")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("RemovedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ResolutionTimeHours")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ResponseTimeHours")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SerialNumbers")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ServiceCallCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SiteInfo")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("SpecialConditions")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UnitOfMeasure")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetId");
+
+                    b.HasIndex("ContractId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("ContractId", "Status");
+
+                    b.ToTable("ContractItems", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.ContractRenewalHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Action")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ChangesSummary")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ContractId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("INR");
+
+                    b.Property<Guid?>("CustomerContactId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CustomerResponse")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("CustomerResponseDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("NewCoverageType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("NewEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("NewStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("NewType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("NewValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("NoticeSentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PONumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("PreviousCoverageType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PreviousEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("PreviousType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("PreviousValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("PriceChangePercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<Guid?>("ProcessedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("RenewalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("RenewalDiscount")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("RenewalNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RenewalPeriodMonths")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("ContractId");
+
+                    b.HasIndex("RenewalDate");
+
+                    b.HasIndex("ContractId", "RenewalNumber");
+
+                    b.ToTable("ContractRenewalHistory", (string)null);
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.Warranty", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Conditions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CoverageType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CoveredItems")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("INR");
+
+                    b.Property<string>("CustomFields")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("DeductibleAmount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DurationMonths")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ExcludedItems")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ExtendedDurationMonths")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("ExtendedWarrantyPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("ExtendedWarrantyPricePercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("ExternalWarrantyId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("GracePeriodDays")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IncludesLabor")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IncludesOnsite")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IncludesParts")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IncludesShipping")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsTransferable")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("MaxClaimValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("MaxClaimValuePercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int?>("MaxClaims")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaxDurationMonths")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid?>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("RegistrationDeadlineDays")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("RequiresProofOfPurchase")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RequiresRegistration")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ResolutionTimeHours")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ResponseTimeHours")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SupportHoursType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Terms")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("IsDefault");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("Type");
+
+                    b.HasIndex("CompanyId", "Code")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("Warranties", (string)null);
                 });
 
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Settings.ComplaintInformationSettings", b =>
@@ -5841,6 +9694,221 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.Customer", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.User", "AccountManager")
+                        .WithMany()
+                        .HasForeignKey("AccountManagerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Auth.AuthenticationProvider", "AuthenticationProvider")
+                        .WithMany()
+                        .HasForeignKey("AuthenticationProviderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.User", "SecondaryAccountManager")
+                        .WithMany()
+                        .HasForeignKey("SecondaryAccountManagerId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("AccountManager");
+
+                    b.Navigation("AuthenticationProvider");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("SecondaryAccountManager");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.CustomerContact", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Customer", "Customer")
+                        .WithMany("Contacts")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.CustomerLocation", "Location")
+                        .WithMany("Contacts")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.CustomerLocation", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Customer", "Customer")
+                        .WithMany("Locations")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.Partner", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.User", "AccountManager")
+                        .WithMany()
+                        .HasForeignKey("AccountManagerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Auth.AuthenticationProvider", "AuthenticationProvider")
+                        .WithMany()
+                        .HasForeignKey("AuthenticationProviderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.User", "SecondaryAccountManager")
+                        .WithMany()
+                        .HasForeignKey("SecondaryAccountManagerId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("AccountManager");
+
+                    b.Navigation("AuthenticationProvider");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("SecondaryAccountManager");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.PartnerContact", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Partner", "Partner")
+                        .WithMany("Contacts")
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Partner");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.PartnerCustomer", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Customer", "Customer")
+                        .WithMany("PartnerCustomers")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Partner", "Partner")
+                        .WithMany("PartnerCustomers")
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Partner");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.Project", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Customer", "Customer")
+                        .WithMany("Projects")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Employee", "ProjectManager")
+                        .WithMany()
+                        .HasForeignKey("ProjectManagerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("ProjectManager");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.ProjectDocument", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Project", "Project")
+                        .WithMany("Documents")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.ProjectMilestone", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Project", "Project")
+                        .WithMany("Milestones")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.ProjectTask", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Employee", "Assignee")
+                        .WithMany()
+                        .HasForeignKey("AssigneeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.ProjectMilestone", "Milestone")
+                        .WithMany("Tasks")
+                        .HasForeignKey("MilestoneId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Project", "Project")
+                        .WithMany("Tasks")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Assignee");
+
+                    b.Navigation("Milestone");
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.ProjectTeamMember", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Project", "Project")
+                        .WithMany("TeamMembers")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Communication.CannedResponse", b =>
                 {
                     b.HasOne("ComplaintManagement.Domain.Entities.Complaints.ComplaintCategory", "Category")
@@ -6002,6 +10070,10 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Complaints.Complaint", b =>
                 {
+                    b.HasOne("ComplaintManagement.Domain.Entities.Service.Asset", "Asset")
+                        .WithMany()
+                        .HasForeignKey("AssetId");
+
                     b.HasOne("ComplaintManagement.Domain.Entities.MasterData.User", "AssignedTo")
                         .WithMany("AssignedComplaints")
                         .HasForeignKey("AssignedToId")
@@ -6030,6 +10102,22 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ComplaintManagement.Domain.Entities.Service.Contract", "Contract")
+                        .WithMany()
+                        .HasForeignKey("ContractId");
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.CustomerContact", "CustomerContact")
+                        .WithMany()
+                        .HasForeignKey("CustomerContactId");
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.CustomerLocation", "CustomerLocation")
+                        .WithMany()
+                        .HasForeignKey("CustomerLocationId");
+
                     b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Department", "Department")
                         .WithMany()
                         .HasForeignKey("DepartmentId")
@@ -6040,6 +10128,15 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                         .HasForeignKey("PriorityMasterId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Project", "Project")
+                        .WithMany("Complaints")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("ComplaintManagement.Domain.Entities.Complaints.Complaint", "RelatedComplaint")
                         .WithMany()
@@ -6060,6 +10157,8 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("Asset");
+
                     b.Navigation("AssignedTo");
 
                     b.Navigation("Branch");
@@ -6070,9 +10169,21 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
 
                     b.Navigation("Complainant");
 
+                    b.Navigation("Contract");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("CustomerContact");
+
+                    b.Navigation("CustomerLocation");
+
                     b.Navigation("Department");
 
                     b.Navigation("PriorityMaster");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Project");
 
                     b.Navigation("RelatedComplaint");
 
@@ -6428,6 +10539,28 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Licensing.License", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Licensing.LicenseModuleActivation", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.Licensing.License", "License")
+                        .WithMany("ModuleActivations")
+                        .HasForeignKey("LicenseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("License");
+                });
+
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.MasterData.Branch", b =>
                 {
                     b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
@@ -6654,6 +10787,139 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.Navigation("Section");
                 });
 
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.Brand", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.Product", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.Brand", "BrandEntity")
+                        .WithMany("Products")
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.ProductCategory", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.SLA.SLASettings", "DefaultSLASettings")
+                        .WithMany()
+                        .HasForeignKey("DefaultSLASettingsId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.Product", "ParentProduct")
+                        .WithMany("Variants")
+                        .HasForeignKey("ParentProductId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.Product", "ReplacementProduct")
+                        .WithMany()
+                        .HasForeignKey("ReplacementProductId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.ProductSubType", "SubType")
+                        .WithMany("Products")
+                        .HasForeignKey("SubTypeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("BrandEntity");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("DefaultSLASettings");
+
+                    b.Navigation("ParentProduct");
+
+                    b.Navigation("ReplacementProduct");
+
+                    b.Navigation("SubType");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.ProductCategory", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.SLA.SLASettings", "DefaultSLASettings")
+                        .WithMany()
+                        .HasForeignKey("DefaultSLASettingsId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.ProductCategory", "ParentCategory")
+                        .WithMany("SubCategories")
+                        .HasForeignKey("ParentCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Company");
+
+                    b.Navigation("DefaultSLASettings");
+
+                    b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.ProductPriceList", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Partner", "Partner")
+                        .WithMany()
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.Product", "Product")
+                        .WithMany("PriceLists")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Partner");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.ProductSubType", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.ProductCategory", "Category")
+                        .WithMany("SubTypes")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Roles.ComplaintRolePermission", b =>
                 {
                     b.HasOne("ComplaintManagement.Domain.Entities.Roles.ComplaintRole", "ComplaintRole")
@@ -6748,6 +11014,180 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.Navigation("Priority");
 
                     b.Navigation("SLALevel");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.Asset", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Service.Contract", "Contract")
+                        .WithMany()
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Customer", "Customer")
+                        .WithMany("Assets")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.CustomerLocation", "Location")
+                        .WithMany("Assets")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Service.Asset", "ParentAsset")
+                        .WithMany("ChildAssets")
+                        .HasForeignKey("ParentAssetId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.Product", "Product")
+                        .WithMany("Assets")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Service.Warranty", "Warranty")
+                        .WithMany()
+                        .HasForeignKey("WarrantyId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Contract");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Location");
+
+                    b.Navigation("ParentAsset");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Warranty");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.AssetServiceHistory", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.Service.Asset", "Asset")
+                        .WithMany("ServiceHistory")
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Service.Contract", "Contract")
+                        .WithMany()
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Asset");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Contract");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.Contract", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Customer", "Customer")
+                        .WithMany("Contracts")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Partner", "Partner")
+                        .WithMany()
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.SLA.SLASettings", "SLASettings")
+                        .WithMany()
+                        .HasForeignKey("SLASettingsId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Partner");
+
+                    b.Navigation("SLASettings");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.ContractItem", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.Service.Asset", "Asset")
+                        .WithMany("ContractItems")
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Service.Contract", "Contract")
+                        .WithMany("Items")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Asset");
+
+                    b.Navigation("Contract");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.ContractRenewalHistory", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.Service.Contract", "Contract")
+                        .WithMany("RenewalHistory")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Contract");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.Warranty", b =>
+                {
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.ProductCategory", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ComplaintManagement.Domain.Entities.Product.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Settings.ComplaintInformationSettings", b =>
@@ -6893,6 +11333,53 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.Navigation("ExternalUserMappings");
                 });
 
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.Customer", b =>
+                {
+                    b.Navigation("Assets");
+
+                    b.Navigation("Contacts");
+
+                    b.Navigation("Contracts");
+
+                    b.Navigation("Locations");
+
+                    b.Navigation("PartnerCustomers");
+
+                    b.Navigation("Projects");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.CustomerLocation", b =>
+                {
+                    b.Navigation("Assets");
+
+                    b.Navigation("Contacts");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.Partner", b =>
+                {
+                    b.Navigation("Contacts");
+
+                    b.Navigation("PartnerCustomers");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.Project", b =>
+                {
+                    b.Navigation("Complaints");
+
+                    b.Navigation("Documents");
+
+                    b.Navigation("Milestones");
+
+                    b.Navigation("Tasks");
+
+                    b.Navigation("TeamMembers");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.CRM.ProjectMilestone", b =>
+                {
+                    b.Navigation("Tasks");
+                });
+
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Communication.EmailMessage", b =>
                 {
                     b.Navigation("Attachments");
@@ -6948,6 +11435,11 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Events.EventType", b =>
                 {
                     b.Navigation("CommunicationRules");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Licensing.License", b =>
+                {
+                    b.Navigation("ModuleActivations");
                 });
 
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.MasterData.Branch", b =>
@@ -7010,6 +11502,34 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.Navigation("UserComplaintRoles");
                 });
 
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.Brand", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.Product", b =>
+                {
+                    b.Navigation("Assets");
+
+                    b.Navigation("PriceLists");
+
+                    b.Navigation("Variants");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.ProductCategory", b =>
+                {
+                    b.Navigation("Products");
+
+                    b.Navigation("SubCategories");
+
+                    b.Navigation("SubTypes");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Product.ProductSubType", b =>
+                {
+                    b.Navigation("Products");
+                });
+
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Roles.ComplaintRole", b =>
                 {
                     b.Navigation("RolePermissions");
@@ -7022,6 +11542,22 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.Navigation("CategorySLAs");
 
                     b.Navigation("PrioritySLAs");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.Asset", b =>
+                {
+                    b.Navigation("ChildAssets");
+
+                    b.Navigation("ContractItems");
+
+                    b.Navigation("ServiceHistory");
+                });
+
+            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.Contract", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("RenewalHistory");
                 });
 
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Workflows.CategoryWorkflow", b =>

@@ -448,6 +448,138 @@
       margin-top: 4px;
     }
   }
+
+  // Projects Section
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    h3 {
+      margin: 0;
+    }
+
+    .btn-sm {
+      padding: 4px 12px;
+      font-size: 0.75rem;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #0057FF;
+      color: #0057FF;
+      border-radius: 6px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+
+      &:hover {
+        background: #0057FF;
+        color: white;
+      }
+    }
+  }
+
+  .loading-spinner-small {
+    color: #64748b;
+    font-size: 0.85rem;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .empty-state-small {
+    text-align: center;
+    padding: 24px;
+    color: #94a3b8;
+
+    i {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 0.85rem;
+      margin: 0;
+    }
+  }
+
+  .projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .project-card {
+    display: block;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+
+    &:hover {
+      background: #f1f5f9;
+      border-color: #0057FF;
+    }
+
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .project-code {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #0057FF;
+    }
+
+    .project-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+
+    .project-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 0.75rem;
+      color: #64748b;
+
+      span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+    }
+  }
+
+  .view-all-link {
+    display: block;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.85rem;
+    color: #0057FF;
+    text-decoration: none;
+    margin-top: 8px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  // Project status badges
+  .status-draft { background: #94a3b8; color: white; }
+  .status-planning { background: #3b82f6; color: white; }
+  .status-active { background: #10b981; color: white; }
+  .status-on-hold { background: #f59e0b; color: white; }
+  .status-completed { background: #6366f1; color: white; }
+  .status-cancelled { background: #ef4444; color: white; }
 }
 
 // Modal

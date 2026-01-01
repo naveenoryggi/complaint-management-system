@@ -124,6 +124,12 @@ public static class DependencyInjection
         // Register Product Service for CRM_Product module
         services.AddScoped<IProductService, ProductService>();
 
+        // Register Brand Service for product brands
+        services.AddScoped<IBrandService, BrandService>();
+
+        // Register Product Sub-Type Service for sub-type management
+        services.AddScoped<IProductSubTypeService, ProductSubTypeService>();
+
         // Register Contract Service for ServiceContract module
         services.AddScoped<IContractService, ContractService>();
 
@@ -135,6 +141,9 @@ public static class DependencyInjection
 
         // Register Customer Service for CRM_Customer module
         services.AddScoped<ICustomerService, CustomerService>();
+
+        // Register Project Service for CRM_Project module
+        services.AddScoped<IProjectService, ProjectService>();
 
         // Register OAuth Service for Office 365 Email Authentication
         services.AddSingleton<EmailOAuthService>();

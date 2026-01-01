@@ -1,0 +1,76 @@
+<div class="module-switcher" [class.active]="showDropdown">
+  <!-- Current Module Trigger -->
+  <button
+    class="module-trigger"
+    (click)="toggleDropdown(); $event.stopPropagation()"
+    [attr.aria-expanded]="showDropdown">
+    <div class="current-module" *ngIf="currentModule && !isLoading">
+      <div class="module-icon" [style.background-color]="getModuleColor(currentModule) + '15'" [style.color]="getModuleColor(currentModule)">
+        <i class="fa-solid" [ngClass]="getModuleIcon(currentModule)"></i>
+      </div>
+      <span class="module-name">{{ currentModule.moduleName }}</span>
+    </div>
+    <div class="current-module loading" *ngIf="isLoading">
+      <div class="module-icon skeleton"></div>
+      <span class="module-name skeleton-text"></span>
+    </div>
+    <i class="fa-solid fa-chevron-down dropdown-arrow" [class.rotated]="showDropdown"></i>
+  </button>
+
+  <!-- Dropdown Menu -->
+  <div class="module-dropdown" *ngIf="showDropdown" (click)="$event.stopPropagation()">
+    <div class="dropdown-header">
+      <span class="header-title">Switch Module</span>
+      <span class="header-subtitle">{{ enabledModules.length }} modules available</span>
+    </div>
+
+    <div class="modules-list">
+      <!-- Core Module (Always First) -->
+      <ng-container *ngFor="let module of enabledModules">
+        <div
+          class="module-item"
+          [class.active]="isModuleActive(module)"
+          [class.disabled]="!module.isEnabled"
+          (click)="selectModule(module)">
+          <div class="module-icon-wrapper" [style.background-color]="getModuleColor(module) + '15'" [style.color]="getModuleColor(module)">
+            <i class="fa-solid" [ngClass]="getModuleIcon(module)"></i>
+          </div>
+          <div class="module-info">
+            <span class="module-item-name">{{ module.moduleName }}</span>
+            <span class="module-description" *ngIf="module.description">{{ module.description }}</span>
+          </div>
+          <i class="fa-solid fa-check check-icon" *ngIf="isModuleActive(module)"></i>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Disabled Modules Section -->
+    <div class="disabled-modules" *ngIf="(modules.length - enabledModules.length) > 0">
+      <div class="disabled-header">
+        <span>Upgrade to unlock</span>
+        <span class="count">{{ modules.length - enabledModules.length }} more</span>
+      </div>
+      <div class="disabled-modules-list">
+        <ng-container *ngFor="let module of modules">
+          <div
+            class="module-item disabled"
+            *ngIf="!module.isEnabled"
+            title="This module requires a license upgrade">
+            <div class="module-icon-wrapper locked" [style.background-color]="getModuleColor(module) + '10'" [style.color]="getModuleColor(module) + '80'">
+              <i class="fa-solid" [ngClass]="getModuleIcon(module)"></i>
+              <i class="fa-solid fa-lock lock-badge"></i>
+            </div>
+            <div class="module-info">
+              <span class="module-item-name">{{ module.moduleName }}</span>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+      <a class="upgrade-link" routerLink="/admin/license">
+        <i class="fa-solid fa-crown"></i>
+        <span>Upgrade License</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,487 @@
+<div class="contract-management">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="fa-solid fa-file-contract"></i> Contracts & Warranty</h1>
+      <p class="subtitle">Manage service contracts, AMC, and warranties</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="openAddModal()">
+        <i class="fa-solid fa-plus"></i> New Contract
+      </button>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    <i class="fa-solid fa-check-circle"></i>
+    {{ successMessage }}
+    <button class="alert-close" (click)="dismissSuccess()"><i class="fa-solid fa-times"></i></button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <i class="fa-solid fa-exclamation-circle"></i>
+    {{ errorMessage }}
+    <button class="alert-close" (click)="dismissError()"><i class="fa-solid fa-times"></i></button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fa-solid fa-search"></i>
+      <input type="text" [(ngModel)]="searchTerm" placeholder="Search contracts..." (keyup.enter)="onSearch()">
+    </div>
+
+    <div class="filter-group">
+      <select [(ngModel)]="filterType" (change)="onFilterChange()">
+        <option value="">All Types</option>
+        <option *ngFor="let t of contractTypes" [value]="t.key">{{ t.value }}</option>
+      </select>
+
+      <select [(ngModel)]="filterStatus" (change)="onFilterChange()">
+        <option value="">All Statuses</option>
+        <option *ngFor="let s of contractStatuses" [value]="s.key">{{ s.value }}</option>
+      </select>
+
+      <select [(ngModel)]="filterCoverage" (change)="onFilterChange()">
+        <option value="">All Coverage</option>
+        <option *ngFor="let c of coverageTypes" [value]="c.key">{{ c.value }}</option>
+      </select>
+
+      <label class="checkbox-filter">
+        <input type="checkbox" [(ngModel)]="filterExpiring" (change)="onFilterChange()">
+        <span>Expiring in 30 days</span>
+      </label>
+    </div>
+
+    <button class="btn btn-secondary btn-sm" (click)="clearFilters()" *ngIf="searchTerm || filterType !== '' || filterStatus !== '' || filterCoverage !== '' || filterExpiring">
+      <i class="fa-solid fa-times"></i> Clear
+    </button>
+  </div>
+
+  <div class="content-wrapper">
+    <!-- Contracts Table -->
+    <div class="table-container">
+      <div class="loading-overlay" *ngIf="loading">
+        <div class="spinner"></div>
+        <span>Loading contracts...</span>
+      </div>
+
+      <table class="data-table" *ngIf="contracts.length > 0">
+        <thead>
+          <tr>
+            <th>Contract #</th>
+            <th>Name</th>
+            <th>Customer</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>End Date</th>
+            <th>Value</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let contract of contracts"
+              [class.selected]="selectedContract?.id === contract.id"
+              [class.expiring-soon]="contract.isExpiringSoon"
+              (click)="selectContract(contract)">
+            <td class="contract-number">{{ contract.contractNumber }}</td>
+            <td class="contract-name">{{ contract.name }}</td>
+            <td>{{ contract.customerName }}</td>
+            <td>
+              <span class="badge type-badge" [ngClass]="getTypeClass(contract.type)">
+                {{ ContractTypeLabels[contract.type] }}
+              </span>
+            </td>
+            <td>
+              <span class="badge status-badge" [ngClass]="getStatusClass(contract.status)">
+                {{ ContractStatusLabels[contract.status] }}
+              </span>
+            </td>
+            <td>
+              <span [class.text-danger]="contract.daysRemaining <= 30 && contract.daysRemaining > 0">
+                {{ formatDate(contract.endDate) }}
+              </span>
+              <small class="days-remaining" *ngIf="contract.daysRemaining > 0 && contract.daysRemaining <= 30">
+                ({{ contract.daysRemaining }} days)
+              </small>
+            </td>
+            <td class="contract-value">{{ formatCurrency(contract.contractValue, contract.currency) }}</td>
+            <td class="actions" (click)="$event.stopPropagation()">
+              <button class="btn-icon" title="Edit" (click)="openEditModal(contract)">
+                <i class="fa-solid fa-edit"></i>
+              </button>
+              <button class="btn-icon btn-danger" title="Delete" (click)="deleteContract(contract)" *ngIf="contract.status === 0">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="empty-state" *ngIf="contracts.length === 0 && !loading">
+        <i class="fa-solid fa-file-contract"></i>
+        <p>No contracts found</p>
+        <button class="btn btn-primary" (click)="openAddModal()">Create First Contract</button>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button class="btn-page" (click)="goToPage(1)" [disabled]="currentPage === 1">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+        <button class="btn-page" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+          <i class="fa-solid fa-angle-left"></i>
+        </button>
+        <button *ngFor="let page of getVisiblePages()"
+                class="btn-page"
+                [class.active]="page === currentPage"
+                (click)="goToPage(page)">
+          {{ page }}
+        </button>
+        <button class="btn-page" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+          <i class="fa-solid fa-angle-right"></i>
+        </button>
+        <button class="btn-page" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">
+          <i class="fa-solid fa-angles-right"></i>
+        </button>
+        <span class="page-info">Page {{ currentPage }} of {{ totalPages }} ({{ totalItems }} items)</span>
+      </div>
+    </div>
+
+    <!-- Contract Detail Panel -->
+    <div class="detail-panel" *ngIf="selectedContract">
+      <div class="panel-header">
+        <h2>{{ selectedContract.contractNumber }}</h2>
+        <button class="btn-close" (click)="closeDetail()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="panel-content">
+        <div class="detail-section">
+          <h3>Contract Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Name</label>
+              <span>{{ selectedContract.name }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Customer</label>
+              <span>{{ selectedContract.customerName }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Type</label>
+              <span class="badge type-badge" [ngClass]="getTypeClass(selectedContract.type)">
+                {{ ContractTypeLabels[selectedContract.type] }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <label>Status</label>
+              <span class="badge status-badge" [ngClass]="getStatusClass(selectedContract.status)">
+                {{ ContractStatusLabels[selectedContract.status] }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Duration</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Start Date</label>
+              <span>{{ formatDate(selectedContract.startDate) }}</span>
+            </div>
+            <div class="detail-item">
+              <label>End Date</label>
+              <span [class.text-danger]="selectedContract.daysRemaining <= 30">{{ formatDate(selectedContract.endDate) }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Days Remaining</label>
+              <span [class.text-danger]="selectedContract.daysRemaining <= 30">{{ selectedContract.daysRemaining }} days</span>
+            </div>
+            <div class="detail-item">
+              <label>Auto Renew</label>
+              <span>{{ selectedContract.autoRenew ? 'Yes' : 'No' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Coverage</h3>
+          <div class="detail-grid">
+            <div class="detail-item full-width">
+              <label>Coverage Type</label>
+              <span>{{ CoverageTypeLabels[selectedContract.coverageType] }}</span>
+            </div>
+          </div>
+          <div class="coverage-badges">
+            <span class="coverage-item" [class.included]="selectedContract.includesParts">
+              <i class="fa-solid" [ngClass]="selectedContract.includesParts ? 'fa-check' : 'fa-times'"></i> Parts
+            </span>
+            <span class="coverage-item" [class.included]="selectedContract.includesLabor">
+              <i class="fa-solid" [ngClass]="selectedContract.includesLabor ? 'fa-check' : 'fa-times'"></i> Labor
+            </span>
+            <span class="coverage-item" [class.included]="selectedContract.includesOnsite">
+              <i class="fa-solid" [ngClass]="selectedContract.includesOnsite ? 'fa-check' : 'fa-times'"></i> Onsite
+            </span>
+            <span class="coverage-item" [class.included]="selectedContract.includesRemote">
+              <i class="fa-solid" [ngClass]="selectedContract.includesRemote ? 'fa-check' : 'fa-times'"></i> Remote
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-section" *ngIf="selectedContract.includedHours || selectedContract.includedIncidents">
+          <h3>Usage</h3>
+          <div class="usage-stats">
+            <div class="usage-item" *ngIf="selectedContract.includedHours">
+              <div class="usage-label">Support Hours</div>
+              <div class="usage-bar">
+                <div class="usage-fill" [style.width.%]="(selectedContract.usedHours / selectedContract.includedHours) * 100"></div>
+              </div>
+              <div class="usage-text">{{ selectedContract.usedHours }} / {{ selectedContract.includedHours }} hours used</div>
+            </div>
+            <div class="usage-item" *ngIf="selectedContract.includedIncidents">
+              <div class="usage-label">Incidents</div>
+              <div class="usage-bar">
+                <div class="usage-fill" [style.width.%]="(selectedContract.usedIncidents / selectedContract.includedIncidents) * 100"></div>
+              </div>
+              <div class="usage-text">{{ selectedContract.usedIncidents }} / {{ selectedContract.includedIncidents }} incidents</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Financials</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Contract Value</label>
+              <span class="value-highlight">{{ formatCurrency(selectedContract.contractValue, selectedContract.currency) }}</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedContract.annualValue">
+              <label>Annual Value</label>
+              <span>{{ formatCurrency(selectedContract.annualValue, selectedContract.currency) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="detail-actions" *ngIf="selectedContract.status === 0 || selectedContract.status === 1">
+          <button class="btn btn-success" (click)="activateContract(selectedContract)">
+            <i class="fa-solid fa-check"></i> Activate
+          </button>
+        </div>
+        <div class="detail-actions" *ngIf="selectedContract.status === 2">
+          <button class="btn btn-danger" (click)="terminateContract(selectedContract)">
+            <i class="fa-solid fa-ban"></i> Terminate
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? 'Edit Contract' : 'New Contract' }}</h2>
+        <button class="btn-close" (click)="closeModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+
+      <div class="modal-tabs">
+        <button [class.active]="activeTab === 'basic'" (click)="activeTab = 'basic'">Basic Info</button>
+        <button [class.active]="activeTab === 'coverage'" (click)="activeTab = 'coverage'">Coverage</button>
+        <button [class.active]="activeTab === 'financials'" (click)="activeTab = 'financials'">Financials</button>
+        <button [class.active]="activeTab === 'sla'" (click)="activeTab = 'sla'">SLA</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="alert alert-error" *ngIf="errorMessage && showModal">
+          <i class="fa-solid fa-exclamation-circle"></i>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Basic Info Tab -->
+        <div class="tab-content" *ngIf="activeTab === 'basic'">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="customerId">Customer *</label>
+              <app-inline-select
+                [options]="customerOptions"
+                [(ngModel)]="contractForm.customerId"
+                placeholder="Select Customer"
+                label="Customer"
+                [searchable]="true"
+                [allowAdd]="true"
+                [disabled]="isEditMode"
+                (optionAdded)="onCustomerAdded($event)">
+              </app-inline-select>
+            </div>
+            <div class="form-group">
+              <label for="type">Contract Type *</label>
+              <app-inline-select
+                [options]="contractTypeOptions"
+                [(ngModel)]="contractForm.type"
+                placeholder="Select contract type"
+                label="Contract Type"
+                [searchable]="true"
+                [allowAdd]="true"
+                [allowDelete]="true"
+                [disabled]="isEditMode"
+                (optionAdded)="onContractTypeAdded($event)"
+                (optionDeleted)="onContractTypeDeleted($event)">
+              </app-inline-select>
+            </div>
+            <div class="form-group full-width">
+              <label for="name">Contract Name *</label>
+              <input type="text" id="name" [(ngModel)]="contractForm.name" placeholder="Enter contract name" required>
+            </div>
+            <div class="form-group">
+              <label for="startDate">Start Date *</label>
+              <input type="date" id="startDate" [(ngModel)]="contractForm.startDate" required>
+            </div>
+            <div class="form-group">
+              <label for="endDate">End Date *</label>
+              <input type="date" id="endDate" [(ngModel)]="contractForm.endDate" required>
+            </div>
+            <div class="form-group">
+              <label for="poNumber">PO Number</label>
+              <input type="text" id="poNumber" [(ngModel)]="contractForm.poNumber" placeholder="Purchase order #">
+            </div>
+            <div class="form-group">
+              <label for="invoiceNumber">Invoice Number</label>
+              <input type="text" id="invoiceNumber" [(ngModel)]="contractForm.invoiceNumber" placeholder="Invoice #">
+            </div>
+            <div class="form-group full-width">
+              <label for="description">Description</label>
+              <textarea id="description" [(ngModel)]="contractForm.description" rows="2" placeholder="Contract description"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coverage Tab -->
+        <div class="tab-content" *ngIf="activeTab === 'coverage'">
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label for="coverageType">Coverage Type *</label>
+              <app-inline-select
+                [options]="coverageTypeOptions"
+                [(ngModel)]="contractForm.coverageType"
+                placeholder="Select coverage type"
+                label="Coverage Type"
+                [searchable]="true"
+                [allowAdd]="true"
+                [allowDelete]="true"
+                (optionAdded)="onCoverageTypeAdded($event)"
+                (optionDeleted)="onCoverageTypeDeleted($event)">
+              </app-inline-select>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="contractForm.includesParts">
+                <span>Includes Parts</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="contractForm.includesLabor">
+                <span>Includes Labor</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="contractForm.includesOnsite">
+                <span>Includes Onsite Support</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="contractForm.includesRemote">
+                <span>Includes Remote Support</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label for="includedHours">Included Support Hours</label>
+              <input type="number" id="includedHours" [(ngModel)]="contractForm.includedHours" min="0" placeholder="Hours">
+            </div>
+            <div class="form-group">
+              <label for="includedIncidents">Included Incidents</label>
+              <input type="number" id="includedIncidents" [(ngModel)]="contractForm.includedIncidents" min="0" placeholder="Count">
+            </div>
+          </div>
+        </div>
+
+        <!-- Financials Tab -->
+        <div class="tab-content" *ngIf="activeTab === 'financials'">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="contractValue">Contract Value</label>
+              <input type="number" id="contractValue" [(ngModel)]="contractForm.contractValue" min="0" step="0.01" placeholder="Total value">
+            </div>
+            <div class="form-group">
+              <label for="billingFrequency">Billing Frequency</label>
+              <app-inline-select
+                [options]="billingFrequencyOptions"
+                [(ngModel)]="contractForm.billingFrequency"
+                placeholder="Select billing frequency"
+                label="Billing Frequency"
+                [searchable]="false">
+              </app-inline-select>
+            </div>
+            <div class="form-group">
+              <label for="annualValue">Annual Value</label>
+              <input type="number" id="annualValue" [(ngModel)]="contractForm.annualValue" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+              <label for="monthlyValue">Monthly Value</label>
+              <input type="number" id="monthlyValue" [(ngModel)]="contractForm.monthlyValue" min="0" step="0.01">
+            </div>
+            <div class="form-group full-width">
+              <label for="paymentTerms">Payment Terms</label>
+              <input type="text" id="paymentTerms" [(ngModel)]="contractForm.paymentTerms" placeholder="e.g., Net 30">
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="contractForm.autoRenew">
+                <span>Auto Renew</span>
+              </label>
+            </div>
+            <div class="form-group" *ngIf="contractForm.autoRenew">
+              <label for="renewalPeriodMonths">Renewal Period (Months)</label>
+              <input type="number" id="renewalPeriodMonths" [(ngModel)]="contractForm.renewalPeriodMonths" min="1">
+            </div>
+          </div>
+        </div>
+
+        <!-- SLA Tab -->
+        <div class="tab-content" *ngIf="activeTab === 'sla'">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="responseTimeHours">Response Time (Hours)</label>
+              <input type="number" id="responseTimeHours" [(ngModel)]="contractForm.responseTimeHours" min="0" placeholder="Hours">
+            </div>
+            <div class="form-group">
+              <label for="resolutionTimeHours">Resolution Time (Hours)</label>
+              <input type="number" id="resolutionTimeHours" [(ngModel)]="contractForm.resolutionTimeHours" min="0" placeholder="Hours">
+            </div>
+            <div class="form-group full-width">
+              <label for="supportHoursType">Support Hours</label>
+              <app-inline-select
+                [options]="supportHoursOptions"
+                [(ngModel)]="contractForm.supportHoursType"
+                placeholder="Select support hours"
+                label="Support Hours"
+                [searchable]="false">
+              </app-inline-select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveContract()" [disabled]="loading">
+          <i class="fa-solid fa-spinner fa-spin" *ngIf="loading"></i>
+          {{ isEditMode ? 'Update Contract' : 'Create Contract' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

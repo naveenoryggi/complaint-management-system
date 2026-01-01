@@ -31,7 +31,28 @@ export class AdminMenuConfigService {
       order: 1,
       expanded: false,
       items: [
-        { label: 'Company Settings', route: 'company-settings', icon: 'fa-building' }
+        { label: 'Company Settings', route: 'company-settings', icon: 'fa-building' },
+        { label: 'License Management', route: 'license', icon: 'fa-key', badge: 'New', permission: 'ManageSettings' }
+      ]
+    },
+    {
+      id: 'enterprise-modules',
+      label: 'Enterprise Modules',
+      icon: 'fa-cubes',
+      color: '#673AB7',
+      order: 2,
+      expanded: false,
+      items: [
+        { label: 'CRM / Customers', route: 'crm', icon: 'fa-address-book', badge: 'Pro', permission: 'ManageCRM' },
+        { label: 'Product Catalog', route: 'products', icon: 'fa-box', badge: 'Pro', permission: 'ManageProducts' },
+        { label: 'Product Categories', route: 'products/categories', icon: 'fa-folder-tree', badge: 'Pro', permission: 'ManageProducts' },
+        { label: 'Product Brands', route: 'products/brands', icon: 'fa-award', badge: 'Pro', permission: 'ManageProducts' },
+        { label: 'Product Sub-Types', route: 'products/subtypes', icon: 'fa-layer-group', badge: 'Pro', permission: 'ManageProducts' },
+        { label: 'Contracts', route: 'contracts', icon: 'fa-file-contract', badge: 'Pro', permission: 'ManageContracts' },
+        { label: 'Warranty Definitions', route: 'warranties', icon: 'fa-shield-halved', badge: 'Pro', permission: 'ManageContracts' },
+        { label: 'Projects', route: 'projects', icon: 'fa-diagram-project', badge: 'Pro', permission: 'ManageProjects' },
+        { label: 'Asset Management', route: 'assets', icon: 'fa-server', badge: 'Pro', permission: 'ManageAssets' },
+        { label: 'Customer Portal', route: 'portal-settings', icon: 'fa-globe', badge: 'Pro', permission: 'ManagePortal' }
       ]
     },
     {
@@ -39,7 +60,7 @@ export class AdminMenuConfigService {
       label: 'User Management',
       icon: 'fa-users',
       color: '#2196F3',
-      order: 2,
+      order: 3,
       expanded: false,
       items: [
         { label: 'Users', route: 'users', icon: 'fa-users' },
@@ -54,7 +75,7 @@ export class AdminMenuConfigService {
       label: 'Organizational Structure',
       icon: 'fa-sitemap',
       color: '#FF9800',
-      order: 3,
+      order: 4,
       expanded: false,
       items: [
         { label: 'Branches', route: 'branches', icon: 'fa-location-dot' },
@@ -67,7 +88,7 @@ export class AdminMenuConfigService {
       label: 'Complaint Configuration',
       icon: 'fa-gears',
       color: '#9C27B0',
-      order: 4,
+      order: 5,
       expanded: false,
       items: [
         { label: 'Categories', route: 'categories', icon: 'fa-tags' },
@@ -83,7 +104,7 @@ export class AdminMenuConfigService {
       label: 'Communication Settings',
       icon: 'fa-bullhorn',
       color: '#00BCD4',
-      order: 5,
+      order: 6,
       expanded: false,
       items: [
         { label: 'Email Settings', route: 'email-settings', icon: 'fa-at' },
@@ -101,7 +122,7 @@ export class AdminMenuConfigService {
       label: 'Integrations & Automation',
       icon: 'fa-rotate',
       color: '#F44336',
-      order: 6,
+      order: 7,
       expanded: false,
       items: [
         { label: 'Oryggi Sync', route: 'oryggi-sync', icon: 'fa-rotate' },

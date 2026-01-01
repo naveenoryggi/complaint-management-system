@@ -31,6 +31,9 @@ export class App implements OnInit, OnDestroy {
   ) {
     console.log('App component initialized');
 
+    // Initialize currentUrl from router's current URL to prevent brief header flash
+    this.currentUrl = this.router.url || window?.location?.pathname || '';
+
     // Track current URL for showing/hiding breadcrumb and managing body classes
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -41,7 +44,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   isLoginPage(): boolean {
-    return this.currentUrl === '/login' || this.currentUrl === '/';
+    return this.currentUrl === '/login' || this.currentUrl === '/' || this.currentUrl.startsWith('/portal');
   }
 
   /**
@@ -72,6 +75,13 @@ export class App implements OnInit, OnDestroy {
   }
 
   /**
+   * Check if current page is a portal page
+   */
+  isPortalPage(): boolean {
+    return this.currentUrl.startsWith('/portal');
+  }
+
+  /**
    * Update body classes based on current route for proper theme application
    */
   private updateBodyClasses(): void {
@@ -82,12 +92,18 @@ export class App implements OnInit, OnDestroy {
     try {
       const body = this.document.body;
 
-      if (this.isLoginPage()) {
+      // Portal pages have their own styling
+      if (this.isPortalPage()) {
+        body.classList.remove('login-page');
+        body.classList.add('portal-page');
+      } else if (this.currentUrl === '/login' || this.currentUrl === '/') {
         // Add login-page class for special login background
         body.classList.add('login-page');
+        body.classList.remove('portal-page');
       } else {
         // Remove login-page class for glassmorphism background
         body.classList.remove('login-page');
+        body.classList.remove('portal-page');
       }
     } catch (error) {
       console.error('Error updating body classes:', error);

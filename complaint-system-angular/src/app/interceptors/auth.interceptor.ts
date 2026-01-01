@@ -19,8 +19,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const token = authService.token;
 
-  // Skip interceptor for auth endpoints to avoid infinite loops
-  if (req.url.includes('/auth/login') || req.url.includes('/auth/refresh')) {
+  // Skip interceptor for auth endpoints, portal endpoints, and static assets
+  if (
+    req.url.includes('/auth/login') ||
+    req.url.includes('/auth/refresh') ||
+    req.url.includes('/portal/') ||
+    req.url.includes('/assets/')
+  ) {
     return next(req);
   }
 

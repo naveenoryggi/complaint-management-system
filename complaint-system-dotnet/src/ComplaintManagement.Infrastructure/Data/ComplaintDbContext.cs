@@ -3,10 +3,14 @@ using ComplaintManagement.Domain.Entities.Auth;
 using ComplaintManagement.Domain.Entities.Communication;
 using ComplaintManagement.Domain.Entities.Complaints;
 using ComplaintManagement.Domain.Entities.Configuration;
+using ComplaintManagement.Domain.Entities.CRM;
 using ComplaintManagement.Domain.Entities.Escalation;
 using ComplaintManagement.Domain.Entities.Events;
+using ComplaintManagement.Domain.Entities.Licensing;
 using ComplaintManagement.Domain.Entities.MasterData;
+using ComplaintManagement.Domain.Entities.Product;
 using ComplaintManagement.Domain.Entities.Roles;
+using ComplaintManagement.Domain.Entities.Service;
 using ComplaintManagement.Domain.Entities.Settings;
 using ComplaintManagement.Domain.Entities.SLA;
 using ComplaintManagement.Domain.Entities.Sync;
@@ -343,6 +347,150 @@ public class ComplaintDbContext : DbContext
     /// Role permissions
     /// </summary>
     public DbSet<ComplaintRolePermission> ComplaintRolePermissions { get; set; }
+
+    #endregion
+
+    #region Licensing DbSets
+
+    /// <summary>
+    /// Software licenses for companies
+    /// </summary>
+    public DbSet<License> Licenses { get; set; }
+
+    /// <summary>
+    /// Module activations for licenses
+    /// </summary>
+    public DbSet<LicenseModuleActivation> LicenseModuleActivations { get; set; }
+
+    #endregion
+
+    #region CRM (Customer Relationship Management) DbSets
+
+    /// <summary>
+    /// Partners (System Integrators, Resellers, Distributors)
+    /// </summary>
+    public DbSet<Partner> Partners { get; set; }
+
+    /// <summary>
+    /// Partner contacts with portal access
+    /// </summary>
+    public DbSet<PartnerContact> PartnerContacts { get; set; }
+
+    /// <summary>
+    /// End customers (Direct or Partner-managed)
+    /// </summary>
+    public DbSet<Customer> Customers { get; set; }
+
+    /// <summary>
+    /// Customer locations (multi-site support)
+    /// </summary>
+    public DbSet<CustomerLocation> CustomerLocations { get; set; }
+
+    /// <summary>
+    /// Customer contacts with portal access
+    /// </summary>
+    public DbSet<CustomerContact> CustomerContacts { get; set; }
+
+    /// <summary>
+    /// Partner-Customer relationships (many-to-many junction)
+    /// </summary>
+    public DbSet<PartnerCustomer> PartnerCustomers { get; set; }
+
+    #endregion
+
+    #region Project Management DbSets
+
+    /// <summary>
+    /// Projects associated with customers
+    /// </summary>
+    public DbSet<Project> Projects { get; set; }
+
+    /// <summary>
+    /// Project milestones
+    /// </summary>
+    public DbSet<ProjectMilestone> ProjectMilestones { get; set; }
+
+    /// <summary>
+    /// Project tasks
+    /// </summary>
+    public DbSet<ProjectTask> ProjectTasks { get; set; }
+
+    /// <summary>
+    /// Project documents
+    /// </summary>
+    public DbSet<ProjectDocument> ProjectDocuments { get; set; }
+
+    /// <summary>
+    /// Project team members
+    /// </summary>
+    public DbSet<ProjectTeamMember> ProjectTeamMembers { get; set; }
+
+    #endregion
+
+    #region Product Catalog DbSets
+
+    /// <summary>
+    /// Product categories with hierarchical structure
+    /// </summary>
+    public DbSet<ProductCategory> ProductCategories { get; set; }
+
+    /// <summary>
+    /// Products (physical, digital, services, subscriptions)
+    /// </summary>
+    public DbSet<Domain.Entities.Product.Product> Products { get; set; }
+
+    /// <summary>
+    /// Product price lists for partner/customer-specific pricing
+    /// </summary>
+    public DbSet<ProductPriceList> ProductPriceLists { get; set; }
+
+    /// <summary>
+    /// Product brands
+    /// </summary>
+    public DbSet<Brand> Brands { get; set; }
+
+    /// <summary>
+    /// Product sub-types (linked to categories)
+    /// </summary>
+    public DbSet<ProductSubType> ProductSubTypes { get; set; }
+
+    #endregion
+
+    #region Contract & Warranty DbSets
+
+    /// <summary>
+    /// Service contracts (AMC, Warranty, SLA, Support agreements)
+    /// </summary>
+    public DbSet<Contract> Contracts { get; set; }
+
+    /// <summary>
+    /// Items covered under contracts
+    /// </summary>
+    public DbSet<ContractItem> ContractItems { get; set; }
+
+    /// <summary>
+    /// Contract renewal history
+    /// </summary>
+    public DbSet<ContractRenewalHistory> ContractRenewalHistories { get; set; }
+
+    /// <summary>
+    /// Warranty definitions for products/categories
+    /// </summary>
+    public DbSet<Warranty> Warranties { get; set; }
+
+    #endregion
+
+    #region Asset Management DbSets
+
+    /// <summary>
+    /// Physical and virtual assets tracked in the system
+    /// </summary>
+    public DbSet<Asset> Assets { get; set; }
+
+    /// <summary>
+    /// Service/maintenance history records for assets
+    /// </summary>
+    public DbSet<AssetServiceHistory> AssetServiceHistories { get; set; }
 
     #endregion
 

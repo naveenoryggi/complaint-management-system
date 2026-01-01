@@ -1,0 +1,324 @@
+<div class="product-category">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="fa-solid fa-folder-tree"></i> Product Categories</h1>
+      <p class="subtitle">Organize your products into categories</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="expandAll()">
+        <i class="fa-solid fa-expand"></i> Expand All
+      </button>
+      <button class="btn btn-secondary" (click)="collapseAll()">
+        <i class="fa-solid fa-compress"></i> Collapse All
+      </button>
+      <button class="btn btn-primary" (click)="openAddRootModal()">
+        <i class="fa-solid fa-plus"></i> Add Category
+      </button>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    <i class="fa-solid fa-check-circle"></i>
+    {{ successMessage }}
+    <button class="alert-close" (click)="dismissSuccess()"><i class="fa-solid fa-times"></i></button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <i class="fa-solid fa-exclamation-circle"></i>
+    {{ errorMessage }}
+    <button class="alert-close" (click)="dismissError()"><i class="fa-solid fa-times"></i></button>
+  </div>
+
+  <div class="content-wrapper">
+    <!-- Category Tree -->
+    <div class="tree-container">
+      <div class="loading-overlay" *ngIf="loading">
+        <div class="spinner"></div>
+        <span>Loading categories...</span>
+      </div>
+
+      <div class="category-tree" *ngIf="categoryTree.length > 0">
+        <ng-container *ngTemplateOutlet="treeNode; context: { nodes: categoryTree, level: 0 }"></ng-container>
+      </div>
+
+      <div class="empty-state" *ngIf="categoryTree.length === 0 && !loading">
+        <i class="fa-solid fa-folder-open"></i>
+        <p>No categories found</p>
+        <button class="btn btn-primary" (click)="openAddRootModal()">Add First Category</button>
+      </div>
+    </div>
+
+    <!-- Category Detail Sidebar -->
+    <div class="detail-panel" *ngIf="selectedCategory">
+      <div class="panel-header">
+        <h2>{{ selectedCategory.name }}</h2>
+        <button class="btn-close" (click)="closeDetail()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="panel-content">
+        <div class="detail-section">
+          <h3>Basic Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Code</label>
+              <span>{{ selectedCategory.code }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Level</label>
+              <span>{{ selectedCategory.level }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Display Order</label>
+              <span>{{ selectedCategory.displayOrder }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Status</label>
+              <span class="badge" [class.active]="selectedCategory.isActive" [class.inactive]="!selectedCategory.isActive">
+                {{ selectedCategory.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section" *ngIf="selectedCategory.description">
+          <h3>Description</h3>
+          <p>{{ selectedCategory.description }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3>Settings</h3>
+          <div class="settings-list">
+            <div class="setting-item">
+              <i class="fa-solid" [ngClass]="selectedCategory.isPublic ? 'fa-check text-success' : 'fa-times text-muted'"></i>
+              <span>Public</span>
+            </div>
+            <div class="setting-item">
+              <i class="fa-solid" [ngClass]="selectedCategory.allowProducts ? 'fa-check text-success' : 'fa-times text-muted'"></i>
+              <span>Allow Products</span>
+            </div>
+            <div class="setting-item">
+              <i class="fa-solid" [ngClass]="selectedCategory.allowSubCategories ? 'fa-check text-success' : 'fa-times text-muted'"></i>
+              <span>Allow Subcategories</span>
+            </div>
+            <div class="setting-item">
+              <i class="fa-solid" [ngClass]="selectedCategory.trackInventory ? 'fa-check text-success' : 'fa-times text-muted'"></i>
+              <span>Track Inventory</span>
+            </div>
+            <div class="setting-item">
+              <i class="fa-solid" [ngClass]="selectedCategory.requireSerialNumber ? 'fa-check text-success' : 'fa-times text-muted'"></i>
+              <span>Require Serial Number</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section" *ngIf="selectedCategory.defaultWarrantyMonths || selectedCategory.defaultTaxRate">
+          <h3>Defaults</h3>
+          <div class="detail-grid">
+            <div class="detail-item" *ngIf="selectedCategory.defaultWarrantyMonths">
+              <label>Warranty</label>
+              <span>{{ selectedCategory.defaultWarrantyMonths }} months</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedCategory.defaultTaxRate">
+              <label>Tax Rate</label>
+              <span>{{ selectedCategory.defaultTaxRate }}%</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedCategory.defaultHSNCode">
+              <label>HSN Code</label>
+              <span>{{ selectedCategory.defaultHSNCode }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Statistics</h3>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value">{{ selectedCategory.productCount || 0 }}</div>
+              <div class="stat-label">Products</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">{{ selectedCategory.subCategoryCount || 0 }}</div>
+              <div class="stat-label">Subcategories</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tree Node Template -->
+  <ng-template #treeNode let-nodes="nodes" let-level="level">
+    <div class="tree-node" *ngFor="let node of nodes" [style.--level]="level">
+      <div class="node-content" [class.selected]="selectedCategory?.id === node.id" (click)="selectCategory(node)">
+        <button class="expand-btn" *ngIf="node.children && node.children.length > 0" (click)="toggleNode(node.id); $event.stopPropagation()">
+          <i class="fa-solid" [ngClass]="isExpanded(node.id) ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+        </button>
+        <span class="expand-placeholder" *ngIf="!node.children || node.children.length === 0"></span>
+
+        <i class="fa-solid fa-folder node-icon" [class.fa-folder-open]="isExpanded(node.id)" [style.color]="node.color || '#64748b'"></i>
+
+        <span class="node-name">{{ node.name }}</span>
+        <span class="node-code">{{ node.code }}</span>
+        <span class="product-count" *ngIf="node.productCount > 0">{{ node.productCount }}</span>
+
+        <div class="node-actions" (click)="$event.stopPropagation()">
+          <button class="btn-icon" title="Add Subcategory" (click)="openAddChildModal(node.id)">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+          <button class="btn-icon" title="Edit" (click)="openEditModal(node)">
+            <i class="fa-solid fa-edit"></i>
+          </button>
+          <button class="btn-icon btn-danger" title="Delete" (click)="deleteCategory(node)">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="node-children" *ngIf="node.children && node.children.length > 0 && isExpanded(node.id)">
+        <ng-container *ngTemplateOutlet="treeNode; context: { nodes: node.children, level: level + 1 }"></ng-container>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? 'Edit Category' : (parentCategoryId ? 'Add Subcategory' : 'Add Category') }}</h2>
+        <button class="btn-close" (click)="closeModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="alert alert-error" *ngIf="errorMessage && showModal">
+          <i class="fa-solid fa-exclamation-circle"></i>
+          {{ errorMessage }}
+        </div>
+
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="code">Category Code *</label>
+              <input type="text" id="code" [(ngModel)]="categoryForm.code" [disabled]="isEditMode" placeholder="e.g., CAT001" required>
+            </div>
+            <div class="form-group">
+              <label for="name">Category Name *</label>
+              <input type="text" id="name" [(ngModel)]="categoryForm.name" placeholder="Category name" required>
+            </div>
+            <div class="form-group">
+              <label for="displayOrder">Display Order</label>
+              <input type="number" id="displayOrder" [(ngModel)]="categoryForm.displayOrder" min="0">
+            </div>
+            <div class="form-group">
+              <label for="icon">Icon</label>
+              <input type="text" id="icon" [(ngModel)]="categoryForm.icon" placeholder="fa-folder">
+            </div>
+            <div class="form-group">
+              <label for="color">Color</label>
+              <input type="color" id="color" [(ngModel)]="categoryForm.color">
+            </div>
+            <div class="form-group full-width">
+              <label for="description">Description</label>
+              <textarea id="description" [(ngModel)]="categoryForm.description" rows="2" placeholder="Category description"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Settings</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="categoryForm.isActive">
+                <span>Active</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="categoryForm.isPublic">
+                <span>Public</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="categoryForm.allowProducts">
+                <span>Allow Products</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="categoryForm.allowSubCategories">
+                <span>Allow Subcategories</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="categoryForm.trackInventory">
+                <span>Track Inventory</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="categoryForm.requireSerialNumber">
+                <span>Require Serial Number</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Defaults</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="defaultWarrantyMonths">Warranty (Months)</label>
+              <input type="number" id="defaultWarrantyMonths" [(ngModel)]="categoryForm.defaultWarrantyMonths" min="0">
+            </div>
+            <div class="form-group">
+              <label for="defaultTaxRate">Tax Rate (%)</label>
+              <input type="number" id="defaultTaxRate" [(ngModel)]="categoryForm.defaultTaxRate" min="0" max="100" step="0.01">
+            </div>
+            <div class="form-group">
+              <label for="defaultHSNCode">HSN Code</label>
+              <input type="text" id="defaultHSNCode" [(ngModel)]="categoryForm.defaultHSNCode" placeholder="HSN Code">
+            </div>
+            <div class="form-group">
+              <label for="defaultSACCode">SAC Code</label>
+              <input type="text" id="defaultSACCode" [(ngModel)]="categoryForm.defaultSACCode" placeholder="SAC Code">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>SEO</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="slug">URL Slug</label>
+              <input type="text" id="slug" [(ngModel)]="categoryForm.slug" placeholder="category-slug">
+            </div>
+            <div class="form-group">
+              <label for="metaTitle">Meta Title</label>
+              <input type="text" id="metaTitle" [(ngModel)]="categoryForm.metaTitle" placeholder="SEO title">
+            </div>
+            <div class="form-group full-width">
+              <label for="metaDescription">Meta Description</label>
+              <textarea id="metaDescription" [(ngModel)]="categoryForm.metaDescription" rows="2" placeholder="SEO description"></textarea>
+            </div>
+            <div class="form-group full-width">
+              <label for="keywords">Keywords</label>
+              <input type="text" id="keywords" [(ngModel)]="categoryForm.keywords" placeholder="Comma-separated keywords">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveCategory()" [disabled]="loading">
+          <i class="fa-solid fa-spinner fa-spin" *ngIf="loading"></i>
+          {{ isEditMode ? 'Update Category' : 'Create Category' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

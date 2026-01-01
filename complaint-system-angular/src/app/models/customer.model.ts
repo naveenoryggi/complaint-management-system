@@ -163,3 +163,10 @@ export const CustomerSegmentLabels: { [key: number]: string } = {
   [CustomerSegment.Education]: 'Education',
   [CustomerSegment.NonProfit]: 'Non-Profit'
 };
+
+// Lookup interface for dropdown selections
+export interface CustomerLookup {
+  id: string;
+  code: string;
+  name: string;
+}

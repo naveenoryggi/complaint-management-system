@@ -1,0 +1,578 @@
+<div class="warranty-management">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="fa-solid fa-shield-halved"></i> Warranty Definitions</h1>
+      <p class="subtitle">Manage warranty policies and coverage terms</p>
+    </div>
+    <button class="btn-primary" (click)="openAddModal()">
+      <i class="fa-solid fa-plus"></i> New Warranty
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    <i class="fa-solid fa-check-circle"></i>
+    {{ successMessage }}
+    <button class="alert-close" (click)="dismissSuccess()"><i class="fa-solid fa-times"></i></button>
+  </div>
+  <div class="alert alert-error" *ngIf="errorMessage && !showModal">
+    <i class="fa-solid fa-exclamation-circle"></i>
+    {{ errorMessage }}
+    <button class="alert-close" (click)="dismissError()"><i class="fa-solid fa-times"></i></button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fa-solid fa-search"></i>
+      <input type="text" placeholder="Search warranties..." [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+      <button class="btn-search" (click)="onSearch()">Search</button>
+    </div>
+    <div class="filter-group">
+      <select [(ngModel)]="filterType" (change)="onFilterChange()">
+        <option value="">All Types</option>
+        <option *ngFor="let type of warrantyTypes" [value]="type.key">{{ type.value }}</option>
+      </select>
+      <select [(ngModel)]="filterCoverage" (change)="onFilterChange()">
+        <option value="">All Coverage</option>
+        <option *ngFor="let coverage of coverageTypes" [value]="coverage.key">{{ coverage.value }}</option>
+      </select>
+      <select [(ngModel)]="filterActive" (change)="onFilterChange()">
+        <option value="">All Status</option>
+        <option [ngValue]="true">Active</option>
+        <option [ngValue]="false">Inactive</option>
+      </select>
+      <button class="btn-clear" (click)="clearFilters()" *ngIf="searchTerm || filterType || filterCoverage || filterActive !== ''">
+        <i class="fa-solid fa-times"></i> Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-wrapper" [class.with-detail]="selectedWarranty">
+    <!-- Warranty List -->
+    <div class="warranty-list">
+      <div class="loading-overlay" *ngIf="loading">
+        <div class="spinner"></div>
+        <span>Loading...</span>
+      </div>
+
+      <table class="data-table" *ngIf="!loading && warranties.length > 0">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Duration</th>
+            <th>Coverage</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let warranty of warranties"
+              [class.selected]="selectedWarranty?.id === warranty.id"
+              (click)="selectWarranty(warranty)">
+            <td class="code-cell">{{ warranty.code }}</td>
+            <td class="name-cell">
+              <div class="name-info">
+                <span class="name">{{ warranty.name }}</span>
+                <span class="product" *ngIf="warranty.productName || warranty.categoryName">
+                  {{ warranty.productName || warranty.categoryName }}
+                </span>
+              </div>
+            </td>
+            <td>
+              <span class="type-badge" [ngClass]="getTypeClass(warranty.type)">
+                {{ WarrantyTypeLabels[warranty.type] || warranty.typeName }}
+              </span>
+            </td>
+            <td class="duration-cell">
+              <i class="fa-regular fa-calendar"></i>
+              {{ warranty.durationMonths }} months
+            </td>
+            <td>
+              <span class="coverage-badge" [ngClass]="getCoverageClass(warranty.coverageType)">
+                {{ CoverageTypeLabels[warranty.coverageType] || warranty.coverageTypeName }}
+              </span>
+            </td>
+            <td>
+              <span class="status-badge" [class.active]="warranty.isActive" [class.inactive]="!warranty.isActive">
+                {{ warranty.isActive ? 'Active' : 'Inactive' }}
+              </span>
+              <span class="default-badge" *ngIf="warranty.isDefault">Default</span>
+            </td>
+            <td class="actions-cell" (click)="$event.stopPropagation()">
+              <button class="btn-icon" title="Edit" (click)="openEditModal(warranty)">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button class="btn-icon btn-danger" title="Delete" (click)="deleteWarranty(warranty)">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="empty-state" *ngIf="!loading && warranties.length === 0">
+        <i class="fa-solid fa-shield-halved"></i>
+        <h3>No Warranties Found</h3>
+        <p>Create your first warranty definition to get started.</p>
+        <button class="btn-primary" (click)="openAddModal()">
+          <i class="fa-solid fa-plus"></i> Create Warranty
+        </button>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+        <button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+          <i class="fa-solid fa-angle-left"></i>
+        </button>
+        <button class="page-btn" *ngFor="let page of getVisiblePages()"
+                [class.active]="page === currentPage" (click)="goToPage(page)">
+          {{ page }}
+        </button>
+        <button class="page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+          <i class="fa-solid fa-angle-right"></i>
+        </button>
+        <button class="page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">
+          <i class="fa-solid fa-angles-right"></i>
+        </button>
+        <span class="page-info">Page {{ currentPage }} of {{ totalPages }} ({{ totalItems }} items)</span>
+      </div>
+    </div>
+
+    <!-- Detail Panel -->
+    <div class="detail-panel" *ngIf="selectedWarranty">
+      <div class="detail-header">
+        <h2>{{ selectedWarranty.name }}</h2>
+        <button class="btn-close" (click)="closeDetail()">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+
+      <div class="detail-loading" *ngIf="detailLoading">
+        <div class="spinner"></div>
+      </div>
+
+      <div class="detail-content" *ngIf="!detailLoading">
+        <div class="detail-section">
+          <h3>Basic Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Code</label>
+              <span>{{ selectedWarranty.code }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Type</label>
+              <span class="type-badge" [ngClass]="getTypeClass(selectedWarranty.type)">
+                {{ selectedWarranty.typeName }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <label>Duration</label>
+              <span>{{ selectedWarranty.durationMonths }} months</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedWarranty.extendedDurationMonths">
+              <label>Extended Duration</label>
+              <span>{{ selectedWarranty.extendedDurationMonths }} months</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedWarranty.gracePeriodDays">
+              <label>Grace Period</label>
+              <span>{{ selectedWarranty.gracePeriodDays }} days</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedWarranty.productName">
+              <label>Product</label>
+              <span>{{ selectedWarranty.productName }}</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedWarranty.categoryName">
+              <label>Category</label>
+              <span>{{ selectedWarranty.categoryName }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Coverage</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Coverage Type</label>
+              <span class="coverage-badge" [ngClass]="getCoverageClass(selectedWarranty.coverageType)">
+                {{ selectedWarranty.coverageTypeName }}
+              </span>
+            </div>
+          </div>
+          <div class="coverage-flags">
+            <span class="flag" [class.included]="selectedWarranty.includesParts">
+              <i class="fa-solid" [ngClass]="selectedWarranty.includesParts ? 'fa-check' : 'fa-times'"></i>
+              Parts
+            </span>
+            <span class="flag" [class.included]="selectedWarranty.includesLabor">
+              <i class="fa-solid" [ngClass]="selectedWarranty.includesLabor ? 'fa-check' : 'fa-times'"></i>
+              Labor
+            </span>
+            <span class="flag" [class.included]="selectedWarranty.includesOnsite">
+              <i class="fa-solid" [ngClass]="selectedWarranty.includesOnsite ? 'fa-check' : 'fa-times'"></i>
+              On-site
+            </span>
+            <span class="flag" [class.included]="selectedWarranty.includesShipping">
+              <i class="fa-solid" [ngClass]="selectedWarranty.includesShipping ? 'fa-check' : 'fa-times'"></i>
+              Shipping
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-section" *ngIf="selectedWarranty.responseTimeHours || selectedWarranty.resolutionTimeHours">
+          <h3>SLA</h3>
+          <div class="detail-grid">
+            <div class="detail-item" *ngIf="selectedWarranty.responseTimeHours">
+              <label>Response Time</label>
+              <span>{{ selectedWarranty.responseTimeHours }} hours</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedWarranty.resolutionTimeHours">
+              <label>Resolution Time</label>
+              <span>{{ selectedWarranty.resolutionTimeHours }} hours</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedWarranty.supportHoursTypeName">
+              <label>Support Hours</label>
+              <span>{{ selectedWarranty.supportHoursTypeName }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section" *ngIf="selectedWarranty.maxClaims || selectedWarranty.maxClaimValue || selectedWarranty.deductibleAmount">
+          <h3>Claim Limits</h3>
+          <div class="detail-grid">
+            <div class="detail-item" *ngIf="selectedWarranty.maxClaims">
+              <label>Max Claims</label>
+              <span>{{ selectedWarranty.maxClaims }}</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedWarranty.maxClaimValue">
+              <label>Max Claim Value</label>
+              <span>{{ formatCurrency(selectedWarranty.maxClaimValue, selectedWarranty.currency) }}</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedWarranty.deductibleAmount">
+              <label>Deductible</label>
+              <span>{{ formatCurrency(selectedWarranty.deductibleAmount, selectedWarranty.currency) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Requirements</h3>
+          <div class="requirements-list">
+            <span class="requirement" [class.required]="selectedWarranty.requiresRegistration">
+              <i class="fa-solid" [ngClass]="selectedWarranty.requiresRegistration ? 'fa-check-circle' : 'fa-circle'"></i>
+              Registration Required
+              <span *ngIf="selectedWarranty.registrationDeadlineDays">(within {{ selectedWarranty.registrationDeadlineDays }} days)</span>
+            </span>
+            <span class="requirement" [class.required]="selectedWarranty.requiresProofOfPurchase">
+              <i class="fa-solid" [ngClass]="selectedWarranty.requiresProofOfPurchase ? 'fa-check-circle' : 'fa-circle'"></i>
+              Proof of Purchase Required
+            </span>
+            <span class="requirement" [class.required]="selectedWarranty.isTransferable">
+              <i class="fa-solid" [ngClass]="selectedWarranty.isTransferable ? 'fa-check-circle' : 'fa-circle'"></i>
+              Transferable
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-section" *ngIf="selectedWarranty.extendedWarrantyPrice || selectedWarranty.extendedWarrantyPricePercent">
+          <h3>Extended Warranty Pricing</h3>
+          <div class="detail-grid">
+            <div class="detail-item" *ngIf="selectedWarranty.extendedWarrantyPrice">
+              <label>Price</label>
+              <span>{{ formatCurrency(selectedWarranty.extendedWarrantyPrice, selectedWarranty.currency) }}</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedWarranty.extendedWarrantyPricePercent">
+              <label>Price %</label>
+              <span>{{ selectedWarranty.extendedWarrantyPricePercent }}% of product price</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section" *ngIf="selectedWarranty.description || selectedWarranty.terms">
+          <h3>Description & Terms</h3>
+          <p *ngIf="selectedWarranty.description" class="description">{{ selectedWarranty.description }}</p>
+          <p *ngIf="selectedWarranty.terms" class="terms">{{ selectedWarranty.terms }}</p>
+        </div>
+
+        <div class="detail-actions">
+          <button class="btn-primary" (click)="openEditModal(selectedWarranty)">
+            <i class="fa-solid fa-pen"></i> Edit
+          </button>
+          <button class="btn-danger" (click)="deleteWarranty(selectedWarranty)">
+            <i class="fa-solid fa-trash"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? 'Edit Warranty' : 'New Warranty' }}</h2>
+        <button class="btn-close" (click)="closeModal()">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-tabs">
+        <button [class.active]="activeTab === 'basic'" (click)="activeTab = 'basic'">Basic Info</button>
+        <button [class.active]="activeTab === 'coverage'" (click)="activeTab = 'coverage'">Coverage</button>
+        <button [class.active]="activeTab === 'sla'" (click)="activeTab = 'sla'">SLA & Limits</button>
+        <button [class.active]="activeTab === 'terms'" (click)="activeTab = 'terms'">Terms</button>
+      </div>
+
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <i class="fa-solid fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <div class="modal-body">
+        <!-- Basic Info Tab -->
+        <div class="tab-content" *ngIf="activeTab === 'basic'">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Code *</label>
+              <input type="text" [(ngModel)]="warrantyForm.code" [disabled]="isEditMode" placeholder="e.g., STD-12M">
+            </div>
+            <div class="form-group">
+              <label>Name *</label>
+              <input type="text" [(ngModel)]="warrantyForm.name" placeholder="Warranty name">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Type *</label>
+              <app-inline-select
+                [options]="warrantyTypeOptions"
+                [(ngModel)]="warrantyForm.type"
+                placeholder="Select warranty type"
+                label="Warranty Type"
+                [searchable]="true"
+                [allowAdd]="true"
+                [allowDelete]="true"
+                (optionAdded)="onWarrantyTypeAdded($event)"
+                (optionDeleted)="onWarrantyTypeDeleted($event)">
+              </app-inline-select>
+            </div>
+            <div class="form-group">
+              <label>Duration (months) *</label>
+              <input type="number" [(ngModel)]="warrantyForm.durationMonths" min="1" placeholder="12">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Product (optional)</label>
+              <app-inline-select
+                [options]="productOptions"
+                [(ngModel)]="warrantyForm.productId"
+                placeholder="-- All Products --"
+                label="Product"
+                [searchable]="true"
+                [allowAdd]="true"
+                (optionAdded)="onProductAdded($event)">
+              </app-inline-select>
+            </div>
+            <div class="form-group">
+              <label>Category (optional)</label>
+              <app-inline-select
+                [options]="categoryOptions"
+                [(ngModel)]="warrantyForm.categoryId"
+                placeholder="-- All Categories --"
+                label="Category"
+                [searchable]="true"
+                [allowAdd]="true"
+                (optionAdded)="onCategoryAdded($event)">
+              </app-inline-select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Extended Duration (months)</label>
+              <input type="number" [(ngModel)]="warrantyForm.extendedDurationMonths" min="0" placeholder="Optional">
+            </div>
+            <div class="form-group">
+              <label>Grace Period (days)</label>
+              <input type="number" [(ngModel)]="warrantyForm.gracePeriodDays" min="0" placeholder="Optional">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea [(ngModel)]="warrantyForm.description" rows="3" placeholder="Brief description"></textarea>
+          </div>
+          <div class="form-row checkboxes">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="warrantyForm.isActive">
+              <span>Active</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="warrantyForm.isDefault">
+              <span>Set as Default</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Coverage Tab -->
+        <div class="tab-content" *ngIf="activeTab === 'coverage'">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Coverage Type *</label>
+              <app-inline-select
+                [options]="coverageTypeOptions"
+                [(ngModel)]="warrantyForm.coverageType"
+                placeholder="Select coverage type"
+                label="Coverage Type"
+                [searchable]="true"
+                [allowAdd]="true"
+                [allowDelete]="true"
+                (optionAdded)="onCoverageTypeAdded($event)"
+                (optionDeleted)="onCoverageTypeDeleted($event)">
+              </app-inline-select>
+            </div>
+          </div>
+          <div class="form-section">
+            <h4>Includes</h4>
+            <div class="checkbox-grid">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="warrantyForm.includesParts">
+                <span>Parts</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="warrantyForm.includesLabor">
+                <span>Labor</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="warrantyForm.includesOnsite">
+                <span>On-site Service</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="warrantyForm.includesShipping">
+                <span>Shipping</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Covered Items</label>
+            <textarea [(ngModel)]="warrantyForm.coveredItems" rows="3" placeholder="List of items covered"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Excluded Items</label>
+            <textarea [(ngModel)]="warrantyForm.excludedItems" rows="3" placeholder="List of items NOT covered"></textarea>
+          </div>
+          <div class="form-section">
+            <h4>Requirements</h4>
+            <div class="checkbox-grid">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="warrantyForm.requiresRegistration">
+                <span>Requires Registration</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="warrantyForm.requiresProofOfPurchase">
+                <span>Requires Proof of Purchase</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="warrantyForm.isTransferable">
+                <span>Transferable</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-row" *ngIf="warrantyForm.requiresRegistration">
+            <div class="form-group">
+              <label>Registration Deadline (days)</label>
+              <input type="number" [(ngModel)]="warrantyForm.registrationDeadlineDays" min="0" placeholder="Days after purchase">
+            </div>
+          </div>
+        </div>
+
+        <!-- SLA & Limits Tab -->
+        <div class="tab-content" *ngIf="activeTab === 'sla'">
+          <div class="form-section">
+            <h4>Service Levels</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Response Time (hours)</label>
+                <input type="number" [(ngModel)]="warrantyForm.responseTimeHours" min="0" placeholder="Optional">
+              </div>
+              <div class="form-group">
+                <label>Resolution Time (hours)</label>
+                <input type="number" [(ngModel)]="warrantyForm.resolutionTimeHours" min="0" placeholder="Optional">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Support Hours</label>
+                <app-inline-select
+                  [options]="supportHoursOptions"
+                  [(ngModel)]="warrantyForm.supportHoursType"
+                  placeholder="Select support hours"
+                  label="Support Hours"
+                  [searchable]="false">
+                </app-inline-select>
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <h4>Claim Limits</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Max Claims</label>
+                <input type="number" [(ngModel)]="warrantyForm.maxClaims" min="0" placeholder="Unlimited">
+              </div>
+              <div class="form-group">
+                <label>Max Claim Value</label>
+                <input type="number" [(ngModel)]="warrantyForm.maxClaimValue" min="0" placeholder="No limit">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Max Claim Value %</label>
+                <input type="number" [(ngModel)]="warrantyForm.maxClaimValuePercent" min="0" max="100" placeholder="% of product price">
+              </div>
+              <div class="form-group">
+                <label>Deductible Amount</label>
+                <input type="number" [(ngModel)]="warrantyForm.deductibleAmount" min="0" placeholder="0">
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <h4>Extended Warranty Pricing</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Extended Warranty Price</label>
+                <input type="number" [(ngModel)]="warrantyForm.extendedWarrantyPrice" min="0" placeholder="Fixed price">
+              </div>
+              <div class="form-group">
+                <label>Price as % of Product</label>
+                <input type="number" [(ngModel)]="warrantyForm.extendedWarrantyPricePercent" min="0" max="100" placeholder="Percentage">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terms Tab -->
+        <div class="tab-content" *ngIf="activeTab === 'terms'">
+          <div class="form-group">
+            <label>Warranty Terms & Conditions</label>
+            <textarea [(ngModel)]="warrantyForm.terms" rows="10" placeholder="Full warranty terms and conditions..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()">Cancel</button>
+        <button class="btn-primary" (click)="saveWarranty()" [disabled]="loading">
+          <span *ngIf="loading"><i class="fa-solid fa-spinner fa-spin"></i> Saving...</span>
+          <span *ngIf="!loading">{{ isEditMode ? 'Update' : 'Create' }} Warranty</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

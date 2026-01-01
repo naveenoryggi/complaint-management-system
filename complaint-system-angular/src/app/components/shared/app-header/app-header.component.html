@@ -10,6 +10,10 @@
         </div>
         <h2 class="company-name">{{ company?.name || 'OryggiTech' }}</h2>
       </div>
+
+      <!-- Module Switcher -->
+      <app-module-switcher *ngIf="showModuleSwitcher"></app-module-switcher>
+
       <nav class="main-nav">
         <a class="nav-link" [class.active]="activeNavLink === 'dashboard'" (click)="navigateToPage('/dashboard')">Dashboard</a>
         <a class="nav-link" [class.active]="activeNavLink === 'complaints'" (click)="navigateToPage('/complaints')">All Complaints</a>

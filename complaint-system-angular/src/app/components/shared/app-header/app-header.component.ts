@@ -11,11 +11,12 @@ import { NotificationService } from '../../../services/notification.service';
 import { User } from '../../../models/user.model';
 import { Company } from '../../../models/company.model';
 import { AppNotification, getNotificationIcon, getNotificationColor, NotificationType } from '../../../models/notification.model';
+import { ModuleSwitcherComponent } from '../module-switcher/module-switcher.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModuleSwitcherComponent],
   templateUrl: './app-header.component.html',
   styleUrls: ['./app-header.component.scss']
 })
@@ -24,6 +25,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
   @Input() showSearch: boolean = false;
   @Input() showNotifications: boolean = false;
   @Input() showAdminPanel: boolean = true;
+  @Input() showModuleSwitcher: boolean = true;
   @Input() activeNavLink: string = '';
   @Input() notificationCount: number = 0;
 
@@ -179,7 +181,9 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
 
   navigateToAdmin(page: string): void {
     this.closeAllMenus();
-    this.router.navigate(['/admin', page]);
+    // Split the page path to handle nested routes like 'products/brands'
+    const segments = page.split('/').filter(s => s);
+    this.router.navigate(['/admin', ...segments]);
   }
 
   goHome(): void {
