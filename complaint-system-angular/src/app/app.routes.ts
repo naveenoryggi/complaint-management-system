@@ -29,6 +29,14 @@ export const routes: Routes = [
       {
         path: 'tickets/new',
         loadComponent: () => import('./components/portal/portal-ticket-create/portal-ticket-create.component').then(m => m.PortalTicketCreateComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./components/portal/portal-profile/portal-profile.component').then(m => m.PortalProfileComponent)
+      },
+      {
+        path: 'change-password',
+        loadComponent: () => import('./components/portal/portal-change-password/portal-change-password.component').then(m => m.PortalChangePasswordComponent)
       }
     ]
   },
@@ -258,6 +266,41 @@ export const routes: Routes = [
   {
     path: 'crm/projects',
     loadComponent: () => import('./components/crm/project-management/project-management.component').then(m => m.ProjectManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/assets',
+    loadComponent: () => import('./components/admin/asset-management/asset-management.component').then(m => m.AssetManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/stock-categories',
+    loadComponent: () => import('./components/admin/stock-category-management/stock-category-management.component').then(m => m.StockCategoryManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/stock-items',
+    loadComponent: () => import('./components/admin/stock-item-management/stock-item-management.component').then(m => m.StockItemManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'inventory/stock-items',
+    loadComponent: () => import('./components/admin/stock-item-management/stock-item-management.component').then(m => m.StockItemManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/stock-movements',
+    loadComponent: () => import('./components/admin/stock-movement-management/stock-movement-management.component').then(m => m.StockMovementManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'inventory/stock-movements',
+    loadComponent: () => import('./components/admin/stock-movement-management/stock-movement-management.component').then(m => m.StockMovementManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'crm/assets',
+    loadComponent: () => import('./components/admin/asset-management/asset-management.component').then(m => m.AssetManagementComponent),
     canActivate: [authGuard]
   },
   {

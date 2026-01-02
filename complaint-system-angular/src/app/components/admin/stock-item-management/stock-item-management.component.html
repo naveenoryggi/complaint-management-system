@@ -1,0 +1,531 @@
+<div class="stock-item-management-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Stock Items</h1>
+      <p class="subtitle">Manage inventory levels, adjustments, and transfers</p>
+    </div>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      <i class="fa-solid fa-plus"></i>
+      Add Stock Item
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  @if (error()) {
+    <div class="alert alert-error">
+      <i class="fa-solid fa-exclamation-circle"></i>
+      <span>{{ error() }}</span>
+      <button class="alert-close" (click)="error.set(null)"><i class="fa-solid fa-times"></i></button>
+    </div>
+  }
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <i class="fa-solid fa-check-circle"></i>
+      <span>{{ successMessage() }}</span>
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fa-solid fa-search"></i>
+      <input type="text" placeholder="Search by product name, code, or SKU..."
+        [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" (input)="onSearch()">
+    </div>
+    <div class="filter-group">
+      <select [ngModel]="locationFilter()" (ngModelChange)="locationFilter.set($event); onSearch()">
+        <option [ngValue]="null">All Locations</option>
+        @for (loc of stockLocations(); track loc.id) {
+          <option [value]="loc.id">{{ loc.name }}</option>
+        }
+      </select>
+      <select [ngModel]="categoryFilter()" (ngModelChange)="categoryFilter.set($event); onSearch()">
+        <option [ngValue]="null">All Categories</option>
+        @for (cat of stockCategories(); track cat.id) {
+          <option [value]="cat.id">{{ cat.name }}</option>
+        }
+      </select>
+      <label class="checkbox-filter">
+        <input type="checkbox" [ngModel]="lowStockFilter()" (ngModelChange)="lowStockFilter.set($event); onSearch()">
+        <span>Low Stock Only</span>
+      </label>
+      <button class="btn btn-outline" (click)="clearFilters()">
+        <i class="fa-solid fa-filter-circle-xmark"></i>
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading stock items...</p>
+    </div>
+  }
+
+  <!-- Stock Items Table -->
+  @if (!isLoading() && stockItems().length > 0) {
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Location</th>
+            <th>Category</th>
+            <th class="text-right">On Hand</th>
+            <th class="text-right">Reserved</th>
+            <th class="text-right">Available</th>
+            <th class="text-right">Value</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of stockItems(); track item.id) {
+            <tr [class.low-stock-row]="isLowStock(item)">
+              <td>
+                <div class="product-info">
+                  <span class="product-code">{{ item.productCode }}</span>
+                  <span class="product-name">{{ item.productName }}</span>
+                  @if (item.sku) {
+                    <span class="sku">SKU: {{ item.sku }}</span>
+                  }
+                </div>
+              </td>
+              <td>
+                @if (item.locationName) {
+                  <span class="location-badge">
+                    <i class="fa-solid fa-warehouse"></i>
+                    {{ item.locationName }}
+                  </span>
+                } @else {
+                  <span class="text-muted">--</span>
+                }
+              </td>
+              <td>
+                @if (item.stockCategoryName) {
+                  <span class="category-badge">{{ item.stockCategoryName }}</span>
+                } @else {
+                  <span class="text-muted">--</span>
+                }
+              </td>
+              <td class="text-right">
+                <span class="quantity">{{ formatNumber(item.quantityOnHand) }}</span>
+                <span class="unit">{{ item.unitOfMeasure }}</span>
+              </td>
+              <td class="text-right">
+                @if (item.quantityReserved > 0) {
+                  <span class="quantity reserved">{{ formatNumber(item.quantityReserved) }}</span>
+                } @else {
+                  <span class="text-muted">0</span>
+                }
+              </td>
+              <td class="text-right">
+                <span class="quantity" [class.low-stock]="isLowStock(item)">
+                  {{ formatNumber(item.quantityAvailable) }}
+                </span>
+                @if (isLowStock(item)) {
+                  <i class="fa-solid fa-exclamation-triangle low-stock-icon" title="Below minimum level"></i>
+                }
+              </td>
+              <td class="text-right">{{ formatCurrency(item.totalValue, item.currency) }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusClass(item.status)">
+                  {{ statusOptions[item.status]?.label || 'Unknown' }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn-icon" title="Edit" (click)="openEditModal(item)">
+                    <i class="fa-solid fa-edit"></i>
+                  </button>
+                  <button class="btn-icon" title="Adjust Stock" (click)="openAdjustModal(item)">
+                    <i class="fa-solid fa-sliders"></i>
+                  </button>
+                  <button class="btn-icon" title="Transfer" (click)="openTransferModal(item)">
+                    <i class="fa-solid fa-right-left"></i>
+                  </button>
+                  <button class="btn-icon" title="History" (click)="openHistoryModal(item)">
+                    <i class="fa-solid fa-history"></i>
+                  </button>
+                  <button class="btn-icon delete" title="Delete" (click)="deleteStockItem(item)">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <span class="page-info">Showing {{ (currentPage() - 1) * pageSize() + 1 }} - {{ Math.min(currentPage() * pageSize(), totalCount()) }} of {{ totalCount() }}</span>
+      <div class="page-buttons">
+        <button [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        @for (page of [].constructor(totalPages()); track $index) {
+          <button [class.active]="currentPage() === $index + 1" (click)="goToPage($index + 1)">
+            {{ $index + 1 }}
+          </button>
+        }
+        <button [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && stockItems().length === 0) {
+    <div class="empty-state">
+      <i class="fa-solid fa-boxes-stacked"></i>
+      <h3>No stock items found</h3>
+      <p>Add your first stock item to start tracking inventory.</p>
+      <button class="btn btn-primary" (click)="openAddModal()">
+        <i class="fa-solid fa-plus"></i>
+        Add Stock Item
+      </button>
+    </div>
+  }
+
+  <!-- Add/Edit Modal -->
+  @if (showModal()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-content large" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>{{ isEditMode() ? 'Edit Stock Item' : 'Add Stock Item' }}</h2>
+          <button class="modal-close" (click)="closeModal()">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+        <form [formGroup]="stockItemForm" (ngSubmit)="saveStockItem()">
+          <div class="modal-body">
+            <div class="form-grid">
+              <!-- Product Selection -->
+              <div class="form-group full-width">
+                <label for="productId">Product *</label>
+                <select id="productId" formControlName="productId" [attr.disabled]="isEditMode() ? true : null">
+                  <option value="">Select Product</option>
+                  @for (product of products(); track product.id) {
+                    <option [value]="product.id">{{ product.productCode }} - {{ product.name }}</option>
+                  }
+                </select>
+                @if (stockItemForm.get('productId')?.touched && stockItemForm.get('productId')?.invalid) {
+                  <span class="error-message">Product is required</span>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="stockCategoryId">Stock Category *</label>
+                <select id="stockCategoryId" formControlName="stockCategoryId">
+                  <option value="">Select Category</option>
+                  @for (cat of stockCategories(); track cat.id) {
+                    <option [value]="cat.id">{{ cat.name }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="locationId">Location</label>
+                <select id="locationId" formControlName="locationId">
+                  <option value="">No Location</option>
+                  @for (loc of stockLocations(); track loc.id) {
+                    <option [value]="loc.id">{{ loc.name }}</option>
+                  }
+                </select>
+              </div>
+
+              <!-- Quantities -->
+              <div class="form-group">
+                <label for="quantityOnHand">Quantity On Hand *</label>
+                <input type="number" id="quantityOnHand" formControlName="quantityOnHand" step="0.01" min="0">
+              </div>
+
+              <div class="form-group">
+                <label for="quantityReserved">Quantity Reserved</label>
+                <input type="number" id="quantityReserved" formControlName="quantityReserved" step="0.01" min="0">
+              </div>
+
+              <div class="form-group">
+                <label for="minimumQuantity">Minimum Quantity</label>
+                <input type="number" id="minimumQuantity" formControlName="minimumQuantity" step="0.01" min="0">
+              </div>
+
+              <div class="form-group">
+                <label for="maximumQuantity">Maximum Quantity</label>
+                <input type="number" id="maximumQuantity" formControlName="maximumQuantity" step="0.01" min="0">
+              </div>
+
+              <div class="form-group">
+                <label for="reorderQuantity">Reorder Quantity</label>
+                <input type="number" id="reorderQuantity" formControlName="reorderQuantity" step="0.01" min="0">
+              </div>
+
+              <div class="form-group">
+                <label for="safetyStock">Safety Stock</label>
+                <input type="number" id="safetyStock" formControlName="safetyStock" step="0.01" min="0">
+              </div>
+
+              <!-- Cost & Unit -->
+              <div class="form-group">
+                <label for="unitOfMeasure">Unit of Measure</label>
+                <input type="text" id="unitOfMeasure" formControlName="unitOfMeasure">
+              </div>
+
+              <div class="form-group">
+                <label for="unitCost">Unit Cost</label>
+                <input type="number" id="unitCost" formControlName="unitCost" step="0.01" min="0">
+              </div>
+
+              <div class="form-group">
+                <label for="currency">Currency</label>
+                <select id="currency" formControlName="currency">
+                  <option value="INR">INR</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="costingMethod">Costing Method</label>
+                <select id="costingMethod" formControlName="costingMethod">
+                  @for (opt of costingMethodOptions; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <!-- Status & Condition -->
+              <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" formControlName="status">
+                  @for (opt of statusOptions; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="condition">Condition</label>
+                <select id="condition" formControlName="condition">
+                  @for (opt of conditionOptions; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <!-- Tracking -->
+              <div class="form-group">
+                <label for="batchNumber">Batch Number</label>
+                <input type="text" id="batchNumber" formControlName="batchNumber">
+              </div>
+
+              <div class="form-group">
+                <label for="expiryDate">Expiry Date</label>
+                <input type="date" id="expiryDate" formControlName="expiryDate">
+              </div>
+
+              <!-- Notes -->
+              <div class="form-group full-width">
+                <label for="notes">Notes</label>
+                <textarea id="notes" formControlName="notes" rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
+              {{ isLoading() ? 'Saving...' : (isEditMode() ? 'Update' : 'Create') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Adjust Stock Modal -->
+  @if (showAdjustModal()) {
+    <div class="modal-overlay" (click)="closeAdjustModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Adjust Stock</h2>
+          <button class="modal-close" (click)="closeAdjustModal()">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+        <form [formGroup]="adjustForm" (ngSubmit)="saveAdjustment()">
+          <div class="modal-body">
+            @if (selectedItem()) {
+              <div class="item-summary">
+                <p><strong>Product:</strong> {{ selectedItem()!.productName }}</p>
+                <p><strong>Current Qty:</strong> {{ formatNumber(selectedItem()!.quantityOnHand) }}</p>
+              </div>
+            }
+            <div class="form-group">
+              <label for="adjustmentQuantity">Adjustment Quantity *</label>
+              <input type="number" id="adjustmentQuantity" formControlName="adjustmentQuantity" step="0.01">
+              <span class="help-text">Use positive for increase, negative for decrease</span>
+            </div>
+            <div class="form-group">
+              <label for="adjustReason">Reason *</label>
+              <select id="adjustReason" formControlName="reason">
+                <option value="">Select Reason</option>
+                <option value="Physical count variance">Physical count variance</option>
+                <option value="Damaged goods">Damaged goods</option>
+                <option value="Quality control rejection">Quality control rejection</option>
+                <option value="Returns processing">Returns processing</option>
+                <option value="Initial stock entry">Initial stock entry</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="adjustNotes">Notes</label>
+              <textarea id="adjustNotes" formControlName="notes" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="closeAdjustModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading() || adjustForm.invalid">
+              {{ isLoading() ? 'Processing...' : 'Apply Adjustment' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Transfer Stock Modal -->
+  @if (showTransferModal()) {
+    <div class="modal-overlay" (click)="closeTransferModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Transfer Stock</h2>
+          <button class="modal-close" (click)="closeTransferModal()">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+        <form [formGroup]="transferForm" (ngSubmit)="saveTransfer()">
+          <div class="modal-body">
+            @if (selectedItem()) {
+              <div class="item-summary">
+                <p><strong>Product:</strong> {{ selectedItem()!.productName }}</p>
+                <p><strong>From:</strong> {{ selectedItem()!.locationName || 'No Location' }}</p>
+                <p><strong>Available Qty:</strong> {{ formatNumber(selectedItem()!.quantityAvailable) }}</p>
+              </div>
+            }
+            <div class="form-group">
+              <label for="toLocationId">To Location *</label>
+              <select id="toLocationId" formControlName="toLocationId">
+                <option value="">Select Destination</option>
+                @for (loc of stockLocations(); track loc.id) {
+                  @if (loc.id !== selectedItem()?.locationId) {
+                    <option [value]="loc.id">{{ loc.name }}</option>
+                  }
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="toStockCategoryId">To Category (optional)</label>
+              <select id="toStockCategoryId" formControlName="toStockCategoryId">
+                <option value="">Same as source</option>
+                @for (cat of stockCategories(); track cat.id) {
+                  <option [value]="cat.id">{{ cat.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="transferQuantity">Quantity *</label>
+              <input type="number" id="transferQuantity" formControlName="quantity" step="0.01" min="0.01"
+                [max]="selectedItem()?.quantityAvailable ?? 0">
+            </div>
+            <div class="form-group">
+              <label for="transferReason">Reason</label>
+              <input type="text" id="transferReason" formControlName="reason" placeholder="e.g., Warehouse reorganization">
+            </div>
+            <div class="form-group">
+              <label for="transferNotes">Notes</label>
+              <textarea id="transferNotes" formControlName="notes" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="closeTransferModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading() || transferForm.invalid">
+              {{ isLoading() ? 'Processing...' : 'Transfer Stock' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Movement History Modal -->
+  @if (showHistoryModal()) {
+    <div class="modal-overlay" (click)="closeHistoryModal()">
+      <div class="modal-content large" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Movement History</h2>
+          <button class="modal-close" (click)="closeHistoryModal()">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          @if (selectedItem()) {
+            <div class="item-summary">
+              <p><strong>Product:</strong> {{ selectedItem()!.productName }}</p>
+              <p><strong>Current Qty:</strong> {{ formatNumber(selectedItem()!.quantityOnHand) }}</p>
+            </div>
+          }
+          @if (movementHistory().length > 0) {
+            <table class="data-table compact">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Movement #</th>
+                  <th>Type</th>
+                  <th class="text-right">Qty</th>
+                  <th class="text-right">Before</th>
+                  <th class="text-right">After</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (mov of movementHistory(); track mov.id) {
+                  <tr>
+                    <td>{{ formatDateTime(mov.movementDate) }}</td>
+                    <td><span class="movement-number">{{ mov.movementNumber }}</span></td>
+                    <td>
+                      <span class="movement-type" [ngClass]="getMovementTypeClass(mov.movementType)">
+                        {{ getMovementTypeLabel(mov.movementType) }}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span [class.qty-increase]="mov.movementType <= 4" [class.qty-decrease]="mov.movementType >= 10 && mov.movementType <= 16">
+                        {{ mov.movementType <= 4 ? '+' : '-' }}{{ formatNumber(mov.quantity) }}
+                      </span>
+                    </td>
+                    <td class="text-right">{{ formatNumber(mov.quantityBefore) }}</td>
+                    <td class="text-right">{{ formatNumber(mov.quantityAfter) }}</td>
+                    <td>{{ mov.reason || '-' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <div class="empty-state small">
+              <i class="fa-solid fa-history"></i>
+              <p>No movement history found</p>
+            </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" (click)="closeHistoryModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

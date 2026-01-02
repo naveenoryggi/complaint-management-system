@@ -4,6 +4,7 @@ using ComplaintManagement.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ComplaintManagement.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ComplaintDbContext))]
-    partial class ComplaintDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260102043827_AddStockManagementEntities")]
+    partial class AddStockManagementEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

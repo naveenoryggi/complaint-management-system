@@ -492,6 +492,26 @@ public class ComplaintDbContext : DbContext
     /// </summary>
     public DbSet<AssetServiceHistory> AssetServiceHistories { get; set; }
 
+    /// <summary>
+    /// Stock categories for classifying assets (Sales Stock, Fixed Asset, Faulty, etc.)
+    /// </summary>
+    public DbSet<StockCategory> StockCategories { get; set; }
+
+    /// <summary>
+    /// Stock locations (warehouses, stores, bins, etc.)
+    /// </summary>
+    public DbSet<StockLocation> StockLocations { get; set; }
+
+    /// <summary>
+    /// Quantity-based stock items (non-serialized inventory)
+    /// </summary>
+    public DbSet<StockItem> StockItems { get; set; }
+
+    /// <summary>
+    /// Stock movement transactions (receipts, issues, transfers, adjustments)
+    /// </summary>
+    public DbSet<StockMovement> StockMovements { get; set; }
+
     #endregion
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

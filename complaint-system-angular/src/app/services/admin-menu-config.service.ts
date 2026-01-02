@@ -52,6 +52,9 @@ export class AdminMenuConfigService {
         { label: 'Warranty Definitions', route: 'warranties', icon: 'fa-shield-halved', badge: 'Pro', permission: 'ManageContracts' },
         { label: 'Projects', route: 'projects', icon: 'fa-diagram-project', badge: 'Pro', permission: 'ManageProjects' },
         { label: 'Asset Management', route: 'assets', icon: 'fa-server', badge: 'Pro', permission: 'ManageAssets' },
+        { label: 'Stock Categories', route: 'stock-categories', icon: 'fa-boxes-stacked', badge: 'Pro', permission: 'ManageAssets' },
+        { label: 'Stock Items', route: 'stock-items', icon: 'fa-cubes-stacked', badge: 'Pro', permission: 'ManageAssets' },
+        { label: 'Stock Movements', route: 'stock-movements', icon: 'fa-exchange-alt', badge: 'Pro', permission: 'ManageAssets' },
         { label: 'Customer Portal', route: 'portal-settings', icon: 'fa-globe', badge: 'Pro', permission: 'ManagePortal' }
       ]
     },

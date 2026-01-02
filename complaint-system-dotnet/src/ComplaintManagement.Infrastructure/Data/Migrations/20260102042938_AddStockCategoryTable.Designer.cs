@@ -4,6 +4,7 @@ using ComplaintManagement.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ComplaintManagement.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ComplaintDbContext))]
-    partial class ComplaintDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260102042938_AddStockCategoryTable")]
+    partial class AddStockCategoryTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4890,7 +4893,7 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             Id = new Guid("20000000-0000-0000-0000-000000000001"),
                             Code = "LOW",
                             ColorCode = "#4CAF50",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 603, DateTimeKind.Utc).AddTicks(2308),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 472, DateTimeKind.Utc).AddTicks(3570),
                             Description = "Low priority - No immediate action required",
                             DisplayOrder = 1,
                             IconClass = "bi-arrow-down-circle",
@@ -4899,14 +4902,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsSystem = true,
                             Level = 1,
                             Name = "Low",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 603, DateTimeKind.Utc).AddTicks(2520)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 472, DateTimeKind.Utc).AddTicks(3715)
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000002"),
                             Code = "NORMAL",
                             ColorCode = "#2196F3",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 603, DateTimeKind.Utc).AddTicks(2908),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 472, DateTimeKind.Utc).AddTicks(3923),
                             Description = "Normal priority - Standard processing time",
                             DisplayOrder = 2,
                             IconClass = "bi-dash-circle",
@@ -4915,14 +4918,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsSystem = true,
                             Level = 3,
                             Name = "Normal",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 603, DateTimeKind.Utc).AddTicks(2909)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 472, DateTimeKind.Utc).AddTicks(3923)
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000003"),
                             Code = "HIGH",
                             ColorCode = "#FF9800",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 603, DateTimeKind.Utc).AddTicks(2914),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 472, DateTimeKind.Utc).AddTicks(3926),
                             Description = "High priority - Requires expedited attention",
                             DisplayOrder = 3,
                             IconClass = "bi-exclamation-circle",
@@ -4931,14 +4934,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsSystem = true,
                             Level = 5,
                             Name = "High",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 603, DateTimeKind.Utc).AddTicks(2915)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 472, DateTimeKind.Utc).AddTicks(3926)
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000004"),
                             Code = "CRITICAL",
                             ColorCode = "#F44336",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 603, DateTimeKind.Utc).AddTicks(2920),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 472, DateTimeKind.Utc).AddTicks(3928),
                             Description = "Critical priority - Requires immediate attention",
                             DisplayOrder = 4,
                             IconClass = "bi-exclamation-triangle",
@@ -4947,14 +4950,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsSystem = true,
                             Level = 8,
                             Name = "Critical",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 603, DateTimeKind.Utc).AddTicks(2920)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 472, DateTimeKind.Utc).AddTicks(3928)
                         },
                         new
                         {
                             Id = new Guid("20000000-0000-0000-0000-000000000005"),
                             Code = "URGENT",
                             ColorCode = "#9C27B0",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 603, DateTimeKind.Utc).AddTicks(2925),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 472, DateTimeKind.Utc).AddTicks(3931),
                             Description = "Urgent priority - Highest priority level",
                             DisplayOrder = 5,
                             IconClass = "bi-lightning",
@@ -4963,7 +4966,7 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsSystem = true,
                             Level = 10,
                             Name = "Urgent",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 603, DateTimeKind.Utc).AddTicks(2926)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 472, DateTimeKind.Utc).AddTicks(3931)
                         });
                 });
 
@@ -5051,7 +5054,7 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             Id = new Guid("10000000-0000-0000-0000-000000000001"),
                             Code = "SUBMITTED",
                             ColorCode = "#9E9E9E",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8766),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2965),
                             Description = "Complaint has been submitted but not yet reviewed",
                             DisplayOrder = 1,
                             IconClass = "bi-inbox",
@@ -5060,14 +5063,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Submitted",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8781)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2966)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000002"),
                             Code = "UNDER_REVIEW",
                             ColorCode = "#2196F3",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8796),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2973),
                             Description = "Complaint is being reviewed by the assigned handler",
                             DisplayOrder = 2,
                             IconClass = "bi-eye",
@@ -5076,14 +5079,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Under Review",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8796)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2973)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000003"),
                             Code = "IN_PROGRESS",
                             ColorCode = "#FF9800",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8801),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2976),
                             Description = "Complaint is currently being investigated",
                             DisplayOrder = 3,
                             IconClass = "bi-gear",
@@ -5092,14 +5095,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "In Progress",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8801)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2976)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000004"),
                             Code = "ESCALATED",
                             ColorCode = "#FF5722",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8805),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2978),
                             Description = "Complaint has been escalated to a higher level",
                             DisplayOrder = 4,
                             IconClass = "bi-arrow-up-circle",
@@ -5108,14 +5111,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Escalated",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8805)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2978)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000005"),
                             Code = "PENDING_INFO",
                             ColorCode = "#FFC107",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8809),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2981),
                             Description = "Complaint is awaiting information from the complainant",
                             DisplayOrder = 5,
                             IconClass = "bi-question-circle",
@@ -5124,14 +5127,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Pending Info",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8810)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2981)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000006"),
                             Code = "RESOLVED",
                             ColorCode = "#4CAF50",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8945),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2983),
                             Description = "Complaint has been resolved",
                             DisplayOrder = 6,
                             IconClass = "bi-check-circle",
@@ -5140,14 +5143,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Resolved",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8946)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2984)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000007"),
                             Code = "CLOSED",
                             ColorCode = "#607D8B",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8950),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2986),
                             Description = "Complaint has been closed (final state)",
                             DisplayOrder = 7,
                             IconClass = "bi-lock",
@@ -5156,14 +5159,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = true,
                             IsSystem = true,
                             Name = "Closed",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8951)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2986)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000008"),
                             Code = "REJECTED",
                             ColorCode = "#F44336",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8955),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2988),
                             Description = "Complaint has been rejected/dismissed",
                             DisplayOrder = 8,
                             IconClass = "bi-x-circle",
@@ -5172,14 +5175,14 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = true,
                             IsSystem = true,
                             Name = "Rejected",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8955)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2989)
                         },
                         new
                         {
                             Id = new Guid("10000000-0000-0000-0000-000000000009"),
                             Code = "REOPENED",
                             ColorCode = "#E91E63",
-                            CreatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8959),
+                            CreatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2991),
                             Description = "Complaint has been reopened after closure",
                             DisplayOrder = 9,
                             IconClass = "bi-arrow-repeat",
@@ -5188,7 +5191,7 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                             IsFinal = false,
                             IsSystem = true,
                             Name = "Reopened",
-                            UpdatedAt = new DateTime(2026, 1, 2, 4, 38, 25, 606, DateTimeKind.Utc).AddTicks(8960)
+                            UpdatedAt = new DateTime(2026, 1, 2, 4, 29, 35, 474, DateTimeKind.Utc).AddTicks(2991)
                         });
                 });
 
@@ -8487,464 +8490,6 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.ToTable("StockCategories", (string)null);
                 });
 
-            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.StockItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AttentionReason")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("BatchNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Condition")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CostingMethod")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasDefaultValue("INR");
-
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ExpiryDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastCountDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("LastCountQuantity")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<decimal?>("LastCountVariance")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<DateTime?>("LastMovementDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("LastPurchaseDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("LastPurchasePrice")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<Guid?>("LocationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("MaximumQuantity")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<decimal?>("MinimumQuantity")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<string>("ProductCode")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ProductName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("QuantityInTransit")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<decimal>("QuantityOnHand")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<decimal>("QuantityOnOrder")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<decimal>("QuantityReserved")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<decimal?>("ReorderQuantity")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<bool>("RequiresAttention")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SKU")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<decimal?>("SafetyStock")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("StockCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("UnitCost")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<string>("UnitOfMeasure")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LocationId");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("StockCategoryId");
-
-                    b.HasIndex("CompanyId", "ProductId", "LocationId", "StockCategoryId")
-                        .IsUnique()
-                        .HasFilter("[LocationId] IS NOT NULL");
-
-                    b.ToTable("StockItems", (string)null);
-                });
-
-            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.StockLocation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Address")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("CapacityUnit")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("City")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ContactEmail")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("ContactPerson")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("ContactPhone")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Country")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<double?>("Latitude")
-                        .HasColumnType("float");
-
-                    b.Property<double?>("Longitude")
-                        .HasColumnType("float");
-
-                    b.Property<int?>("MaxCapacity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<Guid?>("ParentLocationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("PostalCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<string>("State")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentLocationId");
-
-                    b.HasIndex("CompanyId", "Code")
-                        .IsUnique();
-
-                    b.ToTable("StockLocations", (string)null);
-                });
-
-            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.StockMovement", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ApprovalDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("ApprovedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("AssetId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("BatchNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ComplaintId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasDefaultValue("INR");
-
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ExpiryDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("FromLocationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("FromStockCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("MovementDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("MovementNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("MovementType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<Guid?>("PerformedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<decimal?>("QuantityAfter")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<decimal?>("QuantityBefore")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<string>("Reason")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<Guid?>("ReferenceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ReferenceNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int?>("ReferenceType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SerialNumber")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("StockItemId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ToLocationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ToStockCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("TotalValue")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<decimal?>("UnitCost")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<string>("UnitOfMeasure")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssetId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("FromLocationId");
-
-                    b.HasIndex("FromStockCategoryId");
-
-                    b.HasIndex("MovementDate");
-
-                    b.HasIndex("MovementType");
-
-                    b.HasIndex("StockItemId");
-
-                    b.HasIndex("ToLocationId");
-
-                    b.HasIndex("ToStockCategoryId");
-
-                    b.HasIndex("CompanyId", "MovementNumber")
-                        .IsUnique();
-
-                    b.HasIndex("ProductId", "MovementDate");
-
-                    b.ToTable("StockMovements", (string)null);
-                });
-
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.Warranty", b =>
                 {
                     b.Property<Guid>("Id")
@@ -11754,126 +11299,6 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.StockItem", b =>
-                {
-                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ComplaintManagement.Domain.Entities.Service.StockLocation", "Location")
-                        .WithMany("StockItems")
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("ComplaintManagement.Domain.Entities.Product.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ComplaintManagement.Domain.Entities.Service.StockCategory", "StockCategory")
-                        .WithMany()
-                        .HasForeignKey("StockCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Company");
-
-                    b.Navigation("Location");
-
-                    b.Navigation("Product");
-
-                    b.Navigation("StockCategory");
-                });
-
-            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.StockLocation", b =>
-                {
-                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ComplaintManagement.Domain.Entities.Service.StockLocation", "ParentLocation")
-                        .WithMany("ChildLocations")
-                        .HasForeignKey("ParentLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Company");
-
-                    b.Navigation("ParentLocation");
-                });
-
-            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.StockMovement", b =>
-                {
-                    b.HasOne("ComplaintManagement.Domain.Entities.Service.Asset", "Asset")
-                        .WithMany()
-                        .HasForeignKey("AssetId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("ComplaintManagement.Domain.Entities.MasterData.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ComplaintManagement.Domain.Entities.CRM.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("ComplaintManagement.Domain.Entities.Service.StockLocation", "FromLocation")
-                        .WithMany("MovementsFrom")
-                        .HasForeignKey("FromLocationId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("ComplaintManagement.Domain.Entities.Service.StockCategory", "FromStockCategory")
-                        .WithMany()
-                        .HasForeignKey("FromStockCategoryId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("ComplaintManagement.Domain.Entities.Product.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ComplaintManagement.Domain.Entities.Service.StockItem", "StockItem")
-                        .WithMany("Movements")
-                        .HasForeignKey("StockItemId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("ComplaintManagement.Domain.Entities.Service.StockLocation", "ToLocation")
-                        .WithMany("MovementsTo")
-                        .HasForeignKey("ToLocationId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("ComplaintManagement.Domain.Entities.Service.StockCategory", "ToStockCategory")
-                        .WithMany()
-                        .HasForeignKey("ToStockCategoryId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Asset");
-
-                    b.Navigation("Company");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("FromLocation");
-
-                    b.Navigation("FromStockCategory");
-
-                    b.Navigation("Product");
-
-                    b.Navigation("StockItem");
-
-                    b.Navigation("ToLocation");
-
-                    b.Navigation("ToStockCategory");
-                });
-
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.Warranty", b =>
                 {
                     b.HasOne("ComplaintManagement.Domain.Entities.Product.ProductCategory", "Category")
@@ -12272,22 +11697,6 @@ namespace ComplaintManagement.Infrastructure.Data.Migrations
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.StockCategory", b =>
                 {
                     b.Navigation("Assets");
-                });
-
-            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.StockItem", b =>
-                {
-                    b.Navigation("Movements");
-                });
-
-            modelBuilder.Entity("ComplaintManagement.Domain.Entities.Service.StockLocation", b =>
-                {
-                    b.Navigation("ChildLocations");
-
-                    b.Navigation("MovementsFrom");
-
-                    b.Navigation("MovementsTo");
-
-                    b.Navigation("StockItems");
                 });
 
             modelBuilder.Entity("ComplaintManagement.Domain.Entities.Workflows.CategoryWorkflow", b =>

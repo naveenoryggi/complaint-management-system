@@ -1,0 +1,485 @@
+<div class="stock-movement-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="fas fa-exchange-alt"></i> Stock Movements</h1>
+      <p class="subtitle">Track and manage all inventory transactions</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i> New Movement
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  @if (error()) {
+    <div class="alert alert-error">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ error() }}
+      <button class="alert-close" (click)="dismissError()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <i class="fas fa-check-circle"></i>
+      {{ successMessage() }}
+      <button class="alert-close" (click)="dismissSuccess()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Search by movement number, reference..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+        (keyup.enter)="onSearch()">
+    </div>
+
+    <div class="filter-group">
+      <select [ngModel]="filterType()" (ngModelChange)="filterType.set($event); onFilterChange()">
+        <option value="">All Types</option>
+        @for (type of movementTypes(); track type.id) {
+          <option [value]="type.id">{{ type.name }}</option>
+        }
+      </select>
+
+      <select [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event); onFilterChange()">
+        <option value="">All Statuses</option>
+        @for (status of movementStatuses(); track status.id) {
+          <option [value]="status.id">{{ status.name }}</option>
+        }
+      </select>
+
+      <select [ngModel]="filterStockItemId()" (ngModelChange)="filterStockItemId.set($event); onFilterChange()">
+        <option value="">All Stock Items</option>
+        @for (item of stockItems(); track item.id) {
+          <option [value]="item.id">{{ item.productName }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="date-filters">
+      <label>From:</label>
+      <input type="date" [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event); onFilterChange()">
+      <label>To:</label>
+      <input type="date" [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event); onFilterChange()">
+    </div>
+
+    @if (searchTerm() || filterType() || filterStatus() || filterStockItemId() || dateFrom() || dateTo()) {
+      <button class="btn btn-outline" (click)="clearFilters()">
+        <i class="fas fa-times"></i> Clear Filters
+      </button>
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading movements...</p>
+    </div>
+  } @else if (movements().length === 0) {
+    <!-- Empty State -->
+    <div class="empty-state">
+      <i class="fas fa-exchange-alt"></i>
+      <h3>No Stock Movements Found</h3>
+      <p>Stock movements will appear here when inventory transactions are recorded.</p>
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <i class="fas fa-plus"></i> Create Movement
+      </button>
+    </div>
+  } @else {
+    <!-- Table -->
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Movement #</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Product</th>
+            <th class="text-right">Quantity</th>
+            <th class="text-right">Value</th>
+            <th>Status</th>
+            <th>Reference</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (movement of movements(); track movement.id) {
+            <tr>
+              <td>
+                <span class="movement-number">{{ movement.movementNumber }}</span>
+              </td>
+              <td>{{ formatDate(movement.movementDate) }}</td>
+              <td>
+                <span class="movement-type"
+                  [class.movement-in]="isIncrease(movement.movementType)"
+                  [class.movement-out]="!isIncrease(movement.movementType)">
+                  <i class="fas" [class.fa-arrow-down]="isIncrease(movement.movementType)" [class.fa-arrow-up]="!isIncrease(movement.movementType)"></i>
+                  {{ getMovementTypeName(movement.movementType) }}
+                </span>
+              </td>
+              <td>
+                <div class="product-info">
+                  @if (movement.productName) {
+                    <span class="product-name">{{ movement.productName }}</span>
+                  } @else {
+                    <span class="text-muted">N/A</span>
+                  }
+                  @if (movement.assetTag) {
+                    <span class="asset-tag">Asset: {{ movement.assetTag }}</span>
+                  }
+                </div>
+              </td>
+              <td class="text-right">
+                <span class="quantity" [class.qty-increase]="isIncrease(movement.movementType)" [class.qty-decrease]="!isIncrease(movement.movementType)">
+                  {{ isIncrease(movement.movementType) ? '+' : '-' }}{{ formatNumber(movement.quantity) }}
+                </span>
+                @if (movement.unitOfMeasure) {
+                  <span class="unit">{{ movement.unitOfMeasure }}</span>
+                }
+              </td>
+              <td class="text-right">
+                @if (movement.totalValue) {
+                  <span class="value">{{ formatNumber(movement.totalValue) }}</span>
+                } @else {
+                  <span class="text-muted">-</span>
+                }
+              </td>
+              <td>
+                <span class="status-badge status-{{ getStatusName(movement.status).toLowerCase() }}">
+                  {{ getStatusName(movement.status) }}
+                </span>
+              </td>
+              <td>
+                @if (movement.referenceNumber) {
+                  <span class="reference">{{ movement.referenceNumber }}</span>
+                } @else {
+                  <span class="text-muted">-</span>
+                }
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn-icon" (click)="viewMovement(movement)" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  @if (canApprove(movement)) {
+                    <button class="btn-icon approve" (click)="approveMovement(movement)" title="Approve">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn-icon reject" (click)="rejectMovement(movement)" title="Reject">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  }
+                  @if (canCancel(movement)) {
+                    <button class="btn-icon delete" (click)="cancelMovement(movement)" title="Cancel">
+                      <i class="fas fa-ban"></i>
+                    </button>
+                  }
+                  @if (canReverse(movement)) {
+                    <button class="btn-icon" (click)="reverseMovement(movement)" title="Reverse">
+                      <i class="fas fa-undo"></i>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          <div class="page-info">
+            Showing {{ (currentPage() - 1) * pageSize() + 1 }} - {{ currentPage() * pageSize() > totalCount() ? totalCount() : currentPage() * pageSize() }} of {{ totalCount() }} movements
+          </div>
+          <div class="page-buttons">
+            <button (click)="goToPage(1)" [disabled]="currentPage() === 1">
+              <i class="fas fa-angle-double-left"></i>
+            </button>
+            <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">
+              <i class="fas fa-angle-left"></i>
+            </button>
+            @for (page of getPageNumbers(); track page) {
+              <button (click)="goToPage(page)" [class.active]="page === currentPage()">{{ page }}</button>
+            }
+            <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">
+              <i class="fas fa-angle-right"></i>
+            </button>
+            <button (click)="goToPage(totalPages())" [disabled]="currentPage() === totalPages()">
+              <i class="fas fa-angle-double-right"></i>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Create Movement Modal -->
+  @if (showModal()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2><i class="fas fa-plus"></i> New Stock Movement</h2>
+          <button class="modal-close" (click)="closeModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <form [formGroup]="movementForm" (ngSubmit)="onSubmit()">
+          <div class="modal-body">
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label for="movementType">Movement Type *</label>
+                <select id="movementType" formControlName="movementType">
+                  <optgroup label="Stock In">
+                    <option [value]="StockMovementType.Receipt">Receipt</option>
+                    <option [value]="StockMovementType.Return">Return</option>
+                    <option [value]="StockMovementType.TransferIn">Transfer In</option>
+                    <option [value]="StockMovementType.Production">Production</option>
+                    <option [value]="StockMovementType.Adjustment_In">Adjustment In</option>
+                  </optgroup>
+                  <optgroup label="Stock Out">
+                    <option [value]="StockMovementType.Issue">Issue</option>
+                    <option [value]="StockMovementType.Sale">Sale</option>
+                    <option [value]="StockMovementType.TransferOut">Transfer Out</option>
+                    <option [value]="StockMovementType.Consumption">Consumption</option>
+                    <option [value]="StockMovementType.Adjustment_Out">Adjustment Out</option>
+                    <option [value]="StockMovementType.Scrap">Scrap</option>
+                    <option [value]="StockMovementType.Loss">Loss</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option [value]="StockMovementType.StockCount">Stock Count</option>
+                    <option [value]="StockMovementType.Revaluation">Revaluation</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <div class="form-group full-width">
+                <label for="stockItemId">Stock Item</label>
+                <select id="stockItemId" formControlName="stockItemId">
+                  <option value="">Select a stock item (optional)</option>
+                  @for (item of stockItems(); track item.id) {
+                    <option [value]="item.id">{{ item.productName }} - {{ item.locationName }}</option>
+                  }
+                </select>
+                <span class="help-text">Leave empty to create a movement without a specific stock item</span>
+              </div>
+
+              <div class="form-group">
+                <label for="quantity">Quantity *</label>
+                <input type="number" id="quantity" formControlName="quantity" step="0.01" min="0.01">
+              </div>
+
+              <div class="form-group">
+                <label for="unitCost">Unit Cost</label>
+                <input type="number" id="unitCost" formControlName="unitCost" step="0.01" min="0">
+              </div>
+
+              <div class="form-group full-width">
+                <label for="reason">Reason *</label>
+                <input type="text" id="reason" formControlName="reason" placeholder="e.g., Initial stock receipt, Stock adjustment">
+              </div>
+
+              <div class="form-group full-width">
+                <label for="referenceNumber">Reference Number</label>
+                <input type="text" id="referenceNumber" formControlName="referenceNumber" placeholder="e.g., PO-001, INV-123">
+              </div>
+
+              <div class="form-group full-width">
+                <label for="notes">Notes</label>
+                <textarea id="notes" formControlName="notes" rows="3" placeholder="Additional notes..."></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading() || movementForm.invalid">
+              {{ isLoading() ? 'Creating...' : 'Create Movement' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Movement Detail Modal -->
+  @if (showDetailModal() && selectedMovement()) {
+    <div class="modal-overlay" (click)="closeDetailModal()">
+      <div class="modal-content large" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2><i class="fas fa-info-circle"></i> Movement Details</h2>
+          <button class="modal-close" (click)="closeDetailModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-grid">
+            <div class="detail-section">
+              <h3>Movement Information</h3>
+              <div class="detail-row">
+                <span class="label">Movement Number:</span>
+                <span class="value movement-number">{{ selectedMovement()?.movementNumber }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Type:</span>
+                <span class="value">
+                  <span class="movement-type"
+                    [class.movement-in]="isIncrease(selectedMovement()!.movementType)"
+                    [class.movement-out]="!isIncrease(selectedMovement()!.movementType)">
+                    {{ getMovementTypeName(selectedMovement()!.movementType) }}
+                  </span>
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Status:</span>
+                <span class="value">
+                  <span class="status-badge status-{{ getStatusName(selectedMovement()!.status).toLowerCase() }}">
+                    {{ getStatusName(selectedMovement()!.status) }}
+                  </span>
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Date:</span>
+                <span class="value">{{ formatDate(selectedMovement()?.movementDate) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Reference:</span>
+                <span class="value">{{ selectedMovement()?.referenceNumber || '-' }}</span>
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <h3>Quantity & Value</h3>
+              <div class="detail-row">
+                <span class="label">Quantity:</span>
+                <span class="value quantity" [class.qty-increase]="isIncrease(selectedMovement()!.movementType)" [class.qty-decrease]="!isIncrease(selectedMovement()!.movementType)">
+                  {{ isIncrease(selectedMovement()!.movementType) ? '+' : '-' }}{{ formatNumber(selectedMovement()?.quantity) }}
+                  {{ selectedMovement()?.unitOfMeasure }}
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Unit Price:</span>
+                <span class="value">{{ formatNumber(selectedMovement()?.unitCost) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Total Value:</span>
+                <span class="value">{{ formatNumber(selectedMovement()?.totalValue) }}</span>
+              </div>
+              @if (selectedMovement()?.quantityBefore !== undefined) {
+                <div class="detail-row">
+                  <span class="label">Stock Before:</span>
+                  <span class="value">{{ formatNumber(selectedMovement()?.quantityBefore) }}</span>
+                </div>
+              }
+              @if (selectedMovement()?.quantityAfter !== undefined) {
+                <div class="detail-row">
+                  <span class="label">Stock After:</span>
+                  <span class="value">{{ formatNumber(selectedMovement()?.quantityAfter) }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="detail-section">
+              <h3>Product & Location</h3>
+              <div class="detail-row">
+                <span class="label">Product:</span>
+                <span class="value">{{ selectedMovement()?.productName || '-' }}</span>
+              </div>
+              @if (selectedMovement()?.assetTag) {
+                <div class="detail-row">
+                  <span class="label">Asset:</span>
+                  <span class="value">{{ selectedMovement()?.assetTag }}</span>
+                </div>
+              }
+              @if (selectedMovement()?.customerName) {
+                <div class="detail-row">
+                  <span class="label">Customer:</span>
+                  <span class="value">{{ selectedMovement()?.customerName }}</span>
+                </div>
+              }
+              @if (selectedMovement()?.fromLocationName) {
+                <div class="detail-row">
+                  <span class="label">From Location:</span>
+                  <span class="value">{{ selectedMovement()?.fromLocationName }}</span>
+                </div>
+              }
+              @if (selectedMovement()?.toLocationName) {
+                <div class="detail-row">
+                  <span class="label">To Location:</span>
+                  <span class="value">{{ selectedMovement()?.toLocationName }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="detail-section full-width">
+              <h3>Reason & Notes</h3>
+              <div class="detail-row">
+                <span class="label">Reason:</span>
+                <span class="value">{{ selectedMovement()?.reason || '-' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Notes:</span>
+                <span class="value">{{ selectedMovement()?.notes || '-' }}</span>
+              </div>
+            </div>
+
+            <div class="detail-section full-width">
+              <h3>Audit Information</h3>
+              <div class="detail-row">
+                <span class="label">Performed By:</span>
+                <span class="value">{{ selectedMovement()?.performedByUserName || '-' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Movement Date:</span>
+                <span class="value">{{ formatDate(selectedMovement()?.movementDate) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Created At:</span>
+                <span class="value">{{ formatDate(selectedMovement()?.createdAt) }}</span>
+              </div>
+              @if (selectedMovement()?.approvedByUserName) {
+                <div class="detail-row">
+                  <span class="label">Approved By:</span>
+                  <span class="value">{{ selectedMovement()?.approvedByUserName }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Approved At:</span>
+                  <span class="value">{{ formatDate(selectedMovement()?.approvalDate) }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          @if (canApprove(selectedMovement()!)) {
+            <button class="btn btn-success" (click)="approveMovement(selectedMovement()!); closeDetailModal()">
+              <i class="fas fa-check"></i> Approve
+            </button>
+            <button class="btn btn-danger" (click)="rejectMovement(selectedMovement()!); closeDetailModal()">
+              <i class="fas fa-times"></i> Reject
+            </button>
+          }
+          @if (canCancel(selectedMovement()!)) {
+            <button class="btn btn-outline" (click)="cancelMovement(selectedMovement()!); closeDetailModal()">
+              <i class="fas fa-ban"></i> Cancel
+            </button>
+          }
+          @if (canReverse(selectedMovement()!)) {
+            <button class="btn btn-outline" (click)="reverseMovement(selectedMovement()!); closeDetailModal()">
+              <i class="fas fa-undo"></i> Reverse
+            </button>
+          }
+          <button class="btn btn-outline" (click)="closeDetailModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
