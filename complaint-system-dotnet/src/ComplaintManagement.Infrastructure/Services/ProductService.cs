@@ -500,10 +500,11 @@ public class ProductService : IProductService
             if (request.InStock.HasValue)
             {
                 // Stock quantities are now in StockItems, filter based on stock availability
+                // Use actual columns (QuantityOnHand - QuantityReserved) since QuantityAvailable is a computed property
                 if (request.InStock.Value)
-                    query = query.Where(p => !p.TrackInventory || p.StockItems.Any(s => s.QuantityAvailable > 0) || p.AllowBackorder);
+                    query = query.Where(p => !p.TrackInventory || p.StockItems.Any(s => (s.QuantityOnHand - s.QuantityReserved) > 0) || p.AllowBackorder);
                 else
-                    query = query.Where(p => p.TrackInventory && !p.StockItems.Any(s => s.QuantityAvailable > 0) && !p.AllowBackorder);
+                    query = query.Where(p => p.TrackInventory && !p.StockItems.Any(s => (s.QuantityOnHand - s.QuantityReserved) > 0) && !p.AllowBackorder);
             }
 
             if (request.IsFeatured.HasValue)
@@ -543,8 +544,9 @@ public class ProductService : IProductService
                     Currency = p.Currency,
                     Status = p.Status,
                     TrackInventory = p.TrackInventory,
-                    InStock = !p.TrackInventory || p.StockItems.Any(s => s.QuantityAvailable > 0) || p.AllowBackorder,
-                    TotalQuantityAvailable = p.StockItems.Sum(s => s.QuantityAvailable),
+                    // Use actual columns since QuantityAvailable is a computed property
+                    InStock = !p.TrackInventory || p.StockItems.Any(s => (s.QuantityOnHand - s.QuantityReserved) > 0) || p.AllowBackorder,
+                    TotalQuantityAvailable = p.StockItems.Sum(s => s.QuantityOnHand - s.QuantityReserved),
                     ThumbnailUrl = p.ThumbnailUrl,
                     IsFeatured = p.IsFeatured,
                     IsPublic = p.IsPublic
@@ -1044,7 +1046,7 @@ public class ProductService : IProductService
                     Type = p.Type,
                     UnitPrice = p.UnitPrice,
                     Currency = p.Currency,
-                    InStock = !p.TrackInventory || p.StockItems.Any(s => s.QuantityAvailable > 0) || p.AllowBackorder
+                    InStock = !p.TrackInventory || p.StockItems.Any(s => (s.QuantityOnHand - s.QuantityReserved) > 0) || p.AllowBackorder
                 })
                 .ToListAsync(cancellationToken);
 
@@ -1104,8 +1106,9 @@ public class ProductService : IProductService
                     Currency = p.Currency,
                     Status = p.Status,
                     TrackInventory = p.TrackInventory,
-                    InStock = !p.TrackInventory || p.StockItems.Any(s => s.QuantityAvailable > 0) || p.AllowBackorder,
-                    TotalQuantityAvailable = p.StockItems.Sum(s => s.QuantityAvailable),
+                    // Use actual columns since QuantityAvailable is a computed property
+                    InStock = !p.TrackInventory || p.StockItems.Any(s => (s.QuantityOnHand - s.QuantityReserved) > 0) || p.AllowBackorder,
+                    TotalQuantityAvailable = p.StockItems.Sum(s => s.QuantityOnHand - s.QuantityReserved),
                     ThumbnailUrl = p.ThumbnailUrl,
                     IsFeatured = p.IsFeatured,
                     IsPublic = p.IsPublic
@@ -1137,7 +1140,7 @@ public class ProductService : IProductService
                     Name = p.Name,
                     SKU = p.SKU,
                     UnitPrice = p.UnitPrice,
-                    InStock = !p.TrackInventory || p.StockItems.Any(s => s.QuantityAvailable > 0) || p.AllowBackorder,
+                    InStock = !p.TrackInventory || p.StockItems.Any(s => (s.QuantityOnHand - s.QuantityReserved) > 0) || p.AllowBackorder,
                     Status = p.Status
                 })
                 .ToListAsync(cancellationToken);
@@ -1543,10 +1546,11 @@ public class ProductService : IProductService
                 .ToListAsync(cancellationToken);
 
             // Get stock items for stock-related statistics
+            // Use actual columns since QuantityAvailable is a computed property
             var stockItems = await _context.StockItems
                 .Where(s => s.CompanyId == companyId)
                 .GroupBy(s => s.ProductId)
-                .Select(g => new { ProductId = g.Key, TotalAvailable = g.Sum(s => s.QuantityAvailable) })
+                .Select(g => new { ProductId = g.Key, TotalAvailable = g.Sum(s => s.QuantityOnHand - s.QuantityReserved) })
                 .ToListAsync(cancellationToken);
 
             var productStockDict = stockItems.ToDictionary(s => s.ProductId, s => s.TotalAvailable);
