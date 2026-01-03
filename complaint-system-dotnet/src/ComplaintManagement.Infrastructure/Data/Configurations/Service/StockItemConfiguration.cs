@@ -85,9 +85,10 @@ public class StockItemConfiguration : IEntityTypeConfiguration<StockItem>
             .HasForeignKey(s => s.CompanyId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Relationship with Product
+        // Relationship with Product - defined in ProductConfiguration
+        // Just specify the navigation property here, full relationship is in ProductConfiguration
         builder.HasOne(s => s.Product)
-            .WithMany()
+            .WithMany(p => p.StockItems)
             .HasForeignKey(s => s.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
 

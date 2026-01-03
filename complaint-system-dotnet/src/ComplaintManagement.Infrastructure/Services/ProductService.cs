@@ -581,6 +581,12 @@ public class ProductService : IProductService
                 .Include(p => p.Category)
                 .Include(p => p.ParentProduct)
                 .Include(p => p.Variants.Where(v => !v.IsDeleted))
+                .Include(p => p.StockItems.Where(s => !s.IsDeleted))
+                    .ThenInclude(s => s.Location)
+                .Include(p => p.StockItems.Where(s => !s.IsDeleted))
+                    .ThenInclude(s => s.StockCategory)
+                .Include(p => p.DefaultLocation)
+                .Include(p => p.DefaultStockCategory)
                 .FirstOrDefaultAsync(p => p.Id == productId && p.CompanyId == companyId, cancellationToken);
 
             if (product == null)
@@ -604,6 +610,12 @@ public class ProductService : IProductService
         {
             var product = await _context.Products
                 .Include(p => p.Category)
+                .Include(p => p.StockItems.Where(s => !s.IsDeleted))
+                    .ThenInclude(s => s.Location)
+                .Include(p => p.StockItems.Where(s => !s.IsDeleted))
+                    .ThenInclude(s => s.StockCategory)
+                .Include(p => p.DefaultLocation)
+                .Include(p => p.DefaultStockCategory)
                 .FirstOrDefaultAsync(p => p.ProductCode == productCode && p.CompanyId == companyId, cancellationToken);
 
             if (product == null)
@@ -627,6 +639,12 @@ public class ProductService : IProductService
         {
             var product = await _context.Products
                 .Include(p => p.Category)
+                .Include(p => p.StockItems.Where(s => !s.IsDeleted))
+                    .ThenInclude(s => s.Location)
+                .Include(p => p.StockItems.Where(s => !s.IsDeleted))
+                    .ThenInclude(s => s.StockCategory)
+                .Include(p => p.DefaultLocation)
+                .Include(p => p.DefaultStockCategory)
                 .FirstOrDefaultAsync(p => p.SKU == sku && p.CompanyId == companyId, cancellationToken);
 
             if (product == null)
