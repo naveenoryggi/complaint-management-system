@@ -10,8 +10,7 @@ namespace ComplaintManagement.Infrastructure.Services;
 public class StockMovementService : IStockMovementService
 {
     private readonly ComplaintDbContext _context;
-    private static int _movementCounter = 0;
-    private static readonly object _lockObject = new object();
+    private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
     public StockMovementService(ComplaintDbContext context)
     {
@@ -206,10 +205,11 @@ public class StockMovementService : IStockMovementService
         // Get current quantity for the stock item if provided
         decimal? quantityBefore = null;
         decimal? quantityAfter = null;
+        StockItem? stockItem = null;
 
         if (request.StockItemId.HasValue)
         {
-            var stockItem = await _context.StockItems
+            stockItem = await _context.StockItems
                 .FirstOrDefaultAsync(s => s.Id == request.StockItemId.Value && s.CompanyId == companyId);
 
             if (stockItem != null)
@@ -225,12 +225,19 @@ public class StockMovementService : IStockMovementService
                 {
                     quantityAfter = quantityBefore - request.Quantity;
                 }
+                else if (IsReservationMovement(request.MovementType))
+                {
+                    // Reservation doesn't change quantity on hand
+                    quantityAfter = quantityBefore;
+                }
                 else
                 {
                     quantityAfter = quantityBefore;
                 }
             }
         }
+
+        var movementNumber = await GenerateMovementNumberAsync(request.MovementType, companyId);
 
         var movement = new StockMovement
         {
@@ -240,7 +247,7 @@ public class StockMovementService : IStockMovementService
             AssetId = request.AssetId,
             ProductId = request.ProductId,
             MovementType = request.MovementType,
-            MovementNumber = GenerateMovementNumber(request.MovementType),
+            MovementNumber = movementNumber,
             FromLocationId = request.FromLocationId,
             ToLocationId = request.ToLocationId,
             FromStockCategoryId = request.FromStockCategoryId,
@@ -271,6 +278,38 @@ public class StockMovementService : IStockMovementService
         };
 
         _context.StockMovements.Add(movement);
+
+        // Apply the movement to the stock item
+        if (stockItem != null && quantityAfter.HasValue)
+        {
+            // Update quantity on hand
+            if (IsIncomingMovement(request.MovementType))
+            {
+                stockItem.QuantityOnHand += request.Quantity;
+            }
+            else if (IsOutgoingMovement(request.MovementType))
+            {
+                stockItem.QuantityOnHand -= request.Quantity;
+            }
+
+            // Update reserved quantity for reservation movements
+            if (IsReservationMovement(request.MovementType))
+            {
+                if (request.MovementType == StockMovementType.Reservation)
+                {
+                    stockItem.QuantityReserved += request.Quantity;
+                }
+                else if (request.MovementType == StockMovementType.Unreservation)
+                {
+                    stockItem.QuantityReserved -= request.Quantity;
+                }
+            }
+
+            stockItem.LastMovementDate = DateTime.UtcNow;
+            stockItem.UpdatedAt = DateTime.UtcNow;
+            stockItem.UpdatedBy = userId;
+        }
+
         await _context.SaveChangesAsync();
 
         return await GetByIdAsync(movement.Id, companyId);
@@ -371,6 +410,7 @@ public class StockMovementService : IStockMovementService
 
         // Create reverse movement
         var reverseMovementType = GetReverseMovementType(originalMovement.MovementType);
+        var reverseMovementNumber = await GenerateMovementNumberAsync(reverseMovementType, companyId);
 
         var reverseMovement = new StockMovement
         {
@@ -380,7 +420,7 @@ public class StockMovementService : IStockMovementService
             AssetId = originalMovement.AssetId,
             ProductId = originalMovement.ProductId,
             MovementType = reverseMovementType,
-            MovementNumber = GenerateMovementNumber(reverseMovementType),
+            MovementNumber = reverseMovementNumber,
             // Swap from/to for reversal
             FromLocationId = originalMovement.ToLocationId,
             ToLocationId = originalMovement.FromLocationId,
@@ -444,15 +484,49 @@ public class StockMovementService : IStockMovementService
         return await GetByIdAsync(reverseMovement.Id, companyId);
     }
 
-    public string GenerateMovementNumber(StockMovementType type)
+    public async Task<string> GenerateMovementNumberAsync(StockMovementType type, Guid companyId)
     {
-        lock (_lockObject)
+        await _semaphore.WaitAsync();
+        try
         {
-            _movementCounter++;
             var prefix = GetMovementPrefix(type);
             var timestamp = DateTime.UtcNow.ToString("yyMMdd");
-            return $"{prefix}-{timestamp}-{_movementCounter:D5}";
+            var pattern = $"{prefix}-{timestamp}-%";
+
+            // Get the latest movement number for this prefix and date
+            var latestNumber = await _context.StockMovements
+                .Where(m => m.CompanyId == companyId && EF.Functions.Like(m.MovementNumber, pattern))
+                .OrderByDescending(m => m.MovementNumber)
+                .Select(m => m.MovementNumber)
+                .FirstOrDefaultAsync();
+
+            int nextSequence = 1;
+            if (!string.IsNullOrEmpty(latestNumber))
+            {
+                // Parse the sequence number from the movement number (e.g., "RCV-260103-00005" -> 5)
+                var parts = latestNumber.Split('-');
+                if (parts.Length == 3 && int.TryParse(parts[2], out int currentSeq))
+                {
+                    nextSequence = currentSeq + 1;
+                }
+            }
+
+            return $"{prefix}-{timestamp}-{nextSequence:D5}";
         }
+        finally
+        {
+            _semaphore.Release();
+        }
+    }
+
+    // Keep sync version for backward compatibility (interface requirement)
+    public string GenerateMovementNumber(StockMovementType type)
+    {
+        // This is a fallback - use GenerateMovementNumberAsync when possible
+        var prefix = GetMovementPrefix(type);
+        var timestamp = DateTime.UtcNow.ToString("yyMMdd");
+        var guid = Guid.NewGuid().ToString("N").Substring(0, 5).ToUpper();
+        return $"{prefix}-{timestamp}-{guid}";
     }
 
     private static string GetMovementPrefix(StockMovementType type)
@@ -520,6 +594,16 @@ public class StockMovementService : IStockMovementService
             StockMovementType.Adjustment_Out => true,
             StockMovementType.Scrap => true,
             StockMovementType.Loss => true,
+            _ => false
+        };
+    }
+
+    private static bool IsReservationMovement(StockMovementType type)
+    {
+        return type switch
+        {
+            StockMovementType.Reservation => true,
+            StockMovementType.Unreservation => true,
             _ => false
         };
     }
