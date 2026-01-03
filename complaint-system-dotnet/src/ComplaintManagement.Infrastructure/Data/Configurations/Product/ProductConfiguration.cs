@@ -189,9 +189,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Domain.Entities.Pro
         builder.Property(p => p.StatusReason)
             .HasMaxLength(500);
 
-        builder.Property(p => p.DefaultWarehouse)
-            .HasMaxLength(100);
-
         #endregion
 
         #region SEO
@@ -269,6 +266,8 @@ public class ProductConfiguration : IEntityTypeConfiguration<Domain.Entities.Pro
         builder.HasIndex(p => p.HSNCode);
         builder.HasIndex(p => p.IsPublic);
         builder.HasIndex(p => p.IsFeatured);
+        builder.HasIndex(p => p.DefaultLocationId);
+        builder.HasIndex(p => p.DefaultStockCategoryId);
 
         #endregion
 
@@ -309,10 +308,28 @@ public class ProductConfiguration : IEntityTypeConfiguration<Domain.Entities.Pro
             .HasForeignKey(p => p.ReplacementProductId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        // Stock Management relationships
+        builder.HasOne(p => p.DefaultLocation)
+            .WithMany()
+            .HasForeignKey(p => p.DefaultLocationId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne(p => p.DefaultStockCategory)
+            .WithMany()
+            .HasForeignKey(p => p.DefaultStockCategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasMany(p => p.StockItems)
+            .WithOne(s => s.Product)
+            .HasForeignKey(s => s.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         #endregion
 
-        // Ignore computed properties
-        builder.Ignore(p => p.QuantityAvailable);
+        // Ignore computed properties (quantities are now in StockItems)
+        builder.Ignore(p => p.TotalQuantityAvailable);
+        builder.Ignore(p => p.TotalQuantityOnHand);
+        builder.Ignore(p => p.TotalQuantityReserved);
         builder.Ignore(p => p.InStock);
         builder.Ignore(p => p.IsVariant);
         builder.Ignore(p => p.HasVariants);

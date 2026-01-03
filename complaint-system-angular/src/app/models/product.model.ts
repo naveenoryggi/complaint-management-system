@@ -252,15 +252,20 @@ export interface Product {
   maxOrderQuantity?: number;
   quantityIncrement?: number;
   quantityPerPack?: number;
+  // Inventory Settings (actual quantities managed via Stock Management module)
   trackInventory: boolean;
-  quantityInStock?: number;
-  quantityReserved?: number;
-  quantityAvailable?: number;
-  reorderLevel?: number;
-  reorderQuantity?: number;
-  leadTimeDays?: number;
   allowBackorder: boolean;
-  defaultWarehouse?: string;
+  defaultLocationId?: string;
+  defaultLocationName?: string;
+  defaultStockCategoryId?: string;
+  defaultStockCategoryName?: string;
+
+  // Computed Stock Quantities (from StockItems)
+  totalQuantityOnHand?: number;
+  totalQuantityReserved?: number;
+  totalQuantityAvailable?: number;
+  stockItemCount?: number;
+  stockItems?: StockItemSummary[];
   brandId?: string;
   brand?: string;
   brandName?: string;
@@ -336,8 +341,8 @@ export interface ProductSummary {
   currency: string;
   unitOfMeasure: UnitOfMeasure;
   unitOfMeasureName?: string;
-  quantityInStock?: number;
-  quantityAvailable?: number;
+  trackInventory?: boolean;
+  totalQuantityAvailable?: number;
   inStock?: boolean;
   imageUrl?: string;
   thumbnailUrl?: string;
@@ -350,6 +355,21 @@ export interface ProductSummary {
   isFeatured: boolean;
   isPublic: boolean;
   variantCount?: number;
+}
+
+// Stock Item Summary (embedded in ProductDto)
+export interface StockItemSummary {
+  id: string;
+  locationId?: string;
+  locationName?: string;
+  stockCategoryId: string;
+  stockCategoryName?: string;
+  quantityOnHand: number;
+  quantityReserved: number;
+  quantityAvailable: number;
+  unitCost?: number;
+  batchNumber?: string;
+  expiryDate?: string;
 }
 
 export interface CreateProductRequest {
@@ -382,13 +402,14 @@ export interface CreateProductRequest {
   maxOrderQuantity?: number;
   quantityIncrement?: number;
   quantityPerPack?: number;
+  // Inventory Settings (quantities managed via Stock Management module)
   trackInventory?: boolean;
-  quantityInStock?: number;
-  reorderLevel?: number;
-  reorderQuantity?: number;
-  leadTimeDays?: number;
   allowBackorder?: boolean;
-  defaultWarehouse?: string;
+  defaultLocationId?: string;
+  defaultStockCategoryId?: string;
+  // Initial Stock (optional - creates initial StockItem if provided)
+  initialQuantity?: number;
+  initialUnitCost?: number;
   brandId?: string;
   brand?: string;
   manufacturer?: string;
@@ -430,13 +451,9 @@ export interface UpdateProductRequest extends CreateProductRequest {
   statusReason?: string;
 }
 
-export interface UpdateInventoryRequest {
-  quantityInStock: number;
-  quantityReserved?: number;
-  reorderLevel?: number;
-  reorderQuantity?: number;
-  defaultWarehouse?: string;
-}
+// NOTE: UpdateInventoryRequest has been removed.
+// Inventory quantities are now managed through the Stock Management module.
+// Use StockMovementService to create stock adjustments, receipts, issues, etc.
 
 export interface ProductLookup {
   id: string;

@@ -99,10 +99,9 @@ public interface IProductService
     /// </summary>
     Task<Result<ProductDto>> CloneProductAsync(Guid companyId, Guid productId, CloneProductRequest request, Guid createdBy, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Updates product inventory
-    /// </summary>
-    Task<Result<ProductDto>> UpdateInventoryAsync(Guid companyId, Guid productId, UpdateInventoryRequest request, Guid updatedBy, CancellationToken cancellationToken = default);
+    // NOTE: UpdateInventoryAsync has been removed.
+    // Inventory is now managed through the Stock Management module (IStockMovementService).
+    // Use StockMovements for all inventory adjustments to enable location-based tracking and full audit trails.
 
     /// <summary>
     /// Gets product lookup for dropdowns

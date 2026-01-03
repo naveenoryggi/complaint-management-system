@@ -7,7 +7,6 @@ import {
   ProductSummary,
   CreateProductRequest,
   UpdateProductRequest,
-  UpdateInventoryRequest,
   ProductLookup,
   ProductCategory,
   CategoryTreeNode,
@@ -176,9 +175,9 @@ export class ProductService {
     return this.http.post<ApiResponse<Product>>(`${this.baseUrl}/${id}/clone`, { newCode });
   }
 
-  updateInventory(id: string, request: UpdateInventoryRequest): Observable<ApiResponse<Product>> {
-    return this.http.post<ApiResponse<Product>>(`${this.baseUrl}/${id}/inventory`, request);
-  }
+  // NOTE: updateInventory has been removed.
+  // Inventory quantities are now managed through the Stock Management module.
+  // Use StockService.createStockMovement() for all inventory adjustments.
 
   getProductLookup(search?: string, categoryId?: string): Observable<ApiResponse<ProductLookup[]>> {
     let params = new HttpParams();

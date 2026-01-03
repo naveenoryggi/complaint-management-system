@@ -117,34 +117,22 @@ public class Product : BaseEntity
 
     #endregion
 
-    #region Inventory (for physical products)
+    #region Inventory Settings
+    // Note: Actual inventory quantities are managed through StockItem entities
+    // which provide location-based tracking, movement history, and audit trails.
+    // These settings control how inventory should be managed for this product.
 
-    /// <summary>Whether to track inventory for this product</summary>
+    /// <summary>Whether to track inventory for this product via Stock Management module</summary>
     public bool TrackInventory { get; set; }
 
-    /// <summary>Current quantity in stock</summary>
-    public int? QuantityInStock { get; set; }
-
-    /// <summary>Quantity reserved for orders</summary>
-    public int? QuantityReserved { get; set; }
-
-    /// <summary>Quantity available (InStock - Reserved)</summary>
-    public int? QuantityAvailable => QuantityInStock - (QuantityReserved ?? 0);
-
-    /// <summary>Reorder point - when to reorder</summary>
-    public int? ReorderLevel { get; set; }
-
-    /// <summary>Quantity to reorder</summary>
-    public int? ReorderQuantity { get; set; }
-
-    /// <summary>Lead time for reorder in days</summary>
-    public int? LeadTimeDays { get; set; }
-
-    /// <summary>Whether to allow backorders</summary>
+    /// <summary>Whether to allow backorders when stock is unavailable</summary>
     public bool AllowBackorder { get; set; }
 
-    /// <summary>Default warehouse/location</summary>
-    public string? DefaultWarehouse { get; set; }
+    /// <summary>Default stock location ID for new stock items</summary>
+    public Guid? DefaultLocationId { get; set; }
+
+    /// <summary>Default stock category ID for new stock items</summary>
+    public Guid? DefaultStockCategoryId { get; set; }
 
     #endregion
 
@@ -371,12 +359,43 @@ public class Product : BaseEntity
     /// <summary>Assets that are instances of this product</summary>
     public virtual ICollection<Service.Asset> Assets { get; set; } = new List<Service.Asset>();
 
+    /// <summary>Stock items tracking inventory for this product (location-based)</summary>
+    public virtual ICollection<Service.StockItem> StockItems { get; set; } = new List<Service.StockItem>();
+
+    /// <summary>Default stock location for this product</summary>
+    public virtual Service.StockLocation? DefaultLocation { get; set; }
+
+    /// <summary>Default stock category for this product</summary>
+    public virtual Service.StockCategory? DefaultStockCategory { get; set; }
+
     #endregion
 
     #region Computed Properties
 
-    /// <summary>Whether product is in stock</summary>
-    public bool InStock => !TrackInventory || (QuantityAvailable ?? 0) > 0;
+    /// <summary>
+    /// Total quantity available across all stock items and locations.
+    /// Returns 0 if inventory tracking is disabled or no stock items exist.
+    /// </summary>
+    public decimal TotalQuantityAvailable => TrackInventory && StockItems?.Any() == true
+        ? StockItems.Sum(s => s.QuantityAvailable)
+        : 0;
+
+    /// <summary>
+    /// Total quantity on hand across all stock items and locations.
+    /// </summary>
+    public decimal TotalQuantityOnHand => StockItems?.Any() == true
+        ? StockItems.Sum(s => s.QuantityOnHand)
+        : 0;
+
+    /// <summary>
+    /// Total quantity reserved across all stock items and locations.
+    /// </summary>
+    public decimal TotalQuantityReserved => StockItems?.Any() == true
+        ? StockItems.Sum(s => s.QuantityReserved)
+        : 0;
+
+    /// <summary>Whether product is in stock (has available quantity)</summary>
+    public bool InStock => !TrackInventory || TotalQuantityAvailable > 0;
 
     /// <summary>Whether product is a variant of another product</summary>
     public bool IsVariant => ParentProductId.HasValue;

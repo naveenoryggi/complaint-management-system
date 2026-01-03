@@ -268,21 +268,9 @@ public class ProductsController : ControllerBase
         return CreatedAtAction(nameof(GetProductById), new { id = result.Data!.Id }, new { isSuccess = true, data = result.Data });
     }
 
-    /// <summary>
-    /// Updates product inventory
-    /// </summary>
-    [HttpPost("{id:guid}/inventory")]
-    public async Task<IActionResult> UpdateInventory(Guid id, [FromBody] UpdateInventoryRequest request, CancellationToken cancellationToken = default)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(new { isSuccess = false, message = "Invalid request data" });
-
-        var result = await _productService.UpdateInventoryAsync(GetCompanyId(), id, request, GetUserId(), cancellationToken);
-        if (!result.IsSuccess)
-            return BadRequest(new { isSuccess = false, message = result.Message });
-
-        return Ok(new { isSuccess = true, data = result.Data });
-    }
+    // NOTE: Inventory updates are now managed through the Stock Management module.
+    // Use POST /api/StockMovements to create stock adjustments, receipts, issues, etc.
+    // This provides location-based tracking, movement history, and full audit trails.
 
     /// <summary>
     /// Gets product lookup for dropdowns

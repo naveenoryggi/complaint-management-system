@@ -499,10 +499,11 @@ public class ProductService : IProductService
 
             if (request.InStock.HasValue)
             {
+                // Stock quantities are now in StockItems, filter based on stock availability
                 if (request.InStock.Value)
-                    query = query.Where(p => !p.TrackInventory || (p.QuantityInStock > 0) || p.AllowBackorder);
+                    query = query.Where(p => !p.TrackInventory || p.StockItems.Any(s => s.QuantityAvailable > 0) || p.AllowBackorder);
                 else
-                    query = query.Where(p => p.TrackInventory && p.QuantityInStock <= 0 && !p.AllowBackorder);
+                    query = query.Where(p => p.TrackInventory && !p.StockItems.Any(s => s.QuantityAvailable > 0) && !p.AllowBackorder);
             }
 
             if (request.IsFeatured.HasValue)
@@ -541,8 +542,9 @@ public class ProductService : IProductService
                     UnitPrice = p.UnitPrice,
                     Currency = p.Currency,
                     Status = p.Status,
-                    InStock = !p.TrackInventory || (p.QuantityInStock > 0) || p.AllowBackorder,
-                    QuantityInStock = p.QuantityInStock,
+                    TrackInventory = p.TrackInventory,
+                    InStock = !p.TrackInventory || p.StockItems.Any(s => s.QuantityAvailable > 0) || p.AllowBackorder,
+                    TotalQuantityAvailable = p.StockItems.Sum(s => s.QuantityAvailable),
                     ThumbnailUrl = p.ThumbnailUrl,
                     IsFeatured = p.IsFeatured,
                     IsPublic = p.IsPublic
@@ -695,11 +697,9 @@ public class ProductService : IProductService
                 MaxOrderQuantity = request.MaxOrderQuantity,
                 QuantityIncrement = request.QuantityIncrement,
                 TrackInventory = request.TrackInventory,
-                QuantityInStock = request.QuantityInStock,
-                ReorderLevel = request.ReorderLevel,
-                ReorderQuantity = request.ReorderQuantity,
                 AllowBackorder = request.AllowBackorder,
-                DefaultWarehouse = request.DefaultWarehouse,
+                DefaultLocationId = request.DefaultLocationId,
+                DefaultStockCategoryId = request.DefaultStockCategoryId,
                 Brand = request.Brand,
                 Manufacturer = request.Manufacturer,
                 Model = request.Model,
@@ -800,11 +800,9 @@ public class ProductService : IProductService
             product.MaxOrderQuantity = request.MaxOrderQuantity;
             product.QuantityIncrement = request.QuantityIncrement;
             product.TrackInventory = request.TrackInventory;
-            product.ReorderLevel = request.ReorderLevel;
-            product.ReorderQuantity = request.ReorderQuantity;
-            product.LeadTimeDays = request.LeadTimeDays;
             product.AllowBackorder = request.AllowBackorder;
-            product.DefaultWarehouse = request.DefaultWarehouse;
+            product.DefaultLocationId = request.DefaultLocationId;
+            product.DefaultStockCategoryId = request.DefaultStockCategoryId;
             product.Brand = request.Brand;
             product.Manufacturer = request.Manufacturer;
             product.Model = request.Model;
@@ -944,7 +942,9 @@ public class ProductService : IProductService
                 MinOrderQuantity = source.MinOrderQuantity,
                 MaxOrderQuantity = source.MaxOrderQuantity,
                 TrackInventory = source.TrackInventory,
-                ReorderLevel = source.ReorderLevel,
+                AllowBackorder = source.AllowBackorder,
+                DefaultLocationId = source.DefaultLocationId,
+                DefaultStockCategoryId = source.DefaultStockCategoryId,
                 Brand = source.Brand,
                 Manufacturer = source.Manufacturer,
                 Model = source.Model,
@@ -1005,43 +1005,10 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task<Result<ProductDto>> UpdateInventoryAsync(
-        Guid companyId,
-        Guid productId,
-        UpdateInventoryRequest request,
-        Guid updatedBy,
-        CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var product = await _context.Products
-                .FirstOrDefaultAsync(p => p.Id == productId && p.CompanyId == companyId, cancellationToken);
-
-            if (product == null)
-                return Result<ProductDto>.Failure("Product not found");
-
-            if (!product.TrackInventory)
-                return Result<ProductDto>.Failure("This product does not track inventory");
-
-            product.QuantityInStock = (product.QuantityInStock ?? 0) + request.QuantityChange;
-
-            if (product.QuantityInStock < 0)
-                return Result<ProductDto>.Failure("Quantity cannot be negative");
-
-            product.UpdatedBy = updatedBy;
-            await _context.SaveChangesAsync(cancellationToken);
-
-            _logger.LogInformation("Updated inventory for product {ProductId}: {Change} ({Reason})",
-                productId, request.QuantityChange, request.Reason);
-
-            return Result<ProductDto>.Success(MapToProductDto(product));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating inventory for product {ProductId}", productId);
-            return Result<ProductDto>.Failure("Failed to update inventory");
-        }
-    }
+    // DEPRECATED: UpdateInventoryAsync has been removed.
+    // Inventory is now managed through the Stock Management module.
+    // Use IStockMovementService.CreateMovementAsync() to adjust stock quantities.
+    // This provides location-based tracking, movement history, and full audit trails.
 
     public async Task<Result<List<ProductLookupDto>>> GetProductLookupAsync(
         Guid companyId,
@@ -1077,7 +1044,7 @@ public class ProductService : IProductService
                     Type = p.Type,
                     UnitPrice = p.UnitPrice,
                     Currency = p.Currency,
-                    InStock = !p.TrackInventory || (p.QuantityInStock > 0) || p.AllowBackorder
+                    InStock = !p.TrackInventory || p.StockItems.Any(s => s.QuantityAvailable > 0) || p.AllowBackorder
                 })
                 .ToListAsync(cancellationToken);
 
@@ -1136,8 +1103,9 @@ public class ProductService : IProductService
                     UnitPrice = p.UnitPrice,
                     Currency = p.Currency,
                     Status = p.Status,
-                    InStock = !p.TrackInventory || (p.QuantityInStock > 0) || p.AllowBackorder,
-                    QuantityInStock = p.QuantityInStock,
+                    TrackInventory = p.TrackInventory,
+                    InStock = !p.TrackInventory || p.StockItems.Any(s => s.QuantityAvailable > 0) || p.AllowBackorder,
+                    TotalQuantityAvailable = p.StockItems.Sum(s => s.QuantityAvailable),
                     ThumbnailUrl = p.ThumbnailUrl,
                     IsFeatured = p.IsFeatured,
                     IsPublic = p.IsPublic
@@ -1169,7 +1137,7 @@ public class ProductService : IProductService
                     Name = p.Name,
                     SKU = p.SKU,
                     UnitPrice = p.UnitPrice,
-                    InStock = !p.TrackInventory || (p.QuantityInStock > 0) || p.AllowBackorder,
+                    InStock = !p.TrackInventory || p.StockItems.Any(s => s.QuantityAvailable > 0) || p.AllowBackorder,
                     Status = p.Status
                 })
                 .ToListAsync(cancellationToken);
@@ -1574,6 +1542,15 @@ public class ProductService : IProductService
                 .Where(p => p.CompanyId == companyId)
                 .ToListAsync(cancellationToken);
 
+            // Get stock items for stock-related statistics
+            var stockItems = await _context.StockItems
+                .Where(s => s.CompanyId == companyId)
+                .GroupBy(s => s.ProductId)
+                .Select(g => new { ProductId = g.Key, TotalAvailable = g.Sum(s => s.QuantityAvailable) })
+                .ToListAsync(cancellationToken);
+
+            var productStockDict = stockItems.ToDictionary(s => s.ProductId, s => s.TotalAvailable);
+
             var stats = new ProductStatisticsDto
             {
                 TotalProducts = products.Count,
@@ -1582,9 +1559,11 @@ public class ProductService : IProductService
                 DiscontinuedProducts = products.Count(p => p.Status == ProductStatus.Discontinued || p.Status == ProductStatus.EndOfLife),
                 TotalCategories = await _context.ProductCategories
                     .CountAsync(c => c.CompanyId == companyId && c.IsActive, cancellationToken),
-                ProductsInStock = products.Count(p => !p.TrackInventory || (p.QuantityInStock > 0)),
-                ProductsOutOfStock = products.Count(p => p.TrackInventory && p.QuantityInStock <= 0 && !p.AllowBackorder),
-                ProductsBelowReorderLevel = products.Count(p => p.TrackInventory && p.ReorderLevel.HasValue && p.QuantityInStock < p.ReorderLevel),
+                ProductsInStock = products.Count(p => !p.TrackInventory || productStockDict.GetValueOrDefault(p.Id, 0) > 0),
+                ProductsOutOfStock = products.Count(p => p.TrackInventory && productStockDict.GetValueOrDefault(p.Id, 0) <= 0 && !p.AllowBackorder),
+                // ProductsBelowReorderLevel now tracked via StockItems.MinimumQuantity in Stock Management
+                ProductsBelowReorderLevel = await _context.StockItems
+                    .CountAsync(s => s.CompanyId == companyId && s.MinimumQuantity.HasValue && s.QuantityOnHand < s.MinimumQuantity, cancellationToken),
                 FeaturedProducts = products.Count(p => p.IsFeatured),
                 ProductsByType = products.GroupBy(p => p.Type.ToString())
                     .ToDictionary(g => g.Key, g => g.Count()),
@@ -1711,12 +1690,30 @@ public class ProductService : IProductService
             MinOrderQuantity = product.MinOrderQuantity,
             MaxOrderQuantity = product.MaxOrderQuantity,
             TrackInventory = product.TrackInventory,
-            QuantityInStock = product.QuantityInStock,
-            QuantityReserved = product.QuantityReserved,
-            QuantityAvailable = product.QuantityInStock - (product.QuantityReserved ?? 0),
-            ReorderLevel = product.ReorderLevel,
-            InStock = !product.TrackInventory || (product.QuantityInStock > 0) || product.AllowBackorder,
             AllowBackorder = product.AllowBackorder,
+            DefaultLocationId = product.DefaultLocationId,
+            DefaultLocationName = product.DefaultLocation?.Name,
+            DefaultStockCategoryId = product.DefaultStockCategoryId,
+            DefaultStockCategoryName = product.DefaultStockCategory?.Name,
+            TotalQuantityOnHand = product.TotalQuantityOnHand,
+            TotalQuantityReserved = product.TotalQuantityReserved,
+            TotalQuantityAvailable = product.TotalQuantityAvailable,
+            InStock = product.InStock,
+            StockItemCount = product.StockItems?.Count ?? 0,
+            StockItems = product.StockItems?.Select(s => new StockItemSummaryDto
+            {
+                Id = s.Id,
+                LocationId = s.LocationId,
+                LocationName = s.Location?.Name,
+                StockCategoryId = s.StockCategoryId,
+                StockCategoryName = s.StockCategory?.Name,
+                QuantityOnHand = s.QuantityOnHand,
+                QuantityReserved = s.QuantityReserved,
+                QuantityAvailable = s.QuantityAvailable,
+                UnitCost = s.UnitCost,
+                BatchNumber = s.BatchNumber,
+                ExpiryDate = s.ExpiryDate
+            }).ToList() ?? new List<StockItemSummaryDto>(),
             Brand = product.Brand,
             Manufacturer = product.Manufacturer,
             Model = product.Model,
@@ -1766,7 +1763,7 @@ public class ProductService : IProductService
                     Name = v.Name,
                     SKU = v.SKU,
                     UnitPrice = v.UnitPrice,
-                    InStock = !v.TrackInventory || (v.QuantityInStock > 0) || v.AllowBackorder,
+                    InStock = v.InStock,
                     Status = v.Status
                 })
                 .ToList() ?? new List<ProductVariantDto>(),

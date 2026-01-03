@@ -50,14 +50,23 @@ public class ProductDto
     public decimal? MinOrderQuantity { get; set; }
     public decimal? MaxOrderQuantity { get; set; }
 
-    // Inventory
+    // Inventory Settings (actual quantities are in Stock Management module)
     public bool TrackInventory { get; set; }
-    public int? QuantityInStock { get; set; }
-    public int? QuantityReserved { get; set; }
-    public int? QuantityAvailable { get; set; }
-    public int? ReorderLevel { get; set; }
-    public bool InStock { get; set; }
     public bool AllowBackorder { get; set; }
+    public Guid? DefaultLocationId { get; set; }
+    public string? DefaultLocationName { get; set; }
+    public Guid? DefaultStockCategoryId { get; set; }
+    public string? DefaultStockCategoryName { get; set; }
+
+    // Computed Stock Quantities (from StockItems)
+    public decimal TotalQuantityOnHand { get; set; }
+    public decimal TotalQuantityReserved { get; set; }
+    public decimal TotalQuantityAvailable { get; set; }
+    public bool InStock { get; set; }
+
+    // Stock Item Summary
+    public int StockItemCount { get; set; }
+    public List<StockItemSummaryDto> StockItems { get; set; } = new();
 
     // Product Details
     public string? Brand { get; set; }
@@ -156,11 +165,30 @@ public class ProductSummaryDto
     public string Currency { get; set; } = "INR";
     public ProductStatus Status { get; set; }
     public string StatusName => Status.ToString();
+    public bool TrackInventory { get; set; }
     public bool InStock { get; set; }
-    public int? QuantityInStock { get; set; }
+    public decimal TotalQuantityAvailable { get; set; }
     public string? ThumbnailUrl { get; set; }
     public bool IsFeatured { get; set; }
     public bool IsPublic { get; set; }
+}
+
+/// <summary>
+/// Stock item summary for embedding in ProductDto
+/// </summary>
+public class StockItemSummaryDto
+{
+    public Guid Id { get; set; }
+    public Guid? LocationId { get; set; }
+    public string? LocationName { get; set; }
+    public Guid StockCategoryId { get; set; }
+    public string? StockCategoryName { get; set; }
+    public decimal QuantityOnHand { get; set; }
+    public decimal QuantityReserved { get; set; }
+    public decimal QuantityAvailable { get; set; }
+    public decimal? UnitCost { get; set; }
+    public string? BatchNumber { get; set; }
+    public DateTime? ExpiryDate { get; set; }
 }
 
 /// <summary>
@@ -203,13 +231,15 @@ public class CreateProductRequest
     public decimal? MaxOrderQuantity { get; set; }
     public decimal? QuantityIncrement { get; set; }
 
-    // Inventory
+    // Inventory Settings (quantities managed via Stock Management module)
     public bool TrackInventory { get; set; }
-    public int? QuantityInStock { get; set; }
-    public int? ReorderLevel { get; set; }
-    public int? ReorderQuantity { get; set; }
     public bool AllowBackorder { get; set; }
-    public string? DefaultWarehouse { get; set; }
+    public Guid? DefaultLocationId { get; set; }
+    public Guid? DefaultStockCategoryId { get; set; }
+
+    // Initial Stock (optional - creates initial StockItem if provided)
+    public decimal? InitialQuantity { get; set; }
+    public decimal? InitialUnitCost { get; set; }
 
     // Product Details
     public string? Brand { get; set; }
@@ -308,13 +338,11 @@ public class UpdateProductRequest
     public decimal? MaxOrderQuantity { get; set; }
     public decimal? QuantityIncrement { get; set; }
 
-    // Inventory
+    // Inventory Settings (quantities managed via Stock Management module)
     public bool TrackInventory { get; set; }
-    public int? ReorderLevel { get; set; }
-    public int? ReorderQuantity { get; set; }
-    public int? LeadTimeDays { get; set; }
     public bool AllowBackorder { get; set; }
-    public string? DefaultWarehouse { get; set; }
+    public Guid? DefaultLocationId { get; set; }
+    public Guid? DefaultStockCategoryId { get; set; }
 
     // Product Details
     public string? Brand { get; set; }
@@ -396,15 +424,9 @@ public class ProductLookupDto
     public bool InStock { get; set; }
 }
 
-/// <summary>
-/// Request to update product inventory
-/// </summary>
-public class UpdateInventoryRequest
-{
-    public int QuantityChange { get; set; }
-    public string? Reason { get; set; }
-    public string? ReferenceNumber { get; set; }
-}
+// Note: UpdateInventoryRequest is removed.
+// Inventory quantities are now managed through the Stock Management module.
+// Use StockMovementService.CreateStockMovement() for all inventory adjustments.
 
 /// <summary>
 /// Request to clone a product
