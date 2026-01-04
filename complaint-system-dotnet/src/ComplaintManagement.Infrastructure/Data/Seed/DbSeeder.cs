@@ -37,6 +37,8 @@ public class DbSeeder
             await SeedCategoriesAsync();
             await SeedEventTypesAsync();
             await SeedCommunicationTemplatesAsync();
+            await SeedComplaintStatusMastersAsync();
+            await SeedComplaintPriorityMastersAsync();
 
             _logger.LogInformation("Database seeding completed successfully.");
         }
@@ -1179,5 +1181,207 @@ Thank you,
         await _context.SaveChangesAsync();
 
         _logger.LogInformation($"Seeded {templates.Count} communication templates.");
+    }
+
+    private async Task SeedComplaintStatusMastersAsync()
+    {
+        if (await _context.ComplaintStatusMasters.AnyAsync())
+        {
+            _logger.LogInformation("Complaint status masters already exist. Skipping status seeding.");
+            return;
+        }
+
+        _logger.LogInformation("Seeding complaint status masters...");
+
+        var statuses = new List<ComplaintStatusMaster>
+        {
+            new ComplaintStatusMaster
+            {
+                Id = new Guid("10000000-0000-0000-0000-000000000001"),
+                Code = "SUBMITTED",
+                Name = "Submitted",
+                Description = "Complaint has been submitted and awaiting review",
+                DisplayOrder = 1,
+                IsActive = true,
+                IsSystem = true,
+                IsFinal = false,
+                CreatedAt = DateTime.UtcNow
+            },
+            new ComplaintStatusMaster
+            {
+                Id = new Guid("10000000-0000-0000-0000-000000000002"),
+                Code = "IN_PROGRESS",
+                Name = "In Progress",
+                Description = "Complaint is being worked on",
+                DisplayOrder = 2,
+                IsActive = true,
+                IsSystem = true,
+                IsFinal = false,
+                CreatedAt = DateTime.UtcNow
+            },
+            new ComplaintStatusMaster
+            {
+                Id = new Guid("10000000-0000-0000-0000-000000000003"),
+                Code = "PENDING",
+                Name = "Pending",
+                Description = "Complaint is pending further action",
+                DisplayOrder = 3,
+                IsActive = true,
+                IsSystem = true,
+                IsFinal = false,
+                CreatedAt = DateTime.UtcNow
+            },
+            new ComplaintStatusMaster
+            {
+                Id = new Guid("10000000-0000-0000-0000-000000000004"),
+                Code = "ESCALATED",
+                Name = "Escalated",
+                Description = "Complaint has been escalated to a higher level",
+                DisplayOrder = 4,
+                IsActive = true,
+                IsSystem = true,
+                IsFinal = false,
+                CreatedAt = DateTime.UtcNow
+            },
+            new ComplaintStatusMaster
+            {
+                Id = new Guid("10000000-0000-0000-0000-000000000005"),
+                Code = "RESOLVED",
+                Name = "Resolved",
+                Description = "Complaint has been resolved",
+                DisplayOrder = 5,
+                IsActive = true,
+                IsSystem = true,
+                IsFinal = false,
+                CreatedAt = DateTime.UtcNow
+            },
+            new ComplaintStatusMaster
+            {
+                Id = new Guid("10000000-0000-0000-0000-000000000006"),
+                Code = "CLOSED",
+                Name = "Closed",
+                Description = "Complaint has been closed",
+                DisplayOrder = 6,
+                IsActive = true,
+                IsSystem = true,
+                IsFinal = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new ComplaintStatusMaster
+            {
+                Id = new Guid("10000000-0000-0000-0000-000000000007"),
+                Code = "REJECTED",
+                Name = "Rejected",
+                Description = "Complaint has been rejected",
+                DisplayOrder = 7,
+                IsActive = true,
+                IsSystem = true,
+                IsFinal = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new ComplaintStatusMaster
+            {
+                Id = new Guid("10000000-0000-0000-0000-000000000008"),
+                Code = "ON_HOLD",
+                Name = "On Hold",
+                Description = "Complaint is on hold",
+                DisplayOrder = 8,
+                IsActive = true,
+                IsSystem = true,
+                IsFinal = false,
+                CreatedAt = DateTime.UtcNow
+            }
+        };
+
+        await _context.ComplaintStatusMasters.AddRangeAsync(statuses);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation($"Seeded {statuses.Count} complaint status masters.");
+    }
+
+    private async Task SeedComplaintPriorityMastersAsync()
+    {
+        if (await _context.ComplaintPriorityMasters.AnyAsync())
+        {
+            _logger.LogInformation("Complaint priority masters already exist. Skipping priority seeding.");
+            return;
+        }
+
+        _logger.LogInformation("Seeding complaint priority masters...");
+
+        // These IDs must match the IDs in PriorityMasterHelper
+        var priorities = new List<ComplaintPriorityMaster>
+        {
+            new ComplaintPriorityMaster
+            {
+                Id = new Guid("20000000-0000-0000-0000-000000000001"),
+                Code = "LOW",
+                Name = "Low",
+                Description = "Low priority - non-urgent issues",
+                DisplayOrder = 1,
+                Level = 1,
+                IsActive = true,
+                IsSystem = true,
+                ColorCode = "#28a745",
+                CreatedAt = DateTime.UtcNow
+            },
+            new ComplaintPriorityMaster
+            {
+                Id = new Guid("20000000-0000-0000-0000-000000000002"),
+                Code = "NORMAL",
+                Name = "Normal",
+                Description = "Normal priority - standard issues",
+                DisplayOrder = 2,
+                Level = 3,
+                IsActive = true,
+                IsSystem = true,
+                ColorCode = "#17a2b8",
+                CreatedAt = DateTime.UtcNow
+            },
+            new ComplaintPriorityMaster
+            {
+                Id = new Guid("20000000-0000-0000-0000-000000000003"),
+                Code = "HIGH",
+                Name = "High",
+                Description = "High priority - urgent issues",
+                DisplayOrder = 3,
+                Level = 5,
+                IsActive = true,
+                IsSystem = true,
+                ColorCode = "#ffc107",
+                CreatedAt = DateTime.UtcNow
+            },
+            new ComplaintPriorityMaster
+            {
+                Id = new Guid("20000000-0000-0000-0000-000000000004"),
+                Code = "CRITICAL",
+                Name = "Critical",
+                Description = "Critical priority - business-impacting issues",
+                DisplayOrder = 4,
+                Level = 8,
+                IsActive = true,
+                IsSystem = true,
+                ColorCode = "#fd7e14",
+                CreatedAt = DateTime.UtcNow
+            },
+            new ComplaintPriorityMaster
+            {
+                Id = new Guid("20000000-0000-0000-0000-000000000005"),
+                Code = "URGENT",
+                Name = "Urgent",
+                Description = "Urgent priority - immediate attention required",
+                DisplayOrder = 5,
+                Level = 10,
+                IsActive = true,
+                IsSystem = true,
+                ColorCode = "#dc3545",
+                CreatedAt = DateTime.UtcNow
+            }
+        };
+
+        await _context.ComplaintPriorityMasters.AddRangeAsync(priorities);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation($"Seeded {priorities.Count} complaint priority masters.");
     }
 }
