@@ -102,7 +102,7 @@ jobs:
 
     - name: List installer files
       run: Get-ChildItem -Path ./installer -Recurse
-      shell: pwsh
+      shell: powershell
 
     - name: Deploy to Server
       run: |
@@ -130,4 +130,4 @@ jobs:
 
         Write-Host "Deployment complete!"
         Write-Host "Installer: $deployPath\$($installerFile.Name)"
-      shell: pwsh
+      shell: powershell
