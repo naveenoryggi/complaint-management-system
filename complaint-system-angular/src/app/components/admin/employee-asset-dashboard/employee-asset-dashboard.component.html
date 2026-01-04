@@ -1,0 +1,603 @@
+<div class="container mx-auto p-4">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">My Asset Dashboard</h1>
+    <p class="text-gray-600">View and manage your assigned assets</p>
+  </div>
+
+  <!-- Success/Error Messages -->
+  @if (successMessage()) {
+    <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-lg flex items-center justify-between">
+      <span>{{ successMessage() }}</span>
+      <button (click)="successMessage.set(null)" class="text-green-600 hover:text-green-800">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="mb-4 p-4 bg-red-100 text-red-800 rounded-lg flex items-center justify-between">
+      <span>{{ error() }}</span>
+      <button (click)="error.set(null)" class="text-red-600 hover:text-red-800">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+  }
+
+  <!-- Statistics Cards -->
+  @if (statistics()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-blue-100 rounded-full">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm text-gray-500">Total Active</p>
+            <p class="text-2xl font-bold text-gray-800">{{ statistics()?.totalActiveAssignments || 0 }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-green-100 rounded-full">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm text-gray-500">Permanent</p>
+            <p class="text-2xl font-bold text-gray-800">{{ statistics()?.permanentAssignments || 0 }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-yellow-100 rounded-full">
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm text-gray-500">Temporary</p>
+            <p class="text-2xl font-bold text-gray-800">{{ statistics()?.temporaryAssignments || 0 }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 bg-red-100 rounded-full">
+            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm text-gray-500">Overdue</p>
+            <p class="text-2xl font-bold text-gray-800">{{ statistics()?.overdueCount || 0 }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-8">
+      <svg class="animate-spin h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="ml-2 text-gray-600">Loading dashboard...</span>
+    </div>
+  }
+
+  <!-- Tabs Navigation -->
+  <div class="bg-white rounded-lg shadow mb-6">
+    <div class="border-b">
+      <nav class="flex -mb-px">
+        <button
+          (click)="setActiveTab('current')"
+          [class]="activeTab() === 'current' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          class="flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm">
+          Current Assets
+          @if (currentAssignments().length > 0) {
+            <span class="ml-2 bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs">
+              {{ currentAssignments().length }}
+            </span>
+          }
+        </button>
+        <button
+          (click)="setActiveTab('pending')"
+          [class]="activeTab() === 'pending' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          class="flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm">
+          Pending Ack
+          @if (pendingAcknowledgement().length > 0) {
+            <span class="ml-2 bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded-full text-xs">
+              {{ pendingAcknowledgement().length }}
+            </span>
+          }
+        </button>
+        <button
+          (click)="setActiveTab('overdue')"
+          [class]="activeTab() === 'overdue' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          class="flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm">
+          Overdue
+          @if (overdueReturns().length > 0) {
+            <span class="ml-2 bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs">
+              {{ overdueReturns().length }}
+            </span>
+          }
+        </button>
+        <button
+          (click)="setActiveTab('upcoming')"
+          [class]="activeTab() === 'upcoming' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          class="flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm">
+          Upcoming Returns
+          @if (upcomingReturns().length > 0) {
+            <span class="ml-2 bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-xs">
+              {{ upcomingReturns().length }}
+            </span>
+          }
+        </button>
+        <button
+          (click)="setActiveTab('history')"
+          [class]="activeTab() === 'history' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          class="flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm">
+          History
+        </button>
+      </nav>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="p-4">
+      <!-- Current Assets Tab -->
+      @if (activeTab() === 'current') {
+        @if (currentAssignments().length === 0) {
+          <div class="text-center py-8 text-gray-500">
+            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+            </svg>
+            <p>No assets currently assigned to you</p>
+          </div>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Asset</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tag</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assigned Date</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Return Date</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                @for (assignment of currentAssignments(); track assignment.id) {
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3">
+                      <div class="font-medium text-gray-900">{{ assignment.assetName }}</div>
+                      <div class="text-sm text-gray-500">{{ assignment.assetTypeName }}</div>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900">{{ assignment.assetTag }}</td>
+                    <td class="px-4 py-3">
+                      <span [class]="getPurposeColorClass(assignment.purpose)" class="px-2 py-1 text-xs rounded-full">
+                        {{ getPurposeLabel(assignment.purpose) }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900">{{ formatDate(assignment.assignmentDate) }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">
+                      {{ assignment.expectedReturnDate ? formatDate(assignment.expectedReturnDate) : 'N/A' }}
+                    </td>
+                    <td class="px-4 py-3">
+                      <span [class]="getStatusBadgeClass(assignment)" class="px-2 py-1 text-xs rounded-full">
+                        {{ getStatusText(assignment) }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3">
+                      <div class="flex space-x-2">
+                        <button (click)="openDetailsModal(assignment)" class="text-blue-600 hover:text-blue-800" title="View Details">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                          </svg>
+                        </button>
+                        <button (click)="openReportIssueModal(assignment)" class="text-orange-600 hover:text-orange-800" title="Report Issue">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+
+      <!-- Pending Acknowledgements Tab -->
+      @if (activeTab() === 'pending') {
+        @if (pendingAcknowledgement().length === 0) {
+          <div class="text-center py-8 text-gray-500">
+            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p>No pending acknowledgements</p>
+          </div>
+        } @else {
+          <div class="space-y-4">
+            @for (assignment of pendingAcknowledgement(); track assignment.id) {
+              <div class="border border-yellow-200 bg-yellow-50 rounded-lg p-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h3 class="font-medium text-gray-900">{{ assignment.assetName }}</h3>
+                    <p class="text-sm text-gray-600">Asset Tag: {{ assignment.assetTag }}</p>
+                    <p class="text-sm text-gray-500 mt-1">
+                      Assigned by: {{ assignment.assignedByUserName }} on {{ formatDate(assignment.assignmentDate) }}
+                    </p>
+                    <p class="text-sm text-gray-500">
+                      Purpose: <span [class]="getPurposeColorClass(assignment.purpose)" class="px-2 py-0.5 text-xs rounded">{{ getPurposeLabel(assignment.purpose) }}</span>
+                    </p>
+                  </div>
+                  <button
+                    (click)="acknowledgeAssignment(assignment)"
+                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                    Acknowledge Receipt
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- Overdue Returns Tab -->
+      @if (activeTab() === 'overdue') {
+        @if (overdueReturns().length === 0) {
+          <div class="text-center py-8 text-gray-500">
+            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p>No overdue returns</p>
+          </div>
+        } @else {
+          <div class="space-y-4">
+            @for (assignment of overdueReturns(); track assignment.id) {
+              <div class="border border-red-200 bg-red-50 rounded-lg p-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h3 class="font-medium text-gray-900">{{ assignment.assetName }}</h3>
+                    <p class="text-sm text-gray-600">Asset Tag: {{ assignment.assetTag }}</p>
+                    <p class="text-sm text-red-600 font-medium mt-1">
+                      Overdue by {{ getDaysOverdue(assignment.expectedReturnDate) }} days
+                    </p>
+                    <p class="text-sm text-gray-500">
+                      Expected Return: {{ formatDate(assignment.expectedReturnDate) }}
+                    </p>
+                  </div>
+                  <div class="flex space-x-2">
+                    <button (click)="openDetailsModal(assignment)" class="text-blue-600 hover:text-blue-800" title="View Details">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- Upcoming Returns Tab -->
+      @if (activeTab() === 'upcoming') {
+        @if (upcomingReturns().length === 0) {
+          <div class="text-center py-8 text-gray-500">
+            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <p>No upcoming returns scheduled</p>
+          </div>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Asset</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tag</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Return Date</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Days Left</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                @for (assignment of upcomingReturns(); track assignment.id) {
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3">
+                      <div class="font-medium text-gray-900">{{ assignment.assetName }}</div>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900">{{ assignment.assetTag }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">{{ formatDate(assignment.expectedReturnDate) }}</td>
+                    <td class="px-4 py-3">
+                      @if (getDaysUntilDue(assignment.expectedReturnDate); as days) {
+                        <span [class]="days <= 3 ? 'text-orange-600 font-medium' : 'text-gray-600'">
+                          {{ days }} days
+                        </span>
+                      }
+                    </td>
+                    <td class="px-4 py-3">
+                      <button (click)="openDetailsModal(assignment)" class="text-blue-600 hover:text-blue-800">
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+
+      <!-- History Tab -->
+      @if (activeTab() === 'history') {
+        @if (recentHistory().length === 0) {
+          <div class="text-center py-8 text-gray-500">
+            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p>No assignment history</p>
+          </div>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Asset</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tag</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assigned</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Returned</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                @for (assignment of recentHistory(); track assignment.id) {
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3">
+                      <div class="font-medium text-gray-900">{{ assignment.assetName }}</div>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900">{{ assignment.assetTag }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">{{ formatDate(assignment.assignmentDate) }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">{{ formatDate(assignment.actualReturnDate) }}</td>
+                    <td class="px-4 py-3">
+                      <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">
+                        Returned
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Report Issue Modal -->
+@if (showReportIssueModal()) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold text-gray-800">Report Issue</h2>
+          <button (click)="closeModals()" class="text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        @if (selectedAssignment()) {
+          <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+            <p class="font-medium">{{ selectedAssignment()?.assetName }}</p>
+            <p class="text-sm text-gray-600">Tag: {{ selectedAssignment()?.assetTag }}</p>
+          </div>
+        }
+
+        <form [formGroup]="reportIssueForm" (ngSubmit)="submitReportIssue()">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Issue Type *</label>
+              <select formControlName="issueType" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                @for (option of issueTypeOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Severity *</label>
+              <select formControlName="severity" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                @for (option of severityOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+              <textarea formControlName="description" rows="4"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Describe the issue in detail..."></textarea>
+              @if (reportIssueForm.get('description')?.invalid && reportIssueForm.get('description')?.touched) {
+                <p class="text-red-500 text-sm mt-1">Description is required (min 10 characters)</p>
+              }
+            </div>
+
+            <div class="flex items-center">
+              <input type="checkbox" formControlName="isAssetUsable" id="isAssetUsable"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+              <label for="isAssetUsable" class="ml-2 text-sm text-gray-700">
+                Asset is still usable
+              </label>
+            </div>
+          </div>
+
+          <div class="mt-6 flex justify-end space-x-3">
+            <button type="button" (click)="closeModals()"
+              class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+              Cancel
+            </button>
+            <button type="submit" [disabled]="reportIssueForm.invalid || isLoading()"
+              class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed">
+              @if (isLoading()) {
+                <span class="flex items-center">
+                  <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Submitting...
+                </span>
+              } @else {
+                Report Issue
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Details Modal -->
+@if (showDetailsModal() && selectedAssignment()) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold text-gray-800">Assignment Details</h2>
+          <button (click)="closeModals()" class="text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-6">
+          <!-- Asset Info -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-3">Asset Information</h3>
+            <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+              <div>
+                <p class="text-sm text-gray-500">Asset Name</p>
+                <p class="font-medium">{{ selectedAssignment()?.assetName }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Asset Tag</p>
+                <p class="font-medium">{{ selectedAssignment()?.assetTag }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Asset Type</p>
+                <p class="font-medium">{{ selectedAssignment()?.assetTypeName || '-' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Serial Number</p>
+                <p class="font-medium">{{ selectedAssignment()?.assetSerialNumber || '-' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assignment Info -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-3">Assignment Information</h3>
+            <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+              <div>
+                <p class="text-sm text-gray-500">Assignment Number</p>
+                <p class="font-medium">{{ selectedAssignment()?.assignmentNumber || '-' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Purpose</p>
+                <span [class]="getPurposeColorClass(selectedAssignment()!.purpose)" class="px-2 py-1 text-xs rounded-full">
+                  {{ getPurposeLabel(selectedAssignment()!.purpose) }}
+                </span>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Assignment Date</p>
+                <p class="font-medium">{{ formatDateTime(selectedAssignment()?.assignmentDate) }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Expected Return</p>
+                <p class="font-medium">{{ selectedAssignment()?.expectedReturnDate ? formatDate(selectedAssignment()?.expectedReturnDate) : 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Assigned By</p>
+                <p class="font-medium">{{ selectedAssignment()?.assignedByUserName }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Status</p>
+                <span [class]="getStatusBadgeClass(selectedAssignment()!)" class="px-2 py-1 text-xs rounded-full">
+                  {{ getStatusText(selectedAssignment()!) }}
+                </span>
+              </div>
+              @if (selectedAssignment()?.location) {
+                <div>
+                  <p class="text-sm text-gray-500">Location</p>
+                  <p class="font-medium">{{ selectedAssignment()?.location }}</p>
+                </div>
+              }
+              @if (selectedAssignment()?.costCenter) {
+                <div>
+                  <p class="text-sm text-gray-500">Cost Center</p>
+                  <p class="font-medium">{{ selectedAssignment()?.costCenter }}</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Condition Info -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-3">Condition at Assignment</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <span [class]="getConditionColorClass(selectedAssignment()!.conditionAtAssignment)" class="px-2 py-1 text-xs rounded-full">
+                {{ getConditionLabel(selectedAssignment()!.conditionAtAssignment) }}
+              </span>
+              @if (selectedAssignment()?.conditionNotesAtAssignment) {
+                <p class="mt-2 text-sm text-gray-600">{{ selectedAssignment()?.conditionNotesAtAssignment }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Notes -->
+          @if (selectedAssignment()?.notes) {
+            <div>
+              <h3 class="text-lg font-medium text-gray-900 mb-3">Notes</h3>
+              <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-sm text-gray-600">{{ selectedAssignment()?.notes }}</p>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="mt-6 flex justify-end">
+          <button (click)="closeModals()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

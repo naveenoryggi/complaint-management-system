@@ -166,11 +166,14 @@ public class AssetService : IAssetService
     {
         try
         {
-            // Validate customer exists
-            var customerExists = await _context.Customers
-                .AnyAsync(c => c.CompanyId == companyId && c.Id == request.CustomerId);
-            if (!customerExists)
-                return Result<AssetDto>.Failure("Customer not found");
+            // Validate customer exists (only for non-internal assets with a specified customer)
+            if (!request.IsInternal && request.CustomerId.HasValue)
+            {
+                var customerExists = await _context.Customers
+                    .AnyAsync(c => c.CompanyId == companyId && c.Id == request.CustomerId);
+                if (!customerExists)
+                    return Result<AssetDto>.Failure("Customer not found");
+            }
 
             // Generate asset tag if not provided
             var assetTag = string.IsNullOrWhiteSpace(request.AssetTag)
@@ -192,7 +195,8 @@ public class AssetService : IAssetService
             {
                 Id = Guid.NewGuid(),
                 CompanyId = companyId,
-                CustomerId = request.CustomerId,
+                IsInternal = request.IsInternal,
+                CustomerId = request.IsInternal ? null : request.CustomerId,
                 LocationId = request.LocationId,
                 ProductId = request.ProductId,
                 ContractId = request.ContractId,
@@ -1204,6 +1208,7 @@ public class AssetService : IAssetService
         {
             Id = asset.Id,
             CompanyId = asset.CompanyId,
+            IsInternal = asset.IsInternal,
             CustomerId = asset.CustomerId,
             CustomerName = asset.Customer?.Name ?? string.Empty,
             LocationId = asset.LocationId,
@@ -1334,6 +1339,7 @@ public class AssetService : IAssetService
             SerialNumber = asset.SerialNumber,
             Name = asset.Name,
             Type = asset.Type,
+            IsInternal = asset.IsInternal,
             CustomerId = asset.CustomerId,
             CustomerName = asset.Customer?.Name ?? string.Empty,
             LocationName = asset.Location?.Name,

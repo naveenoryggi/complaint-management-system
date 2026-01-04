@@ -1,4 +1,5 @@
 using ComplaintManagement.API.Authorization;
+using ComplaintManagement.Application.Common.Models;
 using ComplaintManagement.Application.DTOs.Asset;
 using ComplaintManagement.Application.Interfaces.Services;
 using ComplaintManagement.Domain.Enums;
@@ -180,8 +181,11 @@ public class AssetsController : ControllerBase
 
     /// <summary>
     /// Gets assets for dropdown lookups
+    /// This endpoint skips the class-level license requirement to allow asset lookups
+    /// from related modules (like Asset Assignments) without requiring the full AssetManagement license
     /// </summary>
     [HttpGet("lookup")]
+    [SkipLicenseCheck]  // Allow access from related modules without AssetManagement license
     public async Task<IActionResult> GetAssetLookups(
         [FromQuery] Guid? customerId = null,
         [FromQuery] Guid? locationId = null,
@@ -190,7 +194,7 @@ public class AssetsController : ControllerBase
     {
         var companyId = GetCompanyId();
         var lookups = await _assetService.GetAssetLookupsAsync(companyId, customerId, locationId, status, isOperational);
-        return Ok(lookups);
+        return Ok(Result<List<AssetLookupDto>>.Success(lookups));
     }
 
     /// <summary>

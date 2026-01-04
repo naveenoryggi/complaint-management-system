@@ -17,9 +17,15 @@ public class Asset : BaseEntity
     public Guid CompanyId { get; set; }
 
     /// <summary>
-    /// Customer who owns/uses this asset
+    /// Customer who owns/uses this asset (null for internal assets)
     /// </summary>
-    public Guid CustomerId { get; set; }
+    public Guid? CustomerId { get; set; }
+
+    /// <summary>
+    /// Whether this is an internal company asset (not customer-owned)
+    /// Internal assets are assigned to employees and not visible in customer-facing views
+    /// </summary>
+    public bool IsInternal { get; set; } = false;
 
     /// <summary>
     /// Location where asset is installed
@@ -302,6 +308,11 @@ public class Asset : BaseEntity
     /// </summary>
     public bool IsOperational { get; set; } = true;
 
+    /// <summary>
+    /// Reference to dynamic stock category (Sales Stock, Fixed Asset, Aftersales, Faulty, etc.)
+    /// </summary>
+    public Guid? StockCategoryId { get; set; }
+
     #endregion
 
     #region Configuration
@@ -448,7 +459,7 @@ public class Asset : BaseEntity
     #region Assignment
 
     /// <summary>
-    /// User currently assigned to this asset
+    /// User currently assigned to this asset (employee)
     /// </summary>
     public Guid? AssignedUserId { get; set; }
 
@@ -461,6 +472,31 @@ public class Asset : BaseEntity
     /// Cost center for this asset
     /// </summary>
     public string? CostCenter { get; set; }
+
+    /// <summary>
+    /// Purpose of assignment (Demo, Development, Permanent, etc.)
+    /// </summary>
+    public AssetAssignmentPurpose AssignmentPurpose { get; set; } = AssetAssignmentPurpose.Permanent;
+
+    /// <summary>
+    /// Date when asset was assigned
+    /// </summary>
+    public DateTime? AssignmentDate { get; set; }
+
+    /// <summary>
+    /// Expected return date (for temporary assignments)
+    /// </summary>
+    public DateTime? ExpectedReturnDate { get; set; }
+
+    /// <summary>
+    /// Actual return date
+    /// </summary>
+    public DateTime? ActualReturnDate { get; set; }
+
+    /// <summary>
+    /// Notes about the assignment
+    /// </summary>
+    public string? AssignmentNotes { get; set; }
 
     #endregion
 
@@ -515,9 +551,9 @@ public class Asset : BaseEntity
     public virtual Company Company { get; set; } = null!;
 
     /// <summary>
-    /// Customer who owns/uses this asset
+    /// Customer who owns/uses this asset (null for internal assets)
     /// </summary>
-    public virtual Customer Customer { get; set; } = null!;
+    public virtual Customer? Customer { get; set; }
 
     /// <summary>
     /// Location where asset is installed
@@ -540,6 +576,11 @@ public class Asset : BaseEntity
     public virtual Warranty? Warranty { get; set; }
 
     /// <summary>
+    /// Stock category for this asset
+    /// </summary>
+    public virtual StockCategory? StockCategory { get; set; }
+
+    /// <summary>
     /// Parent asset (for component hierarchy)
     /// </summary>
     public virtual Asset? ParentAsset { get; set; }
@@ -558,6 +599,11 @@ public class Asset : BaseEntity
     /// Contract items referencing this asset
     /// </summary>
     public virtual ICollection<ContractItem> ContractItems { get; set; } = new List<ContractItem>();
+
+    /// <summary>
+    /// Assignment history (for internal assets assigned to employees)
+    /// </summary>
+    public virtual ICollection<AssetAssignment> AssignmentHistory { get; set; } = new List<AssetAssignment>();
 
     #endregion
 }

@@ -1,0 +1,124 @@
+// Employee Asset Dashboard Component Styles
+
+// Container
+.container {
+  min-height: calc(100vh - 4rem);
+}
+
+// Table styles
+table {
+  th {
+    white-space: nowrap;
+  }
+
+  td {
+    vertical-align: middle;
+  }
+}
+
+// Modal backdrop animation
+.fixed {
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Status badge styles
+.bg-green-100 { background-color: #dcfce7; }
+.text-green-800 { color: #166534; }
+.bg-red-100 { background-color: #fee2e2; }
+.text-red-800 { color: #991b1b; }
+.bg-yellow-100 { background-color: #fef9c3; }
+.text-yellow-800 { color: #854d0e; }
+.bg-blue-100 { background-color: #dbeafe; }
+.text-blue-800 { color: #1e40af; }
+.bg-purple-100 { background-color: #f3e8ff; }
+.text-purple-800 { color: #6b21a8; }
+.bg-orange-100 { background-color: #ffedd5; }
+.text-orange-800 { color: #9a3412; }
+.bg-gray-100 { background-color: #f3f4f6; }
+.text-gray-800 { color: #1f2937; }
+
+// Tab styles
+nav button {
+  transition: all 0.15s ease-in-out;
+}
+
+// Card hover effects
+.bg-white.rounded-lg.shadow {
+  transition: box-shadow 0.15s ease-in-out;
+
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .grid-cols-2, .grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  nav {
+    flex-wrap: wrap;
+
+    button {
+      flex: 1 1 50%;
+    }
+  }
+}
+
+// Loading spinner
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Button hover effects
+button {
+  transition: all 0.15s ease-in-out;
+}
+
+// Hover row highlight
+tr:hover {
+  td {
+    background-color: inherit;
+  }
+}
+
+// Form styles
+form {
+  label {
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  input, select, textarea {
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+  }
+}

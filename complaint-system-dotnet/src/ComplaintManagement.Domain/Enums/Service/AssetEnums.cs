@@ -160,7 +160,135 @@ public enum AssetOwnershipType
     /// <summary>
     /// Vendor consignment
     /// </summary>
-    Consignment = 7
+    Consignment = 7,
+
+    /// <summary>
+    /// Asset for demo purposes (temporary assignment)
+    /// </summary>
+    Demo = 8,
+
+    /// <summary>
+    /// Asset for development/testing purposes
+    /// </summary>
+    Development = 9
+}
+
+/// <summary>
+/// Purpose of asset assignment
+/// </summary>
+public enum AssetAssignmentPurpose
+{
+    /// <summary>
+    /// Permanent assignment
+    /// </summary>
+    Permanent = 1,
+
+    /// <summary>
+    /// Demo/evaluation purpose
+    /// </summary>
+    Demo = 2,
+
+    /// <summary>
+    /// Development/testing purpose
+    /// </summary>
+    Development = 3,
+
+    /// <summary>
+    /// Temporary loan
+    /// </summary>
+    TemporaryLoan = 4,
+
+    /// <summary>
+    /// Training purpose
+    /// </summary>
+    Training = 5,
+
+    /// <summary>
+    /// Proof of concept
+    /// </summary>
+    POC = 6,
+
+    /// <summary>
+    /// Replacement while other asset is repaired
+    /// </summary>
+    Replacement = 7
+}
+
+/// <summary>
+/// Stock category classification for inventory management
+/// Determines the business purpose/classification of asset inventory
+/// </summary>
+public enum AssetStockCategory
+{
+    /// <summary>
+    /// Not categorized as stock
+    /// </summary>
+    None = 0,
+
+    /// <summary>
+    /// Sales stock - Available for sale to customers
+    /// </summary>
+    SalesStock = 1,
+
+    /// <summary>
+    /// Fixed company asset - Company-owned assets for internal use
+    /// </summary>
+    FixedAsset = 2,
+
+    /// <summary>
+    /// Aftersales stock - Replacement/warranty stock for service
+    /// </summary>
+    AftersalesStock = 3,
+
+    /// <summary>
+    /// Faulty stock - Defective items awaiting repair/disposal
+    /// </summary>
+    FaultyStock = 4,
+
+    /// <summary>
+    /// Demo stock - Assets used for demonstrations
+    /// </summary>
+    DemoStock = 5,
+
+    /// <summary>
+    /// Development stock - Assets for R&D/development purposes
+    /// </summary>
+    DevelopmentStock = 6,
+
+    /// <summary>
+    /// Spare parts - Components kept for repairs
+    /// </summary>
+    SpareParts = 7,
+
+    /// <summary>
+    /// Consignment stock - Stock held on behalf of vendor
+    /// </summary>
+    ConsignmentStock = 8,
+
+    /// <summary>
+    /// Rental stock - Assets available for rental
+    /// </summary>
+    RentalStock = 9,
+
+    /// <summary>
+    /// Refurbished stock - Repaired/reconditioned items
+    /// </summary>
+    RefurbishedStock = 10,
+
+    /// <summary>
+    /// Transit stock - Items in transit between locations
+    /// </summary>
+    TransitStock = 11,
+
+    /// <summary>
+    /// Reserved stock - Reserved for specific purpose/order
+    /// </summary>
+    ReservedStock = 12,
+
+    /// <summary>
+    /// Obsolete stock - Outdated items for write-off
+    /// </summary>
+    ObsoleteStock = 13
 }
 
 /// <summary>

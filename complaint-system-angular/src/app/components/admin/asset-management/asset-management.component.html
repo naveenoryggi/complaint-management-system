@@ -1,0 +1,495 @@
+<div class="asset-management-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Asset Management</h1>
+      <p class="subtitle">Manage and track all assets, assignments, and transfers</p>
+    </div>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      <i class="fa-solid fa-plus"></i>
+      Add Asset
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  @if (error()) {
+    <div class="alert alert-error">
+      <i class="fa-solid fa-exclamation-circle"></i>
+      <span>{{ error() }}</span>
+      <button class="alert-close" (click)="error.set(null)"><i class="fa-solid fa-times"></i></button>
+    </div>
+  }
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <i class="fa-solid fa-check-circle"></i>
+      <span>{{ successMessage() }}</span>
+    </div>
+  }
+
+  <!-- Statistics Cards -->
+  @if (statistics()) {
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon total"><i class="fa-solid fa-boxes-stacked"></i></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ statistics()!.totalAssets }}</span>
+          <span class="stat-label">Total Assets</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon operational"><i class="fa-solid fa-check-circle"></i></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ statistics()!.operationalAssets }}</span>
+          <span class="stat-label">Operational</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon warranty"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ statistics()!.assetsUnderWarranty }}</span>
+          <span class="stat-label">Under Warranty</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon value"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ formatCurrency(statistics()!.totalAssetValue) }}</span>
+          <span class="stat-label">Total Value</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fa-solid fa-search"></i>
+      <input type="text" placeholder="Search by name, tag, or serial number..."
+        [(ngModel)]="searchTerm" (input)="onSearch()">
+    </div>
+    <div class="filter-group">
+      <select [(ngModel)]="statusFilter" (change)="onSearch()">
+        <option [ngValue]="null">All Statuses</option>
+        @for (opt of statusOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+      <select [(ngModel)]="typeFilter" (change)="onSearch()">
+        <option [ngValue]="null">All Types</option>
+        @for (opt of typeOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+      <select [(ngModel)]="customerFilter" (change)="onSearch()">
+        <option [ngValue]="null">All Customers</option>
+        @for (customer of customers(); track customer.id) {
+          <option [value]="customer.id">{{ customer.name }}</option>
+        }
+      </select>
+      <button class="btn btn-outline" (click)="clearFilters()">
+        <i class="fa-solid fa-filter-circle-xmark"></i>
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading assets...</p>
+    </div>
+  }
+
+  <!-- Assets Table -->
+  @if (!isLoading() && assets().length > 0) {
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Asset Tag</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Stock Category</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Condition</th>
+            <th>Warranty</th>
+            <th>Value</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (asset of assets(); track asset.id) {
+            <tr>
+              <td>
+                <div class="asset-tag">
+                  <span class="tag-code">{{ asset.assetTag }}</span>
+                  @if (asset.serialNumber) {
+                    <span class="serial-number">S/N: {{ asset.serialNumber }}</span>
+                  }
+                </div>
+              </td>
+              <td>
+                <div class="asset-name">
+                  <span class="name">{{ asset.name }}</span>
+                  @if (asset.productName) {
+                    <span class="product">{{ asset.productName }}</span>
+                  }
+                </div>
+              </td>
+              <td><span class="type-badge">{{ asset.typeName }}</span></td>
+              <td>
+                @if (asset.stockCategoryName) {
+                  <span class="stock-category-badge" [style.background-color]="asset.stockCategoryColor || '#6366f1'" [style.color]="'white'">
+                    {{ asset.stockCategoryName }}
+                  </span>
+                } @else {
+                  <span class="text-muted">--</span>
+                }
+              </td>
+              <td>{{ asset.customerName }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusClass(asset.status)">
+                  {{ asset.statusName }}
+                </span>
+              </td>
+              <td>
+                <span class="condition-badge" [ngClass]="getConditionClass(asset.condition)">
+                  {{ asset.conditionName }}
+                </span>
+              </td>
+              <td>
+                @if (asset.isUnderWarranty) {
+                  <span class="warranty-active">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    {{ formatDate(asset.warrantyEndDate) }}
+                  </span>
+                } @else {
+                  <span class="warranty-expired">No Warranty</span>
+                }
+              </td>
+              <td>{{ formatCurrency(asset.currentValue, asset.currency) }}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn-icon" title="Edit" (click)="openEditModal(asset)">
+                    <i class="fa-solid fa-edit"></i>
+                  </button>
+                  <button class="btn-icon" title="Assign" (click)="openAssignModal(asset)">
+                    <i class="fa-solid fa-user-tag"></i>
+                  </button>
+                  <button class="btn-icon" title="Transfer" (click)="openTransferModal(asset)">
+                    <i class="fa-solid fa-right-left"></i>
+                  </button>
+                  <button class="btn-icon delete" title="Delete" (click)="deleteAsset(asset)">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <span class="page-info">Showing {{ (currentPage() - 1) * pageSize() + 1 }} - {{ Math.min(currentPage() * pageSize(), totalCount()) }} of {{ totalCount() }}</span>
+      <div class="page-buttons">
+        <button [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        @for (page of [].constructor(totalPages()); track $index) {
+          @if ($index + 1 <= 5 || $index + 1 > totalPages() - 2 || Math.abs($index + 1 - currentPage()) <= 1) {
+            <button [class.active]="currentPage() === $index + 1" (click)="goToPage($index + 1)">
+              {{ $index + 1 }}
+            </button>
+          }
+        }
+        <button [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && assets().length === 0) {
+    <div class="empty-state">
+      <i class="fa-solid fa-box-open"></i>
+      <h3>No assets found</h3>
+      <p>Try adjusting your filters or add a new asset to get started.</p>
+      <button class="btn btn-primary" (click)="openAddModal()">Add Asset</button>
+    </div>
+  }
+</div>
+
+<!-- Add/Edit Asset Modal -->
+@if (showModal()) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode() ? 'Edit Asset' : 'Add New Asset' }}</h2>
+        <button class="btn-close" (click)="closeModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="assetForm">
+          <!-- Basic Info -->
+          <div class="form-section">
+            <h3 class="section-title">Basic Information</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Customer *</label>
+                <select formControlName="customerId">
+                  <option value="">Select Customer</option>
+                  @for (customer of customers(); track customer.id) {
+                    <option [value]="customer.id">{{ customer.name }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Asset Name *</label>
+                <input type="text" formControlName="name" placeholder="Enter asset name">
+              </div>
+              <div class="form-group">
+                <label>Type *</label>
+                <select formControlName="type">
+                  @for (opt of typeOptions; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Serial Number</label>
+                <input type="text" formControlName="serialNumber" placeholder="Enter serial number">
+              </div>
+              <div class="form-group">
+                <label>Manufacturer</label>
+                <input type="text" formControlName="manufacturer" placeholder="Enter manufacturer">
+              </div>
+              <div class="form-group">
+                <label>Model</label>
+                <input type="text" formControlName="model" placeholder="Enter model">
+              </div>
+            </div>
+          </div>
+
+          <!-- Status & Condition -->
+          <div class="form-section">
+            <h3 class="section-title">Status & Ownership</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Status</label>
+                <select formControlName="status">
+                  @for (opt of statusOptions; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Condition</label>
+                <select formControlName="condition">
+                  @for (opt of conditionOptions; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Ownership Type</label>
+                <select formControlName="ownershipType">
+                  @for (opt of ownershipOptions; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Stock Category</label>
+                <select formControlName="stockCategoryId">
+                  <option value="">-- Select Stock Category --</option>
+                  @for (category of stockCategories(); track category.id) {
+                    <option [value]="category.id">{{ category.name }}</option>
+                  }
+                </select>
+                <small class="hint">Classify asset by stock type (Sales, Fixed, Aftersales, etc.)</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Financial -->
+          <div class="form-section">
+            <h3 class="section-title">Financial & Warranty</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Purchase Date</label>
+                <input type="date" formControlName="purchaseDate">
+              </div>
+              <div class="form-group">
+                <label>Purchase Price</label>
+                <input type="number" formControlName="purchasePrice" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label>Warranty Start</label>
+                <input type="date" formControlName="warrantyStartDate">
+              </div>
+              <div class="form-group">
+                <label>Warranty End</label>
+                <input type="date" formControlName="warrantyEndDate">
+              </div>
+            </div>
+          </div>
+
+          <!-- Assignment -->
+          <div class="form-section">
+            <h3 class="section-title">Assignment</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Assignment Purpose</label>
+                <select formControlName="assignmentPurpose">
+                  @for (opt of assignmentPurposeOptions; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Assignment Date</label>
+                <input type="date" formControlName="assignmentDate">
+              </div>
+              <div class="form-group">
+                <label>Expected Return Date</label>
+                <input type="date" formControlName="expectedReturnDate">
+              </div>
+              <div class="form-group full-width">
+                <label>Assignment Notes</label>
+                <textarea formControlName="assignmentNotes" rows="2" placeholder="Notes about the assignment..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="form-section">
+            <div class="form-group full-width">
+              <label>Notes</label>
+              <textarea formControlName="notes" rows="3" placeholder="Additional notes..."></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="closeModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveAsset()" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span class="spinner-sm"></span>
+          }
+          {{ isEditMode() ? 'Update Asset' : 'Create Asset' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Assign Modal -->
+@if (showAssignModal()) {
+  <div class="modal-overlay" (click)="closeAssignModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Assign Asset</h2>
+        <button class="btn-close" (click)="closeAssignModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        @if (selectedAsset()) {
+          <div class="asset-info-card">
+            <strong>{{ selectedAsset()!.assetTag }}</strong> - {{ selectedAsset()!.name }}
+          </div>
+        }
+        <form [formGroup]="assignForm">
+          <div class="form-group">
+            <label>Assignment Purpose *</label>
+            <select formControlName="assignmentPurpose">
+              @for (opt of assignmentPurposeOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Assign to Customer</label>
+            <select formControlName="customerId">
+              <option value="">-- Select Customer --</option>
+              @for (customer of customers(); track customer.id) {
+                <option [value]="customer.id">{{ customer.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Assignment Date</label>
+            <input type="date" formControlName="assignmentDate">
+          </div>
+          <div class="form-group">
+            <label>Expected Return Date</label>
+            <input type="date" formControlName="expectedReturnDate">
+            <small class="hint">Leave empty for permanent assignments</small>
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea formControlName="assignmentNotes" rows="3" placeholder="Assignment notes..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="closeAssignModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveAssignment()" [disabled]="isLoading()">
+          Assign Asset
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Transfer Modal -->
+@if (showTransferModal()) {
+  <div class="modal-overlay" (click)="closeTransferModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Transfer Asset</h2>
+        <button class="btn-close" (click)="closeTransferModal()"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        @if (selectedAsset()) {
+          <div class="asset-info-card">
+            <strong>{{ selectedAsset()!.assetTag }}</strong> - {{ selectedAsset()!.name }}
+            <br>
+            <small>Current Customer: {{ selectedAsset()!.customerName }}</small>
+          </div>
+        }
+        <form [formGroup]="transferForm">
+          <div class="form-group">
+            <label>Transfer to Customer *</label>
+            <select formControlName="newCustomerId">
+              <option value="">-- Select Customer --</option>
+              @for (customer of customers(); track customer.id) {
+                <option [value]="customer.id">{{ customer.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Transfer Date *</label>
+            <input type="date" formControlName="transferDate">
+          </div>
+          <div class="form-group">
+            <label>Transfer Reason</label>
+            <input type="text" formControlName="transferReason" placeholder="Reason for transfer">
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea formControlName="notes" rows="3" placeholder="Additional notes..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="closeTransferModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveTransfer()" [disabled]="isLoading()">
+          Transfer Asset
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -9,8 +9,9 @@ public class AssetDto
 {
     public Guid Id { get; set; }
     public Guid CompanyId { get; set; }
-    public Guid CustomerId { get; set; }
-    public string CustomerName { get; set; } = string.Empty;
+    public Guid? CustomerId { get; set; }
+    public string? CustomerName { get; set; }
+    public bool IsInternal { get; set; }
     public Guid? LocationId { get; set; }
     public string? LocationName { get; set; }
     public Guid? ProductId { get; set; }
@@ -108,6 +109,14 @@ public class AssetDto
     public string? StatusReason { get; set; }
     public bool IsOperational { get; set; }
 
+    /// <summary>
+    /// Dynamic stock category reference
+    /// </summary>
+    public Guid? StockCategoryId { get; set; }
+    public string? StockCategoryCode { get; set; }
+    public string? StockCategoryName { get; set; }
+    public string? StockCategoryColor { get; set; }
+
     #endregion
 
     #region Configuration
@@ -161,6 +170,14 @@ public class AssetDto
     public Guid? DepartmentId { get; set; }
     public string? DepartmentName { get; set; }
     public string? CostCenter { get; set; }
+    public AssetAssignmentPurpose AssignmentPurpose { get; set; }
+    public string AssignmentPurposeName => AssignmentPurpose.ToString();
+    public DateTime? AssignmentDate { get; set; }
+    public DateTime? ExpectedReturnDate { get; set; }
+    public DateTime? ActualReturnDate { get; set; }
+    public string? AssignmentNotes { get; set; }
+    public bool IsTemporaryAssignment => AssignmentPurpose != AssetAssignmentPurpose.Permanent;
+    public bool IsOverdue => ExpectedReturnDate.HasValue && ExpectedReturnDate < DateTime.UtcNow && !ActualReturnDate.HasValue;
 
     #endregion
 
@@ -207,8 +224,9 @@ public class AssetSummaryDto
     public string Name { get; set; } = string.Empty;
     public AssetType Type { get; set; }
     public string TypeName => Type.ToString();
-    public Guid CustomerId { get; set; }
-    public string CustomerName { get; set; } = string.Empty;
+    public bool IsInternal { get; set; }
+    public Guid? CustomerId { get; set; }
+    public string? CustomerName { get; set; }
     public string? LocationName { get; set; }
     public string? ProductName { get; set; }
     public string? Manufacturer { get; set; }
@@ -217,6 +235,10 @@ public class AssetSummaryDto
     public string StatusName => Status.ToString();
     public AssetCondition Condition { get; set; }
     public string ConditionName => Condition.ToString();
+    public Guid? StockCategoryId { get; set; }
+    public string? StockCategoryCode { get; set; }
+    public string? StockCategoryName { get; set; }
+    public string? StockCategoryColor { get; set; }
     public bool IsOperational { get; set; }
     public bool IsUnderWarranty { get; set; }
     public bool IsUnderContract { get; set; }
@@ -242,8 +264,9 @@ public class AssetLookupDto
         : $"{AssetTag} ({SerialNumber}) - {Name}";
     public AssetType Type { get; set; }
     public AssetStatus Status { get; set; }
-    public Guid CustomerId { get; set; }
-    public string CustomerName { get; set; } = string.Empty;
+    public bool IsInternal { get; set; }
+    public Guid? CustomerId { get; set; }
+    public string? CustomerName { get; set; }
     public bool IsOperational { get; set; }
     public bool IsUnderWarranty { get; set; }
 }
@@ -253,7 +276,16 @@ public class AssetLookupDto
 /// </summary>
 public class CreateAssetRequest
 {
-    public Guid CustomerId { get; set; }
+    /// <summary>
+    /// Whether this is an internal company asset (not customer-owned)
+    /// Internal assets are assigned to employees and not visible in customer-facing views
+    /// </summary>
+    public bool IsInternal { get; set; } = false;
+
+    /// <summary>
+    /// Customer who owns/uses this asset (null for internal assets)
+    /// </summary>
+    public Guid? CustomerId { get; set; }
     public Guid? LocationId { get; set; }
     public Guid? ProductId { get; set; }
     public Guid? ContractId { get; set; }
@@ -331,6 +363,7 @@ public class CreateAssetRequest
 
     public AssetStatus Status { get; set; } = AssetStatus.InStock;
     public AssetCondition Condition { get; set; } = AssetCondition.New;
+    public Guid? StockCategoryId { get; set; }
     public string? StatusReason { get; set; }
     public bool IsOperational { get; set; } = true;
 
@@ -380,6 +413,10 @@ public class CreateAssetRequest
     public Guid? AssignedUserId { get; set; }
     public Guid? DepartmentId { get; set; }
     public string? CostCenter { get; set; }
+    public AssetAssignmentPurpose AssignmentPurpose { get; set; } = AssetAssignmentPurpose.Permanent;
+    public DateTime? AssignmentDate { get; set; }
+    public DateTime? ExpectedReturnDate { get; set; }
+    public string? AssignmentNotes { get; set; }
 
     #endregion
 
@@ -482,6 +519,7 @@ public class UpdateAssetRequest
 
     public AssetStatus Status { get; set; }
     public AssetCondition Condition { get; set; }
+    public Guid? StockCategoryId { get; set; }
     public string? StatusReason { get; set; }
     public bool IsOperational { get; set; }
 
@@ -533,6 +571,11 @@ public class UpdateAssetRequest
     public Guid? AssignedUserId { get; set; }
     public Guid? DepartmentId { get; set; }
     public string? CostCenter { get; set; }
+    public AssetAssignmentPurpose AssignmentPurpose { get; set; }
+    public DateTime? AssignmentDate { get; set; }
+    public DateTime? ExpectedReturnDate { get; set; }
+    public DateTime? ActualReturnDate { get; set; }
+    public string? AssignmentNotes { get; set; }
 
     #endregion
 
@@ -553,22 +596,56 @@ public class UpdateAssetRequest
 }
 
 /// <summary>
+/// Request to assign asset to employee/customer
+/// </summary>
+public class AssignAssetRequest
+{
+    public Guid? AssignedUserId { get; set; }
+    public Guid? CustomerId { get; set; }
+    public Guid? DepartmentId { get; set; }
+    public AssetAssignmentPurpose AssignmentPurpose { get; set; } = AssetAssignmentPurpose.Permanent;
+    public DateTime? AssignmentDate { get; set; }
+    public DateTime? ExpectedReturnDate { get; set; }
+    public string? AssignmentNotes { get; set; }
+}
+
+/// <summary>
+/// Request to return an assigned asset
+/// </summary>
+public class ReturnAssetRequest
+{
+    public DateTime ReturnDate { get; set; } = DateTime.UtcNow;
+    public string? ReturnNotes { get; set; }
+    public AssetCondition? ConditionOnReturn { get; set; }
+}
+
+/// <summary>
 /// Request to update asset status
 /// </summary>
 public class UpdateAssetStatusRequest
 {
     public AssetStatus Status { get; set; }
     public AssetCondition? Condition { get; set; }
+    public Guid? StockCategoryId { get; set; }
     public string? StatusReason { get; set; }
     public bool? IsOperational { get; set; }
 }
 
 /// <summary>
-/// Request to transfer asset to another customer/location
+/// Request to transfer asset to another customer/location or employee
 /// </summary>
 public class TransferAssetRequest
 {
-    public Guid NewCustomerId { get; set; }
+    /// <summary>
+    /// New customer (for customer assets) or null for internal assets
+    /// </summary>
+    public Guid? NewCustomerId { get; set; }
+
+    /// <summary>
+    /// New employee (for internal assets)
+    /// </summary>
+    public Guid? NewAssignedUserId { get; set; }
+
     public Guid? NewLocationId { get; set; }
     public DateTime TransferDate { get; set; } = DateTime.UtcNow;
     public string? TransferReason { get; set; }
@@ -603,6 +680,7 @@ public class AssetStatisticsDto
     public Dictionary<string, int> ByType { get; set; } = new();
     public Dictionary<string, int> ByCondition { get; set; } = new();
     public Dictionary<string, int> ByCustomer { get; set; } = new();
+    public Dictionary<string, int> ByStockCategory { get; set; } = new();
 
     public decimal TotalAssetValue { get; set; }
     public decimal TotalAccumulatedDepreciation { get; set; }

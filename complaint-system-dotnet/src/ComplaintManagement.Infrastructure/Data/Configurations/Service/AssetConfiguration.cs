@@ -265,6 +265,12 @@ public class AssetConfiguration : IEntityTypeConfiguration<Asset>
 
         builder.HasIndex(a => a.NextServiceDate);
 
+        // Internal assets (employee-assigned assets)
+        builder.HasIndex(a => a.IsInternal);
+        builder.HasIndex(a => new { a.CompanyId, a.IsInternal });
+        builder.HasIndex(a => new { a.AssignedUserId, a.IsInternal })
+            .HasFilter("[AssignedUserId] IS NOT NULL");
+
         #endregion
 
         // Query filter for soft delete
