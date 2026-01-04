@@ -46,9 +46,9 @@ public class ReopenComplaintCommandHandler : IRequestHandler<ReopenComplaintComm
             }
 
             // Check if complaint can be reopened (only Closed or Resolved complaints can be reopened)
+            var currentStatusCode = complaint.StatusMaster?.Code ?? "Unknown";
             var currentStatusName = complaint.StatusMaster?.Name ?? "Unknown";
-            var canReopen = currentStatusName.Equals("Closed", StringComparison.OrdinalIgnoreCase) ||
-                           currentStatusName.Equals("Resolved", StringComparison.OrdinalIgnoreCase);
+            var canReopen = currentStatusCode == "CLOSED" || currentStatusCode == "RESOLVED";
 
             if (!canReopen)
             {
@@ -67,9 +67,11 @@ public class ReopenComplaintCommandHandler : IRequestHandler<ReopenComplaintComm
             // Store previous status for audit
             var previousStatus = currentStatusName;
 
-            // Get Reopened status master
+            // Get Reopened status master - check company-specific first, then fall back to global
             var reopenedStatus = await _unitOfWork.ComplaintStatusMasters
-                .FirstOrDefaultAsync(s => s.Name.Equals("Reopened", StringComparison.OrdinalIgnoreCase) && s.CompanyId == complaint.CompanyId, cancellationToken);
+                .FirstOrDefaultAsync(s => s.Code == "REOPENED" && s.CompanyId == complaint.CompanyId, cancellationToken)
+                ?? await _unitOfWork.ComplaintStatusMasters
+                .FirstOrDefaultAsync(s => s.Code == "REOPENED" && s.CompanyId == null, cancellationToken);
 
             if (reopenedStatus == null)
             {

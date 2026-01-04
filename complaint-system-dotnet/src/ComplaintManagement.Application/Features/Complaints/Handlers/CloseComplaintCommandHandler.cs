@@ -46,15 +46,17 @@ public class CloseComplaintCommandHandler : IRequestHandler<CloseComplaintComman
             }
 
             // Check if complaint is already closed
-            var currentStatusName = complaint.StatusMaster?.Name ?? "Unknown";
-            if (currentStatusName.Equals("Closed", StringComparison.OrdinalIgnoreCase))
+            var currentStatusCode = complaint.StatusMaster?.Code ?? "Unknown";
+            if (currentStatusCode == "CLOSED")
             {
                 return Result<ComplaintDto>.Failure("Complaint is already closed", "Invalid operation");
             }
 
-            // Get Closed status master
+            // Get Closed status master - check company-specific first, then fall back to global
             var closedStatus = await _unitOfWork.ComplaintStatusMasters
-                .FirstOrDefaultAsync(s => s.Name.Equals("Closed", StringComparison.OrdinalIgnoreCase) && s.CompanyId == complaint.CompanyId, cancellationToken);
+                .FirstOrDefaultAsync(s => s.Code == "CLOSED" && s.CompanyId == complaint.CompanyId, cancellationToken)
+                ?? await _unitOfWork.ComplaintStatusMasters
+                .FirstOrDefaultAsync(s => s.Code == "CLOSED" && s.CompanyId == null, cancellationToken);
 
             if (closedStatus == null)
             {

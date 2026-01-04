@@ -47,9 +47,8 @@ public class EscalateComplaintCommandHandler : IRequestHandler<EscalateComplaint
             }
 
             // Check if complaint can be escalated
-            var currentStatusName = complaint.StatusMaster?.Name ?? "Unknown";
-            var cannotEscalate = currentStatusName.Equals("Closed", StringComparison.OrdinalIgnoreCase) ||
-                                currentStatusName.Equals("Resolved", StringComparison.OrdinalIgnoreCase);
+            var currentStatusCode = complaint.StatusMaster?.Code ?? "Unknown";
+            var cannotEscalate = currentStatusCode == "CLOSED" || currentStatusCode == "RESOLVED";
 
             if (cannotEscalate)
             {
@@ -61,10 +60,11 @@ public class EscalateComplaintCommandHandler : IRequestHandler<EscalateComplaint
                 return Result<ComplaintDto>.Failure($"Complaint is already at maximum escalation level ({MaxEscalationLevel})", "Invalid operation");
             }
 
-            // Get Escalated status master
-            // Note: Using ToLower() for case-insensitive comparison as StringComparison is not supported in LINQ-to-SQL
+            // Get Escalated status master - check company-specific first, then fall back to global
             var escalatedStatus = await _unitOfWork.ComplaintStatusMasters
-                .FirstOrDefaultAsync(s => s.Name.ToLower() == "escalated" && s.CompanyId == complaint.CompanyId, cancellationToken);
+                .FirstOrDefaultAsync(s => s.Code == "ESCALATED" && s.CompanyId == complaint.CompanyId, cancellationToken)
+                ?? await _unitOfWork.ComplaintStatusMasters
+                .FirstOrDefaultAsync(s => s.Code == "ESCALATED" && s.CompanyId == null, cancellationToken);
 
             if (escalatedStatus == null)
             {

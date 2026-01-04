@@ -62,10 +62,14 @@ public class AssignComplaintCommandHandler : IRequestHandler<AssignComplaintComm
             complaint.AssignedToId = request.AssignedToId;
 
             // Update status to In Progress if it's still Submitted
-            if (complaint.StatusMaster?.Name?.Equals("Submitted", StringComparison.OrdinalIgnoreCase) == true)
+            if (complaint.StatusMaster?.Code == "SUBMITTED")
             {
+                // Use Code for comparison (case-sensitive, consistent across system)
+                // Check for company-specific status first, then fall back to global status (CompanyId = null)
                 var inProgressStatus = await _unitOfWork.ComplaintStatusMasters
-                    .FirstOrDefaultAsync(s => s.Name.Equals("In Progress", StringComparison.OrdinalIgnoreCase) && s.CompanyId == complaint.CompanyId, cancellationToken);
+                    .FirstOrDefaultAsync(s => s.Code == "IN_PROGRESS" && s.CompanyId == complaint.CompanyId, cancellationToken)
+                    ?? await _unitOfWork.ComplaintStatusMasters
+                    .FirstOrDefaultAsync(s => s.Code == "IN_PROGRESS" && s.CompanyId == null, cancellationToken);
 
                 if (inProgressStatus != null)
                 {
