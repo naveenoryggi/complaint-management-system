@@ -3,7 +3,7 @@
 ; Download Inno Setup from: https://jrsoftware.org/isdl.php
 
 #define MyAppName "Complaint Management System"
-#define MyAppVersion "1.1.2"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "Oryggi Technology"
 #define MyAppURL "https://www.yourcompany.com/"
 #define MyAppExeName "ComplaintManagement.API.exe"
