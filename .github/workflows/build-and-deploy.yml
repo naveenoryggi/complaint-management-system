@@ -43,7 +43,7 @@ jobs:
       working-directory: complaint-system-dotnet/src/ComplaintManagement.API
 
     - name: Publish .NET API
-      run: dotnet publish --configuration Release --no-build --output ./publish
+      run: dotnet publish --configuration Release --no-build
       working-directory: complaint-system-dotnet/src/ComplaintManagement.API
 
     # Build Angular Frontend
