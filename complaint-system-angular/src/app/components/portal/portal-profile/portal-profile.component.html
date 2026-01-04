@@ -1,0 +1,136 @@
+<div class="portal-profile">
+  <div class="profile-header">
+    <h1>My Profile</h1>
+    <p class="subtitle">Manage your account information</p>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading profile...</p>
+    </div>
+  } @else {
+    <!-- Success/Error Messages -->
+    @if (successMessage()) {
+      <div class="alert alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+        <span>{{ successMessage() }}</span>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="alert alert-error">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <div class="profile-content">
+      <!-- User Info Card -->
+      <div class="user-card">
+        <div class="user-avatar-large">
+          {{ user?.firstName?.charAt(0) }}{{ user?.lastName?.charAt(0) }}
+        </div>
+        <div class="user-info">
+          <h2>{{ user?.fullName }}</h2>
+          <p class="user-email">{{ user?.email }}</p>
+          <p class="user-company">{{ user?.customerName }}</p>
+        </div>
+      </div>
+
+      <!-- Profile Form -->
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+        <div class="form-section">
+          <h3>Personal Information</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name *</label>
+              <input
+                type="text"
+                id="firstName"
+                formControlName="firstName"
+                [class.invalid]="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched">
+              @if (profileForm.get('firstName')?.hasError('required') && profileForm.get('firstName')?.touched) {
+                <span class="error-text">First name is required</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name *</label>
+              <input
+                type="text"
+                id="lastName"
+                formControlName="lastName"
+                [class.invalid]="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched">
+              @if (profileForm.get('lastName')?.hasError('required') && profileForm.get('lastName')?.touched) {
+                <span class="error-text">Last name is required</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                [class.invalid]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
+                readonly>
+              <span class="hint">Email cannot be changed</span>
+            </div>
+
+            <div class="form-group">
+              <label for="designation">Designation</label>
+              <input
+                type="text"
+                id="designation"
+                formControlName="designation"
+                placeholder="e.g., Manager, Engineer">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Contact Information</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="phone">Primary Phone</label>
+              <input
+                type="tel"
+                id="phone"
+                formControlName="phone"
+                placeholder="+1 (555) 123-4567">
+            </div>
+
+            <div class="form-group">
+              <label for="alternatePhone">Alternate Phone</label>
+              <input
+                type="tel"
+                id="alternatePhone"
+                formControlName="alternatePhone"
+                placeholder="+1 (555) 987-6543">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="isSaving() || profileForm.invalid">
+            @if (isSaving()) {
+              <span class="spinner-small"></span>
+              Saving...
+            } @else {
+              Save Changes
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>
