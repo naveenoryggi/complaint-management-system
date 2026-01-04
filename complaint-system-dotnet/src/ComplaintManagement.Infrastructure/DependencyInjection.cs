@@ -135,10 +135,15 @@ public static class DependencyInjection
 
         // Register Asset Service for AssetManagement module
         services.AddScoped<IAssetService, AssetService>();
+        services.AddScoped<IAssetAssignmentService, AssetAssignmentService>();
         services.AddScoped<IStockCategoryService, StockCategoryService>();
         services.AddScoped<IStockLocationService, StockLocationService>();
         services.AddScoped<IStockMovementService, StockMovementService>();
         services.AddScoped<IStockItemService, StockItemService>();
+
+        // Register Store and Asset Request Services for Store Manager/Return Workflow
+        services.AddScoped<IStoreService, StoreService>();
+        services.AddScoped<IAssetRequestService, AssetRequestService>();
 
         // Register Portal Service for CustomerPortal module
         services.AddScoped<IPortalService, PortalService>();

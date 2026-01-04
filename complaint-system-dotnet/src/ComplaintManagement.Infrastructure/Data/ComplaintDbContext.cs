@@ -120,6 +120,21 @@ public class ComplaintDbContext : DbContext
     /// </summary>
     public DbSet<ComplaintPriorityMaster> ComplaintPriorityMasters { get; set; }
 
+    /// <summary>
+    /// Product status master data
+    /// </summary>
+    public DbSet<ProductStatusMaster> ProductStatusMasters { get; set; }
+
+    /// <summary>
+    /// Product type master data
+    /// </summary>
+    public DbSet<ProductTypeMaster> ProductTypeMasters { get; set; }
+
+    /// <summary>
+    /// Unit of measure master data
+    /// </summary>
+    public DbSet<UnitOfMeasureMaster> UnitOfMeasureMasters { get; set; }
+
     #endregion
 
     #region Workflow DbSets
@@ -511,6 +526,35 @@ public class ComplaintDbContext : DbContext
     /// Stock movement transactions (receipts, issues, transfers, adjustments)
     /// </summary>
     public DbSet<StockMovement> StockMovements { get; set; }
+
+    /// <summary>
+    /// Asset assignment history (tracks asset assignments to employees)
+    /// </summary>
+    public DbSet<AssetAssignment> AssetAssignments { get; set; }
+
+    #endregion
+
+    #region Store Management DbSets
+
+    /// <summary>
+    /// Stores/warehouses with manager assignments for approval workflows
+    /// </summary>
+    public DbSet<Store> Stores { get; set; }
+
+    /// <summary>
+    /// User role assignments within stores (managers, supervisors, staff)
+    /// </summary>
+    public DbSet<StoreUserRole> StoreUserRoles { get; set; }
+
+    /// <summary>
+    /// Asset requests (return, assignment, transfer) with approval workflow
+    /// </summary>
+    public DbSet<AssetRequest> AssetRequests { get; set; }
+
+    /// <summary>
+    /// Approval history/audit trail for asset requests
+    /// </summary>
+    public DbSet<RequestApprovalHistory> RequestApprovalHistories { get; set; }
 
     #endregion
 

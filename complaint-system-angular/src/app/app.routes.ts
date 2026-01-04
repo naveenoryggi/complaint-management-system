@@ -304,6 +304,26 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'admin/asset-assignments',
+    loadComponent: () => import('./components/admin/asset-assignment-management/asset-assignment-management.component').then(m => m.AssetAssignmentManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/stores',
+    loadComponent: () => import('./components/admin/store-management/store-management.component').then(m => m.StoreManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/asset-requests',
+    loadComponent: () => import('./components/admin/asset-request-management/asset-request-management.component').then(m => m.AssetRequestManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'my-assets',
+    loadComponent: () => import('./components/admin/employee-asset-dashboard/employee-asset-dashboard.component').then(m => m.EmployeeAssetDashboardComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'change-password',
     loadComponent: () => import('./components/shared/change-password/change-password.component').then(m => m.ChangePasswordComponent),
     canActivate: [authGuard]

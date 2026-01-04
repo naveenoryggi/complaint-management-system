@@ -1,0 +1,299 @@
+<div class="store-management">
+  <div class="page-header">
+    <h2>Store Management</h2>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i> Add Store
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i> Loading...
+  </div>
+
+  <!-- Stores Table -->
+  <div class="table-responsive" *ngIf="!isLoading">
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>City</th>
+          <th>Primary Manager</th>
+          <th>Secondary Manager</th>
+          <th>Branch</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let store of stores">
+          <td>{{ store.code }}</td>
+          <td>{{ store.name }}</td>
+          <td>{{ store.city || '-' }}</td>
+          <td>{{ store.primaryManagerName || getUserName(store.primaryManagerId) }}</td>
+          <td>{{ store.secondaryManagerName || getUserName(store.secondaryManagerId) }}</td>
+          <td>{{ store.branchName || getBranchName(store.branchId) }}</td>
+          <td>
+            <span [class]="store.isActive ? 'badge bg-success' : 'badge bg-secondary'">
+              {{ store.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td class="action-buttons">
+            <button class="btn btn-sm btn-info" title="Manage Staff" (click)="openStaffModal(store)">
+              <i class="fas fa-users"></i>
+            </button>
+            <button class="btn btn-sm btn-primary" title="Edit" (click)="openEditModal(store)">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" title="Delete" (click)="confirmDelete(store)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="stores.length === 0">
+          <td colspan="8" class="text-center text-muted">No stores found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Create/Edit Modal -->
+  <div class="modal" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ isEditMode ? 'Edit Store' : 'Add Store' }}</h5>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="saveStore()">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Code *</label>
+                  <input type="text" class="form-control" [(ngModel)]="form.code" name="code"
+                         [disabled]="isEditMode" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Name *</label>
+                  <input type="text" class="form-control" [(ngModel)]="form.name" name="name" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" [(ngModel)]="form.description" name="description" rows="2"></textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Address</label>
+                  <input type="text" class="form-control" [(ngModel)]="form.address" name="address">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">City</label>
+                  <input type="text" class="form-control" [(ngModel)]="form.city" name="city">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Phone</label>
+                  <input type="text" class="form-control" [(ngModel)]="form.phone" name="phone">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-control" [(ngModel)]="form.email" name="email">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Primary Manager</label>
+                  <select class="form-select" [(ngModel)]="form.primaryManagerId" name="primaryManagerId">
+                    <option [value]="undefined">-- Select Manager --</option>
+                    <option *ngFor="let user of users" [value]="user.id">{{ user.fullName || user.email }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Secondary Manager</label>
+                  <select class="form-select" [(ngModel)]="form.secondaryManagerId" name="secondaryManagerId">
+                    <option [value]="undefined">-- Select Manager --</option>
+                    <option *ngFor="let user of users" [value]="user.id">{{ user.fullName || user.email }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Branch</label>
+                  <select class="form-select" [(ngModel)]="form.branchId" name="branchId">
+                    <option [value]="undefined">-- Select Branch --</option>
+                    <option *ngFor="let branch of branches" [value]="branch.id">{{ branch.name }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Approval Timeout (Hours)</label>
+                  <input type="number" class="form-control" [(ngModel)]="form.approvalTimeoutHours"
+                         name="approvalTimeoutHours" min="1" max="720">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-check mb-3">
+                  <input type="checkbox" class="form-check-input" [(ngModel)]="form.autoEscalateToSecondary"
+                         name="autoEscalateToSecondary" id="autoEscalate">
+                  <label class="form-check-label" for="autoEscalate">Auto-escalate to Secondary Manager</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check mb-3">
+                  <input type="checkbox" class="form-check-input" [(ngModel)]="form.requireDeptApprovalForAssignment"
+                         name="requireDeptApproval" id="requireDept">
+                  <label class="form-check-label" for="requireDept">Require Dept Approval for Assignment</label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="saveStore()" [disabled]="isSubmitting">
+            <span *ngIf="isSubmitting"><i class="fas fa-spinner fa-spin"></i></span>
+            {{ isEditMode ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show" *ngIf="showModal"></div>
+
+  <!-- Staff Modal -->
+  <div class="modal" [class.show]="showStaffModal" [style.display]="showStaffModal ? 'block' : 'none'">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Manage Staff - {{ selectedStore?.name }}</h5>
+          <button type="button" class="btn-close" (click)="closeStaffModal()"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Add Staff Form -->
+          <div class="card mb-3">
+            <div class="card-header">Add Staff Member</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-5">
+                  <select class="form-select" [(ngModel)]="staffForm.userId">
+                    <option value="">-- Select User --</option>
+                    <option *ngFor="let user of users" [value]="user.id">{{ user.fullName || user.email }}</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <select class="form-select" [(ngModel)]="staffForm.role">
+                    <option *ngFor="let role of storeRoles" [value]="role.value">{{ role.label }}</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-primary w-100" (click)="assignStaff()" [disabled]="isSubmitting">
+                    <i class="fas fa-plus"></i> Assign
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Current Staff -->
+          <h6>Current Staff</h6>
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Assigned</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let staff of storeStaff">
+                <td>{{ staff.userName }}</td>
+                <td>{{ staff.userEmail }}</td>
+                <td>
+                  <span class="badge bg-info">{{ StoreRoleLabels[staff.role] || staff.roleName }}</span>
+                </td>
+                <td>{{ staff.assignedAt | utcToLocal }}</td>
+                <td>
+                  <button class="btn btn-sm btn-danger" (click)="revokeStaff(staff)" *ngIf="staff.isActive">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="storeStaff.length === 0">
+                <td colspan="5" class="text-center text-muted">No staff assigned</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeStaffModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show" *ngIf="showStaffModal"></div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal" [class.show]="showDeleteConfirm" [style.display]="showDeleteConfirm ? 'block' : 'none'">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Delete</h5>
+          <button type="button" class="btn-close" (click)="cancelDelete()"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete store <strong>{{ storeToDelete?.name }}</strong>?</p>
+          <p class="text-muted">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+          <button type="button" class="btn btn-danger" (click)="deleteStore()" [disabled]="isSubmitting">
+            <span *ngIf="isSubmitting"><i class="fas fa-spinner fa-spin"></i></span>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show" *ngIf="showDeleteConfirm"></div>
+</div>
