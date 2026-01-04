@@ -90,7 +90,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: windows-latest
+    runs-on: self-hosted  # Use self-hosted runner on local network
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
