@@ -105,24 +105,19 @@ jobs:
       shell: pwsh
 
     - name: Deploy to Server
-      env:
-        SERVER_HOST: ${{ secrets.SERVER_HOST }}
-        SERVER_USER: ${{ secrets.SERVER_USER }}
-        SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
-        DEPLOY_SHARE: ${{ secrets.DEPLOY_SHARE }}
       run: |
-        # Map network drive to server share
-        $securePassword = ConvertTo-SecureString $env:SERVER_PASSWORD -AsPlainText -Force
-        $credential = New-Object System.Management.Automation.PSCredential($env:SERVER_USER, $securePassword)
+        # Deploy folder (local path since runner is on the server)
+        $deployPath = "C:\ComplaintManagement-Deploy"
 
-        # Create PSDrive to the network share
-        Write-Host "Connecting to server share: $env:DEPLOY_SHARE"
-        New-PSDrive -Name "DeployDrive" -PSProvider FileSystem -Root $env:DEPLOY_SHARE -Credential $credential
+        # Create deploy folder if it doesn't exist
+        if (-not (Test-Path $deployPath)) {
+            New-Item -ItemType Directory -Path $deployPath -Force | Out-Null
+        }
 
-        # Copy installer to share
+        # Copy installer to deploy folder
         $installerFile = Get-ChildItem -Path ./installer -Filter "*.exe" | Select-Object -First 1
-        Write-Host "Copying $($installerFile.Name) to server..."
-        Copy-Item -Path $installerFile.FullName -Destination "DeployDrive:\" -Force
+        Write-Host "Copying $($installerFile.Name) to $deployPath..."
+        Copy-Item -Path $installerFile.FullName -Destination $deployPath -Force
 
         # Create a flag file to indicate new version available
         $versionInfo = @{
@@ -131,11 +126,8 @@ jobs:
           GitSha = "${{ github.sha }}"
           Branch = "${{ github.ref_name }}"
         } | ConvertTo-Json
-        Set-Content -Path "DeployDrive:\latest-build.json" -Value $versionInfo
+        Set-Content -Path "$deployPath\latest-build.json" -Value $versionInfo
 
-        Write-Host "Deployment complete! Installer copied to server."
-        Write-Host "Run the installer manually or set up auto-install on the server."
-
-        # Remove PSDrive
-        Remove-PSDrive -Name "DeployDrive"
+        Write-Host "Deployment complete!"
+        Write-Host "Installer: $deployPath\$($installerFile.Name)"
       shell: pwsh
