@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 
 export interface ApiResponse<T> {
   isSuccess: boolean;
@@ -59,7 +59,9 @@ export interface UpdatePriorityMasterRequest {
   providedIn: 'root'
 })
 export class PriorityMasterService {
-  private apiUrl = `${environment.apiUrl}/ComplaintPriorityMaster`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/ComplaintPriorityMaster`;
+  }
 
   constructor(private http: HttpClient) {}
 

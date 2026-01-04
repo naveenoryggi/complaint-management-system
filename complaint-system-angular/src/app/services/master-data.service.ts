@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import { CacheService } from './cache.service';
 
 export interface StatusOption {
@@ -38,7 +38,9 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class MasterDataService {
-  private readonly apiUrl = environment.apiUrl;
+  private get apiUrl(): string {
+    return runtimeConfig.apiUrl;
+  }
   private priorityOptions: PriorityOption[] = [];
   private statusOptions: StatusOption[] = [];
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   Store,
   CreateStoreDto,
@@ -24,7 +24,9 @@ export interface ApiResult<T> {
   providedIn: 'root'
 })
 export class StoreService {
-  private apiUrl = `${environment.apiUrl}/stores`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/stores`;
+  }
 
   constructor(private http: HttpClient) {}
 

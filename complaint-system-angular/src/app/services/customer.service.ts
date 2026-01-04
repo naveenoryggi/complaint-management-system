@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import { Customer, CustomerSummary, CreateCustomerRequest, UpdateCustomerRequest } from '../models/customer.model';
 
 export interface PagedResponse<T> {
@@ -26,7 +26,9 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class CustomerService {
-  private baseUrl = `${environment.apiUrl}/customers`;
+  private get baseUrl(): string {
+    return `${runtimeConfig.apiUrl}/customers`;
+  }
 
   constructor(private http: HttpClient) {}
 

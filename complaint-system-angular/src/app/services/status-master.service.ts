@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 
 export interface ApiResponse<T> {
   isSuccess: boolean;
@@ -53,7 +53,9 @@ export interface UpdateStatusMasterRequest {
   providedIn: 'root'
 })
 export class StatusMasterService {
-  private apiUrl = `${environment.apiUrl}/complaintstatusmaster`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/complaintstatusmaster`;
+  }
 
   constructor(private http: HttpClient) {}
 

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   EmailConfiguration,
   CreateEmailConfigurationRequest,
@@ -26,7 +26,9 @@ export interface TestConnectionResult {
 })
 export class EmailTicketingConfigService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/email-configuration`;
+  private get baseUrl(): string {
+    return `${runtimeConfig.apiUrl}/email-configuration`;
+  }
 
   // State management
   private configurationsSubject = new BehaviorSubject<EmailConfiguration[]>([]);

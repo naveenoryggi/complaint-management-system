@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   EscalationMatrix,
   EscalationPolicy,
@@ -27,7 +27,9 @@ interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class EscalationService {
-  private apiUrl = `${environment.apiUrl}/escalation`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/escalation`;
+  }
 
   constructor(private http: HttpClient) {}
 

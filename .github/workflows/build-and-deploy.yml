@@ -1,0 +1,140 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main, clean-main ]
+  pull_request:
+    branches: [ main, clean-main ]
+  workflow_dispatch:  # Allow manual trigger
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  NODE_VERSION: '20.x'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Setup .NET
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    # Setup Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: complaint-system-angular/package-lock.json
+
+    # Build .NET API
+    - name: Restore .NET dependencies
+      run: dotnet restore
+      working-directory: complaint-system-dotnet/src/ComplaintManagement.API
+
+    - name: Build .NET API
+      run: dotnet build --configuration Release --no-restore
+      working-directory: complaint-system-dotnet/src/ComplaintManagement.API
+
+    - name: Publish .NET API
+      run: dotnet publish --configuration Release --no-build --output ./publish
+      working-directory: complaint-system-dotnet/src/ComplaintManagement.API
+
+    # Build Angular Frontend
+    - name: Install Angular dependencies
+      run: npm ci
+      working-directory: complaint-system-angular
+
+    - name: Build Angular app
+      run: npx ng build --configuration production
+      working-directory: complaint-system-angular
+
+    # Install Inno Setup
+    - name: Install Inno Setup
+      run: |
+        choco install innosetup -y
+      shell: cmd
+
+    # Update version in installer script
+    - name: Update installer version
+      run: |
+        $date = Get-Date -Format "yyyy.MM.dd"
+        $buildNum = "${{ github.run_number }}"
+        $version = "1.4.$buildNum"
+        $content = Get-Content "ComplaintManagementSetup.iss" -Raw
+        $content = $content -replace '#define MyAppVersion ".*"', "#define MyAppVersion `"$version`""
+        Set-Content "ComplaintManagementSetup.iss" -Value $content
+        Write-Host "Building version: $version"
+      shell: pwsh
+
+    # Build Installer
+    - name: Build Installer
+      run: |
+        & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "ComplaintManagementSetup.iss"
+      shell: pwsh
+
+    # Upload installer as artifact
+    - name: Upload Installer Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: installer
+        path: installer-output/*.exe
+        retention-days: 30
+
+  deploy:
+    needs: build
+    runs-on: windows-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - name: Download Installer Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: installer
+        path: ./installer
+
+    - name: List installer files
+      run: Get-ChildItem -Path ./installer -Recurse
+      shell: pwsh
+
+    - name: Deploy to Server
+      env:
+        SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        SERVER_USER: ${{ secrets.SERVER_USER }}
+        SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+        DEPLOY_SHARE: ${{ secrets.DEPLOY_SHARE }}
+      run: |
+        # Map network drive to server share
+        $securePassword = ConvertTo-SecureString $env:SERVER_PASSWORD -AsPlainText -Force
+        $credential = New-Object System.Management.Automation.PSCredential($env:SERVER_USER, $securePassword)
+
+        # Create PSDrive to the network share
+        Write-Host "Connecting to server share: $env:DEPLOY_SHARE"
+        New-PSDrive -Name "DeployDrive" -PSProvider FileSystem -Root $env:DEPLOY_SHARE -Credential $credential
+
+        # Copy installer to share
+        $installerFile = Get-ChildItem -Path ./installer -Filter "*.exe" | Select-Object -First 1
+        Write-Host "Copying $($installerFile.Name) to server..."
+        Copy-Item -Path $installerFile.FullName -Destination "DeployDrive:\" -Force
+
+        # Create a flag file to indicate new version available
+        $versionInfo = @{
+          FileName = $installerFile.Name
+          DeployedAt = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+          GitSha = "${{ github.sha }}"
+          Branch = "${{ github.ref_name }}"
+        } | ConvertTo-Json
+        Set-Content -Path "DeployDrive:\latest-build.json" -Value $versionInfo
+
+        Write-Host "Deployment complete! Installer copied to server."
+        Write-Host "Run the installer manually or set up auto-install on the server."
+
+        # Remove PSDrive
+        Remove-PSDrive -Name "DeployDrive"
+      shell: pwsh

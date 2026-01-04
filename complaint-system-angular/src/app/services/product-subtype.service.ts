@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   ProductSubType,
   ProductSubTypeSummary,
@@ -22,7 +22,9 @@ interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class ProductSubTypeService {
-  private readonly baseUrl = `${environment.apiUrl}/productsubtypes`;
+  private get baseUrl(): string {
+    return `${runtimeConfig.apiUrl}/productsubtypes`;
+  }
 
   constructor(private http: HttpClient) {}
 

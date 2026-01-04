@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject, interval, of } from 'rxjs';
 import { takeUntil, switchMap, catchError, tap, map, retry } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   AppNotification,
   NotificationType,
@@ -23,8 +23,12 @@ declare var signalR: any;
   providedIn: 'root'
 })
 export class NotificationService implements OnDestroy {
-  private apiUrl = `${environment.apiUrl}/notifications`;
-  private hubUrl = `${environment.apiUrl.replace('/api', '')}/notificationHub`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/notifications`;
+  }
+  private get hubUrl(): string {
+    return `${runtimeConfig.apiUrl.replace('/api', '')}/notificationHub`;
+  }
 
   // State
   private notificationsSubject = new BehaviorSubject<AppNotification[]>([]);
@@ -514,7 +518,7 @@ export class NotificationService implements OnDestroy {
    * Load real complaint IDs for mock notifications
    */
   private loadRealComplaintIds(): void {
-    this.http.get<any>(`${environment.apiUrl}/complaints?page=1&pageSize=5`).pipe(
+    this.http.get<any>(`${runtimeConfig.apiUrl}/complaints?page=1&pageSize=5`).pipe(
       catchError(() => of(null))
     ).subscribe(response => {
       if (response?.isSuccess && response?.data?.items) {

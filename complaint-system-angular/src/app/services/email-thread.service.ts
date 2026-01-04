@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   EmailMessage,
   EmailAttachment,
@@ -75,7 +75,9 @@ export interface CannedResponseDto {
 })
 export class EmailThreadService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/complaints`;
+  private get baseUrl(): string {
+    return `${runtimeConfig.apiUrl}/complaints`;
+  }
 
   // State management for email threads per complaint
   private emailThreadsMap = new Map<string, BehaviorSubject<EmailThreadItemDto[]>>();
@@ -323,7 +325,7 @@ export class EmailThreadService {
     }
 
     return this.http.get<ApiResponse<CannedResponseDto[]>>(
-      `${environment.apiUrl}/canned-responses`,
+      `${runtimeConfig.apiUrl}/canned-responses`,
       { params }
     );
   }

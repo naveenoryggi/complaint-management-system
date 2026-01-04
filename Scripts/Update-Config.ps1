@@ -55,25 +55,26 @@ try {
         $apiUrl = "http://${Hostname}:$ApiPort"
     }
 
-    # Update CORS allowed origins with configured hostname and ports
+    # Update CORS allowed hosts (any port is allowed for these hosts)
     if ($json.PSObject.Properties['Cors']) {
-        $allowedOrigins = @(
-            "http://localhost:4200",
-            "http://localhost",
-            $webUrl
+        $allowedHosts = @(
+            "localhost",
+            "127.0.0.1"
         )
-        # Add localhost with port if different from 80
-        if ($WebPort -ne "80") {
-            $allowedOrigins += "http://localhost:$WebPort"
+        # Add configured hostname if different from localhost
+        if ($Hostname -ne "localhost" -and $Hostname -ne "127.0.0.1") {
+            $allowedHosts += $Hostname
         }
-        # Add hostname variations
-        if ($Hostname -ne "localhost") {
-            $allowedOrigins += "http://${Hostname}"
-            if ($WebPort -ne "80") {
-                $allowedOrigins += "http://${Hostname}:$WebPort"
-            }
+
+        # Ensure Cors object has AllowedHosts property
+        if (-not $json.Cors.PSObject.Properties['AllowedHosts']) {
+            $json.Cors | Add-Member -MemberType NoteProperty -Name 'AllowedHosts' -Value @()
         }
-        $json.Cors.AllowedOrigins = $allowedOrigins | Select-Object -Unique
+        # Remove old AllowedOrigins if exists
+        if ($json.Cors.PSObject.Properties['AllowedOrigins']) {
+            $json.Cors.PSObject.Properties.Remove('AllowedOrigins')
+        }
+        $json.Cors.AllowedHosts = $allowedHosts | Select-Object -Unique
     }
 
     # Save updated configuration

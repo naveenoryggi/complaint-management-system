@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 
 export interface Asset {
   id: string;
@@ -414,7 +414,9 @@ export const AssetAssignmentPurpose = {
   providedIn: 'root'
 })
 export class AssetService {
-  private readonly API_URL = `${environment.apiUrl}/assets`;
+  private get API_URL(): string {
+    return `${runtimeConfig.apiUrl}/assets`;
+  }
 
   constructor(private http: HttpClient) {}
 

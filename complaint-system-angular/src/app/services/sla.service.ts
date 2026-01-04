@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 // Force recompile
 
 // ============================
@@ -125,7 +125,9 @@ export interface SLAWarning {
 })
 export class SLAService {
   private http = inject(HttpClient);
-  private baseUrl = `${environment.apiUrl}/sla`;
+  private get baseUrl(): string {
+    return `${runtimeConfig.apiUrl}/sla`;
+  }
 
   // State management
   private settingsSubject = new BehaviorSubject<SLASettings | null>(null);

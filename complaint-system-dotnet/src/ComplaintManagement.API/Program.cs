@@ -108,14 +108,23 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
-// Configure CORS - read allowed origins from configuration
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-    ?? new[] { "http://localhost:4200", "http://localhost" };
+// Configure CORS - dynamically allow localhost and configured hostnames on any port
+var allowedHosts = builder.Configuration.GetSection("Cors:AllowedHosts").Get<string[]>()
+    ?? new[] { "localhost", "127.0.0.1" };
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.SetIsOriginAllowed(origin =>
+              {
+                  var uri = new Uri(origin);
+                  var host = uri.Host.ToLower();
+                  // Allow localhost and 127.0.0.1 on any port
+                  if (host == "localhost" || host == "127.0.0.1")
+                      return true;
+                  // Allow configured hostnames on any port
+                  return allowedHosts.Any(h => h.Equals(host, StringComparison.OrdinalIgnoreCase));
+              })
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();

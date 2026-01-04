@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   ComplaintInformationSettings,
   UpdateComplaintInfoSettingsRequest
@@ -12,7 +12,9 @@ import { ApiResponse } from '../models/complaint.model';
   providedIn: 'root'
 })
 export class ComplaintInfoSettingsService {
-  private apiUrl = `${environment.apiUrl}/ComplaintInfoSettings`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/ComplaintInfoSettings`;
+  }
 
   constructor(private http: HttpClient) {}
 

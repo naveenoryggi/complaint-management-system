@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   PortalDashboard,
   PortalTicketSummary,
@@ -39,7 +39,9 @@ export interface ApiResult<T> {
   providedIn: 'root'
 })
 export class PortalService {
-  private readonly API_URL = `${environment.apiUrl}/portal`;
+  private get API_URL(): string {
+    return `${runtimeConfig.apiUrl}/portal`;
+  }
 
   constructor(
     private http: HttpClient,

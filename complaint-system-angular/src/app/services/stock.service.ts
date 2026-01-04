@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   StockItem,
   StockItemLookup,
@@ -46,9 +46,15 @@ interface PagedResponse<T> {
   providedIn: 'root'
 })
 export class StockService {
-  private readonly stockItemsUrl = `${environment.apiUrl}/StockItems`;
-  private readonly stockMovementsUrl = `${environment.apiUrl}/StockMovements`;
-  private readonly stockLocationsUrl = `${environment.apiUrl}/StockLocations`;
+  private get stockItemsUrl(): string {
+    return `${runtimeConfig.apiUrl}/StockItems`;
+  }
+  private get stockMovementsUrl(): string {
+    return `${runtimeConfig.apiUrl}/StockMovements`;
+  }
+  private get stockLocationsUrl(): string {
+    return `${runtimeConfig.apiUrl}/StockLocations`;
+  }
 
   constructor(private http: HttpClient) {}
 

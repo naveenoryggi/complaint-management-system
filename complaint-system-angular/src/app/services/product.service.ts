@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   Product,
   ProductSummary,
@@ -44,7 +44,9 @@ interface PagedResponse<T> {
   providedIn: 'root'
 })
 export class ProductService {
-  private readonly baseUrl = `${environment.apiUrl}/products`;
+  private get baseUrl(): string {
+    return `${runtimeConfig.apiUrl}/products`;
+  }
 
   constructor(private http: HttpClient) {}
 

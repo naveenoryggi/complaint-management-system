@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   AssetRequest,
   AssetRequestListItem,
@@ -38,7 +38,9 @@ export interface PagedResult<T> {
   providedIn: 'root'
 })
 export class AssetRequestService {
-  private apiUrl = `${environment.apiUrl}/assetrequests`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/assetrequests`;
+  }
 
   constructor(private http: HttpClient) {}
 

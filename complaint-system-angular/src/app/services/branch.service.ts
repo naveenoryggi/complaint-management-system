@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import { Branch, CreateBranchRequest, UpdateBranchRequest } from '../models/branch.model';
 
 export interface ApiResponse<T> {
@@ -16,7 +16,9 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class BranchService {
-  private apiUrl = `${environment.apiUrl}/branches`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/branches`;
+  }
 
   constructor(private http: HttpClient) {}
 

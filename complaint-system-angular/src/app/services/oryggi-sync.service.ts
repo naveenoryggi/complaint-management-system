@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 
 export interface SyncResult {
   syncLogId: string;
@@ -215,7 +215,9 @@ export interface CleanupResponse {
   providedIn: 'root'
 })
 export class OryggiSyncService {
-  private apiUrl = `${environment.apiUrl}/OryggiSync`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/OryggiSync`;
+  }
 
   constructor(private http: HttpClient) {}
 

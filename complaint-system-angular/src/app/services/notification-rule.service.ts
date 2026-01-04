@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   NotificationRule,
   CreateNotificationRuleRequest,
@@ -21,8 +21,12 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class NotificationRuleService {
-  private apiUrl = `${environment.apiUrl}/event-communication-rules`;
-  private eventTypesUrl = `${environment.apiUrl}/event-types`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/event-communication-rules`;
+  }
+  private get eventTypesUrl(): string {
+    return `${runtimeConfig.apiUrl}/event-types`;
+  }
 
   constructor(private http: HttpClient) {}
 

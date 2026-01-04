@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, BehaviorSubject } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 import {
   PortalLoginRequest,
   PortalLoginResponse,
@@ -13,7 +13,9 @@ import {
   providedIn: 'root'
 })
 export class PortalAuthService {
-  private readonly API_URL = `${environment.apiUrl}/portal`;
+  private get API_URL(): string {
+    return `${runtimeConfig.apiUrl}/portal`;
+  }
   private readonly PORTAL_TOKEN_KEY = 'portal_token';
   private readonly PORTAL_REFRESH_TOKEN_KEY = 'portal_refresh_token';
   private readonly PORTAL_USER_KEY = 'portal_user';

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 
 export interface PasswordStrengthResult {
   score: number;
@@ -37,7 +37,9 @@ export interface GeneratePasswordResult {
   providedIn: 'root'
 })
 export class PasswordService {
-  private readonly apiUrl = `${environment.apiUrl}/password`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/password`;
+  }
 
   constructor(private http: HttpClient) {}
 

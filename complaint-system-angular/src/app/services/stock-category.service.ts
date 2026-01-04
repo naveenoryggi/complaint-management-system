@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 
 export interface StockCategory {
   id: string;
@@ -74,7 +74,9 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class StockCategoryService {
-  private apiUrl = `${environment.apiUrl}/StockCategories`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/StockCategories`;
+  }
 
   constructor(private http: HttpClient) {}
 

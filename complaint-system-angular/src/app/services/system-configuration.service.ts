@@ -3,13 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { SystemConfiguration } from '../models/system-configuration.model';
 import { LoggerService } from '../core/services/logger.service';
-import { environment } from '../../environments/environment';
+import { runtimeConfig } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SystemConfigurationService {
-  private apiUrl = `${environment.apiUrl}/SystemConfiguration`;
+  private get apiUrl(): string {
+    return `${runtimeConfig.apiUrl}/SystemConfiguration`;
+  }
   private configSubject = new BehaviorSubject<SystemConfiguration | null>(null);
   public config$ = this.configSubject.asObservable();
 
