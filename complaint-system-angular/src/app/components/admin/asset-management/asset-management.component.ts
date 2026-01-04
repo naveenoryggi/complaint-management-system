@@ -199,11 +199,12 @@ export class AssetManagementComponent implements OnInit {
       this.customerFilter() ?? undefined
     ).subscribe({
       next: (response) => {
-        if (response.isSuccess && response.data) {
-          this.assets.set(response.data.items);
-          this.totalCount.set(response.data.totalCount);
+        // Backend returns PagedResult directly, not wrapped in ApiResult
+        if (response && response.items) {
+          this.assets.set(response.items);
+          this.totalCount.set(response.totalCount);
         } else {
-          this.error.set(response.message || 'Failed to load assets');
+          this.error.set('Failed to load assets');
         }
         this.isLoading.set(false);
       },

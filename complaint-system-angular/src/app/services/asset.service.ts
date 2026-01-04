@@ -431,9 +431,9 @@ export class AssetService {
     isUnderWarranty?: boolean,
     sortBy?: string,
     sortDirection?: string
-  ): Observable<ApiResult<PagedResult<AssetSummary>>> {
+  ): Observable<PagedResult<AssetSummary>> {
     let params = new HttpParams()
-      .set('pageNumber', pageNumber.toString())
+      .set('page', pageNumber.toString())  // Backend expects 'page' not 'pageNumber'
       .set('pageSize', pageSize.toString());
 
     if (searchTerm) params = params.set('searchTerm', searchTerm);
@@ -444,9 +444,10 @@ export class AssetService {
     if (isOperational !== undefined) params = params.set('isOperational', isOperational.toString());
     if (isUnderWarranty !== undefined) params = params.set('isUnderWarranty', isUnderWarranty.toString());
     if (sortBy) params = params.set('sortBy', sortBy);
-    if (sortDirection) params = params.set('sortDirection', sortDirection);
+    if (sortDirection) params = params.set('sortDescending', sortDirection === 'desc' ? 'true' : 'false');
 
-    return this.http.get<ApiResult<PagedResult<AssetSummary>>>(this.API_URL, { params });
+    // Backend returns PagedResult directly, not wrapped in ApiResult
+    return this.http.get<PagedResult<AssetSummary>>(this.API_URL, { params });
   }
 
   // Get single asset by ID

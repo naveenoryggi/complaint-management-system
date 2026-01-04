@@ -112,11 +112,13 @@ public class AssetService : IAssetService
         };
 
         var totalCount = await query.CountAsync();
-        var items = await query
+        var assets = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(a => MapToSummaryDto(a))
             .ToListAsync();
+
+        // Map to DTOs in memory after materializing the query
+        var items = assets.Select(MapToSummaryDto).ToList();
 
         return new PagedResult<AssetSummaryDto>(items, page, pageSize, totalCount);
     }
