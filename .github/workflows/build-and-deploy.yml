@@ -1,5 +1,5 @@
 name: Build and Deploy
-# CI/CD Pipeline for Complaint Management System v2
+# CI/CD Pipeline for Complaint Management System v3 - Auto-Install enabled
 
 on:
   push:
