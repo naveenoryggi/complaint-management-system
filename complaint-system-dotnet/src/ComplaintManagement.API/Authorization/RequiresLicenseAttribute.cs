@@ -28,9 +28,17 @@ public class RequiresLicenseAttribute : Attribute, IAsyncActionFilter
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        // Skip license check for [AllowAnonymous] endpoints
         var endpoint = context.HttpContext.GetEndpoint();
+
+        // Skip license check for [AllowAnonymous] endpoints
         if (endpoint?.Metadata?.GetMetadata<AllowAnonymousAttribute>() != null)
+        {
+            await next();
+            return;
+        }
+
+        // Skip license check for [SkipLicenseCheck] endpoints
+        if (endpoint?.Metadata?.GetMetadata<SkipLicenseCheckAttribute>() != null)
         {
             await next();
             return;

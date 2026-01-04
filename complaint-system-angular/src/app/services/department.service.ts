@@ -12,6 +12,13 @@ export interface ApiResponse<T> {
   errors?: string[];
 }
 
+export interface DepartmentLookup {
+  id: string;
+  code: string;
+  name: string;
+  isActive: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -75,5 +82,25 @@ export class DepartmentService {
    */
   deleteDepartment(id: string): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Get all departments as lookup list
+   * @param activeOnly Filter to only active departments
+   */
+  getDepartmentLookups(activeOnly: boolean = true): Observable<DepartmentLookup[]> {
+    const params = new HttpParams().set('activeOnly', activeOnly.toString());
+    return this.http.get<ApiResponse<Department[]>>(`${this.apiUrl}/all`, { params })
+      .pipe(map(response => {
+        if (response.isSuccess && response.data) {
+          return response.data.map(dept => ({
+            id: dept.id,
+            code: dept.code,
+            name: dept.name,
+            isActive: dept.isActive
+          }));
+        }
+        return [];
+      }));
   }
 }

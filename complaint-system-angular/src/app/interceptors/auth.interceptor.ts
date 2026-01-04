@@ -19,12 +19,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const token = authService.token;
 
-  // Skip interceptor for auth endpoints, portal endpoints, and static assets
+  // Skip interceptor for auth endpoints and portal endpoints
+  // Note: Do NOT skip /api/assets/ - only skip static assets in /assets/ folder
   if (
     req.url.includes('/auth/login') ||
     req.url.includes('/auth/refresh') ||
-    req.url.includes('/portal/') ||
-    req.url.includes('/assets/')
+    req.url.includes('/portal/')
   ) {
     return next(req);
   }

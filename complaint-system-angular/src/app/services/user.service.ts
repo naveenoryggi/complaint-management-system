@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { runtimeConfig } from '../../environments/environment';
 import { User, CreateUserRequest, UpdateUserRequest } from '../models/user.model';
 
@@ -9,6 +10,15 @@ export interface ApiResponse<T> {
   message: string;
   data?: T;
   errors?: string[];
+}
+
+export interface UserLookup {
+  id: string;
+  employeeCode: string;
+  fullName: string;
+  email: string;
+  departmentName?: string;
+  isActive: boolean;
 }
 
 @Injectable({
@@ -51,5 +61,24 @@ export class UserService {
 
   deleteUser(id: string): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`);
+  }
+
+  getUserLookups(activeOnly: boolean = true): Observable<UserLookup[]> {
+    const params = new HttpParams().set('activeOnly', activeOnly.toString());
+    return this.http.get<ApiResponse<User[]>>(this.apiUrl, { params }).pipe(
+      map(response => {
+        if (response.isSuccess && response.data) {
+          return response.data.map(user => ({
+            id: user.id,
+            employeeCode: user.employeeCode,
+            fullName: user.fullName,
+            email: user.email,
+            departmentName: user.departmentName,
+            isActive: user.isActive ?? true
+          }));
+        }
+        return [];
+      })
+    );
   }
 }
