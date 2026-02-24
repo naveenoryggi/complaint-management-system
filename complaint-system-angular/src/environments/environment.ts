@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:5000/api',
+  pythonApiUrl: 'http://localhost:8000',
   apiTimeout: 30000,
   timezone: 'Asia/Kolkata',
   dateFormat: 'dd/MM/yyyy',
@@ -9,5 +10,6 @@ export const environment = {
 
 // Mutable config that can be updated at runtime (for consistency with production)
 export const runtimeConfig = {
-  apiUrl: 'http://localhost:5000/api'
+  apiUrl: 'http://localhost:5000/api',
+  pythonApiUrl: 'http://localhost:8000'
 };

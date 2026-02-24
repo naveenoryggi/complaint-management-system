@@ -343,5 +343,31 @@ export const routes: Routes = [
     loadComponent: () => import('./components/team-performance/team-performance.component').then(m => m.TeamPerformanceComponent),
     canActivate: [authGuard]
   },
+  // Tender Automation Routes
+  {
+    path: 'tenders',
+    loadComponent: () => import('./components/tender-list/tender-list.component').then(m => m.TenderListComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'tenders/new',
+    loadComponent: () => import('./components/tender-form/tender-form.component').then(m => m.TenderFormComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'tenders/:id',
+    loadComponent: () => import('./components/tender-detail/tender-detail.component').then(m => m.TenderDetailComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'tenders/:id/edit',
+    loadComponent: () => import('./components/tender-form/tender-form.component').then(m => m.TenderFormComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'ai-generator',
+    loadComponent: () => import('./components/ai-generator/ai-generator.component').then(m => m.AIGeneratorComponent),
+    canActivate: [authGuard]
+  },
   { path: '**', redirectTo: '/login' }
 ];

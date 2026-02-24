@@ -1,0 +1,184 @@
+.tender-form-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Header Card */
+.header-card {
+  margin-bottom: 20px;
+}
+
+.header-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+}
+
+.header-card mat-icon {
+  color: #673ab7;
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+/* Form Card */
+.form-card {
+  padding: 24px;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 32px;
+}
+
+.form-section h3 {
+  margin: 0 0 12px 0;
+  color: #673ab7;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.form-section mat-divider {
+  margin-bottom: 24px;
+}
+
+/* Form Fields */
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.half-width {
+  flex: 1;
+}
+
+/* Textareas */
+textarea {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.action-buttons button {
+  min-width: 140px;
+}
+
+.inline-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+/* Form Validation */
+mat-form-field.ng-invalid.ng-touched {
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Hints and Errors */
+mat-hint {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+mat-error {
+  font-size: 12px;
+}
+
+/* Icons in Fields */
+mat-icon[matSuffix] {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+/* Datepicker */
+mat-datepicker-toggle {
+  color: #673ab7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tender-form-container {
+    padding: 10px;
+  }
+
+  .form-card {
+    padding: 16px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  .action-buttons {
+    flex-direction: column-reverse;
+  }
+
+  .action-buttons button {
+    width: 100%;
+  }
+}
+
+/* Loading State */
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Focus States */
+mat-form-field:focus-within {
+  outline: none;
+}
+
+/* Currency Formatting */
+.currency-hint {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+/* Print Styles */
+@media print {
+  .action-buttons {
+    display: none;
+  }
+
+  .header-card {
+    box-shadow: none;
+  }
+
+  .form-card {
+    box-shadow: none;
+  }
+}

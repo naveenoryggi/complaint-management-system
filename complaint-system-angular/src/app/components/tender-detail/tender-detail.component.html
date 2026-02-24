@@ -1,0 +1,247 @@
+<div class="tender-detail-container">
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Loading tender details...</p>
+    </div>
+  } @else if (tender()) {
+    <!-- Header Card -->
+    <mat-card class="header-card">
+      <mat-card-header>
+        <mat-card-title>
+          {{ tender()!.title }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          @if (tender()!.reference_number) {
+            <span class="reference">{{ tender()!.reference_number }}</span>
+          }
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="onExportPackage()">
+          <mat-icon>archive</mat-icon>
+          Export Package
+        </button>
+        <button mat-raised-button (click)="onMergePDFs()">
+          <mat-icon>picture_as_pdf</mat-icon>
+          Merge PDFs
+        </button>
+        <button mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="onEdit()">
+            <mat-icon>edit</mat-icon>
+            <span>Edit</span>
+          </button>
+          <button mat-menu-item (click)="onDelete()" color="warn">
+            <mat-icon color="warn">delete</mat-icon>
+            <span>Delete</span>
+          </button>
+        </mat-menu>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Info Cards Row -->
+    <div class="info-cards-row">
+      <!-- Status Card -->
+      <mat-card class="info-card">
+        <mat-card-content>
+          <div class="info-label">Status</div>
+          <mat-chip [class]="'status-' + tender()!.status">
+            <mat-icon>{{ getStatusIcon(tender()!.status) }}</mat-icon>
+            {{ tender()!.status | titlecase }}
+          </mat-chip>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Deadline Card -->
+      <mat-card class="info-card">
+        <mat-card-content>
+          <div class="info-label">Deadline</div>
+          <div class="deadline-value"
+            [class.deadline-near]="isDeadlineNear(tender()!.deadline)"
+            [class.deadline-overdue]="isDeadlineOverdue(tender()!.deadline)">
+            <mat-icon>schedule</mat-icon>
+            {{ formatDeadline(tender()!.deadline) }}
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Value Card -->
+      <mat-card class="info-card">
+        <mat-card-content>
+          <div class="info-label">Estimated Value</div>
+          <div class="value-text">
+            <mat-icon>currency_rupee</mat-icon>
+            {{ formatCurrency(tender()!.estimated_value) }}
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Documents Card -->
+      <mat-card class="info-card">
+        <mat-card-content>
+          <div class="info-label">Documents</div>
+          <div class="documents-count">
+            <mat-icon>attach_file</mat-icon>
+            {{ documents().length }} files
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Details Card -->
+    <mat-card class="details-card">
+      <mat-card-header>
+        <mat-card-title>Tender Details</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="detail-row">
+          <div class="detail-label">Issuing Authority:</div>
+          <div class="detail-value">{{ tender()!.issuing_authority || 'N/A' }}</div>
+        </div>
+
+        @if (tender()!.portal_name) {
+          <div class="detail-row">
+            <div class="detail-label">Portal:</div>
+            <div class="detail-value">
+              {{ tender()!.portal_name }}
+              @if (tender()!.portal_url) {
+                <a [href]="tender()!.portal_url" target="_blank" class="portal-link">
+                  <mat-icon>open_in_new</mat-icon>
+                </a>
+              }
+            </div>
+          </div>
+        }
+
+        @if (tender()!.requirements) {
+          <div class="detail-row full-width">
+            <div class="detail-label">Requirements:</div>
+            <div class="requirements-box">
+              <pre>{{ tender()!.requirements | json }}</pre>
+            </div>
+          </div>
+        }
+
+        @if (tender()!.notes) {
+          <div class="detail-row full-width">
+            <div class="detail-label">Notes:</div>
+            <div class="notes-box">
+              {{ tender()!.notes }}
+            </div>
+          </div>
+        }
+
+        <mat-divider></mat-divider>
+
+        <div class="meta-row">
+          <span class="meta-item">
+            <mat-icon>person</mat-icon>
+            Created by: {{ tender()!.created_by }}
+          </span>
+          <span class="meta-item">
+            <mat-icon>calendar_today</mat-icon>
+            Created: {{ tender()!.created_at | date:'medium' }}
+          </span>
+          @if (tender()!.updated_at !== tender()!.created_at) {
+            <span class="meta-item">
+              <mat-icon>update</mat-icon>
+              Updated: {{ tender()!.updated_at | date:'medium' }}
+            </span>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Documents Card -->
+    <mat-card class="documents-card">
+      <mat-card-header>
+        <mat-card-title>Associated Documents</mat-card-title>
+        <button mat-raised-button color="primary" (click)="onAddDocuments()">
+          <mat-icon>add</mat-icon>
+          Add Documents
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        @if (documentsLoading()) {
+          <div class="loading-container small">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading documents...</p>
+          </div>
+        } @else if (documents().length === 0) {
+          <div class="empty-state">
+            <mat-icon>description</mat-icon>
+            <h4>No documents associated</h4>
+            <p>Add documents to this tender to create your submission package</p>
+            <button mat-raised-button color="primary" (click)="onAddDocuments()">
+              <mat-icon>add</mat-icon>
+              Add Documents
+            </button>
+          </div>
+        } @else {
+          <table mat-table [dataSource]="documents()" class="documents-table">
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Document Name</th>
+              <td mat-cell *matCellDef="let doc">
+                <div class="document-name">
+                  <mat-icon>{{ doc.document?.mime_type?.includes('pdf') ? 'picture_as_pdf' : 'description' }}</mat-icon>
+                  <span>{{ doc.document?.name || 'Unknown' }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Type Column -->
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef>Type</th>
+              <td mat-cell *matCellDef="let doc">
+                {{ doc.document?.document_type || 'N/A' }}
+              </td>
+            </ng-container>
+
+            <!-- Size Column -->
+            <ng-container matColumnDef="size">
+              <th mat-header-cell *matHeaderCellDef>Size</th>
+              <td mat-cell *matCellDef="let doc">
+                {{ formatFileSize(doc.document?.file_size) }}
+              </td>
+            </ng-container>
+
+            <!-- Generated Column -->
+            <ng-container matColumnDef="generated">
+              <th mat-header-cell *matHeaderCellDef>Source</th>
+              <td mat-cell *matCellDef="let doc">
+                @if (doc.is_generated) {
+                  <mat-chip class="generated-chip">
+                    <mat-icon>auto_awesome</mat-icon>
+                    AI Generated
+                  </mat-chip>
+                } @else {
+                  <mat-chip class="uploaded-chip">
+                    <mat-icon>upload</mat-icon>
+                    Uploaded
+                  </mat-chip>
+                }
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let doc">
+                <button mat-icon-button matTooltip="Remove" (click)="onRemoveDocument(doc)">
+                  <mat-icon color="warn">delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

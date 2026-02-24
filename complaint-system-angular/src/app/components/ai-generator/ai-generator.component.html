@@ -1,0 +1,248 @@
+<div class="ai-generator-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>auto_awesome</mat-icon>
+        AI Document Generator
+      </mat-card-title>
+      <mat-card-subtitle>
+        Generate professional tender documents using Claude AI
+      </mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <div class="content-layout">
+    <!-- Left Panel: Form -->
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="generationForm">
+          <!-- Document Type Selection -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Document Type</mat-label>
+            <mat-select formControlName="generation_type">
+              @for (type of generationTypes(); track type.value) {
+                <mat-option [value]="type.value">
+                  {{ type.label }}
+                </mat-option>
+              }
+            </mat-select>
+            <mat-hint>{{ getGenerationTypeDescription() }}</mat-hint>
+          </mat-form-field>
+
+          <!-- Context Section -->
+          <div formGroupName="context">
+            <h3>Tender Information</h3>
+            <mat-divider></mat-divider>
+            <br>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Tender Title *</mat-label>
+              <input matInput formControlName="tender_title" placeholder="e.g., Implementation of Smart City Platform">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Tender Reference</mat-label>
+              <input matInput formControlName="tender_reference" placeholder="e.g., TENDER/2024/001">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Issuing Authority *</mat-label>
+              <input matInput formControlName="issuing_authority" placeholder="e.g., Municipal Corporation">
+            </mat-form-field>
+
+            <h3>Company Information</h3>
+            <mat-divider></mat-divider>
+            <br>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Company Name *</mat-label>
+              <input matInput formControlName="company_name" placeholder="e.g., TechSolutions Pvt Ltd">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Company Profile</mat-label>
+              <textarea matInput formControlName="company_profile" rows="3"
+                placeholder="Brief company description and key strengths"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Relevant Experience</mat-label>
+              <textarea matInput formControlName="experience" rows="3"
+                placeholder="Relevant project experience and credentials"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Company Address</mat-label>
+              <textarea matInput formControlName="company_address" rows="2"
+                placeholder="Complete address for letterhead"></textarea>
+            </mat-form-field>
+
+            <h3>Scope & Requirements</h3>
+            <mat-divider></mat-divider>
+            <br>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Requirements *</mat-label>
+              <textarea matInput formControlName="requirements" rows="6"
+                placeholder="Enter key requirements (one per line)&#10;- Cloud-based architecture&#10;- Mobile responsive&#10;- 99.9% uptime SLA"></textarea>
+              <mat-hint>Enter one requirement per line, or use bullet points</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Scope of Work *</mat-label>
+              <textarea matInput formControlName="scope_of_work" rows="4"
+                placeholder="Describe the overall scope of work"></textarea>
+            </mat-form-field>
+          </div>
+
+          <!-- Advanced Settings -->
+          <mat-expansion-panel [expanded]="showAdvanced()">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>tune</mat-icon>
+                Advanced Settings
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>AI Model</mat-label>
+              <mat-select formControlName="model">
+                <mat-option value="claude-sonnet-4">Claude Sonnet 4 (Recommended)</mat-option>
+                <mat-option value="claude-opus-4">Claude Opus 4 (Higher Quality)</mat-option>
+                <mat-option value="claude-opus-4-5">Claude Opus 4.5 (Latest)</mat-option>
+              </mat-select>
+              <mat-hint>{{ getModelCostInfo(generationForm.get('model')?.value) }}</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Max Tokens</mat-label>
+              <input matInput type="number" formControlName="max_tokens" min="1000" max="8000">
+              <mat-hint>Higher = longer output (default: 4000)</mat-hint>
+            </mat-form-field>
+
+            <div class="slider-container">
+              <label>Temperature: {{ generationForm.get('temperature')?.value }}</label>
+              <mat-slider min="0" max="1" step="0.1" class="full-width">
+                <input matSliderThumb formControlName="temperature">
+              </mat-slider>
+              <mat-hint>Lower = more focused, Higher = more creative</mat-hint>
+            </div>
+
+            <mat-slide-toggle formControlName="save_as_document" class="full-width">
+              Save as DOCX Document
+            </mat-slide-toggle>
+
+            @if (generationForm.get('save_as_document')?.value) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Document Name (optional)</mat-label>
+                <input matInput formControlName="document_name" placeholder="Auto-generated if empty">
+              </mat-form-field>
+            }
+          </mat-expansion-panel>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button mat-raised-button type="button" (click)="onPreviewPrompt()"
+              [disabled]="loading() || !contextForm.valid">
+              <mat-icon>visibility</mat-icon>
+              Preview Prompt
+            </button>
+
+            <button mat-raised-button color="primary" type="button" (click)="onGenerateDocument()"
+              [disabled]="loading() || !generationForm.valid">
+              @if (loading()) {
+                <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+                Generating...
+              } @else {
+                <mat-icon>auto_awesome</mat-icon>
+                Generate Document
+              }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Right Panel: Generated Content -->
+    <mat-card class="result-card">
+      <mat-card-content>
+        @if (loading()) {
+          <div class="loading-container">
+            <mat-spinner></mat-spinner>
+            <p>Generating your document with Claude AI...</p>
+            <p class="loading-hint">This may take 10-30 seconds depending on document length</p>
+          </div>
+        } @else if (generatedContent()) {
+          <div class="result-header">
+            <h3>Generated Content</h3>
+            <div class="result-actions">
+              <button mat-icon-button matTooltip="Regenerate" (click)="onRegenerateDocument()">
+                <mat-icon>refresh</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Download DOCX" (click)="onDownloadDocument()"
+                [disabled]="!generationResult()?.document_id">
+                <mat-icon>download</mat-icon>
+              </button>
+              <button mat-raised-button color="primary" (click)="onSaveEditedContent()">
+                <mat-icon>save</mat-icon>
+                Save
+              </button>
+            </div>
+          </div>
+
+          @if (generationResult()) {
+            <div class="result-stats">
+              <mat-chip>
+                <mat-icon>description</mat-icon>
+                {{ generationResult()!.generation_type }}
+              </mat-chip>
+              <mat-chip>
+                <mat-icon>token</mat-icon>
+                {{ generationResult()!.tokens_used }} tokens
+              </mat-chip>
+              <mat-chip>
+                <mat-icon>psychology</mat-icon>
+                {{ generationResult()!.model_used }}
+              </mat-chip>
+              @if (generationResult()!.document_id) {
+                <mat-chip color="primary">
+                  <mat-icon>check_circle</mat-icon>
+                  Saved as DOCX
+                </mat-chip>
+              }
+            </div>
+          }
+
+          <mat-divider></mat-divider>
+          <br>
+
+          <!-- Rich Text Editor -->
+          <quill-editor
+            [(ngModel)]="generatedContent"
+            [modules]="quillModules"
+            [ngModelOptions]="{standalone: true}"
+            class="content-editor">
+          </quill-editor>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>auto_awesome</mat-icon>
+            <h3>No content generated yet</h3>
+            <p>Fill in the form and click "Generate Document" to create AI-powered tender documents</p>
+
+            <div class="feature-list">
+              <h4>What you can generate:</h4>
+              <ul>
+                <li><mat-icon>check</mat-icon> Technical Solution & Approach (1500-2000 words)</li>
+                <li><mat-icon>check</mat-icon> Compliance Declarations</li>
+                <li><mat-icon>check</mat-icon> Professional Covering Letters</li>
+                <li><mat-icon>check</mat-icon> Executive Summaries</li>
+                <li><mat-icon>check</mat-icon> Project Methodologies</li>
+                <li><mat-icon>check</mat-icon> Complete Proposals</li>
+              </ul>
+            </div>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

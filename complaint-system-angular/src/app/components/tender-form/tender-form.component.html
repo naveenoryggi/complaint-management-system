@@ -1,0 +1,154 @@
+<div class="tender-form-container">
+  <!-- Header -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>{{ isEditMode() ? 'edit' : 'add' }}</mat-icon>
+        {{ isEditMode() ? 'Edit Tender' : 'Create New Tender' }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ isEditMode() ? 'Update tender details' : 'Enter tender information to get started' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Form -->
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="tenderForm" (ngSubmit)="onSubmit()">
+
+        <!-- Basic Information Section -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          <mat-divider></mat-divider>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Tender Title *</mat-label>
+            <input matInput formControlName="title" placeholder="e.g., Implementation of Smart City Platform">
+            <mat-error *ngIf="tenderForm.get('title')?.hasError('required')">
+              Title is required
+            </mat-error>
+            <mat-error *ngIf="tenderForm.get('title')?.hasError('maxlength')">
+              Title must be less than 500 characters
+            </mat-error>
+          </mat-form-field>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Reference Number</mat-label>
+              <input matInput formControlName="reference_number" placeholder="e.g., TENDER/2024/001">
+              <mat-icon matSuffix>tag</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Status *</mat-label>
+              <mat-select formControlName="status">
+                @for (option of statusOptions; track option.value) {
+                  <mat-option [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Issuing Authority</mat-label>
+            <input matInput formControlName="issuing_authority"
+              placeholder="e.g., Municipal Corporation of Greater Mumbai">
+            <mat-icon matSuffix>business</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Portal & Timeline Section -->
+        <div class="form-section">
+          <h3>Portal & Timeline</h3>
+          <mat-divider></mat-divider>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Portal Name</mat-label>
+            <mat-select formControlName="portal_name">
+              @for (portal of portalOptions; track portal) {
+                <mat-option [value]="portal">
+                  {{ portal }}
+                </mat-option>
+              }
+            </mat-select>
+            <mat-icon matSuffix>language</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Portal URL</mat-label>
+            <input matInput formControlName="portal_url" type="url"
+              placeholder="https://example.com/tender/123">
+            <mat-icon matSuffix>link</mat-icon>
+          </mat-form-field>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Deadline</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="deadline">
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              <mat-hint>Tender submission deadline</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Estimated Value (₹)</mat-label>
+              <input matInput formControlName="estimated_value" type="number"
+                placeholder="50000000">
+              <mat-icon matSuffix>currency_rupee</mat-icon>
+              <mat-hint *ngIf="tenderForm.get('estimated_value')?.value">
+                {{ formatCurrency(tenderForm.get('estimated_value')?.value) }}
+              </mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Requirements Section -->
+        <div class="form-section">
+          <h3>Requirements</h3>
+          <mat-divider></mat-divider>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Requirements</mat-label>
+            <textarea matInput formControlName="requirements" rows="10"
+              placeholder="Enter requirements (one per line):&#10;- Cloud-based architecture&#10;- Mobile responsive design&#10;- 99.9% uptime SLA&#10;- 24/7 support&#10;&#10;Or use sections:&#10;Technical:&#10;- Requirement 1&#10;- Requirement 2&#10;&#10;Compliance:&#10;- ISO 27001&#10;- CMMI Level 5"></textarea>
+            <mat-hint>Enter requirements as a list or in sections. Supports JSON format.</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="form-section">
+          <h3>Additional Notes</h3>
+          <mat-divider></mat-divider>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="notes" rows="6"
+              placeholder="Add any additional notes, observations, or important information about this tender"></textarea>
+            <mat-hint>Internal notes (not included in submission)</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="loading()">
+            <mat-icon>cancel</mat-icon>
+            Cancel
+          </button>
+
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading() || !tenderForm.valid">
+            @if (loading()) {
+              <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+              {{ isEditMode() ? 'Updating...' : 'Creating...' }}
+            } @else {
+              <mat-icon>{{ isEditMode() ? 'save' : 'add' }}</mat-icon>
+              {{ isEditMode() ? 'Update Tender' : 'Create Tender' }}
+            }
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

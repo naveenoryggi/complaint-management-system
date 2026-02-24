@@ -17,6 +17,7 @@
       <nav class="main-nav">
         <a class="nav-link" [class.active]="activeNavLink === 'dashboard'" (click)="navigateToPage('/dashboard')">Dashboard</a>
         <a class="nav-link" [class.active]="activeNavLink === 'complaints'" (click)="navigateToPage('/complaints')">All Complaints</a>
+        <a class="nav-link" [class.active]="activeNavLink === 'tenders'" (click)="navigateToPage('/tenders')">Tenders</a>
         <a class="nav-link" [class.active]="activeNavLink === 'team-performance'" (click)="navigateToPage('/team-performance')" *ngIf="isAdmin()">Team Performance</a>
         <a class="nav-link" [class.active]="activeNavLink === 'reports'" (click)="navigateToPage('/reports')" *ngIf="isAdmin()">Reports</a>
         <div class="nav-dropdown" *ngIf="isAdmin() && showAdminPanel">
