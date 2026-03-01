@@ -1,0 +1,273 @@
+.dashboard-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header Card */
+.header-card {
+  margin-bottom: 24px;
+}
+
+.header-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+}
+
+.header-card mat-icon {
+  color: #1565c0;
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+/* Summary Grid */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Icons */
+.card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.card-icon mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+.card-icon.blue {
+  background-color: #1565c0;
+}
+
+.card-icon.green {
+  background-color: #2e7d32;
+}
+
+.card-icon.purple {
+  background-color: #7b1fa2;
+}
+
+.card-icon.orange {
+  background-color: #e65100;
+}
+
+.card-icon.teal {
+  background-color: #00838f;
+}
+
+.card-icon.red {
+  background-color: #c62828;
+}
+
+/* Card Content */
+.card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.2;
+}
+
+.card-label {
+  font-size: 13px;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* Content Row */
+.content-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+/* Deadlines Card */
+.deadlines-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+}
+
+.deadlines-card mat-card-title mat-icon {
+  color: #1565c0;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.deadlines-card mat-list-item {
+  cursor: pointer;
+}
+
+.deadlines-card mat-list-item:hover {
+  background-color: #f5f5f5;
+}
+
+.urgent {
+  color: #f44336 !important;
+}
+
+.deadline-urgent {
+  color: #f44336;
+  font-weight: 500;
+}
+
+/* Quick Actions Card */
+.actions-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+}
+
+.actions-card mat-card-title mat-icon {
+  color: #1565c0;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quick-actions button {
+  justify-content: flex-start;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.quick-actions button mat-icon {
+  margin-right: 8px;
+  color: #1565c0;
+}
+
+/* Empty State */
+.empty-state-small {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  text-align: center;
+  padding: 20px;
+}
+
+.empty-state-small mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #1565c0;
+  opacity: 0.3;
+  margin-bottom: 12px;
+}
+
+.empty-state-small p {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 20px;
+}
+
+.loading-container p {
+  font-size: 16px;
+  color: #666;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .content-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+  }
+
+  .summary-card {
+    padding: 16px;
+  }
+
+  .card-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .card-icon mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .card-value {
+    font-size: 20px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .quick-actions,
+  .actions-card {
+    display: none;
+  }
+
+  .summary-card {
+    cursor: default;
+    box-shadow: none;
+  }
+
+  .summary-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}

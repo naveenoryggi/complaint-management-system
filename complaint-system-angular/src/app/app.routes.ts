@@ -369,5 +369,20 @@ export const routes: Routes = [
     loadComponent: () => import('./components/ai-generator/ai-generator.component').then(m => m.AIGeneratorComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'tender-dashboard',
+    loadComponent: () => import('./components/tender-dashboard/tender-dashboard.component').then(m => m.TenderDashboardComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'company-profile',
+    loadComponent: () => import('./components/company-profile/company-profile.component').then(m => m.CompanyProfileComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'reference-bundles',
+    loadComponent: () => import('./components/reference-bundles/reference-bundles.component').then(m => m.ReferenceBundlesComponent),
+    canActivate: [authGuard]
+  },
   { path: '**', redirectTo: '/login' }
 ];

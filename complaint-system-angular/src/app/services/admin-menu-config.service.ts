@@ -124,11 +124,27 @@ export class AdminMenuConfigService {
       ]
     },
     {
+      id: 'tender-automation',
+      label: 'Tender Automation',
+      icon: 'fa-file-invoice',
+      color: '#FF6F00',
+      order: 7,
+      expanded: false,
+      items: [
+        { label: 'Tender Dashboard', route: '/tender-dashboard', icon: 'fa-gauge-high', badge: 'New' },
+        { label: 'All Tenders', route: '/tenders', icon: 'fa-file-lines' },
+        { label: 'New Tender', route: '/tenders/new', icon: 'fa-plus' },
+        { label: 'Company Profile', route: '/company-profile', icon: 'fa-building', badge: 'New' },
+        { label: 'Reference Bundles', route: '/reference-bundles', icon: 'fa-folder-open', badge: 'New' },
+        { label: 'AI Generator', route: '/ai-generator', icon: 'fa-robot' }
+      ]
+    },
+    {
       id: 'integrations',
       label: 'Integrations & Automation',
       icon: 'fa-rotate',
       color: '#F44336',
-      order: 7,
+      order: 8,
       expanded: false,
       items: [
         { label: 'Oryggi Sync', route: 'oryggi-sync', icon: 'fa-rotate' },

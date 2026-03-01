@@ -1,0 +1,154 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>dashboard</mat-icon>
+        Tender Dashboard
+      </mat-card-title>
+      <mat-card-subtitle>
+        Overview of your tender management activities
+      </mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+      <p>Loading dashboard...</p>
+    </div>
+  } @else {
+    <!-- Summary Cards Grid -->
+    @if (summary()) {
+      <div class="summary-grid">
+        <mat-card class="summary-card" (click)="navigateTo('/tenders')">
+          <div class="card-icon blue">
+            <mat-icon>description</mat-icon>
+          </div>
+          <div class="card-content">
+            <span class="card-value">{{ summary()!.active_tenders }}</span>
+            <span class="card-label">Active Tenders</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="summary-card" (click)="navigateTo('/reference-bundles')">
+          <div class="card-icon green">
+            <mat-icon>folder_special</mat-icon>
+          </div>
+          <div class="card-content">
+            <span class="card-value">{{ summary()!.total_bundles }}</span>
+            <span class="card-label">Reference Bundles</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="summary-card" (click)="navigateTo('/company-profile')">
+          <div class="card-icon purple">
+            <mat-icon>verified</mat-icon>
+          </div>
+          <div class="card-content">
+            <span class="card-value">{{ summary()!.total_certifications }}</span>
+            <span class="card-label">Certifications</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="summary-card">
+          <div class="card-icon orange">
+            <mat-icon>language</mat-icon>
+          </div>
+          <div class="card-content">
+            <span class="card-value">{{ summary()!.active_portals }}</span>
+            <span class="card-label">Active Portals</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="summary-card">
+          <div class="card-icon teal">
+            <mat-icon>business</mat-icon>
+          </div>
+          <div class="card-content">
+            <span class="card-value">{{ summary()!.total_oems }}</span>
+            <span class="card-label">OEM Partners</span>
+          </div>
+        </mat-card>
+
+        <mat-card class="summary-card">
+          <div class="card-icon red">
+            <mat-icon>account_balance</mat-icon>
+          </div>
+          <div class="card-content">
+            <span class="card-value">{{ formatCurrency(summary()!.total_emd_amount) }}</span>
+            <span class="card-label">Total EMD Amount</span>
+          </div>
+        </mat-card>
+      </div>
+    }
+
+    <!-- Content Row -->
+    <div class="content-row">
+      <!-- Upcoming Deadlines -->
+      <mat-card class="deadlines-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>schedule</mat-icon>
+            Upcoming Deadlines
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (upcomingTenders().length === 0) {
+            <div class="empty-state-small">
+              <mat-icon>event_available</mat-icon>
+              <p>No upcoming deadlines</p>
+            </div>
+          } @else {
+            <mat-list>
+              @for (tender of upcomingTenders(); track tender.id) {
+                <mat-list-item (click)="navigateTo('/tenders/' + tender.id)">
+                  <mat-icon matListItemIcon
+                            [class.urgent]="isDeadlineUrgent(tender.deadline)">
+                    {{ isDeadlineUrgent(tender.deadline) ? 'warning' : 'event' }}
+                  </mat-icon>
+                  <div matListItemTitle>{{ tender.title }}</div>
+                  <div matListItemLine
+                       [class.deadline-urgent]="isDeadlineUrgent(tender.deadline)">
+                    {{ formatDeadline(tender.deadline) }}
+                  </div>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+              }
+            </mat-list>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Quick Actions -->
+      <mat-card class="actions-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>bolt</mat-icon>
+            Quick Actions
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="quick-actions">
+            <button mat-stroked-button (click)="navigateTo('/tenders/create')">
+              <mat-icon>add_circle</mat-icon>
+              New Tender
+            </button>
+            <button mat-stroked-button (click)="navigateTo('/reference-bundles')">
+              <mat-icon>create_new_folder</mat-icon>
+              New Bundle
+            </button>
+            <button mat-stroked-button (click)="navigateTo('/company-profile')">
+              <mat-icon>business</mat-icon>
+              Company Profile
+            </button>
+            <button mat-stroked-button (click)="navigateTo('/tenders')">
+              <mat-icon>list</mat-icon>
+              All Tenders
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>

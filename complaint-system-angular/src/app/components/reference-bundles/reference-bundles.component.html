@@ -1,0 +1,234 @@
+<div class="bundles-container">
+  <!-- Header Card -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>folder_special</mat-icon>
+        Reference Bundles
+      </mat-card-title>
+      <mat-card-subtitle>
+        Manage client reference bundles for tender submissions
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="showCreateForm.set(!showCreateForm())">
+        <mat-icon>{{ showCreateForm() ? 'close' : 'add' }}</mat-icon>
+        {{ showCreateForm() ? 'Cancel' : 'Create Bundle' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Create Form -->
+  @if (showCreateForm()) {
+    <mat-card class="create-form-card">
+      <mat-card-content>
+        <h3 class="section-title">New Reference Bundle</h3>
+        <form [formGroup]="createForm" (ngSubmit)="onCreateBundle()">
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Bundle Name</mat-label>
+              <input matInput formControlName="bundle_name" placeholder="Enter bundle name">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Client Name</mat-label>
+              <input matInput formControlName="client_name" placeholder="Client organization name">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Client Type</mat-label>
+              <mat-select formControlName="client_type">
+                @for (type of clientTypes; track type.value) {
+                  @if (type.value) {
+                    <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                  }
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Project Name</mat-label>
+              <input matInput formControlName="project_name" placeholder="Project name">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Work Order Number</mat-label>
+              <input matInput formControlName="work_order_number" placeholder="Work order / PO number">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Contract Value</mat-label>
+              <input matInput type="number" formControlName="contract_value" placeholder="Contract value in INR">
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Scope Description</mat-label>
+            <textarea matInput formControlName="scope_description" rows="3" placeholder="Describe the scope of work"></textarea>
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-button type="button" (click)="showCreateForm.set(false)">Cancel</button>
+            <button mat-raised-button color="primary" type="submit">
+              <mat-icon>save</mat-icon>
+              Create Bundle
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Filters Row -->
+  <mat-card class="filter-card">
+    <mat-card-content>
+      <div class="filters-row">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search</mat-label>
+          <input matInput [formControl]="searchControl" placeholder="Search by name, client, or project">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Client Type</mat-label>
+          <mat-select [formControl]="clientTypeControl">
+            @for (type of clientTypes; track type.value) {
+              <mat-option [value]="type.value">{{ type.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Status</mat-label>
+          <mat-select [formControl]="statusControl">
+            @for (option of statusOptions; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Table -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      @if (loading()) {
+        <div class="loading-container">
+          <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+          <p>Loading reference bundles...</p>
+        </div>
+      } @else if (bundles().length === 0) {
+        <div class="empty-state">
+          <mat-icon>folder_special</mat-icon>
+          <h3>No reference bundles found</h3>
+          <p>Create your first reference bundle to get started</p>
+          <button mat-raised-button color="primary" (click)="showCreateForm.set(true)">
+            <mat-icon>add</mat-icon>
+            Create Bundle
+          </button>
+        </div>
+      } @else {
+        <div class="table-container">
+          <table mat-table [dataSource]="bundles()" class="bundles-table">
+            <!-- Bundle Name Column -->
+            <ng-container matColumnDef="bundle_name">
+              <th mat-header-cell *matHeaderCellDef>Bundle Name</th>
+              <td mat-cell *matCellDef="let bundle">
+                <strong>{{ bundle.bundle_name }}</strong>
+              </td>
+            </ng-container>
+
+            <!-- Client Name Column -->
+            <ng-container matColumnDef="client_name">
+              <th mat-header-cell *matHeaderCellDef>Client</th>
+              <td mat-cell *matCellDef="let bundle">{{ bundle.client_name }}</td>
+            </ng-container>
+
+            <!-- Client Type Column -->
+            <ng-container matColumnDef="client_type">
+              <th mat-header-cell *matHeaderCellDef>Type</th>
+              <td mat-cell *matCellDef="let bundle">
+                @if (bundle.client_type) {
+                  <mat-chip [class]="'type-' + bundle.client_type">
+                    {{ bundle.client_type | titlecase }}
+                  </mat-chip>
+                } @else {
+                  N/A
+                }
+              </td>
+            </ng-container>
+
+            <!-- Project Name Column -->
+            <ng-container matColumnDef="project_name">
+              <th mat-header-cell *matHeaderCellDef>Project</th>
+              <td mat-cell *matCellDef="let bundle">{{ bundle.project_name || 'N/A' }}</td>
+            </ng-container>
+
+            <!-- Contract Value Column -->
+            <ng-container matColumnDef="contract_value">
+              <th mat-header-cell *matHeaderCellDef>Contract Value</th>
+              <td mat-cell *matCellDef="let bundle">{{ formatCurrency(bundle.contract_value) }}</td>
+            </ng-container>
+
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let bundle">
+                <mat-chip [class]="'status-' + bundle.status">
+                  {{ bundle.status | titlecase }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <!-- Completeness Column -->
+            <ng-container matColumnDef="completeness_score">
+              <th mat-header-cell *matHeaderCellDef>Completeness</th>
+              <td mat-cell *matCellDef="let bundle">
+                <div class="completeness-bar">
+                  <div class="completeness-fill" [style.width.%]="bundle.completeness_score"
+                       [class.low]="bundle.completeness_score < 40"
+                       [class.medium]="bundle.completeness_score >= 40 && bundle.completeness_score < 70"
+                       [class.high]="bundle.completeness_score >= 70">
+                  </div>
+                  <span class="completeness-text">{{ bundle.completeness_score }}%</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let bundle">
+                <div class="action-buttons">
+                  <button mat-icon-button matTooltip="View Details">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button mat-icon-button matTooltip="Edit">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button matTooltip="Delete" color="warn" (click)="onDeleteBundle(bundle)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+
+          <!-- Paginator -->
+          <mat-paginator
+            [length]="totalBundles()"
+            [pageSize]="pageSize()"
+            [pageIndex]="pageIndex()"
+            [pageSizeOptions]="[10, 20, 50, 100]"
+            (page)="onPageChange($event)"
+            showFirstLastButtons>
+          </mat-paginator>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

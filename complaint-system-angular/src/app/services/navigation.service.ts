@@ -58,7 +58,13 @@ export class NavigationService {
     '/admin/oryggi-sync': 'Oryggi Sync',
     '/admin/escalation-matrix': 'Escalation Matrix',
     '/admin/escalation-policy': 'Escalation Policy',
-    '/admin/escalation-wizard': 'Escalation Wizard'
+    '/admin/escalation-wizard': 'Escalation Wizard',
+    '/tenders': 'All Tenders',
+    '/tenders/new': 'New Tender',
+    '/tender-dashboard': 'Tender Dashboard',
+    '/company-profile': 'Company Profile',
+    '/reference-bundles': 'Reference Bundles',
+    '/ai-generator': 'AI Generator'
   };
 
   // Route to icon mapping
@@ -87,7 +93,13 @@ export class NavigationService {
     '/admin/notification-rules': 'bi-bell',
     '/admin/oryggi-sync': 'bi-arrow-repeat',
     '/admin/escalation-matrix': 'bi-diagram-3',
-    '/admin/escalation-policy': 'bi-shield-check'
+    '/admin/escalation-policy': 'bi-shield-check',
+    '/tenders': 'bi-file-text',
+    '/tenders/new': 'bi-plus-circle',
+    '/tender-dashboard': 'bi-speedometer2',
+    '/company-profile': 'bi-building',
+    '/reference-bundles': 'bi-folder2-open',
+    '/ai-generator': 'bi-robot'
   };
 
   // Parent route mapping for breadcrumbs
@@ -115,7 +127,12 @@ export class NavigationService {
     '/admin/oryggi-sync': '/dashboard',
     '/admin/escalation-matrix': '/dashboard',
     '/admin/escalation-policy': '/dashboard',
-    '/admin/escalation-wizard': '/dashboard'
+    '/admin/escalation-wizard': '/dashboard',
+    '/tenders': '/tender-dashboard',
+    '/tenders/new': '/tenders',
+    '/company-profile': '/tender-dashboard',
+    '/reference-bundles': '/tender-dashboard',
+    '/ai-generator': '/tenders'
   };
 
   constructor(

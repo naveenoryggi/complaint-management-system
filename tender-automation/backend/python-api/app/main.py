@@ -52,12 +52,15 @@ async def health_check():
 
 
 # Import and include routers
-from app.api.v1.endpoints import documents, ai, assembly, tenders
+from app.api.v1.endpoints import documents, ai, assembly, tenders, company, bundles, tracking
 
 app.include_router(documents.router, prefix="/api/v1/documents", tags=["Documents"])
 app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI Generation"])
 app.include_router(assembly.router, prefix="/api/v1/assembly", tags=["Assembly"])
 app.include_router(tenders.router, prefix="/api/v1/tenders", tags=["Tenders"])
+app.include_router(company.router, prefix="/api/v1/company", tags=["Company Master"])
+app.include_router(bundles.router, prefix="/api/v1/bundles", tags=["Reference Bundles"])
+app.include_router(tracking.router, prefix="/api/v1/tracking", tags=["Tracking"])
 
 
 @app.exception_handler(Exception)

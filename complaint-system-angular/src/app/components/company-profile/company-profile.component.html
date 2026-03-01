@@ -1,0 +1,359 @@
+<div class="company-profile-container">
+  <!-- Header Card -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>business</mat-icon>
+        Company Master Profile
+      </mat-card-title>
+      <mat-card-subtitle>
+        Manage your company details, certifications, and key personnel
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-actions>
+      @if (!editMode()) {
+        <button mat-raised-button color="primary" (click)="editMode.set(true)">
+          <mat-icon>edit</mat-icon>
+          Edit Profile
+        </button>
+      }
+    </mat-card-actions>
+  </mat-card>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+      <p>Loading company profile...</p>
+    </div>
+  } @else {
+    <mat-tab-group animationDuration="200ms">
+      <!-- Tab 1: Company Details -->
+      <mat-tab label="Company Details">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-content>
+              <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+                <h3 class="section-title">Basic Information</h3>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Company Name</mat-label>
+                    <input matInput formControlName="company_name" placeholder="Enter company name">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>CIN Number</mat-label>
+                    <input matInput formControlName="cin_number" placeholder="Corporate Identity Number">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>PAN Number</mat-label>
+                    <input matInput formControlName="pan_number" placeholder="PAN Number">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>GSTIN</mat-label>
+                    <input matInput formControlName="gstin" placeholder="GST Identification Number">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>MSME Registration</mat-label>
+                    <input matInput formControlName="msme_registration" placeholder="MSME Registration Number">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Year Established</mat-label>
+                    <input matInput type="number" formControlName="year_established" placeholder="e.g. 2010">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Employee Count</mat-label>
+                    <input matInput type="number" formControlName="employee_count" placeholder="Number of employees">
+                  </mat-form-field>
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <h3 class="section-title">Contact Information</h3>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Website</mat-label>
+                    <input matInput formControlName="website" placeholder="https://www.example.com">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Phone</mat-label>
+                    <input matInput formControlName="phone" placeholder="Phone number">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Email</mat-label>
+                    <input matInput formControlName="email" placeholder="company@example.com">
+                  </mat-form-field>
+                </div>
+
+                <div class="form-grid form-grid-full">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Registered Address</mat-label>
+                    <textarea matInput formControlName="registered_address" rows="3" placeholder="Full registered address"></textarea>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Corporate Address</mat-label>
+                    <textarea matInput formControlName="corporate_address" rows="3" placeholder="Corporate/office address"></textarea>
+                  </mat-form-field>
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <h3 class="section-title">Bank Details</h3>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Bank Name</mat-label>
+                    <input matInput formControlName="bank_name" placeholder="Bank name">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Account Number</mat-label>
+                    <input matInput formControlName="account_number" placeholder="Bank account number">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>IFSC Code</mat-label>
+                    <input matInput formControlName="ifsc_code" placeholder="IFSC code">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Branch Name</mat-label>
+                    <input matInput formControlName="branch_name" placeholder="Branch name">
+                  </mat-form-field>
+                </div>
+
+                @if (editMode()) {
+                  <div class="form-actions">
+                    <button mat-button type="button" (click)="editMode.set(false)">Cancel</button>
+                    <button mat-raised-button color="primary" type="submit">
+                      <mat-icon>save</mat-icon>
+                      Save Profile
+                    </button>
+                  </div>
+                }
+              </form>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 2: Certifications -->
+      <mat-tab label="Certifications">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-content>
+              <!-- Add Certification Form -->
+              <h3 class="section-title">Add Certification</h3>
+              <form [formGroup]="certForm" (ngSubmit)="addCertification()" class="inline-form">
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Certification Name</mat-label>
+                    <input matInput formControlName="name" placeholder="e.g. ISO 9001:2015">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Type</mat-label>
+                    <input matInput formControlName="cert_type" placeholder="e.g. Quality, Security">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Issuing Body</mat-label>
+                    <input matInput formControlName="issuing_body" placeholder="Issuing organization">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Certificate Number</mat-label>
+                    <input matInput formControlName="certificate_number" placeholder="Certificate number">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Issue Date</mat-label>
+                    <input matInput type="date" formControlName="issue_date">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Expiry Date</mat-label>
+                    <input matInput type="date" formControlName="expiry_date">
+                  </mat-form-field>
+                </div>
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit">
+                    <mat-icon>add</mat-icon>
+                    Add Certification
+                  </button>
+                </div>
+              </form>
+
+              <mat-divider></mat-divider>
+
+              <!-- Certifications Table -->
+              @if (certifications().length === 0) {
+                <div class="empty-state">
+                  <mat-icon>verified</mat-icon>
+                  <h3>No certifications yet</h3>
+                  <p>Add your company certifications above</p>
+                </div>
+              } @else {
+                <div class="table-container">
+                  <table mat-table [dataSource]="certifications()">
+                    <ng-container matColumnDef="name">
+                      <th mat-header-cell *matHeaderCellDef>Name</th>
+                      <td mat-cell *matCellDef="let cert">{{ cert.name }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="cert_type">
+                      <th mat-header-cell *matHeaderCellDef>Type</th>
+                      <td mat-cell *matCellDef="let cert">{{ cert.cert_type || 'N/A' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="issuing_body">
+                      <th mat-header-cell *matHeaderCellDef>Issuing Body</th>
+                      <td mat-cell *matCellDef="let cert">{{ cert.issuing_body || 'N/A' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="certificate_number">
+                      <th mat-header-cell *matHeaderCellDef>Certificate No.</th>
+                      <td mat-cell *matCellDef="let cert">{{ cert.certificate_number || 'N/A' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="expiry_date">
+                      <th mat-header-cell *matHeaderCellDef>Expiry Date</th>
+                      <td mat-cell *matCellDef="let cert">{{ cert.expiry_date || 'N/A' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="is_valid">
+                      <th mat-header-cell *matHeaderCellDef>Valid</th>
+                      <td mat-cell *matCellDef="let cert">
+                        <mat-chip [class]="cert.is_valid ? 'chip-valid' : 'chip-expired'">
+                          {{ cert.is_valid ? 'Valid' : 'Expired' }}
+                        </mat-chip>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="actions">
+                      <th mat-header-cell *matHeaderCellDef>Actions</th>
+                      <td mat-cell *matCellDef="let cert">
+                        <button mat-icon-button color="warn" (click)="deleteCertification(cert.id)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="certColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: certColumns;"></tr>
+                  </table>
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 3: Key Personnel -->
+      <mat-tab label="Key Personnel">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-content>
+              <!-- Add Personnel Form -->
+              <h3 class="section-title">Add Personnel</h3>
+              <form [formGroup]="personnelForm" (ngSubmit)="addPersonnel()" class="inline-form">
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Full Name</mat-label>
+                    <input matInput formControlName="name" placeholder="Full name">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Designation</mat-label>
+                    <input matInput formControlName="designation" placeholder="e.g. Project Manager">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Role in Tender</mat-label>
+                    <input matInput formControlName="role_in_tender" placeholder="e.g. Technical Lead">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Qualification</mat-label>
+                    <input matInput formControlName="qualification" placeholder="e.g. B.Tech, MBA">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Experience (Years)</mat-label>
+                    <input matInput type="number" formControlName="experience_years" placeholder="Years of experience">
+                  </mat-form-field>
+                </div>
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit">
+                    <mat-icon>person_add</mat-icon>
+                    Add Personnel
+                  </button>
+                </div>
+              </form>
+
+              <mat-divider></mat-divider>
+
+              <!-- Personnel Table -->
+              @if (personnel().length === 0) {
+                <div class="empty-state">
+                  <mat-icon>people</mat-icon>
+                  <h3>No personnel records yet</h3>
+                  <p>Add your key personnel above</p>
+                </div>
+              } @else {
+                <div class="table-container">
+                  <table mat-table [dataSource]="personnel()">
+                    <ng-container matColumnDef="name">
+                      <th mat-header-cell *matHeaderCellDef>Name</th>
+                      <td mat-cell *matCellDef="let person">{{ person.name }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="designation">
+                      <th mat-header-cell *matHeaderCellDef>Designation</th>
+                      <td mat-cell *matCellDef="let person">{{ person.designation || 'N/A' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="role_in_tender">
+                      <th mat-header-cell *matHeaderCellDef>Role in Tender</th>
+                      <td mat-cell *matCellDef="let person">{{ person.role_in_tender || 'N/A' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="qualification">
+                      <th mat-header-cell *matHeaderCellDef>Qualification</th>
+                      <td mat-cell *matCellDef="let person">{{ person.qualification || 'N/A' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="experience_years">
+                      <th mat-header-cell *matHeaderCellDef>Experience</th>
+                      <td mat-cell *matCellDef="let person">
+                        {{ person.experience_years ? person.experience_years + ' years' : 'N/A' }}
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="actions">
+                      <th mat-header-cell *matHeaderCellDef>Actions</th>
+                      <td mat-cell *matCellDef="let person">
+                        <button mat-icon-button color="warn" (click)="deletePersonnel(person.id)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="personnelColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: personnelColumns;"></tr>
+                  </table>
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>
