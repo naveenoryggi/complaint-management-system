@@ -97,6 +97,15 @@ appsettings.*.json
 # Test tokens and session data
 test_token.txt
 test-session-data.json
+authentication-tokens.json
+.email-token.json
+.handler-test-data.json
+login-response.json
+email-config-details.json
+email-config-payload.json
+email-config-result.txt
+.oauth-url.txt
+oauth-e2e-test-results.json
 
 # Test evidence and reports
 test-evidence/
