@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # Python FastAPI (Tender Automation API)
+  tender-api:
+    build:
+      context: ./backend/python-api
+      dockerfile: Dockerfile
+    container_name: tender-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://complaint_user:complaint_pass_dev@postgres:5432/complaint_management
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-your-super-secret-jwt-key-change-in-production-min-32-chars}
+      - JWT_ALGORITHM=HS256
+      - JWT_ISSUER=ComplaintManagement
+      - JWT_AUDIENCE=ComplaintManagement
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-your-api-key-here}
+      - REDIS_URL=redis://redis:6379/1
+      - UPLOAD_DIR=/app/uploads
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - CORS_ORIGINS=http://localhost:4200,http://localhost:3001
+    volumes:
+      - ./backend/python-api:/app
+      - tender_uploads:/app/uploads
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - tender-network
+    restart: unless-stopped
+
+  # PostgreSQL (Shared with .NET API)
+  postgres:
+    image: postgres:16-alpine
+    container_name: tender-postgres
+    environment:
+      - POSTGRES_USER=complaint_user
+      - POSTGRES_PASSWORD=complaint_pass_dev
+      - POSTGRES_DB=complaint_management
+      - TZ=Asia/Kolkata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tender-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U complaint_user -d complaint_management"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (for caching and background jobs)
+  redis:
+    image: redis:7-alpine
+    container_name: tender-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - tender-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+  tender_uploads:
+
+networks:
+  tender-network:
+    driver: bridge
