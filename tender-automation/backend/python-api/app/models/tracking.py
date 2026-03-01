@@ -2,8 +2,7 @@
 import uuid
 from datetime import datetime, date
 
-from sqlalchemy import Column, String, Text, DateTime, Date, Float, Boolean, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Text, DateTime, Date, Float, Boolean, ForeignKey, Uuid
 
 from app.core.db import Base
 
@@ -11,8 +10,8 @@ from app.core.db import Base
 class PortalRegistration(Base):
     __tablename__ = "portal_registrations"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(Uuid, nullable=False, index=True)
 
     portal_name = Column(String(200), nullable=False)
     portal_url = Column(String(500), nullable=True)
@@ -33,8 +32,8 @@ class PortalRegistration(Base):
 class EMDRecord(Base):
     __tablename__ = "emd_records"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tender_id = Column(UUID(as_uuid=True), ForeignKey("tenders.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    tender_id = Column(Uuid, ForeignKey("tenders.id", ondelete="CASCADE"), nullable=False, index=True)
 
     amount = Column(Float, nullable=False)
     mode = Column(String(50), nullable=False)  # bg/dd/online/fixed_deposit/insurance_surety
@@ -56,8 +55,8 @@ class EMDRecord(Base):
 class TenderFee(Base):
     __tablename__ = "tender_fees"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tender_id = Column(UUID(as_uuid=True), ForeignKey("tenders.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    tender_id = Column(Uuid, ForeignKey("tenders.id", ondelete="CASCADE"), nullable=False, index=True)
 
     fee_type = Column(String(50), nullable=False)  # tender_fee/processing_fee/document_fee
     amount = Column(Float, nullable=False)

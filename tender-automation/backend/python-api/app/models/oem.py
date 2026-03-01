@@ -2,8 +2,7 @@
 import uuid
 from datetime import datetime, date
 
-from sqlalchemy import Column, String, Text, DateTime, Date, Boolean, ForeignKey, ARRAY
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Text, DateTime, Date, Boolean, ForeignKey, Uuid, JSON
 
 from app.core.db import Base
 
@@ -11,8 +10,8 @@ from app.core.db import Base
 class OEMMaster(Base):
     __tablename__ = "oem_master"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(Uuid, nullable=False, index=True)
 
     name = Column(String(300), nullable=False)
     country = Column(String(100), nullable=True)
@@ -25,7 +24,7 @@ class OEMMaster(Base):
     am_contact_phone = Column(String(20), nullable=True)
     legal_contact_name = Column(String(200), nullable=True)
     legal_contact_email = Column(String(255), nullable=True)
-    product_categories = Column(ARRAY(String), nullable=True)
+    product_categories = Column(JSON, nullable=True)  # stored as JSON array
 
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -34,9 +33,9 @@ class OEMMaster(Base):
 class OEMTenderRequirement(Base):
     __tablename__ = "oem_tender_requirements"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tender_id = Column(UUID(as_uuid=True), ForeignKey("tenders.id", ondelete="CASCADE"), nullable=False, index=True)
-    oem_id = Column(UUID(as_uuid=True), ForeignKey("oem_master.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    tender_id = Column(Uuid, ForeignKey("tenders.id", ondelete="CASCADE"), nullable=False, index=True)
+    oem_id = Column(Uuid, ForeignKey("oem_master.id", ondelete="CASCADE"), nullable=False, index=True)
 
     maf_status = Column(String(30), nullable=False, default="pending")
     maf_document_path = Column(String(500), nullable=True)

@@ -15,15 +15,29 @@ class TokenData:
     """Parsed JWT token data."""
 
     def __init__(self, payload: Dict[str, Any]):
-        self.user_id: str = payload.get("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "")
-        self.email: str = payload.get("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "")
-        self.full_name: str = payload.get("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", "")
+        # Support both .NET claim names and standard JWT claims
+        self.user_id: str = (
+            payload.get("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")
+            or payload.get("sub", "")
+        )
+        self.email: str = (
+            payload.get("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")
+            or payload.get("email", "")
+        )
+        self.full_name: str = (
+            payload.get("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")
+            or payload.get("name", "")
+        )
         self.company_id: str = payload.get("CompanyId", "")
-        self.tenant_id: str = payload.get("TenantId", "")
+        self.tenant_id: str = (
+            payload.get("TenantId")
+            or payload.get("tenant_id", "")
+        )
         self.employee_code: str = payload.get("EmployeeCode", "")
         self.permissions: list = payload.get("Permission", [])
         self.roles: list = payload.get("RoleCode", [])
-        self.is_portal_user: bool = payload.get("PortalUser", "false").lower() == "true"
+        portal_user = payload.get("PortalUser", "false")
+        self.is_portal_user: bool = str(portal_user).lower() == "true"
 
         # Standard JWT claims
         self.exp: Optional[int] = payload.get("exp")

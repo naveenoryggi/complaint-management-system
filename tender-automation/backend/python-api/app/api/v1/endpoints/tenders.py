@@ -11,7 +11,7 @@ from app.core.db import get_db
 from app.core.security import get_current_user, TokenData
 from app.models.tender import Tender
 from app.models.document import Document
-from app.models.tender_document import TenderDocument
+from app.models.document import TenderDocument
 
 router = APIRouter()
 

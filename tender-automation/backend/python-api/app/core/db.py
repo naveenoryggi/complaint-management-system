@@ -5,14 +5,12 @@ from sqlalchemy.orm import declarative_base
 
 from app.core.config import settings
 
-# Create async engine
+# Create async engine for SQL Server via aioodbc
 engine = create_async_engine(
     settings.database_url,
     echo=settings.debug,
     future=True,
     pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20,
 )
 
 # Create async session factory

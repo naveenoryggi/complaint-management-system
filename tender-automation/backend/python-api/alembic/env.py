@@ -19,7 +19,13 @@ from app.core.config import settings
 from app.core.db import Base
 
 # Import all models so Alembic can detect them
-from app.models import Tender, Document, TenderDocument, AIGeneration
+from app.models import (
+    Tender, Document, TenderDocument, AIGeneration,
+    CompanyProfile, Certification, Personnel,
+    ReferenceBundle, BundleDocument, TenderCriteria, BundleCriteriaAssignment,
+    OEMMaster, OEMTenderRequirement,
+    PortalRegistration, EMDRecord, TenderFee,
+)
 
 # Alembic Config object
 config = context.config

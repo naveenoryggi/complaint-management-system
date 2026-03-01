@@ -9,7 +9,6 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = '002'
@@ -26,8 +25,8 @@ def upgrade() -> None:
     # -----------------------------------------------------------------------
     op.create_table(
         'company_profiles',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('tenant_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('tenant_id', sa.Uuid(), nullable=False),
         sa.Column('company_name', sa.String(length=500), nullable=False),
         sa.Column('cin_number', sa.String(length=50), nullable=True),
         sa.Column('pan_number', sa.String(length=20), nullable=True),
@@ -38,7 +37,7 @@ def upgrade() -> None:
         sa.Column('website', sa.String(length=300), nullable=True),
         sa.Column('phone', sa.String(length=20), nullable=True),
         sa.Column('email', sa.String(length=255), nullable=True),
-        sa.Column('annual_turnover', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column('annual_turnover', sa.JSON(), nullable=True),
         sa.Column('year_established', sa.Integer(), nullable=True),
         sa.Column('employee_count', sa.Integer(), nullable=True),
         sa.Column('logo_path', sa.String(length=500), nullable=True),
@@ -49,8 +48,8 @@ def upgrade() -> None:
         sa.Column('account_number', sa.String(length=50), nullable=True),
         sa.Column('ifsc_code', sa.String(length=20), nullable=True),
         sa.Column('branch_name', sa.String(length=200), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
         sa.PrimaryKeyConstraint('id'),
     )
     op.create_index('idx_company_profiles_tenant', 'company_profiles', ['tenant_id'], unique=True)
@@ -60,8 +59,8 @@ def upgrade() -> None:
     # -----------------------------------------------------------------------
     op.create_table(
         'certifications',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('company_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('company_id', sa.Uuid(), nullable=False),
         sa.Column('name', sa.String(length=300), nullable=False),
         sa.Column('cert_type', sa.String(length=100), nullable=True),
         sa.Column('issuing_body', sa.String(length=300), nullable=True),
@@ -69,9 +68,9 @@ def upgrade() -> None:
         sa.Column('issue_date', sa.DateTime(timezone=True), nullable=True),
         sa.Column('expiry_date', sa.DateTime(timezone=True), nullable=True),
         sa.Column('document_path', sa.String(length=500), nullable=True),
-        sa.Column('is_valid', sa.Boolean(), nullable=False, server_default='true'),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
+        sa.Column('is_valid', sa.Boolean(), nullable=False, server_default='1'),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
         sa.ForeignKeyConstraint(['company_id'], ['company_profiles.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
     )
@@ -82,19 +81,19 @@ def upgrade() -> None:
     # -----------------------------------------------------------------------
     op.create_table(
         'personnel',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('company_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('company_id', sa.Uuid(), nullable=False),
         sa.Column('name', sa.String(length=300), nullable=False),
         sa.Column('designation', sa.String(length=200), nullable=True),
         sa.Column('role_in_tender', sa.String(length=200), nullable=True),
         sa.Column('qualification', sa.String(length=300), nullable=True),
         sa.Column('experience_years', sa.Integer(), nullable=True),
-        sa.Column('specialization', postgresql.ARRAY(sa.String()), nullable=True),
+        sa.Column('specialization', sa.JSON(), nullable=True),
         sa.Column('cv_path', sa.String(length=500), nullable=True),
         sa.Column('experience_cert_path', sa.String(length=500), nullable=True),
         sa.Column('qualification_cert_path', sa.String(length=500), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
         sa.ForeignKeyConstraint(['company_id'], ['company_profiles.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
     )
@@ -105,8 +104,8 @@ def upgrade() -> None:
     # -----------------------------------------------------------------------
     op.create_table(
         'reference_bundles',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('tenant_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('tenant_id', sa.Uuid(), nullable=False),
         sa.Column('bundle_name', sa.String(length=500), nullable=False),
         sa.Column('client_name', sa.String(length=500), nullable=False),
         sa.Column('client_short_name', sa.String(length=100), nullable=True),
@@ -122,13 +121,13 @@ def upgrade() -> None:
         sa.Column('actual_completion_date', sa.Date(), nullable=True),
         sa.Column('status', sa.String(length=50), nullable=False, server_default='completed'),
         sa.Column('scope_description', sa.Text(), nullable=True),
-        sa.Column('value_bands', postgresql.ARRAY(sa.String()), nullable=True),
-        sa.Column('client_type_tags', postgresql.ARRAY(sa.String()), nullable=True),
-        sa.Column('work_type_tags', postgresql.ARRAY(sa.String()), nullable=True),
+        sa.Column('value_bands', sa.JSON(), nullable=True),
+        sa.Column('client_type_tags', sa.JSON(), nullable=True),
+        sa.Column('work_type_tags', sa.JSON(), nullable=True),
         sa.Column('completeness_score', sa.Integer(), nullable=False, server_default='0'),
-        sa.Column('missing_documents', postgresql.ARRAY(sa.String()), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
+        sa.Column('missing_documents', sa.JSON(), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
         sa.PrimaryKeyConstraint('id'),
     )
     op.create_index('idx_reference_bundles_tenant', 'reference_bundles', ['tenant_id'])
@@ -138,8 +137,8 @@ def upgrade() -> None:
     # -----------------------------------------------------------------------
     op.create_table(
         'bundle_documents',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('bundle_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('bundle_id', sa.Uuid(), nullable=False),
         sa.Column('tier', sa.String(length=50), nullable=False),
         sa.Column('doc_subtype', sa.String(length=100), nullable=False),
         sa.Column('document_path', sa.String(length=500), nullable=True),
@@ -149,10 +148,10 @@ def upgrade() -> None:
         sa.Column('invoice_amount', sa.Float(), nullable=True),
         sa.Column('signatory_name', sa.String(length=200), nullable=True),
         sa.Column('signatory_designation', sa.String(length=200), nullable=True),
-        sa.Column('is_verified', sa.Boolean(), nullable=False, server_default='false'),
+        sa.Column('is_verified', sa.Boolean(), nullable=False, server_default='0'),
         sa.Column('notes', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
         sa.ForeignKeyConstraint(['bundle_id'], ['reference_bundles.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
     )
@@ -163,21 +162,21 @@ def upgrade() -> None:
     # -----------------------------------------------------------------------
     op.create_table(
         'tender_criteria',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('tender_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('tender_id', sa.Uuid(), nullable=False),
         sa.Column('criteria_code', sa.String(length=50), nullable=False),
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('stage', sa.String(length=20), nullable=False, server_default='marking'),
         sa.Column('max_marks', sa.Float(), nullable=False, server_default='0'),
         sa.Column('qualifying_marks', sa.Float(), nullable=True),
-        sa.Column('scoring_rules', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
-        sa.Column('evidence_required', postgresql.ARRAY(sa.String()), nullable=True),
-        sa.Column('can_reuse_across_tenders', sa.Boolean(), nullable=False, server_default='true'),
+        sa.Column('scoring_rules', sa.JSON(), nullable=True),
+        sa.Column('evidence_required', sa.JSON(), nullable=True),
+        sa.Column('can_reuse_across_tenders', sa.Boolean(), nullable=False, server_default='1'),
         sa.Column('max_reuse_count', sa.Integer(), nullable=True),
-        sa.Column('ai_extracted', sa.Boolean(), nullable=False, server_default='false'),
-        sa.Column('source_document_id', postgresql.UUID(as_uuid=True), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
+        sa.Column('ai_extracted', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('source_document_id', sa.Uuid(), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
         sa.ForeignKeyConstraint(['tender_id'], ['tenders.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
     )
@@ -188,15 +187,15 @@ def upgrade() -> None:
     # -----------------------------------------------------------------------
     op.create_table(
         'bundle_criteria_assignments',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('bundle_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('criteria_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('bundle_id', sa.Uuid(), nullable=False),
+        sa.Column('criteria_id', sa.Uuid(), nullable=False),
         sa.Column('predicted_marks', sa.Float(), nullable=True),
         sa.Column('actual_marks', sa.Float(), nullable=True),
-        sa.Column('submitted_doc_types', postgresql.ARRAY(sa.String()), nullable=True),
+        sa.Column('submitted_doc_types', sa.JSON(), nullable=True),
         sa.Column('notes', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
         sa.ForeignKeyConstraint(['bundle_id'], ['reference_bundles.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['criteria_id'], ['tender_criteria.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
@@ -210,11 +209,11 @@ def upgrade() -> None:
     # -----------------------------------------------------------------------
     op.create_table(
         'oem_master',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('tenant_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('tenant_id', sa.Uuid(), nullable=False),
         sa.Column('name', sa.String(length=300), nullable=False),
         sa.Column('country', sa.String(length=100), nullable=True),
-        sa.Column('is_indian', sa.Boolean(), nullable=False, server_default='true'),
+        sa.Column('is_indian', sa.Boolean(), nullable=False, server_default='1'),
         sa.Column('india_distributor', sa.String(length=300), nullable=True),
         sa.Column('partner_tier', sa.String(length=50), nullable=True),
         sa.Column('partner_certificate_path', sa.String(length=500), nullable=True),
@@ -223,9 +222,9 @@ def upgrade() -> None:
         sa.Column('am_contact_phone', sa.String(length=20), nullable=True),
         sa.Column('legal_contact_name', sa.String(length=200), nullable=True),
         sa.Column('legal_contact_email', sa.String(length=255), nullable=True),
-        sa.Column('product_categories', postgresql.ARRAY(sa.String()), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
+        sa.Column('product_categories', sa.JSON(), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
         sa.PrimaryKeyConstraint('id'),
     )
     op.create_index('idx_oem_master_tenant', 'oem_master', ['tenant_id'])
@@ -235,9 +234,9 @@ def upgrade() -> None:
     # -----------------------------------------------------------------------
     op.create_table(
         'oem_tender_requirements',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('tender_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('oem_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('tender_id', sa.Uuid(), nullable=False),
+        sa.Column('oem_id', sa.Uuid(), nullable=False),
         sa.Column('maf_status', sa.String(length=30), nullable=False, server_default='pending'),
         sa.Column('maf_document_path', sa.String(length=500), nullable=True),
         sa.Column('maf_received_date', sa.Date(), nullable=True),
@@ -250,8 +249,8 @@ def upgrade() -> None:
         sa.Column('compliance_cert_status', sa.String(length=30), nullable=False, server_default='pending'),
         sa.Column('compliance_cert_path', sa.String(length=500), nullable=True),
         sa.Column('notes', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
         sa.ForeignKeyConstraint(['tender_id'], ['tenders.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['oem_id'], ['oem_master.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
@@ -264,8 +263,8 @@ def upgrade() -> None:
     # -----------------------------------------------------------------------
     op.create_table(
         'portal_registrations',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('tenant_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('tenant_id', sa.Uuid(), nullable=False),
         sa.Column('portal_name', sa.String(length=200), nullable=False),
         sa.Column('portal_url', sa.String(length=500), nullable=True),
         sa.Column('portal_type', sa.String(length=50), nullable=True),
@@ -277,8 +276,8 @@ def upgrade() -> None:
         sa.Column('dsc_expiry_date', sa.Date(), nullable=True),
         sa.Column('vendor_category', sa.String(length=100), nullable=True),
         sa.Column('notes', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
         sa.PrimaryKeyConstraint('id'),
     )
     op.create_index('idx_portal_registrations_tenant', 'portal_registrations', ['tenant_id'])
@@ -288,8 +287,8 @@ def upgrade() -> None:
     # -----------------------------------------------------------------------
     op.create_table(
         'emd_records',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('tender_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('tender_id', sa.Uuid(), nullable=False),
         sa.Column('amount', sa.Float(), nullable=False),
         sa.Column('mode', sa.String(length=50), nullable=False),
         sa.Column('instrument_number', sa.String(length=100), nullable=True),
@@ -302,8 +301,8 @@ def upgrade() -> None:
         sa.Column('release_amount', sa.Float(), nullable=True),
         sa.Column('status', sa.String(length=30), nullable=False, server_default='pending'),
         sa.Column('notes', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
         sa.ForeignKeyConstraint(['tender_id'], ['tenders.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
     )
@@ -314,8 +313,8 @@ def upgrade() -> None:
     # -----------------------------------------------------------------------
     op.create_table(
         'tender_fees',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('tender_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
+        sa.Column('tender_id', sa.Uuid(), nullable=False),
         sa.Column('fee_type', sa.String(length=50), nullable=False),
         sa.Column('amount', sa.Float(), nullable=False),
         sa.Column('payment_mode', sa.String(length=50), nullable=True),
@@ -324,8 +323,8 @@ def upgrade() -> None:
         sa.Column('status', sa.String(length=30), nullable=False, server_default='pending'),
         sa.Column('receipt_path', sa.String(length=500), nullable=True),
         sa.Column('notes', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('GETDATE()')),
         sa.ForeignKeyConstraint(['tender_id'], ['tenders.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
     )

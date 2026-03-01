@@ -2,8 +2,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, String, Text, DateTime, Integer, Boolean, ForeignKey, ARRAY
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import Column, String, Text, DateTime, Integer, Boolean, ForeignKey, Uuid, JSON
 from sqlalchemy.orm import relationship
 
 from app.core.db import Base
@@ -15,10 +14,10 @@ class CompanyProfile(Base):
     __tablename__ = "company_profiles"
 
     # Primary Key
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
 
     # Multi-tenancy (one profile per tenant)
-    tenant_id = Column(UUID(as_uuid=True), nullable=False, unique=True, index=True)
+    tenant_id = Column(Uuid, nullable=False, unique=True, index=True)
 
     # Company Information
     company_name = Column(String(500), nullable=False)
@@ -37,7 +36,7 @@ class CompanyProfile(Base):
     email = Column(String(255), nullable=True)
 
     # Financials
-    annual_turnover = Column(JSONB, nullable=True)  # {"2023-24": 50000000, "2022-23": 42000000}
+    annual_turnover = Column(JSON, nullable=True)  # {"2023-24": 50000000, "2022-23": 42000000}
 
     # Company Details
     year_established = Column(Integer, nullable=True)
@@ -60,8 +59,8 @@ class CompanyProfile(Base):
     updated_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    certifications = relationship("Certification", back_populates="company", cascade="all, delete-orphan")
-    personnel = relationship("Personnel", back_populates="company", cascade="all, delete-orphan")
+    certifications = relationship("Certification", back_populates="company", cascade="all, delete-orphan", lazy="noload")
+    personnel = relationship("Personnel", back_populates="company", cascade="all, delete-orphan", lazy="noload")
 
     def __repr__(self):
         return f"<CompanyProfile(id={self.id}, company_name='{self.company_name}')>"
@@ -73,10 +72,10 @@ class Certification(Base):
     __tablename__ = "certifications"
 
     # Primary Key
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
 
     # Foreign Key
-    company_id = Column(UUID(as_uuid=True), ForeignKey("company_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    company_id = Column(Uuid, ForeignKey("company_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
 
     # Certification Info
     name = Column(String(300), nullable=False)
@@ -105,10 +104,10 @@ class Personnel(Base):
     __tablename__ = "personnel"
 
     # Primary Key
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
 
     # Foreign Key
-    company_id = Column(UUID(as_uuid=True), ForeignKey("company_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    company_id = Column(Uuid, ForeignKey("company_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
 
     # Personnel Info
     name = Column(String(300), nullable=False)
@@ -116,7 +115,7 @@ class Personnel(Base):
     role_in_tender = Column(String(200), nullable=True)  # project_manager, site_engineer, etc.
     qualification = Column(String(300), nullable=True)
     experience_years = Column(Integer, nullable=True)
-    specialization = Column(ARRAY(String), nullable=True)
+    specialization = Column(JSON, nullable=True)  # stored as JSON array
 
     # Document paths
     cv_path = Column(String(500), nullable=True)

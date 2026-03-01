@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     # Database
     database_url: str = Field(
-        description="PostgreSQL connection string"
+        description="SQL Server connection string (mssql+aioodbc)"
     )
 
     # JWT Configuration (Must match .NET API settings)

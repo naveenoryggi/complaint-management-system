@@ -2,8 +2,7 @@
 import uuid
 from datetime import datetime, date
 
-from sqlalchemy import Column, String, Text, DateTime, Date, Integer, Float, Boolean, ForeignKey, ARRAY, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import Column, String, Text, DateTime, Date, Integer, Float, Boolean, ForeignKey, UniqueConstraint, Uuid, JSON
 from sqlalchemy.orm import relationship
 
 from app.core.db import Base
@@ -12,8 +11,8 @@ from app.core.db import Base
 class ReferenceBundle(Base):
     __tablename__ = "reference_bundles"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(Uuid, nullable=False, index=True)
 
     bundle_name = Column(String(500), nullable=False)
     client_name = Column(String(500), nullable=False)
@@ -31,23 +30,23 @@ class ReferenceBundle(Base):
     status = Column(String(50), nullable=False, default="completed")
     scope_description = Column(Text, nullable=True)
 
-    value_bands = Column(ARRAY(String), nullable=True)
-    client_type_tags = Column(ARRAY(String), nullable=True)
-    work_type_tags = Column(ARRAY(String), nullable=True)
+    value_bands = Column(JSON, nullable=True)  # stored as JSON array
+    client_type_tags = Column(JSON, nullable=True)  # stored as JSON array
+    work_type_tags = Column(JSON, nullable=True)  # stored as JSON array
     completeness_score = Column(Integer, nullable=False, default=0)
-    missing_documents = Column(ARRAY(String), nullable=True)
+    missing_documents = Column(JSON, nullable=True)  # stored as JSON array
 
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    bundle_documents = relationship("BundleDocument", back_populates="bundle", cascade="all, delete-orphan")
+    bundle_documents = relationship("BundleDocument", back_populates="bundle", cascade="all, delete-orphan", lazy="noload")
 
 
 class BundleDocument(Base):
     __tablename__ = "bundle_documents"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    bundle_id = Column(UUID(as_uuid=True), ForeignKey("reference_bundles.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    bundle_id = Column(Uuid, ForeignKey("reference_bundles.id", ondelete="CASCADE"), nullable=False, index=True)
 
     tier = Column(String(50), nullable=False)  # contractual/financial/completion/supporting
     doc_subtype = Column(String(100), nullable=False)  # work_order/invoice/cc/performance_cert/reference_letter
@@ -70,20 +69,20 @@ class BundleDocument(Base):
 class TenderCriteria(Base):
     __tablename__ = "tender_criteria"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tender_id = Column(UUID(as_uuid=True), ForeignKey("tenders.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    tender_id = Column(Uuid, ForeignKey("tenders.id", ondelete="CASCADE"), nullable=False, index=True)
 
     criteria_code = Column(String(50), nullable=False)
     description = Column(Text, nullable=True)
     stage = Column(String(20), nullable=False, default="marking")  # pq/marking
     max_marks = Column(Float, nullable=False, default=0)
     qualifying_marks = Column(Float, nullable=True)
-    scoring_rules = Column(JSONB, nullable=True)
-    evidence_required = Column(ARRAY(String), nullable=True)
+    scoring_rules = Column(JSON, nullable=True)
+    evidence_required = Column(JSON, nullable=True)  # stored as JSON array
     can_reuse_across_tenders = Column(Boolean, nullable=False, default=True)
     max_reuse_count = Column(Integer, nullable=True)
     ai_extracted = Column(Boolean, nullable=False, default=False)
-    source_document_id = Column(UUID(as_uuid=True), nullable=True)
+    source_document_id = Column(Uuid, nullable=True)
 
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -92,13 +91,13 @@ class TenderCriteria(Base):
 class BundleCriteriaAssignment(Base):
     __tablename__ = "bundle_criteria_assignments"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    bundle_id = Column(UUID(as_uuid=True), ForeignKey("reference_bundles.id", ondelete="CASCADE"), nullable=False, index=True)
-    criteria_id = Column(UUID(as_uuid=True), ForeignKey("tender_criteria.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    bundle_id = Column(Uuid, ForeignKey("reference_bundles.id", ondelete="CASCADE"), nullable=False, index=True)
+    criteria_id = Column(Uuid, ForeignKey("tender_criteria.id", ondelete="CASCADE"), nullable=False, index=True)
 
     predicted_marks = Column(Float, nullable=True)
     actual_marks = Column(Float, nullable=True)
-    submitted_doc_types = Column(ARRAY(String), nullable=True)
+    submitted_doc_types = Column(JSON, nullable=True)  # stored as JSON array
     notes = Column(Text, nullable=True)
 
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)

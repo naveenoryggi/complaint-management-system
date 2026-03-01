@@ -1,8 +1,7 @@
 """AI Generation tracking model."""
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Text, DateTime, Integer, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import Column, String, Text, DateTime, Integer, ForeignKey, Uuid, JSON
 
 from app.core.db import Base
 
@@ -13,14 +12,14 @@ class AIGeneration(Base):
     __tablename__ = "ai_generations"
 
     # Primary Key
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
 
     # Multi-tenancy
-    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
-    created_by = Column(UUID(as_uuid=True), nullable=False)
+    tenant_id = Column(Uuid, nullable=False, index=True)
+    created_by = Column(Uuid, nullable=False)
 
     # Link to saved document (if saved)
-    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=True)
+    document_id = Column(Uuid, ForeignKey("documents.id"), nullable=True)
 
     # Generation Info
     prompt = Column(Text, nullable=False)
@@ -31,7 +30,7 @@ class AIGeneration(Base):
     # Types: solution, declaration, proposal, covering_letter, etc.
 
     # Input/Output
-    input_context = Column(JSONB, nullable=True)  # Store any input data
+    input_context = Column(JSON, nullable=True)  # Store any input data
     output_content = Column(Text, nullable=True)  # Generated content
 
     # Audit

@@ -4,8 +4,7 @@ from datetime import datetime
 from typing import Optional
 from decimal import Decimal
 
-from sqlalchemy import Column, String, Text, DateTime, Numeric, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import Column, String, Text, DateTime, Numeric, ForeignKey, Uuid, JSON
 from sqlalchemy.orm import relationship
 
 from app.core.db import Base
@@ -17,11 +16,11 @@ class Tender(Base):
     __tablename__ = "tenders"
 
     # Primary Key
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
 
     # Multi-tenancy (foreign keys to existing tables)
-    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
-    created_by = Column(UUID(as_uuid=True), nullable=False)
+    tenant_id = Column(Uuid, nullable=False, index=True)
+    created_by = Column(Uuid, nullable=False)
 
     # Tender Information
     title = Column(String(500), nullable=False)
@@ -36,7 +35,7 @@ class Tender(Base):
     estimated_value = Column(Numeric(15, 2), nullable=True)
 
     # Flexible storage
-    requirements = Column(JSONB, nullable=True)  # Store structured requirements
+    requirements = Column(JSON, nullable=True)  # Store structured requirements
     notes = Column(Text, nullable=True)
 
     # Status
@@ -46,10 +45,6 @@ class Tender(Base):
     # Audit fields
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Relationships
-    # Note: These will link to the TenderDocument join table
-    # documents = relationship("TenderDocument", back_populates="tender", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Tender(id={self.id}, title='{self.title}', status='{self.status}')>"
