@@ -84,3 +84,22 @@ appsettings.*.json
 
 # Git credentials (local only)
 .git-credentials
+
+# Python
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+
+# Test tokens and session data
+test_token.txt
+test-session-data.json
+
+# Test evidence and reports
+test-evidence/
+playwright-report/
+test-screenshots/
+escalation-test-screenshots/
+
+# Ad-hoc test scripts
+test-tender-backend.ps1
