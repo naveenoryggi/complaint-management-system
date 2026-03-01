@@ -85,6 +85,9 @@ appsettings.*.json
 # Git credentials (local only)
 .git-credentials
 
+# Claude Code local settings
+.claude/settings.local.json
+
 # Python
 **/__pycache__/
 *.py[cod]
