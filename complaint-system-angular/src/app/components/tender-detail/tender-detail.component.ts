@@ -14,6 +14,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { TenderService, Tender, TenderDocument } from '../../services/tender.service';
 import { AssemblyService } from '../../services/assembly.service';
+import { CompanyService } from '../../services/company.service';
+import { AuthService } from '../../services/auth.service';
+import { Company } from '../../models/company.model';
+import { AddDocumentsDialogComponent, AddDocumentsDialogData, AddDocumentsDialogResult } from '../add-documents-dialog/add-documents-dialog.component';
 
 @Component({
   selector: 'app-tender-detail',
@@ -40,6 +44,8 @@ export class TenderDetailComponent implements OnInit {
   private router = inject(Router);
   private tenderService = inject(TenderService);
   private assemblyService = inject(AssemblyService);
+  private companyService = inject(CompanyService);
+  private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
 
@@ -47,6 +53,7 @@ export class TenderDetailComponent implements OnInit {
   documents = signal<TenderDocument[]>([]);
   loading = signal(false);
   documentsLoading = signal(false);
+  company = signal<Company | null>(null);
 
   displayedColumns: string[] = ['name', 'type', 'size', 'generated', 'actions'];
 
@@ -56,6 +63,33 @@ export class TenderDetailComponent implements OnInit {
       this.loadTender(id);
       this.loadDocuments(id);
     }
+    this.loadCompanySettings();
+  }
+
+  loadCompanySettings() {
+    const user = this.authService.currentUserValue;
+    if (user?.companyId) {
+      this.companyService.getCompanyById(user.companyId).subscribe({
+        next: (response) => {
+          if (response.isSuccess && response.data) {
+            this.company.set(response.data);
+          }
+        },
+        error: () => {} // Non-critical, fallback to defaults
+      });
+    }
+  }
+
+  get companyName(): string {
+    return this.company()?.name || 'Your Company Name';
+  }
+
+  get companyAddress(): string {
+    return this.company()?.address || 'Your Company Address';
+  }
+
+  get companyEmail(): string {
+    return this.company()?.contactEmail || '';
   }
 
   loadTender(id: string) {
@@ -115,8 +149,52 @@ export class TenderDetailComponent implements OnInit {
   }
 
   onAddDocuments() {
-    // TODO: Open dialog to add documents
-    this.snackBar.open('Add documents dialog - To be implemented', 'Close', { duration: 3000 });
+    const tender = this.tender();
+    if (!tender) return;
+
+    const dialogData: AddDocumentsDialogData = {
+      tenderId: tender.id,
+      existingDocumentIds: this.documents().map(d => d.document_id)
+    };
+
+    const dialogRef = this.dialog.open(AddDocumentsDialogComponent, {
+      width: '800px',
+      maxHeight: '90vh',
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe((result: AddDocumentsDialogResult | null) => {
+      if (!result) return;
+
+      const allDocs = [...result.selectedDocuments, ...result.uploadedDocuments];
+      if (allDocs.length === 0) return;
+
+      let completed = 0;
+      const total = allDocs.length;
+
+      allDocs.forEach((doc, index) => {
+        this.tenderService.associateDocument(tender.id, {
+          document_id: doc.id,
+          document_order: this.documents().length + index + 1
+        }).subscribe({
+          next: () => {
+            completed++;
+            if (completed === total) {
+              this.snackBar.open(`${total} document(s) added to tender`, 'Close', { duration: 3000 });
+              this.loadDocuments(tender.id);
+            }
+          },
+          error: (error) => {
+            console.error(`Error associating document ${doc.name}:`, error);
+            completed++;
+            if (completed === total) {
+              this.snackBar.open('Some documents failed to associate', 'Close', { duration: 3000 });
+              this.loadDocuments(tender.id);
+            }
+          }
+        });
+      });
+    });
   }
 
   onRemoveDocument(doc: TenderDocument) {
@@ -155,8 +233,9 @@ export class TenderDetailComponent implements OnInit {
         tender_title: tender.title,
         tender_reference: tender.reference_number,
         issuing_authority: tender.issuing_authority || 'N/A',
-        company_name: 'Your Company Name', // TODO: Get from settings
-        company_address: 'Your Company Address' // TODO: Get from settings
+        company_name: this.companyName,
+        company_address: this.companyAddress,
+        company_email: this.companyEmail
       },
       merge_pdfs: true
     }).subscribe({
@@ -195,7 +274,7 @@ export class TenderDetailComponent implements OnInit {
         tender_title: tender.title,
         tender_reference: tender.reference_number,
         issuing_authority: tender.issuing_authority || 'N/A',
-        company_name: 'Your Company Name', // TODO: Get from settings
+        company_name: this.companyName,
       },
       output_filename: `${this.sanitizeFilename(tender.title)}_merged.pdf`
     }).subscribe({

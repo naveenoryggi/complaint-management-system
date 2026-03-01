@@ -29,6 +29,24 @@
             <mat-hint>{{ getGenerationTypeDescription() }}</mat-hint>
           </mat-form-field>
 
+          <!-- Template Info Card -->
+          @if (templateInfo()) {
+            <div class="template-info-card">
+              <div class="template-info-header">
+                <mat-icon>info</mat-icon>
+                <strong>{{ templateInfo().name }}</strong>
+              </div>
+              @if (templateInfo().required_fields?.length) {
+                <div class="template-fields">
+                  <span class="field-label">Required fields:</span>
+                  @for (field of templateInfo().required_fields; track field) {
+                    <mat-chip class="field-chip">{{ field }}</mat-chip>
+                  }
+                </div>
+              }
+            </div>
+          }
+
           <!-- Context Section -->
           <div formGroupName="context">
             <h3>Tender Information</h3>
@@ -223,6 +241,30 @@
             [ngModelOptions]="{standalone: true}"
             class="content-editor">
           </quill-editor>
+        } @else if (promptPreview()) {
+          <!-- Prompt Preview Panel -->
+          <div class="preview-panel">
+            <div class="preview-header">
+              <h3>
+                <mat-icon>visibility</mat-icon>
+                Prompt Preview
+              </h3>
+              <div class="preview-actions">
+                <mat-chip>~{{ promptPreviewTokens() }} input tokens</mat-chip>
+                <button mat-icon-button matTooltip="Close preview" (click)="closePreview()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+            <mat-divider></mat-divider>
+            <pre class="prompt-text">{{ promptPreview() }}</pre>
+            <div class="preview-footer">
+              <button mat-raised-button color="primary" (click)="onGenerateDocument()" [disabled]="!generationForm.valid">
+                <mat-icon>auto_awesome</mat-icon>
+                Generate from this prompt
+              </button>
+            </div>
+          </div>
         } @else {
           <div class="empty-state">
             <mat-icon>auto_awesome</mat-icon>

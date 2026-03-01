@@ -16,6 +16,9 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AIService, GenerationType, AIGenerateRequest, AIGenerationResponse } from '../../services/ai.service';
+import { DocumentService } from '../../services/document.service';
+import { CompanyService } from '../../services/company.service';
+import { AuthService } from '../../services/auth.service';
 import { QuillModule } from 'ngx-quill';
 
 @Component({
@@ -47,6 +50,9 @@ import { QuillModule } from 'ngx-quill';
 export class AIGeneratorComponent implements OnInit {
   private fb = inject(FormBuilder);
   private aiService = inject(AIService);
+  private documentService = inject(DocumentService);
+  private companyService = inject(CompanyService);
+  private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
 
   generationForm!: FormGroup;
@@ -55,6 +61,9 @@ export class AIGeneratorComponent implements OnInit {
   generatedContent = signal<string | null>(null);
   generationResult = signal<AIGenerationResponse | null>(null);
   showAdvanced = signal(false);
+  promptPreview = signal<string | null>(null);
+  promptPreviewTokens = signal<number>(0);
+  templateInfo = signal<any>(null);
 
   // Quill editor config
   quillModules = {
@@ -75,6 +84,39 @@ export class AIGeneratorComponent implements OnInit {
   ngOnInit() {
     this.initForm();
     this.loadGenerationTypes();
+    this.prefillCompanyInfo();
+
+    // Load template info when generation type changes
+    this.generationForm.get('generation_type')?.valueChanges.subscribe(type => {
+      this.loadTemplateInfo(type);
+    });
+  }
+
+  prefillCompanyInfo() {
+    const user = this.authService.currentUserValue;
+    if (user?.companyId) {
+      this.companyService.getCompanyById(user.companyId).subscribe({
+        next: (response) => {
+          if (response.isSuccess && response.data) {
+            const ctx = this.generationForm.get('context');
+            if (!ctx?.get('company_name')?.value) {
+              ctx?.patchValue({
+                company_name: response.data.name || '',
+                company_address: response.data.address || ''
+              });
+            }
+          }
+        },
+        error: () => {}
+      });
+    }
+  }
+
+  loadTemplateInfo(generationType: string) {
+    this.aiService.getTemplateDetails(generationType).subscribe({
+      next: (info) => this.templateInfo.set(info),
+      error: () => this.templateInfo.set(null)
+    });
   }
 
   initForm() {
@@ -161,8 +203,8 @@ export class AIGeneratorComponent implements OnInit {
 
       this.aiService.previewPrompt(generationType, context).subscribe({
         next: (preview) => {
-          const message = `Estimated input tokens: ${preview.estimated_input_tokens}\n\nPrompt preview:\n${preview.formatted_prompt.substring(0, 500)}...`;
-          alert(message);
+          this.promptPreview.set(preview.formatted_prompt);
+          this.promptPreviewTokens.set(preview.estimated_input_tokens || 0);
         },
         error: (error) => {
           console.error('Error previewing prompt:', error);
@@ -170,6 +212,10 @@ export class AIGeneratorComponent implements OnInit {
         }
       });
     }
+  }
+
+  closePreview() {
+    this.promptPreview.set(null);
   }
 
   onRegenerateDocument() {
@@ -180,18 +226,49 @@ export class AIGeneratorComponent implements OnInit {
 
   onSaveEditedContent() {
     const editedContent = this.generatedContent();
-    if (editedContent) {
-      // TODO: Implement save edited content to document library
-      this.snackBar.open('Save edited content functionality - To be implemented', 'Close', { duration: 3000 });
-    }
+    if (!editedContent) return;
+
+    const docName = this.generationForm.get('document_name')?.value
+      || `${this.generationForm.get('generation_type')?.value}_${Date.now()}`;
+
+    // Create a text file from the edited content
+    const blob = new Blob([editedContent], { type: 'text/html' });
+    const file = new File([blob], `${docName}.html`, { type: 'text/html' });
+
+    this.documentService.uploadDocument(file, docName, 'generated').subscribe({
+      next: () => {
+        this.snackBar.open('Document saved to library', 'Close', { duration: 3000 });
+      },
+      error: (error) => {
+        console.error('Error saving document:', error);
+        this.snackBar.open('Failed to save document', 'Close', { duration: 3000 });
+      }
+    });
   }
 
   onDownloadDocument() {
-    const result = this.generationResult();
-    if (result && result.document_id) {
-      // TODO: Implement download document
-      this.snackBar.open('Download functionality - To be implemented', 'Close', { duration: 3000 });
-    }
+    const content = this.generatedContent();
+    if (!content) return;
+
+    const docName = this.generationForm.get('document_name')?.value
+      || `${this.generationForm.get('generation_type')?.value}_document`;
+
+    // Download as HTML file that can be opened in Word
+    const htmlContent = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${docName}</title>
+      <style>body{font-family:Calibri,Arial,sans-serif;margin:40px;line-height:1.6;}</style>
+      </head><body>${content}</body></html>`;
+
+    const blob = new Blob([htmlContent], { type: 'application/vnd.ms-word' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${docName}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    this.snackBar.open('Document downloaded', 'Close', { duration: 3000 });
   }
 
   getModelCostInfo(model: string): string {

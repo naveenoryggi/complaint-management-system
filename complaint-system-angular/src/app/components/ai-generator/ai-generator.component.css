@@ -260,6 +260,94 @@ mat-expansion-panel-header mat-icon {
   color: #673ab7;
 }
 
+/* Template Info Card */
+.template-info-card {
+  background-color: #f3e5f5;
+  border-left: 4px solid #673ab7;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.template-info-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.template-info-header mat-icon {
+  color: #673ab7;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.template-fields {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.field-label {
+  font-size: 12px;
+  color: #666;
+  margin-right: 4px;
+}
+
+.field-chip {
+  font-size: 11px !important;
+  min-height: 22px !important;
+  padding: 2px 8px !important;
+}
+
+/* Prompt Preview Panel */
+.preview-panel {
+  padding: 0;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.preview-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prompt-text {
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 16px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 500px;
+  overflow-y: auto;
+  margin: 12px 0;
+}
+
+.preview-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+}
+
 /* Scrollbar Styling */
 .form-card::-webkit-scrollbar,
 .result-card::-webkit-scrollbar {
