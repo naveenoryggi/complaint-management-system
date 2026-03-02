@@ -129,7 +129,7 @@ export class TenderListComponent implements OnInit {
   }
 
   onCreateTender() {
-    this.router.navigate(['/tenders/create']);
+    this.router.navigate(['/tenders/new']);
   }
 
   onViewTender(tender: Tender) {
@@ -138,6 +138,35 @@ export class TenderListComponent implements OnInit {
 
   onEditTender(tender: Tender) {
     this.router.navigate(['/tenders', tender.id, 'edit']);
+  }
+
+  onCloneTender(tender: Tender, event: Event) {
+    event.stopPropagation();
+    const cloneData: any = {
+      title: `${tender.title} (Copy)`,
+      reference_number: tender.reference_number || undefined,
+      issuing_authority: tender.issuing_authority || undefined,
+      portal_name: (tender as any).portal_name || undefined,
+      portal_url: (tender as any).portal_url || undefined,
+      deadline: tender.deadline || undefined,
+      estimated_value: (tender as any).estimated_value || undefined,
+      notes: (tender as any).notes || undefined,
+      status: 'draft'
+    };
+
+    this.tenderService.createTender(cloneData).subscribe({
+      next: (newTender) => {
+        this.snackBar.open('Tender cloned successfully', 'View', { duration: 5000 })
+          .onAction().subscribe(() => {
+            this.router.navigate(['/tenders', newTender.id]);
+          });
+        this.loadTenders();
+      },
+      error: (error) => {
+        console.error('Error cloning tender:', error);
+        this.snackBar.open('Failed to clone tender', 'Close', { duration: 3000 });
+      }
+    });
   }
 
   onDeleteTender(tender: Tender) {
@@ -165,6 +194,36 @@ export class TenderListComponent implements OnInit {
       'cancelled': 'default'
     };
     return colors[status] || 'default';
+  }
+
+  onExportCSV() {
+    const tenders = this.tenders();
+    if (tenders.length === 0) {
+      this.snackBar.open('No tenders to export', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const headers = ['Title', 'Reference Number', 'Issuing Authority', 'Deadline', 'Status', 'Documents'];
+    const rows = tenders.map(t => [
+      `"${(t.title || '').replace(/"/g, '""')}"`,
+      `"${(t.reference_number || '').replace(/"/g, '""')}"`,
+      `"${(t.issuing_authority || '').replace(/"/g, '""')}"`,
+      t.deadline ? new Date(t.deadline).toLocaleDateString('en-IN') : '',
+      t.status,
+      (t.document_count || 0).toString()
+    ]);
+
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tenders_export_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    this.snackBar.open(`Exported ${tenders.length} tenders to CSV`, 'Close', { duration: 3000 });
   }
 
   getStatusIcon(status: string): string {

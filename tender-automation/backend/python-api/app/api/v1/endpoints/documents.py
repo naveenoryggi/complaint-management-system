@@ -1,10 +1,13 @@
 """Document API endpoints."""
+import os
 from typing import List
 from uuid import UUID
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status, Query
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
+from app.core.config import settings
 from app.core.security import get_current_user, TokenData
 from app.schemas.document import (
     DocumentCreate,
@@ -194,3 +197,41 @@ async def delete_document(
         )
 
     return None
+
+
+@router.get("/{document_id}/download")
+async def download_document(
+    document_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+):
+    """
+    Download a document file.
+
+    Returns the actual file for download.
+    """
+    document = await document_service.get_document(
+        db=db,
+        document_id=document_id,
+        current_user=current_user,
+    )
+
+    if not document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found",
+        )
+
+    file_path = os.path.join(settings.upload_dir, document.file_path)
+
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found on disk",
+        )
+
+    return FileResponse(
+        path=file_path,
+        filename=document.name,
+        media_type=document.mime_type or "application/octet-stream",
+    )

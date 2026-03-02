@@ -1,0 +1,185 @@
+<div class="emd-fees-tab">
+  <mat-tab-group animationDuration="200ms">
+    <!-- EMD Tab -->
+    <mat-tab label="EMD Records">
+      <div class="inner-tab">
+        <div class="tab-actions">
+          <button mat-raised-button color="primary" (click)="showEmdForm.set(!showEmdForm())">
+            <mat-icon>{{ showEmdForm() ? 'close' : 'add' }}</mat-icon>
+            {{ showEmdForm() ? 'Cancel' : 'Add EMD' }}
+          </button>
+        </div>
+
+        @if (showEmdForm()) {
+          <mat-card class="form-card">
+            <mat-card-content>
+              <form [formGroup]="emdForm" (ngSubmit)="onCreateEMD()">
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Amount (INR)</mat-label>
+                    <input matInput type="number" formControlName="amount">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Mode</mat-label>
+                    <mat-select formControlName="mode">
+                      @for (m of modeOptions; track m.value) {
+                        <mat-option [value]="m.value">{{ m.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Instrument #</mat-label>
+                    <input matInput formControlName="instrument_number">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Issuing Bank</mat-label>
+                    <input matInput formControlName="issuing_bank">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Validity Start</mat-label>
+                    <input matInput type="date" formControlName="validity_start_date">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Validity End</mat-label>
+                    <input matInput type="date" formControlName="validity_end_date">
+                  </mat-form-field>
+                </div>
+                <div class="form-actions">
+                  <button mat-button type="button" (click)="showEmdForm.set(false)">Cancel</button>
+                  <button mat-raised-button color="primary" type="submit"><mat-icon>save</mat-icon> Create</button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @if (emds().length === 0 && !loading()) {
+          <div class="empty-state">
+            <mat-icon>account_balance</mat-icon>
+            <p>No EMD records for this tender</p>
+          </div>
+        } @else {
+          <div class="table-container">
+            <table mat-table [dataSource]="emds()" class="data-table">
+              <ng-container matColumnDef="amount">
+                <th mat-header-cell *matHeaderCellDef>Amount</th>
+                <td mat-cell *matCellDef="let e" class="amount-cell">{{ formatCurrency(e.amount) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="mode">
+                <th mat-header-cell *matHeaderCellDef>Mode</th>
+                <td mat-cell *matCellDef="let e"><mat-chip class="mode-chip">{{ getModeLabel(e.mode) }}</mat-chip></td>
+              </ng-container>
+              <ng-container matColumnDef="instrument_number">
+                <th mat-header-cell *matHeaderCellDef>Instrument #</th>
+                <td mat-cell *matCellDef="let e">{{ e.instrument_number || 'N/A' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="validity">
+                <th mat-header-cell *matHeaderCellDef>Validity</th>
+                <td mat-cell *matCellDef="let e">{{ getValidityText(e) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let e"><mat-chip [class]="getStatusClass(e.status)">{{ e.status | titlecase }}</mat-chip></td>
+              </ng-container>
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let e">
+                  <button mat-icon-button color="warn" (click)="onDeleteEMD(e)"><mat-icon>delete</mat-icon></button>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="emdColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: emdColumns;"></tr>
+            </table>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- Fees Tab -->
+    <mat-tab label="Tender Fees">
+      <div class="inner-tab">
+        <div class="tab-actions">
+          <button mat-raised-button color="primary" (click)="showFeeForm.set(!showFeeForm())">
+            <mat-icon>{{ showFeeForm() ? 'close' : 'add' }}</mat-icon>
+            {{ showFeeForm() ? 'Cancel' : 'Add Fee' }}
+          </button>
+        </div>
+
+        @if (showFeeForm()) {
+          <mat-card class="form-card">
+            <mat-card-content>
+              <form [formGroup]="feeForm" (ngSubmit)="onCreateFee()">
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Fee Type</mat-label>
+                    <mat-select formControlName="fee_type">
+                      @for (t of feeTypeOptions; track t.value) {
+                        <mat-option [value]="t.value">{{ t.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Amount (INR)</mat-label>
+                    <input matInput type="number" formControlName="amount">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Payment Mode</mat-label>
+                    <input matInput formControlName="payment_mode" placeholder="Online/DD/NEFT">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Reference</mat-label>
+                    <input matInput formControlName="payment_reference">
+                  </mat-form-field>
+                </div>
+                <div class="form-actions">
+                  <button mat-button type="button" (click)="showFeeForm.set(false)">Cancel</button>
+                  <button mat-raised-button color="primary" type="submit"><mat-icon>save</mat-icon> Create</button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @if (fees().length === 0 && !loading()) {
+          <div class="empty-state">
+            <mat-icon>receipt_long</mat-icon>
+            <p>No fee records for this tender</p>
+          </div>
+        } @else {
+          <div class="table-container">
+            <table mat-table [dataSource]="fees()" class="data-table">
+              <ng-container matColumnDef="fee_type">
+                <th mat-header-cell *matHeaderCellDef>Type</th>
+                <td mat-cell *matCellDef="let f">{{ getFeeTypeLabel(f.fee_type) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="amount">
+                <th mat-header-cell *matHeaderCellDef>Amount</th>
+                <td mat-cell *matCellDef="let f" class="amount-cell">{{ formatCurrency(f.amount) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="payment_mode">
+                <th mat-header-cell *matHeaderCellDef>Payment Mode</th>
+                <td mat-cell *matCellDef="let f">{{ f.payment_mode || 'N/A' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="payment_reference">
+                <th mat-header-cell *matHeaderCellDef>Reference</th>
+                <td mat-cell *matCellDef="let f">{{ f.payment_reference || 'N/A' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let f"><mat-chip [class]="getStatusClass(f.status)">{{ f.status | titlecase }}</mat-chip></td>
+              </ng-container>
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let f">
+                  <button mat-icon-button color="warn" (click)="onDeleteFee(f)"><mat-icon>delete</mat-icon></button>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="feeColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: feeColumns;"></tr>
+            </table>
+          </div>
+        }
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

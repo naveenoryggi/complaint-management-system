@@ -1,0 +1,180 @@
+<div class="oem-tab">
+  <!-- Completion Bar -->
+  @if (requirements().length > 0) {
+    <mat-card class="completion-card">
+      <mat-card-content>
+        <div class="completion-header">
+          <span>OEM Document Completion</span>
+          <strong>{{ getCompletionPercent() }}%</strong>
+        </div>
+        <div class="completion-bar">
+          <div class="completion-fill" [style.width.%]="getCompletionPercent()"
+               [class.low]="getCompletionPercent() < 40"
+               [class.medium]="getCompletionPercent() >= 40 && getCompletionPercent() < 70"
+               [class.high]="getCompletionPercent() >= 70"></div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Actions -->
+  <div class="tab-actions">
+    <button mat-raised-button color="primary" (click)="showForm.set(!showForm())">
+      <mat-icon>{{ showForm() ? 'close' : 'add' }}</mat-icon>
+      {{ showForm() ? 'Cancel' : 'Add OEM Requirement' }}
+    </button>
+  </div>
+
+  <!-- Create Form -->
+  @if (showForm()) {
+    <mat-card class="create-form-card">
+      <mat-card-content>
+        <form [formGroup]="createForm" (ngSubmit)="onCreateRequirement()">
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Select OEM</mat-label>
+              <mat-select formControlName="oem_id">
+                @for (oem of oems(); track oem.id) {
+                  <mat-option [value]="oem.id">{{ oem.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>MAF Status</mat-label>
+              <mat-select formControlName="maf_status">
+                @for (opt of statusOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>MS Status</mat-label>
+              <mat-select formControlName="ms_status">
+                @for (opt of statusOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Partner Cert</mat-label>
+              <mat-select formControlName="partner_cert_status">
+                @for (opt of statusOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="notes" rows="2"></textarea>
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-button type="button" (click)="showForm.set(false)">Cancel</button>
+            <button mat-raised-button color="primary" type="submit">
+              <mat-icon>save</mat-icon>
+              Add
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Requirements Table -->
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    </div>
+  } @else if (requirements().length === 0) {
+    <div class="empty-state">
+      <mat-icon>precision_manufacturing</mat-icon>
+      <h3>No OEM requirements for this tender</h3>
+      <p>Add OEM requirements to track MAF, MS, and certification status</p>
+    </div>
+  } @else {
+    <mat-card class="table-card">
+      <mat-card-content>
+        <div class="table-container">
+          <table mat-table [dataSource]="requirements()" class="data-table">
+            <ng-container matColumnDef="oem_name">
+              <th mat-header-cell *matHeaderCellDef>OEM</th>
+              <td mat-cell *matCellDef="let r"><strong>{{ getOEMName(r.oem_id) }}</strong></td>
+            </ng-container>
+
+            <ng-container matColumnDef="maf_status">
+              <th mat-header-cell *matHeaderCellDef>MAF</th>
+              <td mat-cell *matCellDef="let r">
+                <mat-chip [class]="getStatusClass(r.maf_status)" class="clickable-chip"
+                          (click)="onCycleStatus(r, 'maf_status')" matTooltip="Click to cycle status">
+                  {{ r.maf_status | titlecase }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="ms_status">
+              <th mat-header-cell *matHeaderCellDef>MS</th>
+              <td mat-cell *matCellDef="let r">
+                <mat-chip [class]="getStatusClass(r.ms_status)" class="clickable-chip"
+                          (click)="onCycleStatus(r, 'ms_status')" matTooltip="Click to cycle status">
+                  {{ r.ms_status | titlecase }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="partner_cert_status">
+              <th mat-header-cell *matHeaderCellDef>Partner Cert</th>
+              <td mat-cell *matCellDef="let r">
+                <mat-chip [class]="getStatusClass(r.partner_cert_status)" class="clickable-chip"
+                          (click)="onCycleStatus(r, 'partner_cert_status')" matTooltip="Click to cycle status">
+                  {{ r.partner_cert_status | titlecase }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="datasheet_status">
+              <th mat-header-cell *matHeaderCellDef>Datasheet</th>
+              <td mat-cell *matCellDef="let r">
+                <mat-chip [class]="getStatusClass(r.datasheet_status)" class="clickable-chip"
+                          (click)="onCycleStatus(r, 'datasheet_status')" matTooltip="Click to cycle status">
+                  {{ r.datasheet_status | titlecase }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="compliance_cert_status">
+              <th mat-header-cell *matHeaderCellDef>Compliance</th>
+              <td mat-cell *matCellDef="let r">
+                <mat-chip [class]="getStatusClass(r.compliance_cert_status)" class="clickable-chip"
+                          (click)="onCycleStatus(r, 'compliance_cert_status')" matTooltip="Click to cycle status">
+                  {{ r.compliance_cert_status | titlecase }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="notes">
+              <th mat-header-cell *matHeaderCellDef>Notes</th>
+              <td mat-cell *matCellDef="let r">{{ r.notes || '-' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let r">
+                <button mat-icon-button matTooltip="Delete" color="warn" (click)="onDeleteRequirement(r)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

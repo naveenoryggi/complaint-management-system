@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,12 +13,19 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTabsModule } from '@angular/material/tabs';
 import { TenderService, Tender, TenderDocument } from '../../services/tender.service';
+import { DocumentService } from '../../services/document.service';
 import { AssemblyService } from '../../services/assembly.service';
 import { CompanyService } from '../../services/company.service';
 import { AuthService } from '../../services/auth.service';
 import { Company } from '../../models/company.model';
 import { AddDocumentsDialogComponent, AddDocumentsDialogData, AddDocumentsDialogResult } from '../add-documents-dialog/add-documents-dialog.component';
+import { ExtractionTabComponent } from '../tender-workspace/extraction-tab/extraction-tab.component';
+import { CriteriaTabComponent } from '../tender-workspace/criteria-tab/criteria-tab.component';
+import { OemRequirementsTabComponent } from '../tender-workspace/oem-requirements-tab/oem-requirements-tab.component';
+import { EmdFeesTabComponent } from '../tender-workspace/emd-fees-tab/emd-fees-tab.component';
+import { DeclarationsTabComponent } from '../tender-workspace/declarations-tab/declarations-tab.component';
 
 @Component({
   selector: 'app-tender-detail',
@@ -34,7 +42,14 @@ import { AddDocumentsDialogComponent, AddDocumentsDialogData, AddDocumentsDialog
     MatDialogModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    MatMenuModule
+    MatMenuModule,
+    MatTabsModule,
+    DragDropModule,
+    ExtractionTabComponent,
+    CriteriaTabComponent,
+    OemRequirementsTabComponent,
+    EmdFeesTabComponent,
+    DeclarationsTabComponent
   ],
   templateUrl: './tender-detail.component.html',
   styleUrls: ['./tender-detail.component.css']
@@ -43,6 +58,7 @@ export class TenderDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private tenderService = inject(TenderService);
+  private documentService = inject(DocumentService);
   private assemblyService = inject(AssemblyService);
   private companyService = inject(CompanyService);
   private authService = inject(AuthService);
@@ -54,12 +70,16 @@ export class TenderDetailComponent implements OnInit {
   loading = signal(false);
   documentsLoading = signal(false);
   company = signal<Company | null>(null);
+  tenderId = signal<string>('');
+  orderChanged = signal(false);
+  savingOrder = signal(false);
 
-  displayedColumns: string[] = ['name', 'type', 'size', 'generated', 'actions'];
+  displayedColumns: string[] = ['drag', 'name', 'type', 'size', 'generated', 'actions'];
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
+      this.tenderId.set(id);
       this.loadTender(id);
       this.loadDocuments(id);
     }
@@ -75,7 +95,7 @@ export class TenderDetailComponent implements OnInit {
             this.company.set(response.data);
           }
         },
-        error: () => {} // Non-critical, fallback to defaults
+        error: () => {}
       });
     }
   }
@@ -130,6 +150,38 @@ export class TenderDetailComponent implements OnInit {
     if (tender) {
       this.router.navigate(['/tenders', tender.id, 'edit']);
     }
+  }
+
+  onCloneTender() {
+    const tender = this.tender();
+    if (!tender) return;
+
+    const cloneData: any = {
+      title: `${tender.title} (Copy)`,
+      reference_number: tender.reference_number || undefined,
+      issuing_authority: tender.issuing_authority || undefined,
+      portal_name: tender.portal_name || undefined,
+      portal_url: tender.portal_url || undefined,
+      deadline: tender.deadline || undefined,
+      estimated_value: tender.estimated_value || undefined,
+      requirements: tender.requirements || undefined,
+      notes: tender.notes || undefined,
+      status: 'draft'
+    };
+
+    this.tenderService.createTender(cloneData).subscribe({
+      next: (newTender) => {
+        this.snackBar.open('Tender cloned successfully', 'View', { duration: 5000 })
+          .onAction().subscribe(() => {
+            this.router.navigate(['/tenders', newTender.id]);
+          });
+        this.router.navigate(['/tenders', newTender.id]);
+      },
+      error: (error) => {
+        console.error('Error cloning tender:', error);
+        this.snackBar.open('Failed to clone tender', 'Close', { duration: 3000 });
+      }
+    });
   }
 
   onDelete() {
@@ -197,6 +249,48 @@ export class TenderDetailComponent implements OnInit {
     });
   }
 
+  onPreviewDocument(doc: TenderDocument) {
+    if (!doc.document_id) return;
+
+    const isPdf = doc.document?.mime_type?.includes('pdf');
+    if (!isPdf) {
+      this.onDownloadDocument(doc);
+      return;
+    }
+
+    this.documentService.downloadDocument(doc.document_id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: (error) => {
+        console.error('Error previewing document:', error);
+        this.snackBar.open('Failed to preview document', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  onDownloadDocument(doc: TenderDocument) {
+    if (!doc.document_id) return;
+
+    this.documentService.downloadDocument(doc.document_id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.document?.name || 'download';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      },
+      error: (error) => {
+        console.error('Error downloading document:', error);
+        this.snackBar.open('Failed to download document', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
   onRemoveDocument(doc: TenderDocument) {
     const tender = this.tender();
     if (tender && confirm(`Remove "${doc.document?.name}" from this tender?`)) {
@@ -211,6 +305,53 @@ export class TenderDetailComponent implements OnInit {
         }
       });
     }
+  }
+
+  onDocumentDrop(event: CdkDragDrop<TenderDocument[]>) {
+    if (event.previousIndex === event.currentIndex) return;
+
+    const docs = [...this.documents()];
+    moveItemInArray(docs, event.previousIndex, event.currentIndex);
+    this.documents.set(docs);
+    this.orderChanged.set(true);
+  }
+
+  onSaveOrder() {
+    const tender = this.tender();
+    if (!tender) return;
+
+    const documentIds = this.documents().map(d => d.document_id);
+    this.savingOrder.set(true);
+
+    this.tenderService.reorderDocuments(tender.id, documentIds).subscribe({
+      next: () => {
+        this.orderChanged.set(false);
+        this.savingOrder.set(false);
+        this.snackBar.open('Document order saved', 'Close', { duration: 3000 });
+      },
+      error: (error) => {
+        console.error('Error saving order:', error);
+        this.savingOrder.set(false);
+        this.snackBar.open('Failed to save order', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  onMoveUp(index: number) {
+    if (index === 0) return;
+    const docs = [...this.documents()];
+    moveItemInArray(docs, index, index - 1);
+    this.documents.set(docs);
+    this.orderChanged.set(true);
+  }
+
+  onMoveDown(index: number) {
+    const docs = this.documents();
+    if (index >= docs.length - 1) return;
+    const updated = [...docs];
+    moveItemInArray(updated, index, index + 1);
+    this.documents.set(updated);
+    this.orderChanged.set(true);
   }
 
   onExportPackage() {
@@ -257,7 +398,6 @@ export class TenderDetailComponent implements OnInit {
     const tender = this.tender();
     if (!tender) return;
 
-    const documentIds = this.documents().map(d => d.document_id);
     const pdfDocuments = this.documents().filter(d => d.document?.mime_type === 'application/pdf');
 
     if (pdfDocuments.length === 0) {
@@ -293,7 +433,6 @@ export class TenderDetailComponent implements OnInit {
   }
 
   downloadFile(filePath: string) {
-    // Parse file path (e.g., "packages/filename.zip" or "assembled/filename.pdf")
     const parts = filePath.split('/');
     if (parts.length === 2) {
       const fileType = parts[0] as 'assembled' | 'packages';
@@ -324,31 +463,22 @@ export class TenderDetailComponent implements OnInit {
 
   getStatusColor(status: string): string {
     const colors: { [key: string]: string } = {
-      'draft': 'default',
-      'in_progress': 'primary',
-      'submitted': 'accent',
-      'won': 'success',
-      'lost': 'warn',
-      'cancelled': 'default'
+      'draft': 'default', 'in_progress': 'primary', 'submitted': 'accent',
+      'won': 'success', 'lost': 'warn', 'cancelled': 'default'
     };
     return colors[status] || 'default';
   }
 
   getStatusIcon(status: string): string {
     const icons: { [key: string]: string } = {
-      'draft': 'edit',
-      'in_progress': 'schedule',
-      'submitted': 'send',
-      'won': 'check_circle',
-      'lost': 'cancel',
-      'cancelled': 'block'
+      'draft': 'edit', 'in_progress': 'schedule', 'submitted': 'send',
+      'won': 'check_circle', 'lost': 'cancel', 'cancelled': 'block'
     };
     return icons[status] || 'help';
   }
 
   formatFileSize(bytes: number | undefined): string {
     if (!bytes) return '0 B';
-
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
@@ -356,56 +486,83 @@ export class TenderDetailComponent implements OnInit {
 
   formatDeadline(deadline: string | undefined): string {
     if (!deadline) return 'No deadline';
-
     const deadlineDate = new Date(deadline);
     const now = new Date();
     const diffTime = deadlineDate.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) {
-      return `Overdue by ${Math.abs(diffDays)} days`;
-    } else if (diffDays === 0) {
-      return 'Due today';
-    } else if (diffDays === 1) {
-      return 'Due tomorrow';
-    } else if (diffDays <= 7) {
-      return `${diffDays} days left`;
-    } else {
-      return deadlineDate.toLocaleDateString('en-IN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    }
+    if (diffDays < 0) return `Overdue by ${Math.abs(diffDays)} days`;
+    else if (diffDays === 0) return 'Due today';
+    else if (diffDays === 1) return 'Due tomorrow';
+    else if (diffDays <= 7) return `${diffDays} days left`;
+    else return deadlineDate.toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
   isDeadlineNear(deadline: string | undefined): boolean {
     if (!deadline) return false;
-
-    const deadlineDate = new Date(deadline);
-    const now = new Date();
-    const diffTime = deadlineDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+    const diffDays = Math.ceil((new Date(deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
     return diffDays >= 0 && diffDays <= 7;
   }
 
   isDeadlineOverdue(deadline: string | undefined): boolean {
     if (!deadline) return false;
+    return new Date(deadline).getTime() < new Date().getTime();
+  }
 
-    const deadlineDate = new Date(deadline);
-    const now = new Date();
+  statusTransitions: { [key: string]: { value: string; label: string; icon: string }[] } = {
+    'draft': [
+      { value: 'in_progress', label: 'Start Progress', icon: 'play_arrow' }
+    ],
+    'in_progress': [
+      { value: 'submitted', label: 'Mark Submitted', icon: 'send' },
+      { value: 'draft', label: 'Back to Draft', icon: 'undo' }
+    ],
+    'submitted': [
+      { value: 'won', label: 'Mark Won', icon: 'check_circle' },
+      { value: 'lost', label: 'Mark Lost', icon: 'cancel' }
+    ],
+    'won': [],
+    'lost': [],
+    'cancelled': []
+  };
 
-    return deadlineDate.getTime() < now.getTime();
+  getAvailableTransitions(): { value: string; label: string; icon: string }[] {
+    const tender = this.tender();
+    if (!tender) return [];
+    const transitions = [...(this.statusTransitions[tender.status] || [])];
+    if (tender.status !== 'cancelled' && tender.status !== 'won' && tender.status !== 'lost') {
+      transitions.push({ value: 'cancelled', label: 'Cancel Tender', icon: 'block' });
+    }
+    return transitions;
+  }
+
+  onChangeStatus(newStatus: string) {
+    const tender = this.tender();
+    if (!tender) return;
+
+    const labels: { [key: string]: string } = {
+      'in_progress': 'In Progress', 'submitted': 'Submitted',
+      'won': 'Won', 'lost': 'Lost', 'cancelled': 'Cancelled', 'draft': 'Draft'
+    };
+
+    if (confirm(`Change status to "${labels[newStatus] || newStatus}"?`)) {
+      this.tenderService.updateTender(tender.id, { status: newStatus }).subscribe({
+        next: (updated) => {
+          this.tender.set(updated);
+          this.snackBar.open(`Status changed to ${labels[newStatus]}`, 'Close', { duration: 3000 });
+        },
+        error: (error) => {
+          console.error('Error changing status:', error);
+          this.snackBar.open('Failed to change status', 'Close', { duration: 3000 });
+        }
+      });
+    }
   }
 
   formatCurrency(value: number | undefined): string {
     if (!value) return 'N/A';
     return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(value);
   }
 }

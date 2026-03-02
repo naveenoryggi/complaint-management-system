@@ -14,6 +14,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { TenderService, Tender, TenderCreate, TenderUpdate } from '../../services/tender.service';
+import { TrackingService, PortalRegistration } from '../../services/tracking.service';
 
 @Component({
   selector: 'app-tender-form',
@@ -41,6 +42,7 @@ export class TenderFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private tenderService = inject(TenderService);
+  private trackingService = inject(TrackingService);
   private snackBar = inject(MatSnackBar);
 
   tenderForm!: FormGroup;
@@ -57,7 +59,7 @@ export class TenderFormComponent implements OnInit {
     { value: 'cancelled', label: 'Cancelled' }
   ];
 
-  portalOptions = [
+  defaultPortals = [
     'GeM (Government e-Marketplace)',
     'CPPP (Central Public Procurement Portal)',
     'National e-Procurement Portal',
@@ -65,9 +67,26 @@ export class TenderFormComponent implements OnInit {
     'Other'
   ];
 
+  portalOptions: string[] = [...this.defaultPortals];
+
   ngOnInit() {
     this.initForm();
     this.checkEditMode();
+    this.loadPortalNames();
+  }
+
+  loadPortalNames() {
+    this.trackingService.listPortals().subscribe({
+      next: (portals) => {
+        if (portals.length > 0) {
+          const portalNames = portals
+            .map(p => p.portal_name)
+            .filter((name, index, self) => self.indexOf(name) === index);
+          this.portalOptions = [...portalNames, ...this.defaultPortals.filter(d => !portalNames.includes(d))];
+        }
+      },
+      error: () => {} // Silently fall back to defaults
+    });
   }
 
   initForm() {

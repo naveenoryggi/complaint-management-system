@@ -1,0 +1,74 @@
+.criteria-tab { padding: 20px 0; }
+
+.summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.summary-card { text-align: center; }
+.summary-card mat-card-content { padding: 16px; }
+.summary-label { font-size: 11px; color: #666; text-transform: uppercase; font-weight: 500; margin-bottom: 4px; }
+.summary-value { font-size: 24px; font-weight: 600; color: #333; }
+.summary-value.tech { color: #1565c0; }
+.summary-value.fin { color: #2e7d32; }
+.summary-value.total { color: #e65100; }
+
+.tab-actions { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+
+.create-form-card { margin-bottom: 20px; }
+.section-title { font-size: 18px; font-weight: 500; color: #333; margin: 0 0 16px; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0 16px; }
+.form-grid mat-form-field { width: 100%; }
+.full-width { width: 100%; }
+.form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; }
+
+.table-card { overflow: hidden; }
+.table-container { overflow-x: auto; }
+.data-table { width: 100%; min-width: 700px; }
+.marks-cell { font-weight: 600; font-size: 16px; }
+
+.stage-technical { background-color: #e3f2fd !important; color: #1565c0 !important; }
+.stage-financial { background-color: #e8f5e9 !important; color: #2e7d32 !important; }
+.stage-combined { background-color: #fff3e0 !important; color: #e65100 !important; }
+
+.loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; gap: 16px; }
+.loading-container p { color: #666; }
+
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; text-align: center; padding: 40px; }
+.empty-state mat-icon { font-size: 80px; width: 80px; height: 80px; color: #1565c0; opacity: 0.3; margin-bottom: 12px; }
+.empty-state h3 { font-size: 20px; margin-bottom: 8px; color: rgba(0,0,0,0.7); }
+.empty-state p { font-size: 14px; color: rgba(0,0,0,0.5); }
+
+.simulation-card { margin-top: 20px; }
+.simulation-card mat-card-title { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+
+.simulation-summary { display: flex; gap: 24px; margin-bottom: 20px; padding: 16px; background: #fafafa; border-radius: 8px; flex-wrap: wrap; }
+.sim-stat { display: flex; flex-direction: column; align-items: center; min-width: 120px; }
+.sim-label { font-size: 12px; color: #666; text-transform: uppercase; font-weight: 500; margin-bottom: 4px; }
+.sim-value { font-size: 28px; font-weight: 700; color: #333; }
+.sim-value.predicted { color: #1565c0; }
+.sim-value.score-high { color: #2e7d32; }
+.sim-value.score-low { color: #c62828; }
+.sim-table { margin-top: 8px; }
+.gap-cell { font-size: 13px; color: #666; max-width: 300px; }
+
+/* Bundle Assignments */
+.assignments-card { margin-top: 20px; }
+.assignments-card mat-card-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; }
+.assignments-card mat-card-title { display: flex; align-items: center; gap: 8px; font-size: 16px; margin: 0; }
+.assign-form { margin-bottom: 16px; padding: 16px; background: #fafafa; border-radius: 8px; }
+
+.assignments-list { display: flex; flex-direction: column; gap: 16px; }
+.criteria-assignment-group { border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 16px; }
+.criteria-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.criteria-desc { font-weight: 500; color: #333; }
+.criteria-marks { font-size: 13px; color: #666; }
+.bundle-list { display: flex; flex-direction: column; gap: 6px; padding-left: 8px; }
+.bundle-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: #f5f5f5; border-radius: 4px; }
+.bundle-item mat-icon { font-size: 18px; width: 18px; height: 18px; color: #673ab7; }
+.bundle-name { font-size: 14px; color: #333; }
+.predicted-chip { font-size: 12px !important; background-color: #e8f5e9 !important; color: #2e7d32 !important; }
+.assignment-notes { font-size: 12px; color: #999; font-style: italic; }
+.empty-state-small { text-align: center; padding: 24px; }
+.empty-state-small p { color: #999; font-size: 14px; }
+
+@media (max-width: 768px) {
+  .summary-row { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+}

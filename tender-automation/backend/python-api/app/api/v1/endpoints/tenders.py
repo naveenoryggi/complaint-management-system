@@ -502,6 +502,58 @@ async def get_tender_documents(
     return responses
 
 
+class ReorderDocumentsRequest(BaseModel):
+    """Schema for reordering tender documents."""
+    document_ids: List[UUID]
+
+
+@router.put("/{tender_id}/documents/reorder")
+async def reorder_documents(
+    tender_id: UUID,
+    request: ReorderDocumentsRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+):
+    """
+    Reorder documents within a tender.
+
+    Accepts an ordered list of document_ids. Each document's order
+    is updated to match its position in the list (0-based).
+
+    Requires authentication.
+    """
+    # Verify tender exists and belongs to user's tenant
+    tender_result = await db.execute(
+        select(Tender).where(
+            Tender.id == tender_id,
+            Tender.tenant_id == UUID(current_user.tenant_id)
+        )
+    )
+    tender = tender_result.scalar_one_or_none()
+
+    if not tender:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tender not found"
+        )
+
+    # Update document_order for each document
+    for order, doc_id in enumerate(request.document_ids):
+        result = await db.execute(
+            select(TenderDocument).where(
+                TenderDocument.tender_id == tender_id,
+                TenderDocument.document_id == doc_id
+            )
+        )
+        tender_doc = result.scalar_one_or_none()
+        if tender_doc:
+            tender_doc.document_order = order
+
+    await db.commit()
+
+    return {"message": f"Reordered {len(request.document_ids)} documents"}
+
+
 @router.delete("/{tender_id}/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_document_association(
     tender_id: UUID,

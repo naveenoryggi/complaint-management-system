@@ -18,6 +18,13 @@
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-actions>
+        @for (transition of getAvailableTransitions(); track transition.value) {
+          <button mat-stroked-button (click)="onChangeStatus(transition.value)"
+                  [color]="transition.value === 'cancelled' || transition.value === 'lost' ? 'warn' : 'primary'">
+            <mat-icon>{{ transition.icon }}</mat-icon>
+            {{ transition.label }}
+          </button>
+        }
         <button mat-raised-button color="primary" (click)="onExportPackage()">
           <mat-icon>archive</mat-icon>
           Export Package
@@ -34,6 +41,10 @@
             <mat-icon>edit</mat-icon>
             <span>Edit</span>
           </button>
+          <button mat-menu-item (click)="onCloneTender()">
+            <mat-icon>content_copy</mat-icon>
+            <span>Clone Tender</span>
+          </button>
           <button mat-menu-item (click)="onDelete()" color="warn">
             <mat-icon color="warn">delete</mat-icon>
             <span>Delete</span>
@@ -44,7 +55,6 @@
 
     <!-- Info Cards Row -->
     <div class="info-cards-row">
-      <!-- Status Card -->
       <mat-card class="info-card">
         <mat-card-content>
           <div class="info-label">Status</div>
@@ -55,7 +65,6 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- Deadline Card -->
       <mat-card class="info-card">
         <mat-card-content>
           <div class="info-label">Deadline</div>
@@ -68,7 +77,6 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- Value Card -->
       <mat-card class="info-card">
         <mat-card-content>
           <div class="info-label">Estimated Value</div>
@@ -79,7 +87,6 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- Documents Card -->
       <mat-card class="info-card">
         <mat-card-content>
           <div class="info-label">Documents</div>
@@ -91,157 +98,268 @@
       </mat-card>
     </div>
 
-    <!-- Details Card -->
-    <mat-card class="details-card">
-      <mat-card-header>
-        <mat-card-title>Tender Details</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="detail-row">
-          <div class="detail-label">Issuing Authority:</div>
-          <div class="detail-value">{{ tender()!.issuing_authority || 'N/A' }}</div>
-        </div>
+    <!-- Workspace Tabs -->
+    <mat-tab-group animationDuration="200ms" class="workspace-tabs">
+      <!-- Tab 1: Overview -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>info</mat-icon>
+          <span class="tab-label-text">Overview</span>
+        </ng-template>
 
-        @if (tender()!.portal_name) {
-          <div class="detail-row">
-            <div class="detail-label">Portal:</div>
-            <div class="detail-value">
-              {{ tender()!.portal_name }}
-              @if (tender()!.portal_url) {
-                <a [href]="tender()!.portal_url" target="_blank" class="portal-link">
-                  <mat-icon>open_in_new</mat-icon>
-                </a>
-              }
-            </div>
-          </div>
-        }
+        <div class="tab-body">
+          <mat-card class="details-card">
+            <mat-card-header>
+              <mat-card-title>Tender Details</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="detail-row">
+                <div class="detail-label">Issuing Authority:</div>
+                <div class="detail-value">{{ tender()!.issuing_authority || 'N/A' }}</div>
+              </div>
 
-        @if (tender()!.requirements) {
-          <div class="detail-row full-width">
-            <div class="detail-label">Requirements:</div>
-            <div class="requirements-box">
-              <pre>{{ tender()!.requirements | json }}</pre>
-            </div>
-          </div>
-        }
-
-        @if (tender()!.notes) {
-          <div class="detail-row full-width">
-            <div class="detail-label">Notes:</div>
-            <div class="notes-box">
-              {{ tender()!.notes }}
-            </div>
-          </div>
-        }
-
-        <mat-divider></mat-divider>
-
-        <div class="meta-row">
-          <span class="meta-item">
-            <mat-icon>person</mat-icon>
-            Created by: {{ tender()!.created_by }}
-          </span>
-          <span class="meta-item">
-            <mat-icon>calendar_today</mat-icon>
-            Created: {{ tender()!.created_at | date:'medium' }}
-          </span>
-          @if (tender()!.updated_at !== tender()!.created_at) {
-            <span class="meta-item">
-              <mat-icon>update</mat-icon>
-              Updated: {{ tender()!.updated_at | date:'medium' }}
-            </span>
-          }
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Documents Card -->
-    <mat-card class="documents-card">
-      <mat-card-header>
-        <mat-card-title>Associated Documents</mat-card-title>
-        <button mat-raised-button color="primary" (click)="onAddDocuments()">
-          <mat-icon>add</mat-icon>
-          Add Documents
-        </button>
-      </mat-card-header>
-      <mat-card-content>
-        @if (documentsLoading()) {
-          <div class="loading-container small">
-            <mat-spinner diameter="40"></mat-spinner>
-            <p>Loading documents...</p>
-          </div>
-        } @else if (documents().length === 0) {
-          <div class="empty-state">
-            <mat-icon>description</mat-icon>
-            <h4>No documents associated</h4>
-            <p>Add documents to this tender to create your submission package</p>
-            <button mat-raised-button color="primary" (click)="onAddDocuments()">
-              <mat-icon>add</mat-icon>
-              Add Documents
-            </button>
-          </div>
-        } @else {
-          <table mat-table [dataSource]="documents()" class="documents-table">
-            <!-- Name Column -->
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>Document Name</th>
-              <td mat-cell *matCellDef="let doc">
-                <div class="document-name">
-                  <mat-icon>{{ doc.document?.mime_type?.includes('pdf') ? 'picture_as_pdf' : 'description' }}</mat-icon>
-                  <span>{{ doc.document?.name || 'Unknown' }}</span>
+              @if (tender()!.portal_name) {
+                <div class="detail-row">
+                  <div class="detail-label">Portal:</div>
+                  <div class="detail-value">
+                    {{ tender()!.portal_name }}
+                    @if (tender()!.portal_url) {
+                      <a [href]="tender()!.portal_url" target="_blank" class="portal-link">
+                        <mat-icon>open_in_new</mat-icon>
+                      </a>
+                    }
+                  </div>
                 </div>
-              </td>
-            </ng-container>
+              }
 
-            <!-- Type Column -->
-            <ng-container matColumnDef="type">
-              <th mat-header-cell *matHeaderCellDef>Type</th>
-              <td mat-cell *matCellDef="let doc">
-                {{ doc.document?.document_type || 'N/A' }}
-              </td>
-            </ng-container>
+              @if (tender()!.requirements) {
+                <div class="detail-row full-width">
+                  <div class="detail-label">Requirements:</div>
+                  <div class="requirements-box">
+                    <pre>{{ tender()!.requirements | json }}</pre>
+                  </div>
+                </div>
+              }
 
-            <!-- Size Column -->
-            <ng-container matColumnDef="size">
-              <th mat-header-cell *matHeaderCellDef>Size</th>
-              <td mat-cell *matCellDef="let doc">
-                {{ formatFileSize(doc.document?.file_size) }}
-              </td>
-            </ng-container>
+              @if (tender()!.notes) {
+                <div class="detail-row full-width">
+                  <div class="detail-label">Notes:</div>
+                  <div class="notes-box">
+                    {{ tender()!.notes }}
+                  </div>
+                </div>
+              }
 
-            <!-- Generated Column -->
-            <ng-container matColumnDef="generated">
-              <th mat-header-cell *matHeaderCellDef>Source</th>
-              <td mat-cell *matCellDef="let doc">
-                @if (doc.is_generated) {
-                  <mat-chip class="generated-chip">
-                    <mat-icon>auto_awesome</mat-icon>
-                    AI Generated
-                  </mat-chip>
-                } @else {
-                  <mat-chip class="uploaded-chip">
-                    <mat-icon>upload</mat-icon>
-                    Uploaded
-                  </mat-chip>
+              <mat-divider></mat-divider>
+
+              <div class="meta-row">
+                <span class="meta-item">
+                  <mat-icon>person</mat-icon>
+                  Created by: {{ tender()!.created_by }}
+                </span>
+                <span class="meta-item">
+                  <mat-icon>calendar_today</mat-icon>
+                  Created: {{ tender()!.created_at | date:'medium' }}
+                </span>
+                @if (tender()!.updated_at !== tender()!.created_at) {
+                  <span class="meta-item">
+                    <mat-icon>update</mat-icon>
+                    Updated: {{ tender()!.updated_at | date:'medium' }}
+                  </span>
                 }
-              </td>
-            </ng-container>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
 
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Actions</th>
-              <td mat-cell *matCellDef="let doc">
-                <button mat-icon-button matTooltip="Remove" (click)="onRemoveDocument(doc)">
-                  <mat-icon color="warn">delete</mat-icon>
+      <!-- Tab 2: Documents -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>description</mat-icon>
+          <span class="tab-label-text">Documents ({{ documents().length }})</span>
+        </ng-template>
+
+        <div class="tab-body">
+          <mat-card class="documents-card">
+            <mat-card-header>
+              <mat-card-title>Associated Documents</mat-card-title>
+              <div class="documents-actions">
+                @if (orderChanged()) {
+                  <button mat-raised-button color="accent" (click)="onSaveOrder()" [disabled]="savingOrder()">
+                    <mat-icon>{{ savingOrder() ? 'hourglass_empty' : 'save' }}</mat-icon>
+                    {{ savingOrder() ? 'Saving...' : 'Save Order' }}
+                  </button>
+                }
+                <button mat-raised-button color="primary" (click)="onAddDocuments()">
+                  <mat-icon>add</mat-icon>
+                  Add Documents
                 </button>
-              </td>
-            </ng-container>
+              </div>
+            </mat-card-header>
+            <mat-card-content>
+              @if (documentsLoading()) {
+                <div class="loading-container small">
+                  <mat-spinner diameter="40"></mat-spinner>
+                  <p>Loading documents...</p>
+                </div>
+              } @else if (documents().length === 0) {
+                <div class="empty-state">
+                  <mat-icon>description</mat-icon>
+                  <h4>No documents associated</h4>
+                  <p>Add documents to this tender to create your submission package</p>
+                  <button mat-raised-button color="primary" (click)="onAddDocuments()">
+                    <mat-icon>add</mat-icon>
+                    Add Documents
+                  </button>
+                </div>
+              } @else {
+                <p class="reorder-hint">Drag rows to reorder documents for merge/export</p>
+                <table mat-table [dataSource]="documents()" class="documents-table"
+                       cdkDropList (cdkDropListDropped)="onDocumentDrop($event)">
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
-        }
-      </mat-card-content>
-    </mat-card>
+                  <ng-container matColumnDef="drag">
+                    <th mat-header-cell *matHeaderCellDef class="drag-column"></th>
+                    <td mat-cell *matCellDef="let doc; let i = index" class="drag-column">
+                      <div class="drag-handle" cdkDragHandle>
+                        <mat-icon>drag_indicator</mat-icon>
+                      </div>
+                      <div class="move-buttons">
+                        <button mat-icon-button class="move-btn" matTooltip="Move up" [disabled]="i === 0"
+                                (click)="onMoveUp(i); $event.stopPropagation()">
+                          <mat-icon>arrow_upward</mat-icon>
+                        </button>
+                        <button mat-icon-button class="move-btn" matTooltip="Move down" [disabled]="i === documents().length - 1"
+                                (click)="onMoveDown(i); $event.stopPropagation()">
+                          <mat-icon>arrow_downward</mat-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Document Name</th>
+                    <td mat-cell *matCellDef="let doc">
+                      <div class="document-name">
+                        <mat-icon>{{ doc.document?.mime_type?.includes('pdf') ? 'picture_as_pdf' : 'description' }}</mat-icon>
+                        <span>{{ doc.document?.name || 'Unknown' }}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="type">
+                    <th mat-header-cell *matHeaderCellDef>Type</th>
+                    <td mat-cell *matCellDef="let doc">{{ doc.document?.document_type || 'N/A' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="size">
+                    <th mat-header-cell *matHeaderCellDef>Size</th>
+                    <td mat-cell *matCellDef="let doc">{{ formatFileSize(doc.document?.file_size) }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="generated">
+                    <th mat-header-cell *matHeaderCellDef>Source</th>
+                    <td mat-cell *matCellDef="let doc">
+                      @if (doc.is_generated) {
+                        <mat-chip class="generated-chip">
+                          <mat-icon>auto_awesome</mat-icon>
+                          AI Generated
+                        </mat-chip>
+                      } @else {
+                        <mat-chip class="uploaded-chip">
+                          <mat-icon>upload</mat-icon>
+                          Uploaded
+                        </mat-chip>
+                      }
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let doc">
+                      @if (doc.document?.mime_type?.includes('pdf')) {
+                        <button mat-icon-button matTooltip="Preview" (click)="onPreviewDocument(doc); $event.stopPropagation()">
+                          <mat-icon>visibility</mat-icon>
+                        </button>
+                      }
+                      <button mat-icon-button matTooltip="Download" (click)="onDownloadDocument(doc); $event.stopPropagation()">
+                        <mat-icon>download</mat-icon>
+                      </button>
+                      <button mat-icon-button matTooltip="Remove" (click)="onRemoveDocument(doc); $event.stopPropagation()">
+                        <mat-icon color="warn">delete</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                      cdkDrag [cdkDragData]="row" class="drag-row"></tr>
+                </table>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 3: AI Extraction -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>auto_awesome</mat-icon>
+          <span class="tab-label-text">AI Extraction</span>
+        </ng-template>
+
+        <div class="tab-body">
+          <app-extraction-tab [tenderId]="tenderId()"></app-extraction-tab>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 4: Criteria & Scoring -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>grading</mat-icon>
+          <span class="tab-label-text">Criteria &amp; Scoring</span>
+        </ng-template>
+
+        <div class="tab-body">
+          <app-criteria-tab [tenderId]="tenderId()"></app-criteria-tab>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 5: OEM Requirements -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>precision_manufacturing</mat-icon>
+          <span class="tab-label-text">OEM Requirements</span>
+        </ng-template>
+
+        <div class="tab-body">
+          <app-oem-requirements-tab [tenderId]="tenderId()"></app-oem-requirements-tab>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 6: EMD & Fees -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>account_balance</mat-icon>
+          <span class="tab-label-text">EMD &amp; Fees</span>
+        </ng-template>
+
+        <div class="tab-body">
+          <app-emd-fees-tab [tenderId]="tenderId()"></app-emd-fees-tab>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 7: Declarations -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>gavel</mat-icon>
+          <span class="tab-label-text">Declarations</span>
+        </ng-template>
+
+        <div class="tab-body">
+          <app-declarations-tab [tenderId]="tenderId()"></app-declarations-tab>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   }
 </div>

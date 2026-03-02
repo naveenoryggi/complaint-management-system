@@ -74,6 +74,42 @@ export interface TenderDocumentAssociation {
   generation_prompt?: string;
 }
 
+export interface ExtractedTenderData {
+  title?: string;
+  reference_number?: string;
+  issuing_authority?: string;
+  deadline?: string;
+  estimated_value?: number;
+  eligibility_criteria?: string[];
+  technical_requirements?: string[];
+  emd?: { amount?: number; mode?: string; validity_end_date?: string };
+  tender_fees?: { fee_type: string; amount: number; payment_mode?: string }[];
+  evaluation_criteria?: { criteria_code: string; stage: string; max_marks: number; description?: string }[];
+  document_checklist?: string[];
+  important_dates?: { [key: string]: string };
+  contact_info?: { [key: string]: string };
+  special_conditions?: string[];
+  oem_requirements?: { oem_name: string; product_category?: string; maf_required?: boolean }[];
+}
+
+export interface ExtractionResponse {
+  tender_id: string;
+  document_id?: string;
+  extracted_data: ExtractedTenderData;
+  model_used: string;
+  tokens_used: number;
+  confidence_score?: number;
+}
+
+export interface ApplyExtractionResponse {
+  tender_id: string;
+  fields_updated: string[];
+  criteria_created: number;
+  emd_created: boolean;
+  fees_created: number;
+  oem_requirements_created: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -167,5 +203,25 @@ export class TenderService {
    */
   removeDocumentAssociation(tenderId: string, documentId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${tenderId}/documents/${documentId}`);
+  }
+
+  reorderDocuments(tenderId: string, documentIds: string[]): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(
+      `${this.baseUrl}/${tenderId}/documents/reorder`,
+      { document_ids: documentIds }
+    );
+  }
+
+  extractFromPDF(tenderId: string, file: File, model?: string): Observable<ExtractionResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (model) {
+      formData.append('model', model);
+    }
+    return this.http.post<ExtractionResponse>(`${this.baseUrl}/${tenderId}/extract`, formData);
+  }
+
+  applyExtraction(tenderId: string, data: ExtractedTenderData): Observable<ApplyExtractionResponse> {
+    return this.http.post<ApplyExtractionResponse>(`${this.baseUrl}/${tenderId}/apply-extraction`, data);
   }
 }

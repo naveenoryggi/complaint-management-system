@@ -11,6 +11,10 @@
       </mat-card-subtitle>
     </mat-card-header>
     <mat-card-actions>
+      <button mat-stroked-button (click)="onExportCSV()" [disabled]="tenders().length === 0">
+        <mat-icon>download</mat-icon>
+        Export CSV
+      </button>
       <button mat-raised-button color="primary" (click)="onCreateTender()">
         <mat-icon>add</mat-icon>
         Create Tender
@@ -128,10 +132,13 @@
                   <button mat-icon-button matTooltip="View Details" (click)="onViewTender(tender)">
                     <mat-icon>visibility</mat-icon>
                   </button>
-                  <button mat-icon-button matTooltip="Edit" (click)="onEditTender(tender)">
+                  <button mat-icon-button matTooltip="Edit" (click)="onEditTender(tender); $event.stopPropagation()">
                     <mat-icon>edit</mat-icon>
                   </button>
-                  <button mat-icon-button matTooltip="Delete" color="warn" (click)="onDeleteTender(tender)">
+                  <button mat-icon-button matTooltip="Clone" (click)="onCloneTender(tender, $event)">
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                  <button mat-icon-button matTooltip="Delete" color="warn" (click)="onDeleteTender(tender); $event.stopPropagation()">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>

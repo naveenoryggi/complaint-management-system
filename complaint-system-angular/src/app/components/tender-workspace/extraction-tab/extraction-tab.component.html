@@ -1,0 +1,292 @@
+<div class="extraction-tab">
+  <!-- Upload Section -->
+  <mat-card class="upload-card">
+    <mat-card-content>
+      <div class="upload-area">
+        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+        <h3>Upload Tender Document</h3>
+        <p>Upload a PDF tender document to extract structured information using AI</p>
+        <div class="upload-actions">
+          <input type="file" accept=".pdf" (change)="onFileSelected($event)" #fileInput hidden>
+          <button mat-raised-button (click)="fileInput.click()">
+            <mat-icon>attach_file</mat-icon>
+            {{ selectedFile() ? selectedFile()!.name : 'Choose PDF' }}
+          </button>
+          <mat-form-field appearance="outline" class="model-select">
+            <mat-label>AI Model</mat-label>
+            <mat-select [(value)]="selectedModel">
+              @for (model of modelOptions; track model.value) {
+                <mat-option [value]="model.value">{{ model.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <button mat-raised-button color="primary" (click)="onExtract()"
+                  [disabled]="!selectedFile() || extracting()">
+            <mat-icon>{{ extracting() ? 'hourglass_empty' : 'auto_awesome' }}</mat-icon>
+            {{ extracting() ? 'Extracting...' : 'Extract with AI' }}
+          </button>
+        </div>
+      </div>
+      @if (extracting()) {
+        <mat-progress-bar mode="indeterminate" class="extract-progress"></mat-progress-bar>
+        <p class="extracting-text">Analyzing tender document... This may take 30-60 seconds.</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Extraction Results -->
+  @if (extractedData()) {
+    <div class="extraction-results">
+      <!-- Meta info -->
+      <div class="meta-bar">
+        <mat-chip class="meta-chip">
+          <mat-icon>smart_toy</mat-icon>
+          {{ extractionMeta()?.model_used }}
+        </mat-chip>
+        <mat-chip class="meta-chip">
+          <mat-icon>token</mat-icon>
+          {{ extractionMeta()?.tokens_used }} tokens
+        </mat-chip>
+      </div>
+
+      <!-- Basic Info -->
+      <mat-card class="result-card">
+        <mat-card-header>
+          <mat-card-title>Basic Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="result-grid">
+            @if (extractedData()!.title) {
+              <div class="result-item">
+                <span class="result-label">Title</span>
+                <span class="result-value">{{ extractedData()!.title }}</span>
+              </div>
+            }
+            @if (extractedData()!.reference_number) {
+              <div class="result-item">
+                <span class="result-label">Reference Number</span>
+                <span class="result-value">{{ extractedData()!.reference_number }}</span>
+              </div>
+            }
+            @if (extractedData()!.issuing_authority) {
+              <div class="result-item">
+                <span class="result-label">Issuing Authority</span>
+                <span class="result-value">{{ extractedData()!.issuing_authority }}</span>
+              </div>
+            }
+            @if (extractedData()!.deadline) {
+              <div class="result-item">
+                <span class="result-label">Deadline</span>
+                <span class="result-value">{{ extractedData()!.deadline }}</span>
+              </div>
+            }
+            @if (extractedData()!.estimated_value) {
+              <div class="result-item">
+                <span class="result-label">Estimated Value</span>
+                <span class="result-value">{{ formatCurrency(extractedData()!.estimated_value) }}</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- EMD & Fees -->
+      @if (extractedData()!.emd || extractedData()!.tender_fees?.length) {
+        <mat-card class="result-card">
+          <mat-card-header>
+            <mat-card-title>EMD &amp; Fees</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (extractedData()!.emd) {
+              <div class="emd-box">
+                <strong>EMD:</strong>
+                {{ formatCurrency(extractedData()!.emd!.amount) }}
+                @if (extractedData()!.emd!.mode) {
+                  <mat-chip class="mode-chip">{{ extractedData()!.emd!.mode | uppercase }}</mat-chip>
+                }
+                @if (extractedData()!.emd!.validity_end_date) {
+                  <span class="validity">Valid until {{ extractedData()!.emd!.validity_end_date }}</span>
+                }
+              </div>
+            }
+            @if (extractedData()!.tender_fees?.length) {
+              <div class="fees-list">
+                @for (fee of extractedData()!.tender_fees; track $index) {
+                  <div class="fee-item">
+                    <span>{{ fee.fee_type | titlecase }}: {{ formatCurrency(fee.amount) }}</span>
+                    @if (fee.payment_mode) {
+                      <span class="payment-mode">({{ fee.payment_mode }})</span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Evaluation Criteria -->
+      @if (extractedData()!.evaluation_criteria?.length) {
+        <mat-card class="result-card">
+          <mat-card-header>
+            <mat-card-title>Evaluation Criteria ({{ extractedData()!.evaluation_criteria!.length }})</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="criteria-list">
+              @for (criteria of extractedData()!.evaluation_criteria; track $index) {
+                <div class="criteria-item">
+                  <div class="criteria-header">
+                    <mat-chip class="stage-chip">{{ criteria.stage | uppercase }}</mat-chip>
+                    <strong>{{ criteria.criteria_code }}</strong>
+                    <span class="marks">{{ criteria.max_marks }} marks</span>
+                  </div>
+                  @if (criteria.description) {
+                    <p class="criteria-desc">{{ criteria.description }}</p>
+                  }
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- OEM Requirements (with selection checkboxes) -->
+      @if (extractedData()!.oem_requirements?.length) {
+        <mat-card class="result-card">
+          <mat-card-header>
+            <mat-card-title>OEM Requirements ({{ extractedData()!.oem_requirements!.length }} found)</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="selection-hint">Select the OEMs relevant to your bid:</p>
+            <div class="oem-list">
+              @for (oem of extractedData()!.oem_requirements; track $index) {
+                <div class="oem-item" [class.selected]="isOemSelected($index)">
+                  <mat-checkbox [checked]="isOemSelected($index)" (change)="toggleOem($index)">
+                    <strong>{{ oem.oem_name }}</strong>
+                    @if (oem.product_category) {
+                      <span class="oem-category"> - {{ oem.product_category }}</span>
+                    }
+                    @if (oem.maf_required) {
+                      <mat-chip class="maf-chip">MAF Required</mat-chip>
+                    }
+                  </mat-checkbox>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Technical Requirements -->
+      @if (extractedData()!.technical_requirements?.length) {
+        <mat-card class="result-card">
+          <mat-card-header>
+            <mat-card-title>Technical Requirements</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <ul class="extracted-list">
+              @for (item of extractedData()!.technical_requirements; track $index) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Eligibility & Requirements -->
+      @if (extractedData()!.eligibility_criteria?.length) {
+        <mat-card class="result-card">
+          <mat-card-header>
+            <mat-card-title>Eligibility Criteria</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <ul class="extracted-list">
+              @for (item of extractedData()!.eligibility_criteria; track $index) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      @if (extractedData()!.document_checklist?.length) {
+        <mat-card class="result-card">
+          <mat-card-header>
+            <mat-card-title>Document Checklist</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <ul class="extracted-list">
+              @for (item of extractedData()!.document_checklist; track $index) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Important Dates -->
+      @if (extractedData()!.important_dates) {
+        <mat-card class="result-card">
+          <mat-card-header>
+            <mat-card-title>Important Dates</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="dates-grid">
+              @for (entry of extractedData()!.important_dates | keyvalue; track entry.key) {
+                <div class="date-item">
+                  <span class="date-label">{{ entry.key | titlecase }}</span>
+                  <span class="date-value">{{ entry.value }}</span>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Contact Info -->
+      @if (extractedData()!.contact_info) {
+        <mat-card class="result-card">
+          <mat-card-header>
+            <mat-card-title>Contact Information</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="result-grid">
+              @for (entry of extractedData()!.contact_info | keyvalue; track entry.key) {
+                <div class="result-item">
+                  <span class="result-label">{{ entry.key | titlecase }}</span>
+                  <span class="result-value">{{ entry.value }}</span>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Special Conditions -->
+      @if (extractedData()!.special_conditions?.length) {
+        <mat-card class="result-card">
+          <mat-card-header>
+            <mat-card-title>Special Conditions</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <ul class="extracted-list">
+              @for (item of extractedData()!.special_conditions; track $index) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Apply Button -->
+      <div class="apply-section">
+        <button mat-raised-button color="primary" class="apply-button"
+                (click)="onApply()" [disabled]="applying()">
+          <mat-icon>{{ applying() ? 'hourglass_empty' : 'check_circle' }}</mat-icon>
+          {{ applying() ? 'Applying...' : 'Apply Extraction to Tender' }}
+        </button>
+        <p class="apply-hint">This will update tender fields, create EMD/fee records, and store the full extraction.</p>
+      </div>
+    </div>
+  }
+</div>
