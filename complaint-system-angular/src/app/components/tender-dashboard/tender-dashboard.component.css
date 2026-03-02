@@ -202,6 +202,170 @@
   color: rgba(0, 0, 0, 0.5);
 }
 
+/* Alerts Section */
+.alerts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.alert-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.dsc-alert mat-card-title mat-icon {
+  color: #e65100;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.emd-alert mat-card-title mat-icon {
+  color: #c62828;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alert-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  background-color: #fafafa;
+}
+
+.alert-item:hover {
+  background-color: #f0f0f0;
+}
+
+.alert-item.expired {
+  background-color: #ffebee;
+}
+
+.alert-item.critical {
+  background-color: #fff3e0;
+}
+
+.alert-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.alert-info strong {
+  font-size: 14px;
+  color: #333;
+}
+
+.alert-detail {
+  font-size: 12px;
+  color: #666;
+}
+
+.chip-expired {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+.chip-warning {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+.chip-caution {
+  background-color: #ffc107 !important;
+  color: #333 !important;
+}
+
+/* Pipeline Card */
+.pipeline-card {
+  margin-bottom: 24px;
+}
+
+.pipeline-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+}
+
+.pipeline-card mat-card-title mat-icon {
+  color: #1565c0;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.pipeline-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pipeline-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.pipeline-row:hover .pipeline-bar-fill {
+  opacity: 0.85;
+}
+
+.pipeline-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 130px;
+  font-size: 14px;
+  color: #333;
+}
+
+.pipeline-label mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.pipeline-bar-track {
+  flex: 1;
+  height: 24px;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.pipeline-bar-fill {
+  height: 100%;
+  border-radius: 12px;
+  transition: width 0.6s ease-out;
+  min-width: 4px;
+}
+
+.pipeline-count {
+  min-width: 32px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+}
+
 /* Loading State */
 .loading-container {
   display: flex;

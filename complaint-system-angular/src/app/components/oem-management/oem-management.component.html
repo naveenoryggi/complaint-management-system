@@ -1,0 +1,322 @@
+<div class="oem-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>precision_manufacturing</mat-icon>
+        OEM Management
+      </mat-card-title>
+      <mat-card-subtitle>Manage OEM partners and per-tender requirements</mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <mat-tab-group animationDuration="200ms">
+    <!-- Tab 1: OEM Masters -->
+    <mat-tab label="OEM Masters">
+      <div class="tab-content">
+        <div class="tab-actions">
+          <button mat-raised-button color="primary" (click)="showCreateForm() ? onCancelEdit() : showCreateForm.set(true)">
+            <mat-icon>{{ showCreateForm() ? 'close' : 'add' }}</mat-icon>
+            {{ showCreateForm() ? 'Cancel' : 'Add OEM' }}
+          </button>
+        </div>
+
+        @if (showCreateForm()) {
+          <mat-card class="create-form-card">
+            <mat-card-content>
+              <h3 class="section-title">{{ editingOEM() ? 'Edit OEM Partner' : 'New OEM Partner' }}</h3>
+              <form [formGroup]="createForm" (ngSubmit)="onSaveOEM()">
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>OEM Name</mat-label>
+                    <input matInput formControlName="name" placeholder="e.g. Cisco, HP, Dell">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Country</mat-label>
+                    <input matInput formControlName="country" placeholder="Country of origin">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Partner Tier</mat-label>
+                    <mat-select formControlName="partner_tier">
+                      @for (tier of tierOptions; track tier.value) {
+                        <mat-option [value]="tier.value">{{ tier.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>India Distributor</mat-label>
+                    <input matInput formControlName="india_distributor" placeholder="Local distributor name">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="span-2">
+                    <mat-label>Product Categories</mat-label>
+                    <input matInput formControlName="product_categories" placeholder="Comma-separated: Switches, Routers, Servers">
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                  <button mat-button type="button" (click)="onCancelEdit()">Cancel</button>
+                  <button mat-raised-button color="primary" type="submit">
+                    <mat-icon>save</mat-icon>
+                    {{ editingOEM() ? 'Update OEM' : 'Create OEM' }}
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        <mat-card class="table-card">
+          <mat-card-content>
+            @if (loading()) {
+              <div class="loading-container">
+                <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+                <p>Loading OEM partners...</p>
+              </div>
+            } @else if (oems().length === 0) {
+              <div class="empty-state">
+                <mat-icon>precision_manufacturing</mat-icon>
+                <h3>No OEM partners found</h3>
+                <p>Add your first OEM partner to get started</p>
+                <button mat-raised-button color="primary" (click)="showCreateForm.set(true)">
+                  <mat-icon>add</mat-icon>
+                  Add OEM
+                </button>
+              </div>
+            } @else {
+              <div class="table-container">
+                <table mat-table [dataSource]="oems()" class="data-table">
+                  <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>OEM Name</th>
+                    <td mat-cell *matCellDef="let oem"><strong>{{ oem.name }}</strong></td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="country">
+                    <th mat-header-cell *matHeaderCellDef>Country</th>
+                    <td mat-cell *matCellDef="let oem">{{ oem.country || 'N/A' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="is_indian">
+                    <th mat-header-cell *matHeaderCellDef>Indian OEM</th>
+                    <td mat-cell *matCellDef="let oem">
+                      <mat-chip [class]="oem.is_indian ? 'chip-yes' : 'chip-no'">
+                        {{ oem.is_indian ? 'Yes' : 'No' }}
+                      </mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="partner_tier">
+                    <th mat-header-cell *matHeaderCellDef>Partner Tier</th>
+                    <td mat-cell *matCellDef="let oem">
+                      @if (oem.partner_tier) {
+                        <mat-chip [class]="'tier-' + oem.partner_tier">
+                          {{ oem.partner_tier | titlecase }}
+                        </mat-chip>
+                      } @else {
+                        N/A
+                      }
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="product_categories">
+                    <th mat-header-cell *matHeaderCellDef>Product Categories</th>
+                    <td mat-cell *matCellDef="let oem">
+                      @if (oem.product_categories?.length) {
+                        <div class="category-chips">
+                          @for (cat of oem.product_categories; track cat) {
+                            <mat-chip class="category-chip">{{ cat }}</mat-chip>
+                          }
+                        </div>
+                      } @else {
+                        N/A
+                      }
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let oem">
+                      <button mat-icon-button matTooltip="Edit" (click)="onEditOEM(oem)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button matTooltip="Delete" color="warn" (click)="onDeleteOEM(oem)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="oemColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: oemColumns;"></tr>
+                </table>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Tab 2: Per-Tender OEM Requirements -->
+    <mat-tab label="Per-Tender Requirements">
+      <div class="tab-content">
+        <div class="tab-actions">
+          <mat-form-field appearance="outline" class="tender-select">
+            <mat-label>Select Tender</mat-label>
+            <mat-select (selectionChange)="onTenderChange($event.value)">
+              @for (tender of tenders(); track tender.id) {
+                <mat-option [value]="tender.id">{{ tender.title }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          @if (selectedTenderId()) {
+            <button mat-raised-button color="primary" (click)="showRequirementForm.set(!showRequirementForm())">
+              <mat-icon>{{ showRequirementForm() ? 'close' : 'add' }}</mat-icon>
+              {{ showRequirementForm() ? 'Cancel' : 'Add Requirement' }}
+            </button>
+          }
+        </div>
+
+        @if (showRequirementForm() && selectedTenderId()) {
+          <mat-card class="create-form-card">
+            <mat-card-content>
+              <h3 class="section-title">New OEM Requirement</h3>
+              <form [formGroup]="requirementForm" (ngSubmit)="onCreateRequirement()">
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Select OEM</mat-label>
+                    <mat-select formControlName="oem_id">
+                      @for (oem of oems(); track oem.id) {
+                        <mat-option [value]="oem.id">{{ oem.name }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>MAF Status</mat-label>
+                    <mat-select formControlName="maf_status">
+                      @for (opt of statusOptions; track opt.value) {
+                        <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>MS Status</mat-label>
+                    <mat-select formControlName="ms_status">
+                      @for (opt of statusOptions; track opt.value) {
+                        <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Partner Cert Status</mat-label>
+                    <mat-select formControlName="partner_cert_status">
+                      @for (opt of statusOptions; track opt.value) {
+                        <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Notes</mat-label>
+                  <textarea matInput formControlName="notes" rows="2"></textarea>
+                </mat-form-field>
+
+                <div class="form-actions">
+                  <button mat-button type="button" (click)="showRequirementForm.set(false)">Cancel</button>
+                  <button mat-raised-button color="primary" type="submit">
+                    <mat-icon>save</mat-icon>
+                    Add Requirement
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @if (!selectedTenderId()) {
+          <div class="empty-state">
+            <mat-icon>assignment</mat-icon>
+            <h3>Select a tender</h3>
+            <p>Choose a tender to view and manage OEM requirements</p>
+          </div>
+        } @else if (requirementsLoading()) {
+          <div class="loading-container">
+            <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+            <p>Loading OEM requirements...</p>
+          </div>
+        } @else if (requirements().length === 0) {
+          <div class="empty-state">
+            <mat-icon>checklist</mat-icon>
+            <h3>No OEM requirements</h3>
+            <p>Add OEM requirements for this tender</p>
+          </div>
+        } @else {
+          <mat-card class="table-card">
+            <mat-card-content>
+              <div class="table-container">
+                <table mat-table [dataSource]="requirements()" class="data-table">
+                  <ng-container matColumnDef="oem_name">
+                    <th mat-header-cell *matHeaderCellDef>OEM</th>
+                    <td mat-cell *matCellDef="let req"><strong>{{ getOEMName(req.oem_id) }}</strong></td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="maf_status">
+                    <th mat-header-cell *matHeaderCellDef>MAF</th>
+                    <td mat-cell *matCellDef="let req">
+                      <mat-chip [class]="getStatusClass(req.maf_status)">{{ req.maf_status | titlecase }}</mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="ms_status">
+                    <th mat-header-cell *matHeaderCellDef>MS</th>
+                    <td mat-cell *matCellDef="let req">
+                      <mat-chip [class]="getStatusClass(req.ms_status)">{{ req.ms_status | titlecase }}</mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="partner_cert_status">
+                    <th mat-header-cell *matHeaderCellDef>Partner Cert</th>
+                    <td mat-cell *matCellDef="let req">
+                      <mat-chip [class]="getStatusClass(req.partner_cert_status)">{{ req.partner_cert_status | titlecase }}</mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="datasheet_status">
+                    <th mat-header-cell *matHeaderCellDef>Datasheet</th>
+                    <td mat-cell *matCellDef="let req">
+                      <mat-chip [class]="getStatusClass(req.datasheet_status)">{{ req.datasheet_status | titlecase }}</mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="compliance_cert_status">
+                    <th mat-header-cell *matHeaderCellDef>Compliance</th>
+                    <td mat-cell *matCellDef="let req">
+                      <mat-chip [class]="getStatusClass(req.compliance_cert_status)">{{ req.compliance_cert_status | titlecase }}</mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let req">
+                      <button mat-icon-button matTooltip="View Notes">
+                        <mat-icon>info</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="reqColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: reqColumns;"></tr>
+                </table>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

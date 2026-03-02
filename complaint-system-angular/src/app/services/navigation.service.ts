@@ -64,6 +64,9 @@ export class NavigationService {
     '/tender-dashboard': 'Tender Dashboard',
     '/company-profile': 'Company Profile',
     '/reference-bundles': 'Reference Bundles',
+    '/oem-management': 'OEM Management',
+    '/portal-registrations': 'Portal Registrations',
+    '/emd-tracker': 'EMD & Fees Tracker',
     '/ai-generator': 'AI Generator'
   };
 
@@ -99,6 +102,9 @@ export class NavigationService {
     '/tender-dashboard': 'bi-speedometer2',
     '/company-profile': 'bi-building',
     '/reference-bundles': 'bi-folder2-open',
+    '/oem-management': 'bi-building-gear',
+    '/portal-registrations': 'bi-globe',
+    '/emd-tracker': 'bi-bank',
     '/ai-generator': 'bi-robot'
   };
 
@@ -132,6 +138,9 @@ export class NavigationService {
     '/tenders/new': '/tenders',
     '/company-profile': '/tender-dashboard',
     '/reference-bundles': '/tender-dashboard',
+    '/oem-management': '/tender-dashboard',
+    '/portal-registrations': '/tender-dashboard',
+    '/emd-tracker': '/tender-dashboard',
     '/ai-generator': '/tenders'
   };
 

@@ -1,0 +1,340 @@
+<div class="emd-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>account_balance</mat-icon>
+        EMD &amp; Fees Tracker
+      </mat-card-title>
+      <mat-card-subtitle>Track EMD deposits and tender fees across all tenders</mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Summary Cards -->
+  <div class="summary-row">
+    <mat-card class="summary-card emd-summary">
+      <mat-card-content>
+        <div class="summary-label">Total EMD Amount</div>
+        <div class="summary-value">{{ formatCurrency(getTotalEmdAmount()) }}</div>
+        <div class="summary-count">{{ emds().length }} records</div>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="summary-card fee-summary">
+      <mat-card-content>
+        <div class="summary-label">Total Fees Paid</div>
+        <div class="summary-value">{{ formatCurrency(getTotalFeeAmount()) }}</div>
+        <div class="summary-count">{{ fees().length }} records</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-tab-group animationDuration="200ms">
+    <!-- Tab 1: EMD Records -->
+    <mat-tab label="EMD Records">
+      <div class="tab-content">
+        <div class="tab-actions">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Status Filter</mat-label>
+            <mat-select [formControl]="emdStatusFilter">
+              @for (opt of emdStatusOptions; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" (click)="showEmdForm() ? onCancelEmdEdit() : showEmdForm.set(true)">
+            <mat-icon>{{ showEmdForm() ? 'close' : 'add' }}</mat-icon>
+            {{ showEmdForm() ? 'Cancel' : 'Add EMD' }}
+          </button>
+        </div>
+
+        @if (showEmdForm()) {
+          <mat-card class="create-form-card">
+            <mat-card-content>
+              <h3 class="section-title">{{ editingEMD() ? 'Edit EMD Record' : 'New EMD Record' }}</h3>
+              <form [formGroup]="emdForm" (ngSubmit)="onSaveEMD()">
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Tender</mat-label>
+                    <mat-select formControlName="tender_id">
+                      @for (tender of tenders(); track tender.id) {
+                        <mat-option [value]="tender.id">{{ tender.title }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Amount (INR)</mat-label>
+                    <input matInput type="number" formControlName="amount">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Mode</mat-label>
+                    <mat-select formControlName="mode">
+                      @for (mode of modeOptions; track mode.value) {
+                        <mat-option [value]="mode.value">{{ mode.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Instrument Number</mat-label>
+                    <input matInput formControlName="instrument_number">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Instrument Date</mat-label>
+                    <input matInput type="date" formControlName="instrument_date">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Issuing Bank</mat-label>
+                    <input matInput formControlName="issuing_bank">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Validity Start</mat-label>
+                    <input matInput type="date" formControlName="validity_start_date">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Validity End</mat-label>
+                    <input matInput type="date" formControlName="validity_end_date">
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Notes</mat-label>
+                  <textarea matInput formControlName="notes" rows="2"></textarea>
+                </mat-form-field>
+
+                <div class="form-actions">
+                  <button mat-button type="button" (click)="onCancelEmdEdit()">Cancel</button>
+                  <button mat-raised-button color="primary" type="submit">
+                    <mat-icon>save</mat-icon>
+                    {{ editingEMD() ? 'Update EMD' : 'Create EMD' }}
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        <mat-card class="table-card">
+          <mat-card-content>
+            @if (emdLoading()) {
+              <div class="loading-container">
+                <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+                <p>Loading EMD records...</p>
+              </div>
+            } @else if (emds().length === 0) {
+              <div class="empty-state">
+                <mat-icon>account_balance</mat-icon>
+                <h3>No EMD records</h3>
+                <p>Add EMD records to track your deposits</p>
+              </div>
+            } @else {
+              <div class="table-container">
+                <table mat-table [dataSource]="emds()" class="data-table">
+                  <ng-container matColumnDef="tender_name">
+                    <th mat-header-cell *matHeaderCellDef>Tender</th>
+                    <td mat-cell *matCellDef="let emd">
+                      <strong>{{ getTenderName(emd.tender_id) }}</strong>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="amount">
+                    <th mat-header-cell *matHeaderCellDef>Amount</th>
+                    <td mat-cell *matCellDef="let emd" class="amount-cell">{{ formatCurrency(emd.amount) }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="mode">
+                    <th mat-header-cell *matHeaderCellDef>Mode</th>
+                    <td mat-cell *matCellDef="let emd">
+                      <mat-chip class="mode-chip">{{ getModeLabel(emd.mode) }}</mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="instrument_number">
+                    <th mat-header-cell *matHeaderCellDef>Instrument #</th>
+                    <td mat-cell *matCellDef="let emd">{{ emd.instrument_number || 'N/A' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="validity">
+                    <th mat-header-cell *matHeaderCellDef>Validity</th>
+                    <td mat-cell *matCellDef="let emd">{{ getValidityText(emd) }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Status</th>
+                    <td mat-cell *matCellDef="let emd">
+                      <mat-chip [class]="getEmdStatusClass(emd.status)" class="clickable-chip" (click)="onCycleEmdStatus(emd)" matTooltip="Click to cycle status">
+                        {{ emd.status | titlecase }}
+                      </mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let emd">
+                      <button mat-icon-button matTooltip="Edit" (click)="onEditEMD(emd)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button matTooltip="Delete" color="warn" (click)="onDeleteEMD(emd)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="emdColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: emdColumns;"></tr>
+                </table>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Tab 2: Tender Fees -->
+    <mat-tab label="Tender Fees">
+      <div class="tab-content">
+        <div class="tab-actions">
+          <button mat-raised-button color="primary" (click)="showFeeForm() ? onCancelFeeEdit() : showFeeForm.set(true)">
+            <mat-icon>{{ showFeeForm() ? 'close' : 'add' }}</mat-icon>
+            {{ showFeeForm() ? 'Cancel' : 'Add Fee' }}
+          </button>
+        </div>
+
+        @if (showFeeForm()) {
+          <mat-card class="create-form-card">
+            <mat-card-content>
+              <h3 class="section-title">{{ editingFee() ? 'Edit Tender Fee' : 'New Tender Fee' }}</h3>
+              <form [formGroup]="feeForm" (ngSubmit)="onSaveFee()">
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Tender</mat-label>
+                    <mat-select formControlName="tender_id">
+                      @for (tender of tenders(); track tender.id) {
+                        <mat-option [value]="tender.id">{{ tender.title }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Fee Type</mat-label>
+                    <mat-select formControlName="fee_type">
+                      @for (type of feeTypeOptions; track type.value) {
+                        <mat-option [value]="type.value">{{ type.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Amount (INR)</mat-label>
+                    <input matInput type="number" formControlName="amount">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Payment Mode</mat-label>
+                    <input matInput formControlName="payment_mode" placeholder="Online/DD/NEFT">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Payment Reference</mat-label>
+                    <input matInput formControlName="payment_reference">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Payment Date</mat-label>
+                    <input matInput type="date" formControlName="payment_date">
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Notes</mat-label>
+                  <textarea matInput formControlName="notes" rows="2"></textarea>
+                </mat-form-field>
+
+                <div class="form-actions">
+                  <button mat-button type="button" (click)="onCancelFeeEdit()">Cancel</button>
+                  <button mat-raised-button color="primary" type="submit">
+                    <mat-icon>save</mat-icon>
+                    {{ editingFee() ? 'Update Fee' : 'Create Fee' }}
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        <mat-card class="table-card">
+          <mat-card-content>
+            @if (feeLoading()) {
+              <div class="loading-container">
+                <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+                <p>Loading fees...</p>
+              </div>
+            } @else if (fees().length === 0) {
+              <div class="empty-state">
+                <mat-icon>receipt_long</mat-icon>
+                <h3>No fee records</h3>
+                <p>Add tender fees to track your payments</p>
+              </div>
+            } @else {
+              <div class="table-container">
+                <table mat-table [dataSource]="fees()" class="data-table">
+                  <ng-container matColumnDef="tender_name">
+                    <th mat-header-cell *matHeaderCellDef>Tender</th>
+                    <td mat-cell *matCellDef="let fee"><strong>{{ getTenderName(fee.tender_id) }}</strong></td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="fee_type">
+                    <th mat-header-cell *matHeaderCellDef>Fee Type</th>
+                    <td mat-cell *matCellDef="let fee">{{ getFeeTypeLabel(fee.fee_type) }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="amount">
+                    <th mat-header-cell *matHeaderCellDef>Amount</th>
+                    <td mat-cell *matCellDef="let fee" class="amount-cell">{{ formatCurrency(fee.amount) }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="payment_mode">
+                    <th mat-header-cell *matHeaderCellDef>Payment Mode</th>
+                    <td mat-cell *matCellDef="let fee">{{ fee.payment_mode || 'N/A' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="payment_reference">
+                    <th mat-header-cell *matHeaderCellDef>Reference</th>
+                    <td mat-cell *matCellDef="let fee">{{ fee.payment_reference || 'N/A' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Status</th>
+                    <td mat-cell *matCellDef="let fee">
+                      <mat-chip [class]="getEmdStatusClass(fee.status)">{{ fee.status | titlecase }}</mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let fee">
+                      <button mat-icon-button matTooltip="Edit" (click)="onEditFee(fee)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button matTooltip="Delete" color="warn" (click)="onDeleteFee(fee)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="feeColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: feeColumns;"></tr>
+                </table>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

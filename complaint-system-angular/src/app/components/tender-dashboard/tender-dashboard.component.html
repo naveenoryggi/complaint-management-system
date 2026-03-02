@@ -51,7 +51,7 @@
           </div>
         </mat-card>
 
-        <mat-card class="summary-card">
+        <mat-card class="summary-card" (click)="navigateTo('/portal-registrations')">
           <div class="card-icon orange">
             <mat-icon>language</mat-icon>
           </div>
@@ -61,7 +61,7 @@
           </div>
         </mat-card>
 
-        <mat-card class="summary-card">
+        <mat-card class="summary-card" (click)="navigateTo('/oem-management')">
           <div class="card-icon teal">
             <mat-icon>business</mat-icon>
           </div>
@@ -71,7 +71,7 @@
           </div>
         </mat-card>
 
-        <mat-card class="summary-card">
+        <mat-card class="summary-card" (click)="navigateTo('/emd-tracker')">
           <div class="card-icon red">
             <mat-icon>account_balance</mat-icon>
           </div>
@@ -81,6 +81,97 @@
           </div>
         </mat-card>
       </div>
+    }
+
+    <!-- Alerts Section -->
+    @if (expiringDSCs().length > 0 || expiringEMDs().length > 0) {
+      <div class="alerts-section">
+        @if (expiringDSCs().length > 0) {
+          <mat-card class="alert-card dsc-alert">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>warning</mat-icon>
+                DSC Expiry Alerts ({{ expiringDSCs().length }})
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="alert-list">
+                @for (portal of expiringDSCs(); track portal.id) {
+                  <div class="alert-item" (click)="navigateTo('/portal-registrations')"
+                       [class.expired]="isDscExpired(portal.dsc_expiry_date!)"
+                       [class.critical]="isDscCritical(portal.dsc_expiry_date!)">
+                    <div class="alert-info">
+                      <strong>{{ portal.portal_name }}</strong>
+                      <span class="alert-detail">{{ portal.dsc_holder_name || 'No holder' }} - Class {{ portal.dsc_class || 'N/A' }}</span>
+                    </div>
+                    <mat-chip [class.chip-expired]="isDscExpired(portal.dsc_expiry_date!)"
+                              [class.chip-warning]="!isDscExpired(portal.dsc_expiry_date!) && isDscCritical(portal.dsc_expiry_date!)"
+                              [class.chip-caution]="!isDscCritical(portal.dsc_expiry_date!)">
+                      {{ getDscExpiryLabel(portal.dsc_expiry_date!) }}
+                    </mat-chip>
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @if (expiringEMDs().length > 0) {
+          <mat-card class="alert-card emd-alert">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>warning</mat-icon>
+                EMD Validity Alerts ({{ expiringEMDs().length }})
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="alert-list">
+                @for (emd of expiringEMDs(); track emd.id) {
+                  <div class="alert-item" (click)="navigateTo('/emd-tracker')">
+                    <div class="alert-info">
+                      <strong>{{ formatEmdAmount(emd.amount) }}</strong>
+                      <span class="alert-detail">{{ emd.mode | uppercase }} - {{ emd.instrument_number || 'No instrument #' }}</span>
+                    </div>
+                    <mat-chip [class.chip-expired]="getDscExpiryDays(emd.validity_end_date!) < 0"
+                              [class.chip-warning]="getDscExpiryDays(emd.validity_end_date!) >= 0 && getDscExpiryDays(emd.validity_end_date!) <= 7"
+                              [class.chip-caution]="getDscExpiryDays(emd.validity_end_date!) > 7">
+                      {{ getDscExpiryLabel(emd.validity_end_date!) }}
+                    </mat-chip>
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    }
+
+    <!-- Tender Pipeline -->
+    @if (statusDistribution().length > 0) {
+      <mat-card class="pipeline-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>bar_chart</mat-icon>
+            Tender Pipeline ({{ totalTenders() }} total)
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="pipeline-bars">
+            @for (item of statusDistribution(); track item.status) {
+              <div class="pipeline-row" (click)="navigateTo('/tenders')">
+                <div class="pipeline-label">
+                  <mat-icon [style.color]="item.color">{{ item.icon }}</mat-icon>
+                  <span>{{ item.label }}</span>
+                </div>
+                <div class="pipeline-bar-track">
+                  <div class="pipeline-bar-fill" [style.width]="getBarWidth(item.count)" [style.background-color]="item.color"></div>
+                </div>
+                <span class="pipeline-count">{{ item.count }}</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
     }
 
     <!-- Content Row -->
@@ -130,7 +221,7 @@
         </mat-card-header>
         <mat-card-content>
           <div class="quick-actions">
-            <button mat-stroked-button (click)="navigateTo('/tenders/create')">
+            <button mat-stroked-button (click)="navigateTo('/tenders/new')">
               <mat-icon>add_circle</mat-icon>
               New Tender
             </button>

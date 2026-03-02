@@ -384,5 +384,20 @@ export const routes: Routes = [
     loadComponent: () => import('./components/reference-bundles/reference-bundles.component').then(m => m.ReferenceBundlesComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'oem-management',
+    loadComponent: () => import('./components/oem-management/oem-management.component').then(m => m.OemManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'portal-registrations',
+    loadComponent: () => import('./components/portal-registrations/portal-registrations.component').then(m => m.PortalRegistrationsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'emd-tracker',
+    loadComponent: () => import('./components/emd-tracker/emd-tracker.component').then(m => m.EmdTrackerComponent),
+    canActivate: [authGuard]
+  },
   { path: '**', redirectTo: '/login' }
 ];

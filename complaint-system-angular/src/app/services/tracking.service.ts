@@ -47,8 +47,17 @@ export interface EMDRecord {
   amount: number;
   mode: string;
   instrument_number?: string;
+  instrument_date?: string;
+  issuing_bank?: string;
+  validity_start_date?: string;
+  validity_end_date?: string;
+  submitted_date?: string;
+  released_date?: string;
+  release_amount?: number;
   status: string;
+  notes?: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface TenderFee {
@@ -57,8 +66,13 @@ export interface TenderFee {
   fee_type: string;
   amount: number;
   payment_mode?: string;
+  payment_reference?: string;
+  payment_date?: string;
+  receipt_path?: string;
   status: string;
+  notes?: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface DashboardSummary {
@@ -96,6 +110,12 @@ export class TrackingService {
   createOEMRequirement(tenderId: string, data: Partial<OEMTenderRequirement>): Observable<OEMTenderRequirement> {
     return this.http.post<OEMTenderRequirement>(`${this.baseUrl}/oem-requirements/tender/${tenderId}`, data);
   }
+  updateOEMRequirement(reqId: string, data: Partial<OEMTenderRequirement>): Observable<OEMTenderRequirement> {
+    return this.http.put<OEMTenderRequirement>(`${this.baseUrl}/oem-requirements/${reqId}`, data);
+  }
+  deleteOEMRequirement(reqId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/oem-requirements/${reqId}`);
+  }
   listPortals(): Observable<PortalRegistration[]> {
     return this.http.get<PortalRegistration[]>(`${this.baseUrl}/portals`);
   }
@@ -119,6 +139,12 @@ export class TrackingService {
   createEMD(tenderId: string, data: Partial<EMDRecord>): Observable<EMDRecord> {
     return this.http.post<EMDRecord>(`${this.baseUrl}/emd/tender/${tenderId}`, data);
   }
+  updateEMD(emdId: string, data: Partial<EMDRecord>): Observable<EMDRecord> {
+    return this.http.put<EMDRecord>(`${this.baseUrl}/emd/${emdId}`, data);
+  }
+  deleteEMD(emdId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/emd/${emdId}`);
+  }
   listFees(tenderId?: string): Observable<TenderFee[]> {
     let params = new HttpParams();
     if (tenderId) params = params.set('tender_id', tenderId);
@@ -126,5 +152,11 @@ export class TrackingService {
   }
   createFee(tenderId: string, data: Partial<TenderFee>): Observable<TenderFee> {
     return this.http.post<TenderFee>(`${this.baseUrl}/fees/tender/${tenderId}`, data);
+  }
+  updateFee(feeId: string, data: Partial<TenderFee>): Observable<TenderFee> {
+    return this.http.put<TenderFee>(`${this.baseUrl}/fees/${feeId}`, data);
+  }
+  deleteFee(feeId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/fees/${feeId}`);
   }
 }

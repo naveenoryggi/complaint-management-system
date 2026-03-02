@@ -117,6 +117,9 @@ export class ReferenceBundleService {
   createTenderCriteria(tenderId: string, data: Partial<TenderCriteria>): Observable<TenderCriteria> {
     return this.http.post<TenderCriteria>(`${this.baseUrl}/criteria/tender/${tenderId}`, data);
   }
+  deleteTenderCriteria(criteriaId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/criteria/${criteriaId}`);
+  }
   assignBundleToCriteria(data: any): Observable<BundleCriteriaAssignment> {
     return this.http.post<BundleCriteriaAssignment>(`${this.baseUrl}/assignments`, data);
   }
