@@ -2,11 +2,15 @@
 from typing import List
 from uuid import UUID
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status
+from enum import Enum
+import os
+import shutil
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.core.db import get_db
+from app.core.config import settings
 from app.core.security import get_current_user, TokenData
 from app.models.company import CompanyProfile, Certification, Personnel
 from app.schemas.company import (
@@ -22,6 +26,15 @@ from app.schemas.company import (
 )
 
 router = APIRouter()
+
+ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp"}
+
+
+class BrandAssetType(str, Enum):
+    logo = "logo"
+    letterhead = "letterhead"
+    signature = "signature"
+    stamp = "stamp"
 
 
 # ---------------------------------------------------------------------------
@@ -120,6 +133,108 @@ async def update_company_profile(
     await db.commit()
     await db.refresh(profile)
     return profile
+
+
+# ---------------------------------------------------------------------------
+# Brand Assets
+# ---------------------------------------------------------------------------
+
+
+@router.post("/profile/brand-asset/{asset_type}")
+async def upload_brand_asset(
+    asset_type: BrandAssetType,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+):
+    """
+    Upload a brand asset (logo, letterhead, signature, or stamp).
+
+    Saves file to uploads/brand_assets/{tenant_id}/{asset_type}.{ext}
+    and updates the corresponding CompanyProfile field.
+    """
+    result = await db.execute(
+        select(CompanyProfile).where(
+            CompanyProfile.tenant_id == UUID(current_user.tenant_id)
+        )
+    )
+    profile = result.scalar_one_or_none()
+
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Company profile must be created first.",
+        )
+
+    # Validate file extension
+    _, ext = os.path.splitext(file.filename or "")
+    ext = ext.lower()
+    if ext not in ALLOWED_IMAGE_EXTENSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid file type '{ext}'. Allowed: {', '.join(ALLOWED_IMAGE_EXTENSIONS)}",
+        )
+
+    # Create upload directory
+    tenant_dir = os.path.join(settings.upload_dir, "brand_assets", current_user.tenant_id)
+    os.makedirs(tenant_dir, exist_ok=True)
+
+    # Save file
+    filename = f"{asset_type.value}{ext}"
+    file_path = os.path.join(tenant_dir, filename)
+    relative_path = f"brand_assets/{current_user.tenant_id}/{filename}"
+
+    with open(file_path, "wb") as f:
+        content = await file.read()
+        f.write(content)
+
+    # Update profile field
+    path_field = f"{asset_type.value}_path"
+    setattr(profile, path_field, relative_path)
+    profile.updated_at = datetime.utcnow()
+    await db.commit()
+    await db.refresh(profile)
+
+    return {"path": relative_path, "asset_type": asset_type.value}
+
+
+@router.delete("/profile/brand-asset/{asset_type}", status_code=status.HTTP_200_OK)
+async def delete_brand_asset(
+    asset_type: BrandAssetType,
+    db: AsyncSession = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+):
+    """
+    Delete a brand asset and clear the corresponding CompanyProfile field.
+    """
+    result = await db.execute(
+        select(CompanyProfile).where(
+            CompanyProfile.tenant_id == UUID(current_user.tenant_id)
+        )
+    )
+    profile = result.scalar_one_or_none()
+
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Company profile not found",
+        )
+
+    path_field = f"{asset_type.value}_path"
+    current_path = getattr(profile, path_field)
+
+    if current_path:
+        # Delete the file
+        full_path = os.path.join(settings.upload_dir, current_path)
+        if os.path.exists(full_path):
+            os.remove(full_path)
+
+        # Clear the field
+        setattr(profile, path_field, None)
+        profile.updated_at = datetime.utcnow()
+        await db.commit()
+
+    return {"message": f"{asset_type.value} asset deleted", "asset_type": asset_type.value}
 
 
 # ---------------------------------------------------------------------------

@@ -81,6 +81,9 @@ export class CompanyMasterService {
     formData.append('file', file);
     return this.http.post(`${this.baseUrl}/profile/brand-asset/${assetType}`, formData);
   }
+  deleteBrandAsset(assetType: string): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/profile/brand-asset/${assetType}`);
+  }
   listCertifications(): Observable<Certification[]> {
     return this.http.get<Certification[]>(`${this.baseUrl}/certifications`);
   }

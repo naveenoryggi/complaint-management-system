@@ -1,0 +1,215 @@
+<div class="declarations-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>gavel</mat-icon>
+        Declaration Generator
+      </mat-card-title>
+      <mat-card-subtitle>
+        Generate standard or AI-customized Indian tender declarations on company letterhead
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (loading()) {
+        <div class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading declaration types...</p>
+        </div>
+      } @else {
+        <!-- Analysis Banner -->
+        @if (analyzing()) {
+          <div class="analysis-banner analyzing">
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Analyzing tender requirements to identify custom declarations...</span>
+          </div>
+        } @else if (analyzed()) {
+          <div class="analysis-banner analyzed">
+            <mat-icon>auto_awesome</mat-icon>
+            @if (aiRecommendedCount() > 0) {
+              <span>
+                <strong>{{ aiRecommendedCount() }} declaration(s)</strong> need AI customization based on tender requirements.
+                They are marked with <mat-icon class="inline-icon">auto_awesome</mat-icon> below.
+              </span>
+            } @else {
+              <span>All declarations can use <strong>standard templates</strong> — no tender-specific customization needed.</span>
+            }
+            <button mat-stroked-button class="re-analyze-btn" (click)="onAnalyzeTender()">
+              <mat-icon>refresh</mat-icon>
+              Re-analyze
+            </button>
+          </div>
+        } @else if (tenderId()) {
+          <div class="analysis-banner prompt">
+            <mat-icon>lightbulb</mat-icon>
+            <span>Analyze this tender to auto-detect which declarations need custom content.</span>
+            <button mat-raised-button color="accent" (click)="onAnalyzeTender()">
+              <mat-icon>auto_awesome</mat-icon>
+              Analyze Tender
+            </button>
+          </div>
+        }
+
+        <!-- Signatory Fields -->
+        <div class="signatory-row">
+          <mat-form-field appearance="outline" class="signatory-field">
+            <mat-label>Authorized Signatory Name</mat-label>
+            <input matInput [ngModel]="signatoryName()" (ngModelChange)="signatoryName.set($event)"
+                   placeholder="e.g. Rajesh Kumar">
+            <mat-icon matPrefix>person</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="signatory-field">
+            <mat-label>Designation</mat-label>
+            <input matInput [ngModel]="designation()" (ngModelChange)="designation.set($event)"
+                   placeholder="e.g. Managing Director">
+            <mat-icon matPrefix>badge</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Select All -->
+        <div class="select-all-row">
+          <mat-checkbox [checked]="allSelected()"
+                        [indeterminate]="!allSelected() && selectedCount() > 0"
+                        (change)="toggleAll($event.checked)">
+            <strong>Select All ({{ selectedCount() }}/{{ allTypes().length }})</strong>
+          </mat-checkbox>
+          @if (aiSelectedCount() > 0) {
+            <mat-chip class="ai-count-chip">
+              <mat-icon>auto_awesome</mat-icon>
+              {{ aiSelectedCount() }} AI
+            </mat-chip>
+          }
+        </div>
+
+        <!-- Category Groups -->
+        @for (category of categories(); track category.name) {
+          <div class="category-group">
+            <div class="category-header">
+              <mat-checkbox [checked]="isCategoryAllSelected(category.name)"
+                            [indeterminate]="isCategoryPartiallySelected(category.name)"
+                            (change)="toggleCategory(category.name, $event.checked)">
+                <span class="category-label">
+                  <mat-icon>{{ getCategoryIcon(category.name) }}</mat-icon>
+                  {{ category.label }}
+                </span>
+              </mat-checkbox>
+            </div>
+
+            <div class="declaration-list">
+              @for (item of category.items; track item.key) {
+                <div class="declaration-item" [class.ai-recommended]="item.ai_recommended">
+                  <!-- Checkbox -->
+                  <mat-checkbox [checked]="item.selected" (change)="toggleItem(item.key)">
+                    <span class="item-name">{{ item.name }}</span>
+                  </mat-checkbox>
+
+                  <!-- AI recommendation badge -->
+                  @if (item.ai_recommended) {
+                    <mat-chip class="ai-badge" matTooltip="{{ item.reason }}">
+                      <mat-icon>auto_awesome</mat-icon>
+                      Custom
+                    </mat-chip>
+                  }
+
+                  <!-- Description -->
+                  <span class="item-description">{{ item.description }}</span>
+
+                  <!-- Mode toggle -->
+                  @if (analyzed()) {
+                    <mat-slide-toggle
+                      [checked]="item.mode === 'ai'"
+                      (change)="toggleItemMode(item.key)"
+                      [matTooltip]="item.mode === 'ai' ? 'AI-Customized mode' : 'Standard template mode'"
+                      class="mode-toggle">
+                      <span class="mode-label">{{ item.mode === 'ai' ? 'AI' : 'Std' }}</span>
+                    </mat-slide-toggle>
+                  }
+
+                  <!-- Download single -->
+                  <button mat-icon-button
+                          [matTooltip]="'Download (' + (item.mode === 'ai' ? 'AI-customized' : 'standard') + ')'"
+                          (click)="onGenerateSingle(item.key); $event.stopPropagation()"
+                          class="single-download-btn">
+                    <mat-icon>download</mat-icon>
+                  </button>
+                </div>
+
+                <!-- Tender-specific points (shown when AI recommended) -->
+                @if (item.ai_recommended && item.reason) {
+                  <div class="ai-reason-row">
+                    <mat-icon class="reason-icon">info</mat-icon>
+                    <span class="reason-text">{{ item.reason }}</span>
+                  </div>
+                }
+                @if (item.ai_recommended && item.tender_specific_points.length > 0) {
+                  <div class="specific-points">
+                    @for (point of item.tender_specific_points; track point) {
+                      <div class="specific-point">
+                        <mat-icon>chevron_right</mat-icon>
+                        <span>{{ point }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        }
+
+        <mat-divider></mat-divider>
+
+        <!-- Action Buttons -->
+        <div class="action-row">
+          <button mat-raised-button color="primary"
+                  [disabled]="selectedCount() === 0 || generating()"
+                  (click)="onGenerateSelected()">
+            @if (generating()) {
+              <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+              Generating...
+            } @else {
+              <mat-icon>archive</mat-icon>
+              @if (aiSelectedCount() > 0) {
+                Generate {{ selectedCount() }} ({{ selectedCount() - aiSelectedCount() }} Std + {{ aiSelectedCount() }} AI) as ZIP
+              } @else {
+                Generate Selected ({{ selectedCount() }}) as ZIP
+              }
+            }
+          </button>
+        </div>
+
+        @if (generating()) {
+          <mat-progress-bar mode="indeterminate" class="generate-progress"></mat-progress-bar>
+          @if (aiSelectedCount() > 0) {
+            <p class="generate-note">AI-customized declarations take a few seconds each...</p>
+          }
+        }
+
+        <!-- Generated Documents -->
+        @if (generatedDocs().length > 0) {
+          <mat-divider></mat-divider>
+          <h3 class="section-title">Generated Documents</h3>
+          <div class="generated-list">
+            @for (doc of generatedDocs(); track doc.key) {
+              <div class="generated-item">
+                <mat-icon class="doc-icon">description</mat-icon>
+                <span class="doc-name">{{ doc.name }}</span>
+                @if (doc.mode === 'ai') {
+                  <mat-chip class="ai-gen-chip">
+                    <mat-icon>auto_awesome</mat-icon>
+                    AI Custom
+                  </mat-chip>
+                } @else {
+                  <mat-chip class="ready-chip">Standard</mat-chip>
+                }
+                <span class="doc-filename">{{ doc.filename }}</span>
+              </div>
+            }
+          </div>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -255,7 +255,69 @@
         </div>
       </mat-tab>
 
-      <!-- Tab 3: Key Personnel -->
+      <!-- Tab 3: Brand Assets -->
+      <mat-tab label="Brand Assets">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-content>
+              <h3 class="section-title">Brand Assets</h3>
+              <p class="section-description">Upload your company logo, signature, and stamp to include them on generated declarations and documents.</p>
+
+              <div class="brand-assets-grid">
+                @for (asset of brandAssets; track asset.key) {
+                  <div class="brand-asset-card">
+                    <div class="asset-header">
+                      <mat-icon>{{ asset.icon }}</mat-icon>
+                      <span>{{ asset.label }}</span>
+                    </div>
+
+                    <div class="asset-preview">
+                      @if (getAssetPath(asset.key)) {
+                        <div class="asset-uploaded">
+                          <mat-icon class="uploaded-icon">check_circle</mat-icon>
+                          <span class="uploaded-text">Uploaded</span>
+                          <span class="asset-path">{{ getAssetPath(asset.key) }}</span>
+                        </div>
+                      } @else {
+                        <div class="asset-empty">
+                          <mat-icon class="empty-icon">cloud_upload</mat-icon>
+                          <span>No file uploaded</span>
+                        </div>
+                      }
+                    </div>
+
+                    <div class="asset-actions">
+                      <input type="file" [accept]="asset.accept"
+                             (change)="onBrandAssetSelected($event, asset.key)"
+                             [id]="'asset-input-' + asset.key"
+                             class="file-input-hidden">
+
+                      @if (uploadingAsset() === asset.key) {
+                        <mat-spinner diameter="24"></mat-spinner>
+                      } @else {
+                        <button mat-stroked-button color="primary"
+                                (click)="triggerFileInput(asset.key)">
+                          <mat-icon>upload</mat-icon>
+                          {{ getAssetPath(asset.key) ? 'Replace' : 'Upload' }}
+                        </button>
+                      }
+
+                      @if (getAssetPath(asset.key)) {
+                        <button mat-icon-button color="warn" matTooltip="Remove"
+                                (click)="onDeleteBrandAsset(asset.key)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 4: Key Personnel -->
       <mat-tab label="Key Personnel">
         <div class="tab-content">
           <mat-card>

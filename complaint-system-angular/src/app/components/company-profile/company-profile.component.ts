@@ -12,6 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   CompanyMasterService,
   CompanyProfile,
@@ -35,7 +36,8 @@ import {
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    MatChipsModule
+    MatChipsModule,
+    MatTooltipModule
   ],
   templateUrl: './company-profile.component.html',
   styleUrls: ['./company-profile.component.css']
@@ -231,5 +233,70 @@ export class CompanyProfileComponent implements OnInit {
         }
       });
     }
+  }
+
+  // Brand Assets
+  uploadingAsset = signal<string | null>(null);
+
+  brandAssets: { key: string; label: string; icon: string; accept: string }[] = [
+    { key: 'logo', label: 'Company Logo', icon: 'image', accept: 'image/*' },
+    { key: 'letterhead', label: 'Letterhead Template', icon: 'article', accept: 'image/*' },
+    { key: 'signature', label: 'Authorized Signature', icon: 'draw', accept: 'image/*' },
+    { key: 'stamp', label: 'Company Stamp / Seal', icon: 'approval', accept: 'image/*' },
+  ];
+
+  getAssetPath(key: string): string | null | undefined {
+    const p = this.profile();
+    if (!p) return null;
+    const fieldMap: Record<string, string | null | undefined> = {
+      logo: p.logo_path,
+      letterhead: p.letterhead_path,
+      signature: p.signature_path,
+      stamp: p.stamp_path,
+    };
+    return fieldMap[key] ?? null;
+  }
+
+  triggerFileInput(assetKey: string) {
+    const el = window.document.getElementById('asset-input-' + assetKey) as HTMLInputElement;
+    if (el) el.click();
+  }
+
+  onBrandAssetSelected(event: Event, assetType: string) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const file = input.files[0];
+    this.uploadingAsset.set(assetType);
+
+    this.companyService.uploadBrandAsset(assetType, file).subscribe({
+      next: () => {
+        this.uploadingAsset.set(null);
+        this.loadProfile();
+        this.snackBar.open(`${assetType} uploaded successfully`, 'Close', { duration: 3000 });
+      },
+      error: (error) => {
+        console.error(`Error uploading ${assetType}:`, error);
+        this.uploadingAsset.set(null);
+        this.snackBar.open(`Failed to upload ${assetType}`, 'Close', { duration: 3000 });
+      },
+    });
+
+    input.value = '';
+  }
+
+  onDeleteBrandAsset(assetType: string) {
+    if (!confirm(`Remove the ${assetType} image?`)) return;
+
+    this.companyService.deleteBrandAsset(assetType).subscribe({
+      next: () => {
+        this.loadProfile();
+        this.snackBar.open(`${assetType} removed`, 'Close', { duration: 3000 });
+      },
+      error: (error) => {
+        console.error(`Error deleting ${assetType}:`, error);
+        this.snackBar.open(`Failed to remove ${assetType}`, 'Close', { duration: 3000 });
+      },
+    });
   }
 }
