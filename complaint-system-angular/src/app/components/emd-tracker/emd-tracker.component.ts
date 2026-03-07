@@ -118,7 +118,7 @@ export class EmdTrackerComponent implements OnInit {
   loadTenders() {
     this.tenderService.listTenders(1, 200).subscribe({
       next: (response) => this.tenders.set(response.items),
-      error: () => {}
+      error: (err) => { console.error('Error loading tenders:', err); }
     });
   }
 
@@ -130,9 +130,9 @@ export class EmdTrackerComponent implements OnInit {
         this.emds.set(statusFilter ? data.filter(e => e.status === statusFilter) : data);
         this.emdLoading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading EMDs:', error);
-        this.snackBar.open('Failed to load EMD records', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading EMDs:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to load EMD records', 'Close', { duration: 5000 });
         this.emdLoading.set(false);
       }
     });
@@ -145,9 +145,9 @@ export class EmdTrackerComponent implements OnInit {
         this.fees.set(data);
         this.feeLoading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading fees:', error);
-        this.snackBar.open('Failed to load tender fees', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading fees:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to load tender fees', 'Close', { duration: 5000 });
         this.feeLoading.set(false);
       }
     });
@@ -167,9 +167,9 @@ export class EmdTrackerComponent implements OnInit {
         this.loadEMDs();
         this.snackBar.open('EMD record created', 'Close', { duration: 3000 });
       },
-      error: (error) => {
-        console.error('Error creating EMD:', error);
-        this.snackBar.open('Failed to create EMD record', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error creating EMD:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to create EMD record', 'Close', { duration: 5000 });
       }
     });
   }
@@ -204,7 +204,7 @@ export class EmdTrackerComponent implements OnInit {
           this.loadEMDs();
           this.snackBar.open('EMD updated', 'Close', { duration: 3000 });
         },
-        error: () => this.snackBar.open('Failed to update EMD', 'Close', { duration: 3000 })
+        error: (err) => this.snackBar.open(err.error?.detail || 'Failed to update EMD', 'Close', { duration: 5000 })
       });
     } else {
       this.onCreateEMD();
@@ -226,7 +226,7 @@ export class EmdTrackerComponent implements OnInit {
         this.loadEMDs();
         this.snackBar.open(`EMD status changed to ${nextStatus}`, 'Close', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Failed to update status', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to update status', 'Close', { duration: 5000 })
     });
   }
 
@@ -237,9 +237,9 @@ export class EmdTrackerComponent implements OnInit {
           this.loadEMDs();
           this.snackBar.open('EMD record deleted', 'Close', { duration: 3000 });
         },
-        error: (error) => {
-          console.error('Error deleting EMD:', error);
-          this.snackBar.open('Failed to delete EMD', 'Close', { duration: 3000 });
+        error: (err) => {
+          console.error('Error deleting EMD:', err);
+          this.snackBar.open(err.error?.detail || 'Failed to delete EMD', 'Close', { duration: 5000 });
         }
       });
     }
@@ -259,9 +259,9 @@ export class EmdTrackerComponent implements OnInit {
         this.loadFees();
         this.snackBar.open('Tender fee created', 'Close', { duration: 3000 });
       },
-      error: (error) => {
-        console.error('Error creating fee:', error);
-        this.snackBar.open('Failed to create fee', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error creating fee:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to create fee', 'Close', { duration: 5000 });
       }
     });
   }
@@ -294,7 +294,7 @@ export class EmdTrackerComponent implements OnInit {
           this.loadFees();
           this.snackBar.open('Fee updated', 'Close', { duration: 3000 });
         },
-        error: () => this.snackBar.open('Failed to update fee', 'Close', { duration: 3000 })
+        error: (err) => this.snackBar.open(err.error?.detail || 'Failed to update fee', 'Close', { duration: 5000 })
       });
     } else {
       this.onCreateFee();
@@ -314,9 +314,9 @@ export class EmdTrackerComponent implements OnInit {
           this.loadFees();
           this.snackBar.open('Fee record deleted', 'Close', { duration: 3000 });
         },
-        error: (error) => {
-          console.error('Error deleting fee:', error);
-          this.snackBar.open('Failed to delete fee', 'Close', { duration: 3000 });
+        error: (err) => {
+          console.error('Error deleting fee:', err);
+          this.snackBar.open(err.error?.detail || 'Failed to delete fee', 'Close', { duration: 5000 });
         }
       });
     }

@@ -123,9 +123,9 @@ export class TenderListComponent implements OnInit {
         this.loading.set(false);
         this.loadComplianceScores(response.items);
       },
-      error: (error) => {
-        console.error('Error loading tenders:', error);
-        this.snackBar.open('Failed to load tenders', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading tenders:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to load tenders', 'Close', { duration: 5000 });
         this.loading.set(false);
       }
     });
@@ -171,9 +171,9 @@ export class TenderListComponent implements OnInit {
           });
         this.loadTenders();
       },
-      error: (error) => {
-        console.error('Error cloning tender:', error);
-        this.snackBar.open('Failed to clone tender', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error cloning tender:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to clone tender', 'Close', { duration: 5000 });
       }
     });
   }
@@ -185,9 +185,9 @@ export class TenderListComponent implements OnInit {
           this.snackBar.open('Tender deleted successfully', 'Close', { duration: 3000 });
           this.loadTenders();
         },
-        error: (error) => {
-          console.error('Error deleting tender:', error);
-          this.snackBar.open('Failed to delete tender', 'Close', { duration: 3000 });
+        error: (err) => {
+          console.error('Error deleting tender:', err);
+          this.snackBar.open(err.error?.detail || 'Failed to delete tender', 'Close', { duration: 5000 });
         }
       });
     }
@@ -298,7 +298,7 @@ export class TenderListComponent implements OnInit {
         scores.forEach(s => map.set(s.tender_id, s));
         this.complianceScores.set(map);
       },
-      error: () => {}
+      error: (err) => { console.error('Error loading compliance scores:', err); }
     });
   }
 

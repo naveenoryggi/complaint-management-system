@@ -102,9 +102,9 @@ export class ComplianceTabComponent implements OnInit {
         this.compliance.set(data);
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading compliance:', error);
-        this.snackBar.open('Failed to load compliance check', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading compliance:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to load compliance check', 'Close', { duration: 5000 });
         this.loading.set(false);
       }
     });
@@ -154,7 +154,7 @@ export class ComplianceTabComponent implements OnInit {
     this.kbSuggestionsLoading.set(true);
     this.kbService.getSuggestions({ category: 'technical_response', tender_id: id, limit: 10 }).subscribe({
       next: (items) => { this.kbSuggestions.set(items); this.kbSuggestionsLoading.set(false); },
-      error: () => { this.kbSuggestionsLoading.set(false); }
+      error: (err) => { console.error('Error loading KB suggestions:', err); this.kbSuggestionsLoading.set(false); }
     });
   }
 
@@ -188,7 +188,7 @@ export class ComplianceTabComponent implements OnInit {
       },
       error: (err) => {
         this.alignmentLoading.set(false);
-        this.snackBar.open('Alignment check failed', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Alignment check failed', 'Close', { duration: 5000 });
       }
     });
   }
@@ -236,9 +236,9 @@ export class ComplianceTabComponent implements OnInit {
           this.snackBar.open('No KB suggestions found for compliance', 'Close', { duration: 3000 });
         }
       },
-      error: () => {
+      error: (err) => {
         this.autoFillLoading.set(false);
-        this.snackBar.open('Failed to load auto-fill suggestions', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to load auto-fill suggestions', 'Close', { duration: 5000 });
       }
     });
   }
@@ -291,7 +291,7 @@ export class ComplianceTabComponent implements OnInit {
     if (!id) return;
     this.tenderService.getRiskSummary(id).subscribe({
       next: (summary) => this.riskSummary.set(summary),
-      error: () => {}
+      error: (err) => { console.error('Error loading risk summary:', err); }
     });
   }
 
@@ -339,7 +339,7 @@ export class ComplianceTabComponent implements OnInit {
     this.matrixLoading.set(true);
     this.tenderService.getComplianceMatrix(id).subscribe({
       next: (items) => { this.matrixItems.set(items); this.matrixLoading.set(false); this.loadMatrixSummary(); },
-      error: () => { this.matrixLoading.set(false); }
+      error: (err) => { console.error('Error loading compliance matrix:', err); this.matrixLoading.set(false); }
     });
   }
 
@@ -348,7 +348,7 @@ export class ComplianceTabComponent implements OnInit {
     if (!id) return;
     this.tenderService.getComplianceMatrixSummary(id).subscribe({
       next: (summary) => this.matrixSummary.set(summary),
-      error: () => {}
+      error: (err) => { console.error('Error loading matrix summary:', err); }
     });
   }
 
@@ -378,7 +378,7 @@ export class ComplianceTabComponent implements OnInit {
         this.matrixItems.set(this.matrixItems().map(i => i.id === item.id ? updated : i));
         this.loadMatrixSummary();
       },
-      error: () => this.snackBar.open('Failed to update status', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to update status', 'Close', { duration: 5000 })
     });
   }
 
@@ -390,7 +390,7 @@ export class ComplianceTabComponent implements OnInit {
         this.snackBar.open('Item deleted', 'Close', { duration: 3000 });
         this.loadMatrixSummary();
       },
-      error: () => this.snackBar.open('Failed to delete', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to delete', 'Close', { duration: 5000 })
     });
   }
 

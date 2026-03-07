@@ -199,11 +199,11 @@ export class TenderDetailComponent implements OnInit {
   loadEmdAndFees(tenderId: string) {
     this.trackingService.listEMDs(tenderId).subscribe({
       next: (records) => this.emdRecords.set(records),
-      error: () => {} // silent — not critical
+      error: (err) => { console.error('Error loading EMD records:', err); }
     });
     this.trackingService.listFees(tenderId).subscribe({
       next: (records) => this.feeRecords.set(records),
-      error: () => {}
+      error: (err) => { console.error('Error loading fee records:', err); }
     });
   }
 
@@ -216,7 +216,7 @@ export class TenderDetailComponent implements OnInit {
             this.company.set(response.data);
           }
         },
-        error: () => {}
+        error: (err) => { console.error('Error loading company settings:', err); }
       });
     }
   }
@@ -247,9 +247,9 @@ export class TenderDetailComponent implements OnInit {
           'bi-file-earmark-text'
         );
       },
-      error: (error) => {
-        console.error('Error loading tender:', error);
-        this.snackBar.open('Failed to load tender', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading tender:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to load tender', 'Close', { duration: 5000 });
         this.loading.set(false);
         this.router.navigate(['/tenders']);
       }
@@ -264,9 +264,9 @@ export class TenderDetailComponent implements OnInit {
         this.documents.set(docs);
         this.documentsLoading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading documents:', error);
-        this.snackBar.open('Failed to load documents', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading documents:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to load documents', 'Close', { duration: 5000 });
         this.documentsLoading.set(false);
       }
     });
@@ -304,9 +304,9 @@ export class TenderDetailComponent implements OnInit {
           });
         this.router.navigate(['/tenders', newTender.id]);
       },
-      error: (error) => {
-        console.error('Error cloning tender:', error);
-        this.snackBar.open('Failed to clone tender', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error cloning tender:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to clone tender', 'Close', { duration: 5000 });
       }
     });
   }
@@ -319,9 +319,9 @@ export class TenderDetailComponent implements OnInit {
           this.snackBar.open('Tender deleted successfully', 'Close', { duration: 3000 });
           this.router.navigate(['/tenders']);
         },
-        error: (error) => {
-          console.error('Error deleting tender:', error);
-          this.snackBar.open('Failed to delete tender', 'Close', { duration: 3000 });
+        error: (err) => {
+          console.error('Error deleting tender:', err);
+          this.snackBar.open(err.error?.detail || 'Failed to delete tender', 'Close', { duration: 5000 });
         }
       });
     }
@@ -363,11 +363,11 @@ export class TenderDetailComponent implements OnInit {
               this.loadDocuments(tender.id);
             }
           },
-          error: (error) => {
-            console.error(`Error associating document ${doc.name}:`, error);
+          error: (err) => {
+            console.error(`Error associating document ${doc.name}:`, err);
             completed++;
             if (completed === total) {
-              this.snackBar.open('Some documents failed to associate', 'Close', { duration: 3000 });
+              this.snackBar.open(err.error?.detail || 'Some documents failed to associate', 'Close', { duration: 5000 });
               this.loadDocuments(tender.id);
             }
           }
@@ -390,9 +390,9 @@ export class TenderDetailComponent implements OnInit {
         const url = window.URL.createObjectURL(blob);
         window.open(url, '_blank');
       },
-      error: (error) => {
-        console.error('Error previewing document:', error);
-        this.snackBar.open('Failed to preview document', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error previewing document:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to preview document', 'Close', { duration: 5000 });
       }
     });
   }
@@ -411,9 +411,9 @@ export class TenderDetailComponent implements OnInit {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       },
-      error: (error) => {
-        console.error('Error downloading document:', error);
-        this.snackBar.open('Failed to download document', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error downloading document:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to download document', 'Close', { duration: 5000 });
       }
     });
   }
@@ -426,9 +426,9 @@ export class TenderDetailComponent implements OnInit {
           this.snackBar.open('Document removed', 'Close', { duration: 3000 });
           this.loadDocuments(tender.id);
         },
-        error: (error) => {
-          console.error('Error removing document:', error);
-          this.snackBar.open('Failed to remove document', 'Close', { duration: 3000 });
+        error: (err) => {
+          console.error('Error removing document:', err);
+          this.snackBar.open(err.error?.detail || 'Failed to remove document', 'Close', { duration: 5000 });
         }
       });
     }
@@ -456,10 +456,10 @@ export class TenderDetailComponent implements OnInit {
         this.savingOrder.set(false);
         this.snackBar.open('Document order saved', 'Close', { duration: 3000 });
       },
-      error: (error) => {
-        console.error('Error saving order:', error);
+      error: (err) => {
+        console.error('Error saving order:', err);
         this.savingOrder.set(false);
-        this.snackBar.open('Failed to save order', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to save order', 'Close', { duration: 5000 });
       }
     });
   }
@@ -513,10 +513,10 @@ export class TenderDetailComponent implements OnInit {
           this.downloadFile(response.file_path);
         });
       },
-      error: (error) => {
-        console.error('Error exporting package:', error);
+      error: (err) => {
+        console.error('Error exporting package:', err);
         this.snackBar.dismiss();
-        this.snackBar.open('Failed to export package', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to export package', 'Close', { duration: 5000 });
       }
     });
   }
@@ -551,10 +551,10 @@ export class TenderDetailComponent implements OnInit {
           this.downloadFile(response.file_path);
         });
       },
-      error: (error) => {
-        console.error('Error merging PDFs:', error);
+      error: (err) => {
+        console.error('Error merging PDFs:', err);
         this.snackBar.dismiss();
-        this.snackBar.open('Failed to merge PDFs', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to merge PDFs', 'Close', { duration: 5000 });
       }
     });
   }
@@ -576,9 +576,9 @@ export class TenderDetailComponent implements OnInit {
           window.URL.revokeObjectURL(url);
           document.body.removeChild(a);
         },
-        error: (error) => {
-          console.error('Error downloading file:', error);
-          this.snackBar.open('Failed to download file', 'Close', { duration: 3000 });
+        error: (err) => {
+          console.error('Error downloading file:', err);
+          this.snackBar.open(err.error?.detail || 'Failed to download file', 'Close', { duration: 5000 });
         }
       });
     }
@@ -710,7 +710,7 @@ export class TenderDetailComponent implements OnInit {
                   );
                 }
               },
-              error: () => {}
+              error: (err) => { console.error('Error auto-harvesting KB:', err); }
             });
           }
         },
@@ -731,7 +731,7 @@ export class TenderDetailComponent implements OnInit {
         this.statusHistory.set(history);
         this.showStatusHistory.set(true);
       },
-      error: () => this.snackBar.open('Failed to load status history', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to load status history', 'Close', { duration: 5000 })
     });
   }
 
@@ -745,9 +745,9 @@ export class TenderDetailComponent implements OnInit {
         this.bidNoBidResult.set(result);
         this.bidNoBidLoading.set(false);
       },
-      error: () => {
+      error: (err) => {
         this.bidNoBidLoading.set(false);
-        this.snackBar.open('Bid analysis failed', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Bid analysis failed', 'Close', { duration: 5000 });
       }
     });
   }
@@ -967,7 +967,7 @@ export class TenderDetailComponent implements OnInit {
   loadCorrigendums(tenderId: string) {
     this.tenderService.getCorrigendums(tenderId).subscribe({
       next: (list) => this.corrigendums.set(list),
-      error: () => {}
+      error: (err) => { console.error('Error loading corrigendums:', err); }
     });
   }
 
@@ -1021,7 +1021,7 @@ export class TenderDetailComponent implements OnInit {
         this.corrigendums.set(this.corrigendums().filter(c => c.id !== corrigendum.id));
         this.snackBar.open('Corrigendum deleted', 'Close', { duration: 3000 });
       },
-      error: () => this.snackBar.open('Failed to delete', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to delete corrigendum', 'Close', { duration: 5000 })
     });
   }
 
@@ -1053,7 +1053,7 @@ export class TenderDetailComponent implements OnInit {
   loadMilestones(tenderId: string) {
     this.tenderService.getMilestones(tenderId).subscribe({
       next: (list) => this.milestones.set(list),
-      error: () => {}
+      error: (err) => { console.error('Error loading milestones:', err); }
     });
   }
 
@@ -1083,7 +1083,7 @@ export class TenderDetailComponent implements OnInit {
       next: (updated) => {
         this.milestones.set(this.milestones().map(m => m.id === milestone.id ? updated : m));
       },
-      error: () => this.snackBar.open('Failed to update milestone', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to update milestone', 'Close', { duration: 5000 })
     });
   }
 
@@ -1094,7 +1094,7 @@ export class TenderDetailComponent implements OnInit {
         this.milestones.set(this.milestones().filter(m => m.id !== milestone.id));
         this.snackBar.open('Milestone deleted', 'Close', { duration: 3000 });
       },
-      error: () => this.snackBar.open('Failed to delete', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to delete milestone', 'Close', { duration: 5000 })
     });
   }
 

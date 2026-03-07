@@ -90,7 +90,7 @@ export class TenderFormComponent implements OnInit {
           this.portalOptions = [...portalNames, ...this.defaultPortals.filter(d => !portalNames.includes(d))];
         }
       },
-      error: () => {} // Silently fall back to defaults
+      error: (err) => { console.error('Error loading portal names:', err); } // Fall back to defaults
     });
   }
 
@@ -137,9 +137,9 @@ export class TenderFormComponent implements OnInit {
         });
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading tender:', error);
-        this.snackBar.open('Failed to load tender', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading tender:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to load tender', 'Close', { duration: 5000 });
         this.loading.set(false);
         this.router.navigate(['/tenders']);
       }
@@ -327,9 +327,9 @@ export class TenderFormComponent implements OnInit {
             this.snackBar.open('Tender updated successfully', 'Close', { duration: 3000 });
             this.router.navigate(['/tenders', tender.id]);
           },
-          error: (error) => {
-            console.error('Error updating tender:', error);
-            this.snackBar.open('Failed to update tender', 'Close', { duration: 3000 });
+          error: (err) => {
+            console.error('Error updating tender:', err);
+            this.snackBar.open(err.error?.detail || 'Failed to update tender', 'Close', { duration: 5000 });
             this.loading.set(false);
           }
         });
@@ -359,7 +359,8 @@ export class TenderFormComponent implements OnInit {
                   this.snackBar.open('Tender created with full extraction applied', 'Close', { duration: 3000 });
                   this.router.navigate(['/tenders', tender.id]);
                 },
-                error: () => {
+                error: (err) => {
+                  console.error('Error applying extraction:', err);
                   this.loading.set(false);
                   this.snackBar.open('Tender created (extraction apply failed — run manually from workspace)', 'Close', { duration: 5000 });
                   this.router.navigate(['/tenders', tender.id]);
@@ -371,9 +372,9 @@ export class TenderFormComponent implements OnInit {
               this.router.navigate(['/tenders', tender.id]);
             }
           },
-          error: (error) => {
-            console.error('Error creating tender:', error);
-            this.snackBar.open('Failed to create tender', 'Close', { duration: 3000 });
+          error: (err) => {
+            console.error('Error creating tender:', err);
+            this.snackBar.open(err.error?.detail || 'Failed to create tender', 'Close', { duration: 5000 });
             this.loading.set(false);
           }
         });

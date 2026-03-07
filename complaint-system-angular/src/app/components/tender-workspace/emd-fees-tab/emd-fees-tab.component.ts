@@ -104,11 +104,11 @@ export class EmdFeesTabComponent implements OnInit {
         this.emds.set(data);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: (err) => { console.error('Error loading EMDs:', err); this.loading.set(false); }
     });
     this.trackingService.listFees(this.tenderId).subscribe({
       next: (data) => this.fees.set(data),
-      error: () => {}
+      error: (err) => { console.error('Error loading fees:', err); }
     });
   }
 
@@ -121,7 +121,7 @@ export class EmdFeesTabComponent implements OnInit {
         this.loadData();
         this.snackBar.open('EMD created', 'Close', { duration: 3000 });
       },
-      error: () => this.snackBar.open('Failed to create EMD', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to create EMD', 'Close', { duration: 5000 })
     });
   }
 
@@ -129,7 +129,7 @@ export class EmdFeesTabComponent implements OnInit {
     if (confirm('Delete this EMD record?')) {
       this.trackingService.deleteEMD(emd.id).subscribe({
         next: () => { this.loadData(); this.snackBar.open('EMD deleted', 'Close', { duration: 3000 }); },
-        error: () => this.snackBar.open('Failed to delete', 'Close', { duration: 3000 })
+        error: (err) => this.snackBar.open(err.error?.detail || 'Failed to delete EMD', 'Close', { duration: 5000 })
       });
     }
   }
@@ -143,7 +143,7 @@ export class EmdFeesTabComponent implements OnInit {
         this.loadData();
         this.snackBar.open('Fee created', 'Close', { duration: 3000 });
       },
-      error: () => this.snackBar.open('Failed to create fee', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to create fee', 'Close', { duration: 5000 })
     });
   }
 
@@ -151,7 +151,7 @@ export class EmdFeesTabComponent implements OnInit {
     if (confirm('Delete this fee record?')) {
       this.trackingService.deleteFee(fee.id).subscribe({
         next: () => { this.loadData(); this.snackBar.open('Fee deleted', 'Close', { duration: 3000 }); },
-        error: () => this.snackBar.open('Failed to delete', 'Close', { duration: 3000 })
+        error: (err) => this.snackBar.open(err.error?.detail || 'Failed to delete fee', 'Close', { duration: 5000 })
       });
     }
   }

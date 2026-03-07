@@ -96,7 +96,7 @@ export class PrebidQueriesTabComponent implements OnInit {
         this.tenderTitle.set(tender.title);
         this.tenderReference.set(tender.reference_number || '');
       },
-      error: () => {}
+      error: (err) => { console.error('Error loading tender info:', err); }
     });
   }
 
@@ -114,7 +114,7 @@ export class PrebidQueriesTabComponent implements OnInit {
       },
       error: (err) => {
         this.generating.set(false);
-        this.snackBar.open('Failed to generate queries', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to generate queries', 'Close', { duration: 5000 });
       }
     });
   }
@@ -136,9 +136,9 @@ export class PrebidQueriesTabComponent implements OnInit {
         document.body.removeChild(a);
         this.snackBar.open('Pre-bid queries exported', 'Close', { duration: 3000 });
       },
-      error: () => {
+      error: (err) => {
         this.exporting.set(false);
-        this.snackBar.open('Failed to export', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to export', 'Close', { duration: 5000 });
       }
     });
   }
@@ -233,7 +233,7 @@ export class PrebidQueriesTabComponent implements OnInit {
       },
       error: (err) => {
         this.suggestingIndex.set(null);
-        this.snackBar.open('Failed to generate suggestion', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to generate suggestion', 'Close', { duration: 5000 });
       }
     });
   }

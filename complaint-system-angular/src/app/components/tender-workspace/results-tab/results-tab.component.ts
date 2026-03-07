@@ -104,7 +104,8 @@ export class ResultsTabComponent implements OnInit {
           }
           this.loading.set(false);
         },
-        error: () => {
+        error: (err: any) => {
+          console.error('Error loading tender result:', err);
           this.result.set(null);
           this.loading.set(false);
         },
@@ -131,8 +132,8 @@ export class ResultsTabComponent implements OnInit {
         this.loading.set(false);
         this.snackBar.open('Result saved successfully.', 'Close', { duration: 2500 });
       },
-      error: () => {
-        this.snackBar.open('Failed to save result.', 'Close', { duration: 3000 });
+      error: (err: any) => {
+        this.snackBar.open(err.error?.detail || 'Failed to save result.', 'Close', { duration: 5000 });
         this.loading.set(false);
       },
     });

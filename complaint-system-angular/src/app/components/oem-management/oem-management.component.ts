@@ -108,9 +108,9 @@ export class OemManagementComponent implements OnInit {
         this.oems.set(data);
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading OEMs:', error);
-        this.snackBar.open('Failed to load OEMs', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading OEMs:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to load OEMs', 'Close', { duration: 5000 });
         this.loading.set(false);
       }
     });
@@ -119,7 +119,7 @@ export class OemManagementComponent implements OnInit {
   loadTenders() {
     this.tenderService.listTenders(1, 100).subscribe({
       next: (response) => this.tenders.set(response.items),
-      error: () => {}
+      error: (err) => { console.error('Error loading tenders:', err); }
     });
   }
 
@@ -133,9 +133,9 @@ export class OemManagementComponent implements OnInit {
         this.requirements.set(data);
         this.requirementsLoading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading requirements:', error);
-        this.snackBar.open('Failed to load OEM requirements', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading requirements:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to load OEM requirements', 'Close', { duration: 5000 });
         this.requirementsLoading.set(false);
       }
     });
@@ -164,9 +164,9 @@ export class OemManagementComponent implements OnInit {
         this.loadOEMs();
         this.snackBar.open('OEM created successfully', 'Close', { duration: 3000 });
       },
-      error: (error) => {
-        console.error('Error creating OEM:', error);
-        this.snackBar.open('Failed to create OEM', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error creating OEM:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to create OEM', 'Close', { duration: 5000 });
       }
     });
   }
@@ -205,9 +205,9 @@ export class OemManagementComponent implements OnInit {
           this.loadOEMs();
           this.snackBar.open('OEM updated successfully', 'Close', { duration: 3000 });
         },
-        error: (error) => {
-          console.error('Error updating OEM:', error);
-          this.snackBar.open('Failed to update OEM', 'Close', { duration: 3000 });
+        error: (err) => {
+          console.error('Error updating OEM:', err);
+          this.snackBar.open(err.error?.detail || 'Failed to update OEM', 'Close', { duration: 5000 });
         }
       });
     } else {
@@ -228,9 +228,9 @@ export class OemManagementComponent implements OnInit {
           this.loadOEMs();
           this.snackBar.open('OEM deleted', 'Close', { duration: 3000 });
         },
-        error: (error) => {
-          console.error('Error deleting OEM:', error);
-          this.snackBar.open('Failed to delete OEM', 'Close', { duration: 3000 });
+        error: (err) => {
+          console.error('Error deleting OEM:', err);
+          this.snackBar.open(err.error?.detail || 'Failed to delete OEM', 'Close', { duration: 5000 });
         }
       });
     }
@@ -250,9 +250,9 @@ export class OemManagementComponent implements OnInit {
         this.loadRequirements();
         this.snackBar.open('OEM requirement added', 'Close', { duration: 3000 });
       },
-      error: (error) => {
-        console.error('Error creating requirement:', error);
-        this.snackBar.open('Failed to add requirement', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error creating requirement:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to add requirement', 'Close', { duration: 5000 });
       }
     });
   }

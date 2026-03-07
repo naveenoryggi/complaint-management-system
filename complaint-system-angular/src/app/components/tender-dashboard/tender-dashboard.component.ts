@@ -89,9 +89,9 @@ export class TenderDashboardComponent implements OnInit {
         this.summary.set(data);
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading dashboard:', error);
-        this.snackBar.open('Failed to load dashboard summary', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading dashboard:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to load dashboard summary', 'Close', { duration: 5000 });
         this.loading.set(false);
       }
     });
@@ -124,7 +124,7 @@ export class TenderDashboardComponent implements OnInit {
           this.averageReadiness.set(Math.round(avg));
         }
       },
-      error: () => {}
+      error: (err) => { console.error('Error loading compliance scores:', err); }
     });
   }
 
@@ -199,7 +199,7 @@ export class TenderDashboardComponent implements OnInit {
         });
         this.expiringDSCs.set(expiring);
       },
-      error: () => {}
+      error: (err) => { console.error('Error loading portal registrations:', err); }
     });
 
     // Load EMD validity alerts
@@ -218,7 +218,7 @@ export class TenderDashboardComponent implements OnInit {
         });
         this.expiringEMDs.set(expiring);
       },
-      error: () => {}
+      error: (err) => { console.error('Error loading EMD records:', err); }
     });
   }
 
@@ -264,7 +264,7 @@ export class TenderDashboardComponent implements OnInit {
 
         this.statusDistribution.set(distribution);
       },
-      error: () => {}
+      error: (err) => { console.error('Error loading status distribution:', err); }
     });
   }
 
@@ -283,7 +283,7 @@ export class TenderDashboardComponent implements OnInit {
   loadKBStats() {
     this.kbService.getDashboardStats().subscribe({
       next: (stats) => this.kbStats.set(stats),
-      error: () => {}
+      error: (err) => { console.error('Error loading KB stats:', err); }
     });
   }
 

@@ -604,8 +604,11 @@
               @if (showAddCorrigendum()) {
                 <div class="corr-add-form">
                   <mat-form-field appearance="outline" class="corr-field-title">
-                    <mat-label>Title</mat-label>
-                    <input matInput [ngModel]="newCorrigendum().title" (ngModelChange)="updateNewCorrigendumField('title', $event)" placeholder="e.g., Corrigendum-1: Extension of deadline">
+                    <mat-label>Title *</mat-label>
+                    <input matInput required [ngModel]="newCorrigendum().title" (ngModelChange)="updateNewCorrigendumField('title', $event)" placeholder="e.g., Corrigendum-1: Extension of deadline" #corrTitle="ngModel">
+                    @if (corrTitle.invalid && corrTitle.touched) {
+                      <mat-error>Title is required</mat-error>
+                    }
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="corr-field-summary">
                     <mat-label>Summary</mat-label>
@@ -756,14 +759,20 @@
                       </mat-select>
                     </mat-form-field>
                     <mat-form-field appearance="outline" class="ms-field-label">
-                      <mat-label>Label</mat-label>
-                      <input matInput [ngModel]="newMilestone().label" (ngModelChange)="updateNewMilestoneField('label', $event)" placeholder="e.g., Pre-Bid Meeting">
+                      <mat-label>Label *</mat-label>
+                      <input matInput required [ngModel]="newMilestone().label" (ngModelChange)="updateNewMilestoneField('label', $event)" placeholder="e.g., Pre-Bid Meeting" #msLabel="ngModel">
+                      @if (msLabel.invalid && msLabel.touched) {
+                        <mat-error>Label is required</mat-error>
+                      }
                     </mat-form-field>
                   </div>
                   <div class="ms-form-row">
                     <mat-form-field appearance="outline" class="ms-field-date">
-                      <mat-label>Date</mat-label>
-                      <input matInput type="date" [ngModel]="newMilestone().event_date" (ngModelChange)="updateNewMilestoneField('event_date', $event)">
+                      <mat-label>Date *</mat-label>
+                      <input matInput type="date" required [ngModel]="newMilestone().event_date" (ngModelChange)="updateNewMilestoneField('event_date', $event)" #msDate="ngModel">
+                      @if (msDate.invalid && msDate.touched) {
+                        <mat-error>Date is required</mat-error>
+                      }
                     </mat-form-field>
                     <mat-form-field appearance="outline" class="ms-field-time">
                       <mat-label>Time</mat-label>
@@ -774,7 +783,7 @@
                       <input matInput [ngModel]="newMilestone().location" (ngModelChange)="updateNewMilestoneField('location', $event)">
                     </mat-form-field>
                   </div>
-                  <button mat-raised-button color="primary" (click)="onAddMilestone()" [disabled]="!newMilestone().label">
+                  <button mat-raised-button color="primary" (click)="onAddMilestone()" [disabled]="!newMilestone().label || !newMilestone().event_date">
                     <mat-icon>save</mat-icon> Save Milestone
                   </button>
                 </div>

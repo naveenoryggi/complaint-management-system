@@ -167,14 +167,14 @@ export class BidPreparationTabComponent implements OnInit {
         this.complianceLoading.set(false);
         this.loadComplianceSummary();
       },
-      error: () => { this.complianceLoading.set(false); }
+      error: (err) => { console.error('Error loading compliance matrix:', err); this.complianceLoading.set(false); }
     });
   }
 
   loadComplianceSummary() {
     this.tenderService.getComplianceMatrixSummary(this.tenderId()).subscribe({
       next: (s) => this.complianceSummary.set(s),
-      error: () => {}
+      error: (err) => { console.error('Error loading compliance summary:', err); }
     });
   }
 
@@ -186,14 +186,14 @@ export class BidPreparationTabComponent implements OnInit {
         this.loadComplianceMatrix();
         this.snackBar.open('Clause added', 'Close', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Failed to add clause', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to add clause', 'Close', { duration: 5000 })
     });
   }
 
   updateComplianceStatus(item: TechnicalComplianceItem, newStatus: string) {
     this.tenderService.updateComplianceItem(item.id, { compliance_status: newStatus as any }).subscribe({
       next: () => this.loadComplianceMatrix(),
-      error: () => this.snackBar.open('Failed to update', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to update', 'Close', { duration: 5000 })
     });
   }
 
@@ -201,7 +201,7 @@ export class BidPreparationTabComponent implements OnInit {
     if (confirm(`Remove clause "${item.clause_number}"?`)) {
       this.tenderService.deleteComplianceItem(item.id).subscribe({
         next: () => this.loadComplianceMatrix(),
-        error: () => this.snackBar.open('Failed to delete', 'Close', { duration: 3000 })
+        error: (err) => this.snackBar.open(err.error?.detail || 'Failed to delete', 'Close', { duration: 5000 })
       });
     }
   }
@@ -219,14 +219,14 @@ export class BidPreparationTabComponent implements OnInit {
         this.boqLoading.set(false);
         this.loadBoQSummary();
       },
-      error: () => { this.boqLoading.set(false); }
+      error: (err) => { console.error('Error loading BoQ items:', err); this.boqLoading.set(false); }
     });
   }
 
   loadBoQSummary() {
     this.tenderService.getBoQSummary(this.tenderId()).subscribe({
       next: (s) => this.boqSummary.set(s),
-      error: () => {}
+      error: (err) => { console.error('Error loading BoQ summary:', err); }
     });
   }
 
@@ -238,7 +238,7 @@ export class BidPreparationTabComponent implements OnInit {
         this.loadBoQ();
         this.snackBar.open('BoQ item added', 'Close', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Failed to add item', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to add item', 'Close', { duration: 5000 })
     });
   }
 
@@ -246,7 +246,7 @@ export class BidPreparationTabComponent implements OnInit {
     if (confirm(`Remove "${item.description}"?`)) {
       this.tenderService.deleteBoQItem(item.id).subscribe({
         next: () => this.loadBoQ(),
-        error: () => this.snackBar.open('Failed to delete', 'Close', { duration: 3000 })
+        error: (err) => this.snackBar.open(err.error?.detail || 'Failed to delete', 'Close', { duration: 5000 })
       });
     }
   }
@@ -256,7 +256,7 @@ export class BidPreparationTabComponent implements OnInit {
     this.milestonesLoading.set(true);
     this.tenderService.getMilestones(this.tenderId()).subscribe({
       next: (m) => { this.milestones.set(m); this.milestonesLoading.set(false); },
-      error: () => { this.milestonesLoading.set(false); }
+      error: (err) => { console.error('Error loading milestones:', err); this.milestonesLoading.set(false); }
     });
   }
 
@@ -268,14 +268,14 @@ export class BidPreparationTabComponent implements OnInit {
         this.loadMilestones();
         this.snackBar.open('Milestone added', 'Close', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Failed to add milestone', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to add milestone', 'Close', { duration: 5000 })
     });
   }
 
   toggleMilestoneComplete(m: TenderMilestone) {
     this.tenderService.updateMilestone(m.id, { is_completed: !m.is_completed }).subscribe({
       next: () => this.loadMilestones(),
-      error: () => {}
+      error: (err) => { console.error('Error toggling milestone:', err); }
     });
   }
 
@@ -283,7 +283,7 @@ export class BidPreparationTabComponent implements OnInit {
     if (confirm(`Remove "${m.label}"?`)) {
       this.tenderService.deleteMilestone(m.id).subscribe({
         next: () => this.loadMilestones(),
-        error: () => this.snackBar.open('Failed to delete', 'Close', { duration: 3000 })
+        error: (err) => this.snackBar.open(err.error?.detail || 'Failed to delete', 'Close', { duration: 5000 })
       });
     }
   }
@@ -319,7 +319,7 @@ export class BidPreparationTabComponent implements OnInit {
     this.corrigendumLoading.set(true);
     this.tenderService.getCorrigendums(this.tenderId()).subscribe({
       next: (c) => { this.corrigendums.set(c); this.corrigendumLoading.set(false); },
-      error: () => { this.corrigendumLoading.set(false); }
+      error: (err) => { console.error('Error loading corrigendums:', err); this.corrigendumLoading.set(false); }
     });
   }
 
@@ -332,14 +332,14 @@ export class BidPreparationTabComponent implements OnInit {
         this.loadCorrigendums();
         this.snackBar.open('Corrigendum added', 'Close', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Failed to add corrigendum', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to add corrigendum', 'Close', { duration: 5000 })
     });
   }
 
   acknowledgeCorrigendum(c: TenderCorrigendum) {
     this.tenderService.updateCorrigendum(c.id, { is_acknowledged: true }).subscribe({
       next: () => this.loadCorrigendums(),
-      error: () => {}
+      error: (err) => { console.error('Error acknowledging corrigendum:', err); }
     });
   }
 
@@ -347,7 +347,7 @@ export class BidPreparationTabComponent implements OnInit {
     if (confirm(`Remove Corrigendum #${c.corrigendum_number}?`)) {
       this.tenderService.deleteCorrigendum(c.id).subscribe({
         next: () => this.loadCorrigendums(),
-        error: () => this.snackBar.open('Failed to delete', 'Close', { duration: 3000 })
+        error: (err) => this.snackBar.open(err.error?.detail || 'Failed to delete', 'Close', { duration: 5000 })
       });
     }
   }
@@ -357,8 +357,8 @@ export class BidPreparationTabComponent implements OnInit {
     this.eligibilityLoading.set(true);
     this.tenderService.checkEligibility(this.tenderId()).subscribe({
       next: (r) => { this.eligibility.set(r); this.eligibilityLoading.set(false); },
-      error: () => {
-        this.snackBar.open('Failed to run eligibility check', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to run eligibility check', 'Close', { duration: 5000 });
         this.eligibilityLoading.set(false);
       }
     });
@@ -368,7 +368,7 @@ export class BidPreparationTabComponent implements OnInit {
   calculateQCBS() {
     this.tenderService.calculateQCBS(this.tenderId(), this.qcbsParams).subscribe({
       next: (r) => this.qcbsResult.set(r),
-      error: () => this.snackBar.open('Failed to calculate QCBS', 'Close', { duration: 3000 })
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to calculate QCBS', 'Close', { duration: 5000 })
     });
   }
 
@@ -387,11 +387,11 @@ export class BidPreparationTabComponent implements OnInit {
     if (!id) return;
     this.kbService.getSuggestions({ category: 'technical_response', tender_id: id, limit: 10 }).subscribe({
       next: (items) => this.kbTechnicalSuggestions.set(items),
-      error: () => {}
+      error: (err) => { console.error('Error loading technical KB suggestions:', err); }
     });
     this.kbService.getSuggestions({ category: 'pricing_data', tender_id: id, limit: 10 }).subscribe({
       next: (items) => this.kbPricingSuggestions.set(items),
-      error: () => {}
+      error: (err) => { console.error('Error loading pricing KB suggestions:', err); }
     });
   }
 
@@ -421,9 +421,9 @@ export class BidPreparationTabComponent implements OnInit {
           this.snackBar.open('No KB suggestions found', 'Close', { duration: 3000 });
         }
       },
-      error: () => {
+      error: (err) => {
         this.autoFillLoading.set(false);
-        this.snackBar.open('Failed to load auto-fill suggestions', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to load auto-fill suggestions', 'Close', { duration: 5000 });
       }
     });
   }
@@ -455,9 +455,9 @@ export class BidPreparationTabComponent implements OnInit {
         this.bidCostEstimate.set(estimate);
         this.bidCostLoading.set(false);
       },
-      error: () => {
+      error: (err) => {
         this.bidCostLoading.set(false);
-        this.snackBar.open('Failed to estimate bid cost', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to estimate bid cost', 'Close', { duration: 5000 });
       }
     });
   }
@@ -483,7 +483,7 @@ export class BidPreparationTabComponent implements OnInit {
           this.loadSolutionSections();
         }
       },
-      error: () => { this.solutionLoading.set(false); }
+      error: (err) => { console.error('Error loading solution status:', err); this.solutionLoading.set(false); }
     });
   }
 
@@ -492,7 +492,7 @@ export class BidPreparationTabComponent implements OnInit {
     if (!id) return;
     this.tenderService.getSolutionSections(id).subscribe({
       next: (resp) => this.solutionSections.set(resp.sections),
-      error: () => {}
+      error: (err) => { console.error('Error loading solution sections:', err); }
     });
   }
 

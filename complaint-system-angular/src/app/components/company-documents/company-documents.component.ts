@@ -99,15 +99,15 @@ export class CompanyDocumentsComponent implements OnInit {
     this.loading.set(true);
     this.docService.getCategories().subscribe({
       next: (cats) => this.categories.set(cats),
-      error: () => {},
+      error: (err) => { console.error('Error loading document categories:', err); },
     });
     this.docService.list(this.selectedCategory() || undefined).subscribe({
       next: (docs) => {
         this.documents.set(docs);
         this.loading.set(false);
       },
-      error: () => {
-        this.snackBar.open('Failed to load documents', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to load documents', 'Close', { duration: 5000 });
         this.loading.set(false);
       },
     });
@@ -172,8 +172,8 @@ export class CompanyDocumentsComponent implements OnInit {
           this.resetUploadForm();
           this.loadData();
         },
-        error: () => {
-          this.snackBar.open('Upload failed', 'Close', { duration: 3000 });
+        error: (err) => {
+          this.snackBar.open(err.error?.detail || 'Upload failed', 'Close', { duration: 5000 });
           this.uploading.set(false);
         },
       });
@@ -212,7 +212,7 @@ export class CompanyDocumentsComponent implements OnInit {
           this.editingDoc.set(null);
           this.loadData();
         },
-        error: () => this.snackBar.open('Update failed', 'Close', { duration: 3000 }),
+        error: (err) => this.snackBar.open(err.error?.detail || 'Update failed', 'Close', { duration: 5000 }),
       });
   }
 
@@ -233,7 +233,7 @@ export class CompanyDocumentsComponent implements OnInit {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       },
-      error: () => this.snackBar.open('Download failed', 'Close', { duration: 3000 }),
+      error: (err) => this.snackBar.open(err.error?.detail || 'Download failed', 'Close', { duration: 5000 }),
     });
   }
 
@@ -245,7 +245,7 @@ export class CompanyDocumentsComponent implements OnInit {
         this.snackBar.open('Document deleted', 'Close', { duration: 3000 });
         this.loadData();
       },
-      error: () => this.snackBar.open('Delete failed', 'Close', { duration: 3000 }),
+      error: (err) => this.snackBar.open(err.error?.detail || 'Delete failed', 'Close', { duration: 5000 }),
     });
   }
 

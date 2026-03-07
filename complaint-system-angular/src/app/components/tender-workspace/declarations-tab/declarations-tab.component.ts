@@ -163,9 +163,9 @@ export class DeclarationsTabComponent implements OnInit {
           }
         }
       },
-      error: (error) => {
-        console.error('Error loading declaration types:', error);
-        this.snackBar.open('Failed to load declaration types', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading declaration types:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to load declaration types', 'Close', { duration: 5000 });
         this.loading.set(false);
       },
     });
@@ -421,7 +421,7 @@ export class DeclarationsTabComponent implements OnInit {
     if (!id) return;
     this.kbService.getSuggestions({ category: 'declaration_text', tender_id: id, limit: 10 }).subscribe({
       next: (items) => this.kbSuggestions.set(items),
-      error: () => {}
+      error: (err) => { console.error('Error loading KB suggestions:', err); }
     });
   }
 
@@ -460,9 +460,9 @@ export class DeclarationsTabComponent implements OnInit {
           this.snackBar.open(`${suggestions.length} auto-fill suggestion(s) found`, 'Close', { duration: 3000 });
         }
       },
-      error: () => {
+      error: (err) => {
         this.autoFillLoading.set(false);
-        this.snackBar.open('Failed to load auto-fill suggestions', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to load auto-fill suggestions', 'Close', { duration: 5000 });
       }
     });
   }
@@ -577,15 +577,15 @@ export class DeclarationsTabComponent implements OnInit {
         }
         this.snackBar.open(`${preview.name} regenerated`, 'Close', { duration: 3000 });
       },
-      error: (error) => {
-        console.error('Error regenerating preview:', error);
+      error: (err) => {
+        console.error('Error regenerating preview:', err);
         const latest = [...this.previews()];
         const i = latest.findIndex(p => p.key === key);
         if (i !== -1) {
           latest[i] = { ...latest[i], regenerating: false };
           this.previews.set(latest);
         }
-        this.snackBar.open('Failed to regenerate', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to regenerate', 'Close', { duration: 5000 });
       },
     });
   }

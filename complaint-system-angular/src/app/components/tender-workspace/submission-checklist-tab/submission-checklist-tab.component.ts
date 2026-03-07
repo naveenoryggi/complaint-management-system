@@ -199,8 +199,8 @@ export class SubmissionChecklistTabComponent implements OnInit {
         this.checklistItems.set(items);
         this.loading.set(false);
       },
-      error: () => {
-        this.snackBar.open('Failed to load checklist', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to load checklist', 'Close', { duration: 5000 });
         this.loading.set(false);
       }
     });
@@ -213,7 +213,7 @@ export class SubmissionChecklistTabComponent implements OnInit {
     if (!id) return;
     this.tenderService.getChecklistSummary(id).subscribe({
       next: (s) => this.summary.set(s),
-      error: () => {}
+      error: (err) => { console.error('Error loading checklist summary:', err); }
     });
   }
 
@@ -222,7 +222,7 @@ export class SubmissionChecklistTabComponent implements OnInit {
     if (!id) return;
     this.tenderService.getChecklistCovers(id).subscribe({
       next: (c) => this.covers.set(c),
-      error: () => {}
+      error: (err) => { console.error('Error loading covers:', err); }
     });
   }
 
@@ -237,8 +237,8 @@ export class SubmissionChecklistTabComponent implements OnInit {
         this.generating.set(false);
         this.loadData();
       },
-      error: () => {
-        this.snackBar.open('Failed to generate checklist', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to generate checklist', 'Close', { duration: 5000 });
         this.generating.set(false);
       }
     });
@@ -442,8 +442,8 @@ export class SubmissionChecklistTabComponent implements OnInit {
         this.loadSummary();
         this.loadCovers();
       },
-      error: () => {
-        this.snackBar.open('Failed to update status', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to update status', 'Close', { duration: 5000 });
       }
     });
   }
@@ -455,8 +455,8 @@ export class SubmissionChecklistTabComponent implements OnInit {
         this.checklistItems.set(items);
         this.loadCovers();
       },
-      error: () => {
-        this.snackBar.open('Failed to update cover', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to update cover', 'Close', { duration: 5000 });
       }
     });
   }
@@ -478,8 +478,8 @@ export class SubmissionChecklistTabComponent implements OnInit {
         this.checklistItems.set(items);
         this.loadSummary();
       },
-      error: () => {
-        this.snackBar.open('Failed to update', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to update', 'Close', { duration: 5000 });
       }
     });
   }
@@ -493,8 +493,8 @@ export class SubmissionChecklistTabComponent implements OnInit {
         this.loadCovers();
         this.snackBar.open('Item deleted', 'Close', { duration: 3000 });
       },
-      error: () => {
-        this.snackBar.open('Failed to delete', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to delete', 'Close', { duration: 5000 });
       }
     });
   }
@@ -527,8 +527,8 @@ export class SubmissionChecklistTabComponent implements OnInit {
         this.loadCovers();
         this.snackBar.open('Item added', 'Close', { duration: 3000 });
       },
-      error: () => {
-        this.snackBar.open('Failed to add item', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to add item', 'Close', { duration: 5000 });
       }
     });
   }
@@ -543,8 +543,8 @@ export class SubmissionChecklistTabComponent implements OnInit {
         this.loadCovers();
         this.snackBar.open('Document staged', 'Close', { duration: 3000 });
       },
-      error: () => {
-        this.snackBar.open('Failed to link document', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to link document', 'Close', { duration: 5000 });
       }
     });
   }
@@ -557,8 +557,8 @@ export class SubmissionChecklistTabComponent implements OnInit {
         this.loadCovers();
         this.snackBar.open('Document unstaged', 'Close', { duration: 3000 });
       },
-      error: () => {
-        this.snackBar.open('Failed to unlink document', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to unlink document', 'Close', { duration: 5000 });
       }
     });
   }
@@ -623,8 +623,8 @@ export class SubmissionChecklistTabComponent implements OnInit {
           window.URL.revokeObjectURL(url);
           document.body.removeChild(a);
         },
-        error: () => {
-          this.snackBar.open('Failed to download file', 'Close', { duration: 3000 });
+        error: (err) => {
+          this.snackBar.open(err.error?.detail || 'Failed to download file', 'Close', { duration: 5000 });
         }
       });
     }

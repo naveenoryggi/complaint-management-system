@@ -58,8 +58,8 @@ export class TenderAnalyticsComponent implements OnInit {
         this.analytics.set(data);
         this.loading.set(false);
       },
-      error: () => {
-        this.snackBar.open('Failed to load analytics', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to load analytics', 'Close', { duration: 5000 });
         this.loading.set(false);
       },
     });
@@ -68,7 +68,7 @@ export class TenderAnalyticsComponent implements OnInit {
   loadWinLossAnalytics() {
     this.tenderService.getWinLossAnalytics().subscribe({
       next: (data) => this.winLoss.set(data),
-      error: () => {}
+      error: (err) => { console.error('Error loading win/loss analytics:', err); }
     });
   }
 

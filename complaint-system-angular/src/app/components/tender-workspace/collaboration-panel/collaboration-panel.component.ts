@@ -103,7 +103,8 @@ export class CollaborationPanelComponent implements OnInit {
           this.assignments.set(data || []);
           this.loading.set(false);
         },
-        error: () => {
+        error: (err: any) => {
+          console.error('Error loading team assignments:', err);
           this.assignments.set([]);
           this.loading.set(false);
         },
@@ -119,7 +120,8 @@ export class CollaborationPanelComponent implements OnInit {
         next: (data: CommentsState) => {
           this.comments.set(data || { items: [], total: 0, page: 1 });
         },
-        error: () => {
+        error: (err: any) => {
+          console.error('Error loading comments:', err);
           this.comments.set({ items: [], total: 0, page: 1 });
         },
       });
@@ -142,8 +144,8 @@ export class CollaborationPanelComponent implements OnInit {
           this.showAssignForm.set(false);
           this.loadAssignments();
         },
-        error: () => {
-          this.snackBar.open('Failed to add team member.', 'Close', { duration: 3000 });
+        error: (err: any) => {
+          this.snackBar.open(err.error?.detail || 'Failed to add team member.', 'Close', { duration: 5000 });
           this.loading.set(false);
         },
       });
@@ -160,8 +162,8 @@ export class CollaborationPanelComponent implements OnInit {
           this.snackBar.open('Team member removed.', 'Close', { duration: 2500 });
           this.loadAssignments();
         },
-        error: () => {
-          this.snackBar.open('Failed to remove team member.', 'Close', { duration: 3000 });
+        error: (err: any) => {
+          this.snackBar.open(err.error?.detail || 'Failed to remove team member.', 'Close', { duration: 5000 });
           this.loading.set(false);
         },
       });
@@ -181,8 +183,8 @@ export class CollaborationPanelComponent implements OnInit {
           this.newComment.set('');
           this.loadComments();
         },
-        error: () => {
-          this.snackBar.open('Failed to post comment.', 'Close', { duration: 3000 });
+        error: (err: any) => {
+          this.snackBar.open(err.error?.detail || 'Failed to post comment.', 'Close', { duration: 5000 });
         },
       });
   }
@@ -197,8 +199,8 @@ export class CollaborationPanelComponent implements OnInit {
           this.snackBar.open('Comment deleted.', 'Close', { duration: 2500 });
           this.loadComments();
         },
-        error: () => {
-          this.snackBar.open('Failed to delete comment.', 'Close', { duration: 3000 });
+        error: (err: any) => {
+          this.snackBar.open(err.error?.detail || 'Failed to delete comment.', 'Close', { duration: 5000 });
         },
       });
   }

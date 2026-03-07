@@ -382,12 +382,18 @@
       <div class="matrix-add-form">
         <div class="matrix-form-row">
           <mat-form-field appearance="outline" class="matrix-field-clause">
-            <mat-label>Clause No.</mat-label>
-            <input matInput [ngModel]="newItem().clause_number" (ngModelChange)="updateNewItemField('clause_number', $event)" placeholder="3.2.1">
+            <mat-label>Clause No. *</mat-label>
+            <input matInput required [ngModel]="newItem().clause_number" (ngModelChange)="updateNewItemField('clause_number', $event)" placeholder="3.2.1" #clauseNo="ngModel">
+            @if (clauseNo.invalid && clauseNo.touched) {
+              <mat-error>Required</mat-error>
+            }
           </mat-form-field>
           <mat-form-field appearance="outline" class="matrix-field-title">
-            <mat-label>Clause Title</mat-label>
-            <input matInput [ngModel]="newItem().clause_title" (ngModelChange)="updateNewItemField('clause_title', $event)" placeholder="Technical qualification criteria">
+            <mat-label>Clause Title *</mat-label>
+            <input matInput required [ngModel]="newItem().clause_title" (ngModelChange)="updateNewItemField('clause_title', $event)" placeholder="Technical qualification criteria" #clauseTitle="ngModel">
+            @if (clauseTitle.invalid && clauseTitle.touched) {
+              <mat-error>Required</mat-error>
+            }
           </mat-form-field>
         </div>
         <div class="matrix-form-row">

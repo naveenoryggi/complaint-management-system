@@ -93,9 +93,9 @@ export class CriteriaTabComponent implements OnInit {
         this.criteria.set(data);
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading criteria:', error);
-        this.snackBar.open('Failed to load criteria', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error loading criteria:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to load criteria', 'Close', { duration: 5000 });
         this.loading.set(false);
       }
     });
@@ -111,9 +111,9 @@ export class CriteriaTabComponent implements OnInit {
         this.loadCriteria();
         this.snackBar.open('Criteria added', 'Close', { duration: 3000 });
       },
-      error: (error) => {
-        console.error('Error creating criteria:', error);
-        this.snackBar.open('Failed to add criteria', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error creating criteria:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to add criteria', 'Close', { duration: 5000 });
       }
     });
   }
@@ -126,10 +126,10 @@ export class CriteriaTabComponent implements OnInit {
         this.simulating.set(false);
         this.snackBar.open('Scoring simulation complete', 'Close', { duration: 3000 });
       },
-      error: (error) => {
-        console.error('Simulation error:', error);
+      error: (err) => {
+        console.error('Simulation error:', err);
         this.simulating.set(false);
-        this.snackBar.open('Scoring simulation failed', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Scoring simulation failed', 'Close', { duration: 5000 });
       }
     });
   }
@@ -160,9 +160,9 @@ export class CriteriaTabComponent implements OnInit {
           this.loadAssignments();
           this.snackBar.open('Criteria deleted', 'Close', { duration: 3000 });
         },
-        error: (error) => {
-          console.error('Error deleting criteria:', error);
-          this.snackBar.open('Failed to delete criteria', 'Close', { duration: 3000 });
+        error: (err) => {
+          console.error('Error deleting criteria:', err);
+          this.snackBar.open(err.error?.detail || 'Failed to delete criteria', 'Close', { duration: 5000 });
         }
       });
     }
@@ -180,14 +180,14 @@ export class CriteriaTabComponent implements OnInit {
   loadBundles() {
     this.bundleService.listBundles(1, 100).subscribe({
       next: (response) => this.bundles.set(response.items),
-      error: () => {}
+      error: (err) => { console.error('Error loading bundles:', err); }
     });
   }
 
   loadAssignments() {
     this.bundleService.listTenderAssignments(this.tenderId).subscribe({
       next: (data) => this.assignments.set(data),
-      error: () => {}
+      error: (err) => { console.error('Error loading assignments:', err); }
     });
   }
 
@@ -201,9 +201,9 @@ export class CriteriaTabComponent implements OnInit {
         this.loadAssignments();
         this.snackBar.open('Bundle assigned to criteria', 'Close', { duration: 3000 });
       },
-      error: (error) => {
-        console.error('Error assigning bundle:', error);
-        this.snackBar.open('Failed to assign bundle', 'Close', { duration: 3000 });
+      error: (err) => {
+        console.error('Error assigning bundle:', err);
+        this.snackBar.open(err.error?.detail || 'Failed to assign bundle', 'Close', { duration: 5000 });
       }
     });
   }

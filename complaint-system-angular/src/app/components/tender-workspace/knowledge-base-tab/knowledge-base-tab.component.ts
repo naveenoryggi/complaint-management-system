@@ -143,8 +143,8 @@ export class KnowledgeBaseTabComponent implements OnInit {
         this.totalPages.set(res.total_pages);
         this.loading.set(false);
       },
-      error: () => {
-        this.snackBar.open('Failed to load KB entries', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to load KB entries', 'Close', { duration: 5000 });
         this.loading.set(false);
       },
     });
@@ -156,7 +156,7 @@ export class KnowledgeBaseTabComponent implements OnInit {
         this.categoryStats.set(stats);
         this.buildCategoryChips(stats);
       },
-      error: () => {},
+      error: (err) => { console.error('Error loading category stats:', err); },
     });
   }
 
@@ -241,8 +241,8 @@ export class KnowledgeBaseTabComponent implements OnInit {
         this.loadEntries();
         this.loadCategoryStats();
       },
-      error: () => {
-        this.snackBar.open('Failed to update entry', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to update entry', 'Close', { duration: 5000 });
       },
     });
   }
@@ -254,8 +254,8 @@ export class KnowledgeBaseTabComponent implements OnInit {
         this.loadEntries();
         this.loadCategoryStats();
       },
-      error: () => {
-        this.snackBar.open('Failed to archive entry', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to archive entry', 'Close', { duration: 5000 });
       },
     });
   }
@@ -268,8 +268,8 @@ export class KnowledgeBaseTabComponent implements OnInit {
         this.loadEntries();
         this.loadCategoryStats();
       },
-      error: () => {
-        this.snackBar.open('Failed to delete entry', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to delete entry', 'Close', { duration: 5000 });
       },
     });
   }
@@ -279,8 +279,8 @@ export class KnowledgeBaseTabComponent implements OnInit {
       next: () => {
         this.loadEntries();
       },
-      error: () => {
-        this.snackBar.open('Failed to update verification', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to update verification', 'Close', { duration: 5000 });
       },
     });
   }
@@ -313,8 +313,8 @@ export class KnowledgeBaseTabComponent implements OnInit {
         this.loadEntries();
         this.loadCategoryStats();
       },
-      error: () => {
-        this.snackBar.open('Failed to create entry', 'Close', { duration: 3000 });
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to create entry', 'Close', { duration: 5000 });
       },
     });
   }
@@ -337,9 +337,9 @@ export class KnowledgeBaseTabComponent implements OnInit {
         this.loadEntries();
         this.loadCategoryStats();
       },
-      error: () => {
+      error: (err) => {
         this.harvesting.set(false);
-        this.snackBar.open('Failed to harvest from tender', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to harvest from tender', 'Close', { duration: 5000 });
       },
     });
   }
@@ -356,9 +356,9 @@ export class KnowledgeBaseTabComponent implements OnInit {
         this.loadEntries();
         this.loadCategoryStats();
       },
-      error: () => {
+      error: (err) => {
         this.harvesting.set(false);
-        this.snackBar.open('Failed to sync company data', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to sync company data', 'Close', { duration: 5000 });
       },
     });
   }
@@ -419,9 +419,9 @@ export class KnowledgeBaseTabComponent implements OnInit {
         document.body.removeChild(a);
         this.snackBar.open('Summary document downloaded', 'Close', { duration: 3000 });
       },
-      error: () => {
+      error: (err) => {
         this.generatingSummary.set(false);
-        this.snackBar.open('Failed to generate summary', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.detail || 'Failed to generate summary', 'Close', { duration: 5000 });
       },
     });
   }
