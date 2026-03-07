@@ -19,7 +19,9 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { TenderService, Tender, TenderDocument, TenderCorrigendum, CorrigendumAnalysis } from '../../services/tender.service';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { TenderService, Tender, TenderDocument, TenderCorrigendum, CorrigendumAnalysis, TenderMilestone } from '../../services/tender.service';
 import { TrackingService, EMDRecord, TenderFee } from '../../services/tracking.service';
 import { DocumentService } from '../../services/document.service';
 import { AssemblyService } from '../../services/assembly.service';
@@ -68,6 +70,8 @@ import { BreadcrumbComponent } from '../shared/breadcrumb/breadcrumb.component';
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
+    MatSelectModule,
+    MatCheckboxModule,
     DragDropModule,
     BreadcrumbComponent,
     ExtractionTabComponent,
@@ -131,6 +135,11 @@ export class TenderDetailComponent implements OnInit {
   showAddCorrigendum = signal(false);
   newCorrigendum = signal<Partial<TenderCorrigendum>>({ title: '', summary: '' });
 
+  // Milestones
+  milestones = signal<TenderMilestone[]>([]);
+  showAddMilestone = signal(false);
+  newMilestone = signal<Partial<TenderMilestone>>({ label: '', milestone_type: 'custom', event_date: '' });
+
   // UX Redesign: Phase selector & mobile drawer
   activePhase = signal<'prepare' | 'review' | 'finalize'>('prepare');
   selectedTabIndex = signal(0);
@@ -182,6 +191,7 @@ export class TenderDetailComponent implements OnInit {
       this.loadDocuments(id);
       this.loadEmdAndFees(id);
       this.loadCorrigendums(id);
+      this.loadMilestones(id);
     }
     this.loadCompanySettings();
   }
@@ -1038,4 +1048,84 @@ export class TenderDetailComponent implements OnInit {
       default: return 'help';
     }
   }
+
+  // --- Milestones ---
+  loadMilestones(tenderId: string) {
+    this.tenderService.getMilestones(tenderId).subscribe({
+      next: (list) => this.milestones.set(list),
+      error: () => {}
+    });
+  }
+
+  updateNewMilestoneField(field: string, value: any) {
+    const current = this.newMilestone();
+    this.newMilestone.set({ ...current, [field]: value });
+  }
+
+  onAddMilestone() {
+    const id = this.tenderId();
+    const data = this.newMilestone();
+    if (!id || !data.label) return;
+
+    this.tenderService.createMilestone(id, data).subscribe({
+      next: (created) => {
+        this.milestones.set([...this.milestones(), created]);
+        this.showAddMilestone.set(false);
+        this.newMilestone.set({ label: '', milestone_type: 'custom', event_date: '' });
+        this.snackBar.open('Milestone added', 'Close', { duration: 3000 });
+      },
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to add milestone', 'Close', { duration: 3000 })
+    });
+  }
+
+  onToggleMilestoneComplete(milestone: TenderMilestone) {
+    this.tenderService.updateMilestone(milestone.id, { is_completed: !milestone.is_completed }).subscribe({
+      next: (updated) => {
+        this.milestones.set(this.milestones().map(m => m.id === milestone.id ? updated : m));
+      },
+      error: () => this.snackBar.open('Failed to update milestone', 'Close', { duration: 3000 })
+    });
+  }
+
+  onDeleteMilestone(milestone: TenderMilestone) {
+    if (!confirm(`Delete milestone "${milestone.label}"?`)) return;
+    this.tenderService.deleteMilestone(milestone.id).subscribe({
+      next: () => {
+        this.milestones.set(this.milestones().filter(m => m.id !== milestone.id));
+        this.snackBar.open('Milestone deleted', 'Close', { duration: 3000 });
+      },
+      error: () => this.snackBar.open('Failed to delete', 'Close', { duration: 3000 })
+    });
+  }
+
+  getMilestoneIcon(type: string): string {
+    const icons: Record<string, string> = {
+      publish_date: 'campaign', prebid_meeting: 'groups', corrigendum_deadline: 'assignment_late',
+      bid_submission: 'send', technical_opening: 'lock_open', financial_opening: 'payments',
+      presentation: 'slideshow', award_date: 'emoji_events', contract_signing: 'handshake',
+      work_start: 'play_circle', custom: 'event',
+    };
+    return icons[type] || 'event';
+  }
+
+  getMilestoneTypeLabel(type: string): string {
+    const labels: Record<string, string> = {
+      publish_date: 'Published', prebid_meeting: 'Pre-Bid Meeting', corrigendum_deadline: 'Corrigendum Deadline',
+      bid_submission: 'Bid Submission', technical_opening: 'Technical Opening', financial_opening: 'Financial Opening',
+      presentation: 'Presentation', award_date: 'Award Date', contract_signing: 'Contract Signing',
+      work_start: 'Work Start', custom: 'Custom',
+    };
+    return labels[type] || type;
+  }
+
+  isMilestonePast(eventDate: string | undefined): boolean {
+    if (!eventDate) return false;
+    return new Date(eventDate).getTime() < new Date().getTime();
+  }
+
+  readonly milestoneTypes = [
+    'publish_date', 'prebid_meeting', 'corrigendum_deadline', 'bid_submission',
+    'technical_opening', 'financial_opening', 'presentation', 'award_date',
+    'contract_signing', 'work_start', 'custom'
+  ];
 }

@@ -330,6 +330,150 @@
       }
     </mat-card>
   }
+  <!-- Compliance Matrix (Clause-by-Clause Tracking) -->
+  <mat-card class="matrix-card">
+    <div class="matrix-header">
+      <div class="matrix-title">
+        <mat-icon>table_chart</mat-icon>
+        <h3>Technical Compliance Matrix</h3>
+        @if (matrixSummary(); as ms) {
+          <span class="matrix-count-badge">{{ ms.total }} clauses</span>
+        }
+      </div>
+      <div class="matrix-actions">
+        <button mat-stroked-button (click)="loadMatrix()" [disabled]="matrixLoading()">
+          <mat-icon>refresh</mat-icon> Refresh
+        </button>
+        <button mat-raised-button color="primary" (click)="showAddItem.set(!showAddItem())">
+          <mat-icon>{{ showAddItem() ? 'close' : 'add' }}</mat-icon>
+          {{ showAddItem() ? 'Cancel' : 'Add Clause' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Summary Stats -->
+    @if (matrixSummary(); as ms) {
+      <div class="matrix-stats-row">
+        <div class="matrix-stat" style="border-color: #057a55">
+          <span class="matrix-stat-count">{{ ms.complied }}</span>
+          <span class="matrix-stat-label">Complied</span>
+        </div>
+        <div class="matrix-stat" style="border-color: #ea580c">
+          <span class="matrix-stat-count">{{ ms.partially_complied }}</span>
+          <span class="matrix-stat-label">Partial</span>
+        </div>
+        <div class="matrix-stat" style="border-color: #dc2626">
+          <span class="matrix-stat-count">{{ ms.not_complied }}</span>
+          <span class="matrix-stat-label">Not Complied</span>
+        </div>
+        <div class="matrix-stat" style="border-color: #6b7280">
+          <span class="matrix-stat-count">{{ ms.pending }}</span>
+          <span class="matrix-stat-label">Pending</span>
+        </div>
+        <div class="matrix-stat" style="border-color: #9e9e9e">
+          <span class="matrix-stat-count">{{ ms.na }}</span>
+          <span class="matrix-stat-label">N/A</span>
+        </div>
+      </div>
+    }
+
+    <!-- Add Form -->
+    @if (showAddItem()) {
+      <div class="matrix-add-form">
+        <div class="matrix-form-row">
+          <mat-form-field appearance="outline" class="matrix-field-clause">
+            <mat-label>Clause No.</mat-label>
+            <input matInput [ngModel]="newItem().clause_number" (ngModelChange)="updateNewItemField('clause_number', $event)" placeholder="3.2.1">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="matrix-field-title">
+            <mat-label>Clause Title</mat-label>
+            <input matInput [ngModel]="newItem().clause_title" (ngModelChange)="updateNewItemField('clause_title', $event)" placeholder="Technical qualification criteria">
+          </mat-form-field>
+        </div>
+        <div class="matrix-form-row">
+          <mat-form-field appearance="outline" class="matrix-field-section">
+            <mat-label>Section</mat-label>
+            <input matInput [ngModel]="newItem().section" (ngModelChange)="updateNewItemField('section', $event)" placeholder="Technical Specifications">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="matrix-field-status">
+            <mat-label>Status</mat-label>
+            <mat-select [ngModel]="newItem().compliance_status" (ngModelChange)="updateNewItemField('compliance_status', $event)">
+              @for (s of complianceStatuses; track s.value) {
+                <mat-option [value]="s.value">{{ s.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>Description / Remarks</mat-label>
+          <textarea matInput [ngModel]="newItem().clause_description" (ngModelChange)="updateNewItemField('clause_description', $event)" rows="2"></textarea>
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="onAddMatrixItem()" [disabled]="!newItem().clause_number || !newItem().clause_title">
+          <mat-icon>save</mat-icon> Add Clause
+        </button>
+      </div>
+    }
+
+    <!-- Matrix List -->
+    @if (matrixLoading()) {
+      <div class="loading-container" style="min-height: 100px;">
+        <mat-spinner diameter="32"></mat-spinner>
+      </div>
+    } @else if (matrixItems().length === 0 && !showAddItem()) {
+      <div class="matrix-empty">
+        <p>No compliance items tracked yet. Add clauses manually or run AI extraction.</p>
+      </div>
+    } @else {
+      <div class="matrix-list">
+        @for (item of matrixItems(); track item.id) {
+          <div class="matrix-item" [class]="'matrix-status-' + item.compliance_status">
+            <div class="matrix-item-status">
+              <mat-icon [style.color]="getStatusConfig(item.compliance_status).color">
+                {{ getStatusConfig(item.compliance_status).icon }}
+              </mat-icon>
+            </div>
+            <div class="matrix-item-body">
+              <div class="matrix-item-header">
+                <span class="matrix-clause-num">{{ item.clause_number }}</span>
+                <strong>{{ item.clause_title }}</strong>
+                @if (item.is_critical) {
+                  <mat-chip class="matrix-critical-chip">Critical</mat-chip>
+                }
+                @if (item.is_mandatory) {
+                  <mat-chip class="matrix-mandatory-chip">Mandatory</mat-chip>
+                }
+              </div>
+              @if (item.section) {
+                <span class="matrix-item-section">{{ item.section }}</span>
+              }
+              @if (item.clause_description) {
+                <p class="matrix-item-desc">{{ item.clause_description }}</p>
+              }
+              @if (item.deviation_remarks) {
+                <p class="matrix-item-deviation"><mat-icon>info_outline</mat-icon> {{ item.deviation_remarks }}</p>
+              }
+              @if (item.page_reference) {
+                <span class="matrix-page-ref">Ref: {{ item.page_reference }}</span>
+              }
+            </div>
+            <div class="matrix-item-actions">
+              <mat-form-field appearance="outline" class="matrix-status-select">
+                <mat-select [value]="item.compliance_status" (selectionChange)="onUpdateStatus(item, $event.value)">
+                  @for (s of complianceStatuses; track s.value) {
+                    <mat-option [value]="s.value">{{ s.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <button mat-icon-button matTooltip="Delete" (click)="onDeleteMatrixItem(item)">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </mat-card>
+
 } @else {
   <div class="empty-state">
     <mat-icon>checklist</mat-icon>

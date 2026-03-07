@@ -8,6 +8,11 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatChipsModule } from '@angular/material/chips';
 import {
   TenderService,
   ComplianceCheckResponse,
@@ -18,6 +23,7 @@ import {
   AutoFillSuggestion,
   ClauseInterpretationResult,
   RiskSummary,
+  TechnicalComplianceItem,
 } from '../../../services/tender.service';
 import { KnowledgeBaseService, KBEntry } from '../../../services/knowledge-base.service';
 
@@ -33,7 +39,12 @@ import { KnowledgeBaseService, KBEntry } from '../../../services/knowledge-base.
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatChipsModule,
   ],
   templateUrl: './compliance-tab.component.html',
   styleUrls: ['./compliance-tab.component.css']
@@ -77,6 +88,7 @@ export class ComplianceTabComponent implements OnInit {
     if (this.tenderId()) {
       this.loadCompliance();
       this.loadKBSuggestions();
+      this.loadMatrix();
     }
   }
 
@@ -301,5 +313,88 @@ export class ComplianceTabComponent implements OnInit {
       case 'low': return 'check_circle';
       default: return 'help';
     }
+  }
+
+  // --- Compliance Matrix CRUD ---
+  matrixItems = signal<TechnicalComplianceItem[]>([]);
+  matrixLoading = signal(false);
+  matrixSummary = signal<any>(null);
+  showAddItem = signal(false);
+  newItem = signal<Partial<TechnicalComplianceItem>>({
+    clause_number: '', clause_title: '', compliance_status: 'pending', is_mandatory: false, is_critical: false,
+  });
+  editingItemId = signal<string | null>(null);
+
+  readonly complianceStatuses = [
+    { value: 'complied', label: 'Complied', icon: 'check_circle', color: '#057a55' },
+    { value: 'not_complied', label: 'Not Complied', icon: 'cancel', color: '#dc2626' },
+    { value: 'partially_complied', label: 'Partially Complied', icon: 'warning', color: '#ea580c' },
+    { value: 'pending', label: 'Pending', icon: 'schedule', color: '#6b7280' },
+    { value: 'na', label: 'N/A', icon: 'remove_circle_outline', color: '#9e9e9e' },
+  ];
+
+  loadMatrix() {
+    const id = this.tenderId();
+    if (!id) return;
+    this.matrixLoading.set(true);
+    this.tenderService.getComplianceMatrix(id).subscribe({
+      next: (items) => { this.matrixItems.set(items); this.matrixLoading.set(false); this.loadMatrixSummary(); },
+      error: () => { this.matrixLoading.set(false); }
+    });
+  }
+
+  loadMatrixSummary() {
+    const id = this.tenderId();
+    if (!id) return;
+    this.tenderService.getComplianceMatrixSummary(id).subscribe({
+      next: (summary) => this.matrixSummary.set(summary),
+      error: () => {}
+    });
+  }
+
+  updateNewItemField(field: string, value: any) {
+    this.newItem.set({ ...this.newItem(), [field]: value });
+  }
+
+  onAddMatrixItem() {
+    const id = this.tenderId();
+    const data = this.newItem();
+    if (!id || !data.clause_number || !data.clause_title) return;
+    this.tenderService.createComplianceItem(id, data).subscribe({
+      next: (created) => {
+        this.matrixItems.set([...this.matrixItems(), created]);
+        this.showAddItem.set(false);
+        this.newItem.set({ clause_number: '', clause_title: '', compliance_status: 'pending', is_mandatory: false, is_critical: false });
+        this.snackBar.open('Compliance item added', 'Close', { duration: 3000 });
+        this.loadMatrixSummary();
+      },
+      error: (err) => this.snackBar.open(err.error?.detail || 'Failed to add item', 'Close', { duration: 3000 })
+    });
+  }
+
+  onUpdateStatus(item: TechnicalComplianceItem, newStatus: string) {
+    this.tenderService.updateComplianceItem(item.id, { compliance_status: newStatus as any }).subscribe({
+      next: (updated) => {
+        this.matrixItems.set(this.matrixItems().map(i => i.id === item.id ? updated : i));
+        this.loadMatrixSummary();
+      },
+      error: () => this.snackBar.open('Failed to update status', 'Close', { duration: 3000 })
+    });
+  }
+
+  onDeleteMatrixItem(item: TechnicalComplianceItem) {
+    if (!confirm(`Delete clause "${item.clause_number}"?`)) return;
+    this.tenderService.deleteComplianceItem(item.id).subscribe({
+      next: () => {
+        this.matrixItems.set(this.matrixItems().filter(i => i.id !== item.id));
+        this.snackBar.open('Item deleted', 'Close', { duration: 3000 });
+        this.loadMatrixSummary();
+      },
+      error: () => this.snackBar.open('Failed to delete', 'Close', { duration: 3000 })
+    });
+  }
+
+  getStatusConfig(status: string) {
+    return this.complianceStatuses.find(s => s.value === status) || this.complianceStatuses[3];
   }
 }

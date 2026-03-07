@@ -730,6 +730,113 @@
             </mat-card-content>
           </mat-card>
 
+          <!-- Milestones & Timeline -->
+          <mat-card class="milestones-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>event_note</mat-icon>
+                Milestones &amp; Timeline
+              </mat-card-title>
+              <button mat-stroked-button (click)="showAddMilestone.set(!showAddMilestone())">
+                <mat-icon>{{ showAddMilestone() ? 'close' : 'add' }}</mat-icon>
+                {{ showAddMilestone() ? 'Cancel' : 'Add Milestone' }}
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              <!-- Add Milestone Form -->
+              @if (showAddMilestone()) {
+                <div class="ms-add-form">
+                  <div class="ms-form-row">
+                    <mat-form-field appearance="outline" class="ms-field-type">
+                      <mat-label>Type</mat-label>
+                      <mat-select [ngModel]="newMilestone().milestone_type" (ngModelChange)="updateNewMilestoneField('milestone_type', $event)">
+                        @for (type of milestoneTypes; track type) {
+                          <mat-option [value]="type">{{ getMilestoneTypeLabel(type) }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="ms-field-label">
+                      <mat-label>Label</mat-label>
+                      <input matInput [ngModel]="newMilestone().label" (ngModelChange)="updateNewMilestoneField('label', $event)" placeholder="e.g., Pre-Bid Meeting">
+                    </mat-form-field>
+                  </div>
+                  <div class="ms-form-row">
+                    <mat-form-field appearance="outline" class="ms-field-date">
+                      <mat-label>Date</mat-label>
+                      <input matInput type="date" [ngModel]="newMilestone().event_date" (ngModelChange)="updateNewMilestoneField('event_date', $event)">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="ms-field-time">
+                      <mat-label>Time</mat-label>
+                      <input matInput type="time" [ngModel]="newMilestone().event_time" (ngModelChange)="updateNewMilestoneField('event_time', $event)">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="ms-field-location">
+                      <mat-label>Location (optional)</mat-label>
+                      <input matInput [ngModel]="newMilestone().location" (ngModelChange)="updateNewMilestoneField('location', $event)">
+                    </mat-form-field>
+                  </div>
+                  <button mat-raised-button color="primary" (click)="onAddMilestone()" [disabled]="!newMilestone().label">
+                    <mat-icon>save</mat-icon> Save Milestone
+                  </button>
+                </div>
+              }
+
+              <!-- Milestone Timeline -->
+              @if (milestones().length === 0 && !showAddMilestone()) {
+                <div class="ms-empty">
+                  <mat-icon>event_available</mat-icon>
+                  <p>No milestones added yet</p>
+                </div>
+              }
+
+              @if (milestones().length > 0) {
+                <div class="ms-timeline">
+                  @for (ms of milestones(); track ms.id) {
+                    <div class="ms-item" [class.ms-completed]="ms.is_completed" [class.ms-past]="!ms.is_completed && isMilestonePast(ms.event_date)">
+                      <div class="ms-item-dot">
+                        <mat-icon>{{ ms.is_completed ? 'check_circle' : getMilestoneIcon(ms.milestone_type) }}</mat-icon>
+                      </div>
+                      <div class="ms-item-content">
+                        <div class="ms-item-header">
+                          <strong>{{ ms.label }}</strong>
+                          <span class="ms-type-badge">{{ getMilestoneTypeLabel(ms.milestone_type) }}</span>
+                        </div>
+                        <div class="ms-item-meta">
+                          @if (ms.event_date) {
+                            <span class="ms-date">
+                              <mat-icon>calendar_today</mat-icon>
+                              {{ ms.event_date | date:'mediumDate' }}
+                            </span>
+                          }
+                          @if (ms.event_time) {
+                            <span class="ms-time">
+                              <mat-icon>schedule</mat-icon>
+                              {{ ms.event_time }}
+                            </span>
+                          }
+                          @if (ms.location) {
+                            <span class="ms-location">
+                              <mat-icon>location_on</mat-icon>
+                              {{ ms.location }}
+                            </span>
+                          }
+                        </div>
+                        @if (ms.notes) {
+                          <p class="ms-notes">{{ ms.notes }}</p>
+                        }
+                      </div>
+                      <div class="ms-item-actions">
+                        <mat-checkbox [checked]="ms.is_completed" (change)="onToggleMilestoneComplete(ms)" matTooltip="Mark complete"></mat-checkbox>
+                        <button mat-icon-button matTooltip="Delete" (click)="onDeleteMilestone(ms)">
+                          <mat-icon>delete_outline</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+
           <!-- Bid/No-Bid Analysis (Feature 8) -->
           <mat-card class="bid-analysis-card">
             <mat-card-header>
