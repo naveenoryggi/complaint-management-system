@@ -1,0 +1,299 @@
+<div class="results-container">
+
+  <!-- Loading Spinner -->
+  <div class="spinner-overlay" *ngIf="loading()">
+    <mat-spinner diameter="44"></mat-spinner>
+  </div>
+
+  <!-- No Result Yet: Create Form -->
+  <ng-container *ngIf="!result() && !loading()">
+    <mat-card class="result-form-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">flag</mat-icon>
+          Record Tender Result
+        </mat-card-title>
+        <mat-card-subtitle>
+          Record the final outcome of this tender bid.
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <ng-container *ngTemplateOutlet="resultFormFields"></ng-container>
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button mat-flat-button color="primary" (click)="saveResult()" [disabled]="!resultForm.result">
+          <mat-icon>save</mat-icon>
+          Save Result
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </ng-container>
+
+  <!-- Result Exists: Summary View or Edit -->
+  <ng-container *ngIf="result() && !loading()">
+
+    <!-- Edit Mode -->
+    <mat-card class="result-form-card" *ngIf="editing()">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">edit</mat-icon>
+          Edit Tender Result
+        </mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <ng-container *ngTemplateOutlet="resultFormFields"></ng-container>
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button mat-stroked-button (click)="cancelEdit()">
+          <mat-icon>close</mat-icon>
+          Cancel
+        </button>
+        <button mat-flat-button color="primary" (click)="saveResult()" [disabled]="!resultForm.result">
+          <mat-icon>save</mat-icon>
+          Update Result
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- View Mode -->
+    <ng-container *ngIf="!editing()">
+
+      <!-- Result Badge Card -->
+      <mat-card class="result-badge-card"
+                [style.border-left-color]="getResultType(result()!.result)?.color">
+        <mat-card-content>
+          <div class="result-badge-row">
+            <div class="result-badge"
+                 [style.background-color]="getResultType(result()!.result)?.color">
+              <mat-icon>{{ getResultType(result()!.result)?.icon }}</mat-icon>
+              <span>{{ getResultType(result()!.result)?.label }}</span>
+            </div>
+            <div class="result-headline-info">
+              <ng-container *ngIf="result()!.result === 'won'">
+                <span class="headline-label">Contract Value</span>
+                <span class="headline-value won-value">
+                  {{ formatCurrency(result()!.awarded_value) }}
+                </span>
+              </ng-container>
+              <ng-container *ngIf="result()!.result === 'lost'">
+                <span class="headline-label">Winning Bidder</span>
+                <span class="headline-value">
+                  {{ result()!.winning_bidder || 'Not recorded' }}
+                </span>
+              </ng-container>
+              <ng-container *ngIf="result()!.result === 'cancelled'">
+                <span class="headline-label">Status</span>
+                <span class="headline-value">Tender was cancelled</span>
+              </ng-container>
+            </div>
+            <button mat-stroked-button color="primary" class="edit-result-btn" (click)="toggleEdit()">
+              <mat-icon>edit</mat-icon>
+              Edit
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Detail Cards Row -->
+      <div class="detail-cards-grid">
+
+        <!-- Award Details -->
+        <mat-card class="detail-card" *ngIf="result()!.result === 'won'">
+          <mat-card-header>
+            <mat-card-title class="detail-card-title">
+              <mat-icon>gavel</mat-icon> Award Details
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="detail-row">
+              <span class="detail-label">Award Date</span>
+              <span class="detail-value">{{ formatDate(result()!.award_date) }}</span>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="detail-row">
+              <span class="detail-label">Awarded Value</span>
+              <span class="detail-value won-value">{{ formatCurrency(result()!.awarded_value) }}</span>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="detail-row">
+              <span class="detail-label">Winning Bidder</span>
+              <span class="detail-value">{{ result()!.winning_bidder || 'N/A' }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Loss Details -->
+        <mat-card class="detail-card" *ngIf="result()!.result === 'lost'">
+          <mat-card-header>
+            <mat-card-title class="detail-card-title">
+              <mat-icon>info_outline</mat-icon> Loss Details
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="detail-row">
+              <span class="detail-label">Award Date</span>
+              <span class="detail-value">{{ formatDate(result()!.award_date) }}</span>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="detail-row">
+              <span class="detail-label">Winning Bidder</span>
+              <span class="detail-value">{{ result()!.winning_bidder || 'Not recorded' }}</span>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="detail-row stacked">
+              <span class="detail-label">Loss Reason</span>
+              <span class="detail-value reason-text">{{ result()!.loss_reason || 'Not recorded' }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Contract Details (won only) -->
+        <mat-card class="detail-card" *ngIf="result()!.result === 'won'">
+          <mat-card-header>
+            <mat-card-title class="detail-card-title">
+              <mat-icon>description</mat-icon> Contract Details
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="detail-row">
+              <span class="detail-label">Contract No.</span>
+              <span class="detail-value mono">{{ result()!.contract_number || 'N/A' }}</span>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="detail-row">
+              <span class="detail-label">Contract Start</span>
+              <span class="detail-value">{{ formatDate(result()!.contract_start) }}</span>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="detail-row">
+              <span class="detail-label">Contract End</span>
+              <span class="detail-value">{{ formatDate(result()!.contract_end) }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+      </div>
+
+      <!-- Lessons Learned -->
+      <mat-card class="lessons-card" *ngIf="result()!.lessons_learned">
+        <mat-card-header>
+          <mat-card-title class="detail-card-title">
+            <mat-icon>lightbulb</mat-icon> Lessons Learned
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="lessons-text">{{ result()!.lessons_learned }}</p>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Add Lessons Prompt (if empty) -->
+      <mat-card class="lessons-card lessons-empty" *ngIf="!result()!.lessons_learned">
+        <mat-card-content>
+          <div class="lessons-prompt">
+            <mat-icon>lightbulb_outline</mat-icon>
+            <span>No lessons learned recorded yet.</span>
+            <button mat-stroked-button (click)="toggleEdit()">Add Lessons Learned</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </ng-container>
+  </ng-container>
+
+</div>
+
+<!-- Reusable Form Fields Template -->
+<ng-template #resultFormFields>
+  <div class="form-grid">
+
+    <!-- Result Type -->
+    <div class="form-section result-type-section">
+      <h3 class="form-section-title">Outcome</h3>
+      <div class="result-type-row">
+        <button *ngFor="let rt of resultTypes"
+                class="result-type-btn"
+                [class.selected]="resultForm.result === rt.value"
+                [style.--result-color]="rt.color"
+                (click)="resultForm.result = rt.value">
+          <mat-icon [style.color]="rt.color">{{ rt.icon }}</mat-icon>
+          <span>{{ rt.label }}</span>
+        </button>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Core Fields -->
+    <div class="form-section">
+      <h3 class="form-section-title">Details</h3>
+      <div class="form-row-2">
+        <mat-form-field appearance="outline">
+          <mat-label>Award Date</mat-label>
+          <input matInput type="date" [(ngModel)]="resultForm.award_date" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Awarded Value (INR)</mat-label>
+          <input matInput type="number" [(ngModel)]="resultForm.awarded_value"
+                 placeholder="e.g. 5000000" />
+          <mat-icon matPrefix>currency_rupee</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row-2">
+        <mat-form-field appearance="outline">
+          <mat-label>Winning Bidder</mat-label>
+          <input matInput [(ngModel)]="resultForm.winning_bidder"
+                 placeholder="Company name" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Contract Number</mat-label>
+          <input matInput [(ngModel)]="resultForm.contract_number"
+                 placeholder="e.g. CONT/2026/001" />
+        </mat-form-field>
+      </div>
+
+      <div class="form-row-2">
+        <mat-form-field appearance="outline">
+          <mat-label>Contract Start Date</mat-label>
+          <input matInput type="date" [(ngModel)]="resultForm.contract_start" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Contract End Date</mat-label>
+          <input matInput type="date" [(ngModel)]="resultForm.contract_end" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Loss Reason -->
+    <div class="form-section" *ngIf="resultForm.result === 'lost'">
+      <h3 class="form-section-title">Loss Reason</h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Why did we lose this tender?</mat-label>
+        <textarea matInput [(ngModel)]="resultForm.loss_reason"
+                  rows="3"
+                  placeholder="Describe the reason for losing (e.g. price, technical score, etc.)"></textarea>
+      </mat-form-field>
+    </div>
+
+    <!-- Lessons Learned -->
+    <div class="form-section">
+      <h3 class="form-section-title">Lessons Learned</h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Lessons Learned</mat-label>
+        <textarea matInput [(ngModel)]="resultForm.lessons_learned"
+                  rows="4"
+                  placeholder="Capture insights for future bids..."></textarea>
+      </mat-form-field>
+    </div>
+
+  </div>
+</ng-template>

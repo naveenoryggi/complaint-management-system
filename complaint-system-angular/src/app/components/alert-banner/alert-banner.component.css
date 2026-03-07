@@ -1,0 +1,356 @@
+/* ============================================================
+   Alert Banner — Deadline Alert System
+   ============================================================ */
+
+.alert-banner-wrapper {
+  margin: 0 0 16px 0;
+  width: 100%;
+}
+
+/* Card */
+.alert-banner-card {
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10) !important;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* ---- Header ---- */
+.alert-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.15s;
+}
+
+.alert-header:hover {
+  background: #fafafa;
+}
+
+.alert-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.alert-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.bell-icon {
+  color: #78909c;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  transition: color 0.2s;
+}
+
+.bell-icon.has-critical {
+  color: #e53935;
+  animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%       { transform: scale(1.2); opacity: 0.8; }
+}
+
+.alert-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+}
+
+/* Summary chips */
+.summary-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 9px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.chip mat-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+}
+
+.chip-critical { background: #fdecea; color: #c62828; }
+.chip-warning  { background: #fff3e0; color: #e65100; }
+.chip-info     { background: #ecfdf5; color: #057a55; }
+
+/* Total badge */
+.total-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 12px;
+  background: #90a4ae;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  transition: background 0.2s;
+}
+
+.total-badge.critical-bg {
+  background: #e53935;
+}
+
+/* Collapse icon */
+.collapse-icon {
+  color: #90a4ae;
+  transition: transform 0.25s ease;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.collapse-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* ---- Loading row ---- */
+.loading-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  color: #78909c;
+  font-size: 13px;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ---- Alert list ---- */
+.alert-list {
+  max-height: 480px;
+  overflow-y: auto;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
+  opacity: 1;
+}
+
+.alert-list.collapsed {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+/* ---- Alert item ---- */
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f5f5f5;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  position: relative;
+}
+
+.alert-item:last-child {
+  border-bottom: none;
+}
+
+.alert-item:hover {
+  background: #f9f9f9;
+  transform: translateX(2px);
+}
+
+.alert-item:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: -2px;
+}
+
+/* Severity left-border accent */
+.alert-item--critical { border-left: 4px solid #e53935; }
+.alert-item--warning  { border-left: 4px solid #fb8c00; }
+.alert-item--info     { border-left: 4px solid #1e88e5; }
+
+/* Dismiss animation */
+.alert-item.dismissing {
+  animation: slideOut 0.3s ease forwards;
+}
+
+@keyframes slideOut {
+  from { opacity: 1; max-height: 80px; transform: translateX(0); }
+  to   { opacity: 0; max-height: 0;    transform: translateX(40px); padding: 0; }
+}
+
+/* Icon column */
+.alert-icon-col {
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.severity-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.severity-icon--critical { color: #e53935; }
+.severity-icon--warning  { color: #fb8c00; }
+.severity-icon--info     { color: #1e88e5; }
+
+/* Content column */
+.alert-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-top-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.tender-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #212121;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.type-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #757575;
+  background: #eeeeee;
+  padding: 1px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.alert-message {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.45;
+  margin-bottom: 4px;
+}
+
+.alert-meta {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: #78909c;
+}
+
+.meta-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+  color: #90a4ae;
+}
+
+.days-remaining {
+  font-weight: 600;
+}
+
+.days-remaining--critical { color: #e53935; }
+.days-remaining--warning  { color: #fb8c00; }
+.days-remaining--info     { color: #1e88e5; }
+
+/* Actions column */
+.alert-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.dismiss-btn {
+  color: #bdbdbd !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  transition: color 0.15s, background 0.15s !important;
+}
+
+.dismiss-btn:hover {
+  color: #e53935 !important;
+  background: #fdecea !important;
+}
+
+.dismiss-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* ---- Scrollbar styling ---- */
+.alert-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.alert-list::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+.alert-list::-webkit-scrollbar-thumb {
+  background: #cfd8dc;
+  border-radius: 4px;
+}
+
+.alert-list::-webkit-scrollbar-thumb:hover {
+  background: #90a4ae;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+  .alert-header {
+    padding: 10px 12px;
+  }
+
+  .summary-chips {
+    display: none;
+  }
+
+  .alert-item {
+    padding: 10px 12px;
+  }
+
+  .tender-title {
+    max-width: 180px;
+  }
+
+  .alert-list {
+    max-height: 360px;
+  }
+}

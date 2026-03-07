@@ -1,0 +1,70 @@
+<mat-card class="portal-widget-card" (click)="navigateToPortals()" role="button" tabindex="0"
+  (keydown.enter)="navigateToPortals()" (keydown.space)="navigateToPortals()">
+
+  <!-- Loading State -->
+  <div class="widget-loading" *ngIf="loading()">
+    <mat-spinner diameter="24"></mat-spinner>
+  </div>
+
+  <!-- Widget Content -->
+  <div class="widget-content" *ngIf="!loading()">
+    <!-- Header -->
+    <div class="widget-header">
+      <div class="widget-title-row">
+        <mat-icon class="widget-icon">verified_user</mat-icon>
+        <span class="widget-title">Portal Health</span>
+      </div>
+      <span class="health-badge" [ngClass]="healthClass">
+        {{ healthLabel }}
+      </span>
+    </div>
+
+    <!-- No Portals -->
+    <div class="no-portals" *ngIf="totalCount === 0">
+      <mat-icon class="no-portal-icon">info_outline</mat-icon>
+      <span>No portals registered</span>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid" *ngIf="totalCount > 0">
+      <!-- Active -->
+      <div class="stat-box stat-active">
+        <div class="stat-icon-wrap">
+          <mat-icon class="stat-icon">check_circle</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-count">{{ activeCount() }}</span>
+          <span class="stat-label">Active</span>
+        </div>
+      </div>
+
+      <!-- Expiring Soon -->
+      <div class="stat-box stat-expiring">
+        <div class="stat-icon-wrap">
+          <mat-icon class="stat-icon">schedule</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-count">{{ expiringCount() }}</span>
+          <span class="stat-label">Expiring Soon</span>
+        </div>
+      </div>
+
+      <!-- Expired -->
+      <div class="stat-box stat-expired">
+        <div class="stat-icon-wrap">
+          <mat-icon class="stat-icon">cancel</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-count">{{ expiredCount() }}</span>
+          <span class="stat-label">Expired</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="widget-footer" *ngIf="totalCount > 0">
+      <span class="total-label">{{ totalCount }} portals total</span>
+      <mat-icon class="nav-arrow">arrow_forward</mat-icon>
+    </div>
+  </div>
+</mat-card>

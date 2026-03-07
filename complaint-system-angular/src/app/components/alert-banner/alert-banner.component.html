@@ -1,0 +1,89 @@
+<div class="alert-banner-wrapper" *ngIf="alerts().length > 0 || loading()">
+  <mat-card class="alert-banner-card">
+
+    <!-- Header -->
+    <div class="alert-header" (click)="toggleCollapsed()">
+      <div class="alert-header-left">
+        <mat-icon class="bell-icon" [class.has-critical]="criticalCount > 0">notifications_active</mat-icon>
+        <span class="alert-title">Deadline Alerts</span>
+
+        <!-- Summary chips -->
+        <div class="summary-chips">
+          <span class="chip chip-critical" *ngIf="criticalCount > 0">
+            <mat-icon>error</mat-icon>{{ criticalCount }} Critical
+          </span>
+          <span class="chip chip-warning" *ngIf="warningCount > 0">
+            <mat-icon>warning</mat-icon>{{ warningCount }} Warning
+          </span>
+          <span class="chip chip-info" *ngIf="infoCount > 0">
+            <mat-icon>info</mat-icon>{{ infoCount }} Info
+          </span>
+        </div>
+      </div>
+
+      <div class="alert-header-right">
+        <span class="total-badge" [class.critical-bg]="criticalCount > 0">
+          {{ alerts().length }}
+        </span>
+        <mat-icon class="collapse-icon" [class.rotated]="collapsed()">expand_more</mat-icon>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div class="loading-row" *ngIf="loading()">
+      <mat-icon class="spin">autorenew</mat-icon>
+      <span>Loading alerts...</span>
+    </div>
+
+    <!-- Alert items -->
+    <div class="alert-list" [class.collapsed]="collapsed()">
+      <div
+        *ngFor="let alert of alerts()"
+        class="alert-item"
+        [class]="'alert-item alert-item--' + getSeverityColor(alert.severity)"
+        (click)="navigateToTender(alert.tender_id)"
+        role="button"
+        tabindex="0"
+        (keydown.enter)="navigateToTender(alert.tender_id)"
+        [attr.aria-label]="'Go to tender: ' + alert.tender_title"
+      >
+        <!-- Left: severity icon -->
+        <div class="alert-icon-col">
+          <mat-icon class="severity-icon" [class]="'severity-icon--' + getSeverityColor(alert.severity)">
+            {{ getSeverityIcon(alert.severity) }}
+          </mat-icon>
+        </div>
+
+        <!-- Center: content -->
+        <div class="alert-content">
+          <div class="alert-top-row">
+            <span class="tender-title">{{ alert.tender_title }}</span>
+            <span class="type-label">{{ getAlertTypeLabel(alert.alert_type) }}</span>
+          </div>
+          <div class="alert-message">{{ alert.message }}</div>
+          <div class="alert-meta" *ngIf="alert.due_date">
+            <mat-icon class="meta-icon">calendar_today</mat-icon>
+            <span>Due: {{ alert.due_date | date:'dd MMM yyyy' }}</span>
+            <span class="days-remaining" [class]="'days-remaining--' + getSeverityColor(alert.severity)">
+              &nbsp;&bull;&nbsp;{{ alert.days_remaining }} day{{ alert.days_remaining !== 1 ? 's' : '' }} remaining
+            </span>
+          </div>
+        </div>
+
+        <!-- Right: dismiss button -->
+        <div class="alert-actions">
+          <button
+            mat-icon-button
+            class="dismiss-btn"
+            (click)="dismissAlert(alert.id, $event)"
+            [attr.aria-label]="'Dismiss alert for ' + alert.tender_title"
+            matTooltip="Dismiss"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </mat-card>
+</div>

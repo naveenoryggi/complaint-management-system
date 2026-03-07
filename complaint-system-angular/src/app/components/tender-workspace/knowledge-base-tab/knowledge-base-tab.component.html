@@ -1,0 +1,270 @@
+<div class="kb-container">
+  <!-- Header -->
+  <div class="kb-header">
+    <div class="kb-title">
+      <mat-icon>auto_stories</mat-icon>
+      <h3>Knowledge Base</h3>
+      <span class="entry-count">({{ totalEntries() }} entries)</span>
+    </div>
+    <div class="kb-actions">
+      <button mat-stroked-button [matMenuTriggerFor]="harvestMenu" [disabled]="harvesting()">
+        <mat-icon>{{ harvesting() ? 'hourglass_empty' : 'agriculture' }}</mat-icon>
+        {{ harvesting() ? 'Harvesting...' : 'Harvest' }}
+      </button>
+      <mat-menu #harvestMenu="matMenu">
+        @if (tenderId()) {
+          <button mat-menu-item (click)="onHarvestFromTender()">
+            <mat-icon>description</mat-icon>
+            <span>From this tender</span>
+          </button>
+        }
+        <button mat-menu-item (click)="onHarvestCompanyData()">
+          <mat-icon>business</mat-icon>
+          <span>Sync company data</span>
+        </button>
+      </mat-menu>
+      @if (tenderId()) {
+        <button mat-stroked-button
+                [color]="showGeneratePanel() ? 'accent' : ''"
+                (click)="onToggleGeneratePanel()">
+          <mat-icon>summarize</mat-icon>
+          {{ showGeneratePanel() ? 'Cancel Summary' : 'Generate Summary' }}
+        </button>
+      }
+      <button mat-raised-button color="primary" (click)="onOpenAddForm()">
+        <mat-icon>add</mat-icon>
+        Add Entry
+      </button>
+    </div>
+  </div>
+
+  <!-- Category Chips -->
+  <div class="category-chips">
+    @for (chip of categoryChips(); track chip.key) {
+      <button mat-stroked-button
+              class="category-chip"
+              [class.active]="selectedCategory() === chip.key"
+              (click)="onCategorySelect(chip.key)">
+        <mat-icon>{{ chip.icon }}</mat-icon>
+        {{ chip.label }} ({{ chip.count }})
+      </button>
+    }
+  </div>
+
+  <!-- Search Bar -->
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput placeholder="Search KB entries..." (input)="onSearchInput($event)">
+  </mat-form-field>
+
+  <!-- Add Entry Form -->
+  @if (showAddForm()) {
+    <mat-card class="add-form-card">
+      <mat-card-header>
+        <mat-card-title>New Knowledge Base Entry</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Title</mat-label>
+            <input matInput [(ngModel)]="newEntry.title" placeholder="Entry title">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="form-field-quarter">
+            <mat-label>Category</mat-label>
+            <mat-select [(ngModel)]="newEntry.category">
+              @for (opt of categoryOptions; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="form-field-quarter">
+            <mat-label>Fiscal Year</mat-label>
+            <input matInput [(ngModel)]="newEntry.fiscal_year" placeholder="2024-25">
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>Content</mat-label>
+          <textarea matInput [(ngModel)]="newEntry.content" rows="5" placeholder="Reusable content..."></textarea>
+        </mat-form-field>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Subcategory</mat-label>
+            <input matInput [(ngModel)]="newEntry.subcategory" placeholder="e.g. turnover, methodology">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Tags (comma-separated)</mat-label>
+            <input matInput [ngModel]="getTagsString()"
+                   (ngModelChange)="onTagsInput($event)"
+                   placeholder="networking, switch, PoE">
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button (click)="onCancelAdd()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="onSaveNew()">
+          <mat-icon>save</mat-icon>
+          Save Entry
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  }
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading knowledge base...</p>
+    </div>
+  } @else if (entries().length === 0) {
+    <div class="empty-state">
+      <mat-icon>auto_stories</mat-icon>
+      <h4>No entries yet</h4>
+      <p>Add entries manually or harvest from tenders and company data.</p>
+      <div class="empty-actions">
+        <button mat-raised-button color="primary" (click)="onOpenAddForm()">
+          <mat-icon>add</mat-icon> Add Entry
+        </button>
+        <button mat-stroked-button (click)="onHarvestCompanyData()">
+          <mat-icon>agriculture</mat-icon> Sync Company Data
+        </button>
+      </div>
+    </div>
+  } @else {
+    <!-- Generate Summary Selection Bar -->
+    @if (showGeneratePanel() && entries().length > 0) {
+      <div class="generate-bar">
+        <div class="generate-bar-left">
+          <mat-icon>summarize</mat-icon>
+          <span>Select entries for DOCX summary ({{ selectedForSummary().size }} selected)</span>
+        </div>
+        <div class="generate-bar-actions">
+          <button mat-button (click)="onSelectAll()">Select All</button>
+          <button mat-button (click)="onDeselectAll()">Deselect All</button>
+          <button mat-raised-button color="primary"
+                  [disabled]="selectedForSummary().size === 0 || generatingSummary()"
+                  (click)="onGenerateSummary()">
+            <mat-icon>{{ generatingSummary() ? 'hourglass_empty' : 'download' }}</mat-icon>
+            {{ generatingSummary() ? 'Generating...' : 'Generate DOCX' }}
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Entry List -->
+    <mat-accordion class="entry-list" multi>
+      @for (entry of entries(); track entry.id) {
+        <mat-expansion-panel class="entry-panel" [class]="'freshness-' + getFreshnessClass(entry)">
+          <mat-expansion-panel-header>
+            <mat-panel-title class="entry-title-row">
+              @if (showGeneratePanel()) {
+                <mat-checkbox
+                  [checked]="isEntrySelected(entry.id)"
+                  (change)="onToggleSelectEntry(entry.id)"
+                  (click)="$event.stopPropagation()"
+                  class="entry-checkbox">
+                </mat-checkbox>
+              }
+              <span class="entry-title">{{ entry.title }}</span>
+            </mat-panel-title>
+            <mat-panel-description class="entry-meta">
+              <span class="entry-category-badge">
+                <mat-icon>{{ getCategoryIcon(entry.category) }}</mat-icon>
+                {{ getCategoryLabel(entry.category) }}
+              </span>
+              @if (entry.is_verified) {
+                <mat-icon class="verified-icon" matTooltip="Verified">verified</mat-icon>
+              }
+              @if (getFreshnessClass(entry) === 'stale') {
+                <mat-icon class="stale-icon" matTooltip="Stale — content may be outdated">warning</mat-icon>
+              }
+              <span class="usage-badge" matTooltip="Times used">
+                {{ entry.usage_count }}x
+              </span>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <!-- Expanded Content -->
+          <div class="entry-content">
+            @if (editingEntryId() === entry.id) {
+              <!-- Edit Mode -->
+              <mat-form-field appearance="outline" class="form-field-full">
+                <mat-label>Title</mat-label>
+                <input matInput [(ngModel)]="editData.title">
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="form-field-full">
+                <mat-label>Content</mat-label>
+                <textarea matInput [(ngModel)]="editData.content" rows="6"></textarea>
+              </mat-form-field>
+              <div class="edit-actions">
+                <button mat-button (click)="onCancelEdit()">Cancel</button>
+                <button mat-raised-button color="primary" (click)="onSaveEdit(entry.id)">
+                  <mat-icon>save</mat-icon> Save
+                </button>
+              </div>
+            } @else {
+              <!-- View Mode -->
+              <pre class="content-text">{{ entry.content }}</pre>
+
+              <mat-divider></mat-divider>
+
+              <div class="entry-footer">
+                <div class="entry-badges">
+                  <span class="source-badge">
+                    <mat-icon>{{ getSourceIcon(entry.source_type) }}</mat-icon>
+                    {{ getSourceLabel(entry.source_type) }}
+                  </span>
+                  @if (entry.source_description) {
+                    <span class="source-desc">{{ entry.source_description }}</span>
+                  }
+                  @if (entry.fiscal_year) {
+                    <span class="fy-badge">FY {{ entry.fiscal_year }}</span>
+                  }
+                  @if (entry.subcategory) {
+                    <span class="subcategory-badge">{{ entry.subcategory }}</span>
+                  }
+                  @if (entry.tags && entry.tags.length > 0) {
+                    @for (tag of entry.tags; track tag) {
+                      <span class="tag-chip">{{ tag }}</span>
+                    }
+                  }
+                </div>
+                <div class="entry-actions">
+                  <button mat-icon-button matTooltip="Copy content" (click)="onCopyContent(entry)">
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                  <button mat-icon-button matTooltip="Edit" (click)="onStartEdit(entry)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button
+                          [matTooltip]="entry.is_verified ? 'Unmark verified' : 'Mark as verified'"
+                          (click)="onToggleVerified(entry)">
+                    <mat-icon>{{ entry.is_verified ? 'verified' : 'check_circle_outline' }}</mat-icon>
+                  </button>
+                  <button mat-icon-button matTooltip="Archive" (click)="onArchive(entry)">
+                    <mat-icon>archive</mat-icon>
+                  </button>
+                  <button mat-icon-button matTooltip="Delete" (click)="onDelete(entry)">
+                    <mat-icon color="warn">delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button mat-icon-button [disabled]="currentPage() <= 1" (click)="onPageChange(currentPage() - 1)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="page-info">Page {{ currentPage() }} of {{ totalPages() }}</span>
+        <button mat-icon-button [disabled]="currentPage() >= totalPages()" (click)="onPageChange(currentPage() + 1)">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    }
+  }
+</div>

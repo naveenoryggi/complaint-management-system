@@ -12,6 +12,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { TenderService, Tender, TenderCreate, TenderUpdate } from '../../services/tender.service';
 import { TrackingService, PortalRegistration } from '../../services/tracking.service';
@@ -32,6 +33,7 @@ import { TrackingService, PortalRegistration } from '../../services/tracking.ser
     MatNativeDateModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatDividerModule
   ],
   templateUrl: './tender-form.component.html',
@@ -49,6 +51,9 @@ export class TenderFormComponent implements OnInit {
   loading = signal(false);
   isEditMode = signal(false);
   tenderId = signal<string | null>(null);
+  extracting = signal(false);
+  uploadedFiles = signal<File[]>([]);
+  extractionDone = signal(false);
 
   statusOptions = [
     { value: 'draft', label: 'Draft' },
@@ -201,6 +206,94 @@ export class TenderFormComponent implements OnInit {
     }
   }
 
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const files = Array.from(input.files);
+      this.uploadedFiles.set(files);
+      this.extractFromFiles(files);
+    }
+  }
+
+  extractFromFiles(files: File[]) {
+    this.extracting.set(true);
+    this.snackBar.open('Extracting tender details from PDF... This may take a moment.', 'Close', { duration: 10000 });
+
+    this.tenderService.extractPreview(files).subscribe({
+      next: (response) => {
+        this.extracting.set(false);
+        this.extractionDone.set(true);
+        const data = response.extracted_data;
+
+        // Auto-fill form fields from extracted data
+        if (data.title) this.tenderForm.patchValue({ title: data.title });
+        if (data.reference_number) this.tenderForm.patchValue({ reference_number: data.reference_number });
+        if (data.issuing_authority) this.tenderForm.patchValue({ issuing_authority: data.issuing_authority });
+        if (data.deadline) {
+          try {
+            this.tenderForm.patchValue({ deadline: new Date(data.deadline) });
+          } catch {}
+        }
+        if (data.estimated_value) this.tenderForm.patchValue({ estimated_value: data.estimated_value });
+
+        // Build requirements text from extracted arrays
+        const reqParts: string[] = [];
+        if (data.eligibility_criteria?.length) {
+          reqParts.push('Eligibility Criteria:');
+          data.eligibility_criteria.forEach((c: any) => {
+            reqParts.push(`- ${typeof c === 'string' ? c : c.description || JSON.stringify(c)}`);
+          });
+          reqParts.push('');
+        }
+        if (data.technical_requirements?.length) {
+          reqParts.push('Technical Requirements:');
+          data.technical_requirements.forEach((r: any) => {
+            reqParts.push(`- ${typeof r === 'string' ? r : r.description || JSON.stringify(r)}`);
+          });
+          reqParts.push('');
+        }
+        if (data.special_conditions?.length) {
+          reqParts.push('Special Conditions:');
+          data.special_conditions.forEach((s: any) => reqParts.push(`- ${s}`));
+          reqParts.push('');
+        }
+        if (reqParts.length) {
+          this.tenderForm.patchValue({ requirements: reqParts.join('\n') });
+        }
+
+        // Build notes from other extracted info
+        const noteParts: string[] = [];
+        if (data.emd) {
+          noteParts.push(`EMD: ₹${data.emd.amount?.toLocaleString('en-IN') || 'N/A'} (${data.emd.mode || 'N/A'})`);
+        }
+        if (data.important_dates) {
+          noteParts.push('Important Dates:');
+          for (const [key, val] of Object.entries(data.important_dates)) {
+            noteParts.push(`  ${key}: ${val}`);
+          }
+        }
+        if (data.contact_info) {
+          noteParts.push(`Contact: ${JSON.stringify(data.contact_info)}`);
+        }
+        if (noteParts.length) {
+          this.tenderForm.patchValue({ notes: noteParts.join('\n') });
+        }
+
+        // Store full extracted data for later use (after tender creation)
+        (this as any)._extractedData = data;
+
+        const fieldsPopulated = [data.title, data.reference_number, data.issuing_authority, data.deadline, data.estimated_value]
+          .filter(Boolean).length;
+        this.snackBar.open(`Extracted ${fieldsPopulated} fields from tender document`, 'Close', { duration: 5000 });
+      },
+      error: (error) => {
+        this.extracting.set(false);
+        const detail = error.error?.detail || 'Failed to extract data from PDF';
+        this.snackBar.open(detail, 'Close', { duration: 5000 });
+      }
+    });
+  }
+
   onSubmit() {
     if (this.tenderForm.valid) {
       this.loading.set(true);
@@ -257,9 +350,26 @@ export class TenderFormComponent implements OnInit {
 
         this.tenderService.createTender(createData).subscribe({
           next: (tender) => {
-            this.loading.set(false);
-            this.snackBar.open('Tender created successfully', 'Close', { duration: 3000 });
-            this.router.navigate(['/tenders', tender.id]);
+            // If we have uploaded files, run full extraction to create EMD/checklist/criteria records
+            if (this.uploadedFiles().length > 0 && this.extractionDone()) {
+              this.snackBar.open('Tender created! Applying extraction data...', 'Close', { duration: 3000 });
+              this.tenderService.extractFromPDF(tender.id, this.uploadedFiles()).subscribe({
+                next: () => {
+                  this.loading.set(false);
+                  this.snackBar.open('Tender created with full extraction applied', 'Close', { duration: 3000 });
+                  this.router.navigate(['/tenders', tender.id]);
+                },
+                error: () => {
+                  this.loading.set(false);
+                  this.snackBar.open('Tender created (extraction apply failed — run manually from workspace)', 'Close', { duration: 5000 });
+                  this.router.navigate(['/tenders', tender.id]);
+                }
+              });
+            } else {
+              this.loading.set(false);
+              this.snackBar.open('Tender created successfully', 'Close', { duration: 3000 });
+              this.router.navigate(['/tenders', tender.id]);
+            }
           },
           error: (error) => {
             console.error('Error creating tender:', error);

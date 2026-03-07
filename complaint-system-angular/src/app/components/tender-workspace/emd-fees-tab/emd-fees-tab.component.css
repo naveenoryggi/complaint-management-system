@@ -10,10 +10,10 @@
 .table-container { overflow-x: auto; }
 .data-table { width: 100%; min-width: 700px; }
 .amount-cell { font-weight: 500; }
-.mode-chip { font-size: 12px !important; background-color: #e3f2fd !important; color: #1565c0 !important; }
+.mode-chip { font-size: 12px !important; background-color: #ecfdf5 !important; color: #057a55 !important; }
 
 .status-pending { background-color: #fff3e0 !important; color: #e65100 !important; }
-.status-submitted { background-color: #e3f2fd !important; color: #1565c0 !important; }
+.status-submitted { background-color: #ecfdf5 !important; color: #057a55 !important; }
 .status-released { background-color: #e8f5e9 !important; color: #2e7d32 !important; }
 .status-forfeited { background-color: #fce4ec !important; color: #c62828 !important; }
 

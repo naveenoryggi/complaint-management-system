@@ -12,6 +12,47 @@
     </mat-card-header>
   </mat-card>
 
+  <!-- Upload Tender Document -->
+  @if (!isEditMode()) {
+    <mat-card class="upload-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>cloud_upload</mat-icon>
+          Upload Tender Document
+        </mat-card-title>
+        <mat-card-subtitle>
+          Upload the tender PDF to auto-fill details using AI extraction
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="upload-area" (click)="fileInput.click()" [class.extracting]="extracting()">
+          <input #fileInput type="file" hidden accept=".pdf" multiple (change)="onFileSelected($event)">
+          @if (extracting()) {
+            <mat-progress-bar mode="indeterminate" class="extraction-progress"></mat-progress-bar>
+            <mat-icon class="upload-icon extracting-icon">auto_awesome</mat-icon>
+            <p class="upload-text">Extracting tender details with AI...</p>
+            <p class="upload-hint">This may take 15-30 seconds</p>
+          } @else if (extractionDone()) {
+            <mat-icon class="upload-icon done-icon">check_circle</mat-icon>
+            <p class="upload-text">Extraction complete — form auto-filled</p>
+            <p class="upload-hint">
+              {{ uploadedFiles().length }} file(s) uploaded
+            </p>
+            <p class="upload-hint">Review and edit the fields below, then click Create</p>
+          } @else {
+            <mat-icon class="upload-icon">description</mat-icon>
+            <p class="upload-text">Click to upload tender PDF</p>
+            <p class="upload-hint">Or drag and drop — supports multiple files (NIT, specs, BOQ)</p>
+          }
+        </div>
+
+        <p class="or-divider">
+          <span>or fill in the details manually below</span>
+        </p>
+      </mat-card-content>
+    </mat-card>
+  }
+
   <!-- Form -->
   <mat-card class="form-card">
     <mat-card-content>

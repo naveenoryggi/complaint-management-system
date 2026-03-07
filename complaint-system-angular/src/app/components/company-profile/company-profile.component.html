@@ -12,10 +12,21 @@
     </mat-card-header>
     <mat-card-actions>
       @if (!editMode()) {
-        <button mat-raised-button color="primary" (click)="editMode.set(true)">
+        <button mat-raised-button color="primary" (click)="enableEdit()">
           <mat-icon>edit</mat-icon>
           Edit Profile
         </button>
+      } @else {
+        <div class="edit-mode-actions">
+          <mat-chip class="edit-chip">
+            <mat-icon>edit</mat-icon> Editing
+          </mat-chip>
+          <button mat-button (click)="cancelEdit()">Cancel</button>
+          <button mat-raised-button color="primary" (click)="saveProfile()">
+            <mat-icon>save</mat-icon>
+            Save Profile
+          </button>
+        </div>
       }
     </mat-card-actions>
   </mat-card>
@@ -105,6 +116,34 @@
 
                 <mat-divider></mat-divider>
 
+                <h3 class="section-title">PF & ESI Registration</h3>
+                <p class="section-description">Provident Fund and ESI registration details required for government tender compliance.</p>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>PF Registration Number</mat-label>
+                    <input matInput formControlName="pf_registration_number" placeholder="e.g. MH/MUM/12345">
+                    <mat-hint>Establishment Code from EPFO</mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>PF Registration Date</mat-label>
+                    <input matInput type="date" formControlName="pf_registration_date">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>ESI Registration Number</mat-label>
+                    <input matInput formControlName="esi_registration_number" placeholder="e.g. 31-12345-67">
+                    <mat-hint>Code from ESIC</mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>ESI Registration Date</mat-label>
+                    <input matInput type="date" formControlName="esi_registration_date">
+                  </mat-form-field>
+                </div>
+
+                <mat-divider></mat-divider>
+
                 <h3 class="section-title">Bank Details</h3>
                 <div class="form-grid">
                   <mat-form-field appearance="outline">
@@ -130,10 +169,17 @@
 
                 @if (editMode()) {
                   <div class="form-actions">
-                    <button mat-button type="button" (click)="editMode.set(false)">Cancel</button>
+                    <button mat-button type="button" (click)="cancelEdit()">Cancel</button>
                     <button mat-raised-button color="primary" type="submit">
                       <mat-icon>save</mat-icon>
                       Save Profile
+                    </button>
+                  </div>
+                } @else {
+                  <div class="form-actions">
+                    <button mat-raised-button color="primary" type="button" (click)="enableEdit()">
+                      <mat-icon>edit</mat-icon>
+                      Edit Profile
                     </button>
                   </div>
                 }
@@ -270,6 +316,7 @@
                       <mat-icon>{{ asset.icon }}</mat-icon>
                       <span>{{ asset.label }}</span>
                     </div>
+                    <span class="asset-hint">{{ asset.hint }}</span>
 
                     <div class="asset-preview">
                       @if (getAssetPath(asset.key)) {

@@ -91,13 +91,13 @@ export class ReferenceBundleService {
     if (clientType) params = params.set('client_type', clientType);
     if (status) params = params.set('status', status);
     if (search) params = params.set('search', search);
-    return this.http.get<BundleListResponse>(this.baseUrl, { params });
+    return this.http.get<BundleListResponse>(`${this.baseUrl}/`, { params });
   }
   getBundle(id: string): Observable<ReferenceBundle> {
     return this.http.get<ReferenceBundle>(`${this.baseUrl}/${id}`);
   }
   createBundle(data: Partial<ReferenceBundle>): Observable<ReferenceBundle> {
-    return this.http.post<ReferenceBundle>(this.baseUrl, data);
+    return this.http.post<ReferenceBundle>(`${this.baseUrl}/`, data);
   }
   updateBundle(id: string, data: Partial<ReferenceBundle>): Observable<ReferenceBundle> {
     return this.http.put<ReferenceBundle>(`${this.baseUrl}/${id}`, data);

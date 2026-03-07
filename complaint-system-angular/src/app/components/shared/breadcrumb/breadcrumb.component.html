@@ -41,7 +41,7 @@
         </a>
 
         <!-- Current page (last breadcrumb) -->
-        <span *ngIf="last" class="breadcrumb-current">
+        <span *ngIf="last" class="breadcrumb-current" [title]="breadcrumb.label">
           <i *ngIf="breadcrumb.icon" class="bi breadcrumb-icon" [ngClass]="breadcrumb.icon"></i>
           <span>{{ breadcrumb.label }}</span>
         </span>

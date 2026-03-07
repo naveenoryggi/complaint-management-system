@@ -58,6 +58,8 @@ class AIRegenerateRequest(BaseModel):
 
 class AIGenerationResponse(BaseModel):
     """Response schema for AI generation."""
+    model_config = {"from_attributes": True, "protected_namespaces": ()}
+
     id: UUID
     generation_type: str
     content: str
@@ -66,12 +68,11 @@ class AIGenerationResponse(BaseModel):
     document_id: Optional[UUID] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
-
 
 class PromptTemplateResponse(BaseModel):
     """Schema for prompt template."""
+    model_config = {"from_attributes": True}
+
     id: UUID
     name: str
     description: Optional[str]
@@ -79,9 +80,6 @@ class PromptTemplateResponse(BaseModel):
     template_text: str
     is_active: bool
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class AIUsageStats(BaseModel):

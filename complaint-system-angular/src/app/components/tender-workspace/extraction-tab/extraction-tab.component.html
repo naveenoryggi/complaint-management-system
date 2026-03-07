@@ -2,15 +2,20 @@
   <!-- Upload Section -->
   <mat-card class="upload-card">
     <mat-card-content>
-      <div class="upload-area">
+      <div class="drop-zone"
+           [class.drag-over]="dragOver()"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave($event)"
+           (drop)="onDrop($event)">
         <mat-icon class="upload-icon">cloud_upload</mat-icon>
-        <h3>Upload Tender Document</h3>
-        <p>Upload a PDF tender document to extract structured information using AI</p>
+        <h3>Upload Tender Documents</h3>
+        <p>Drag &amp; drop PDF files here, or click to browse.<br>
+           Upload multiple documents (NIT, specs, BOQ, corrigendum) — all data will be extracted and applied automatically.</p>
         <div class="upload-actions">
-          <input type="file" accept=".pdf" (change)="onFileSelected($event)" #fileInput hidden>
+          <input type="file" accept=".pdf" multiple (change)="onFilesSelected($event)" #fileInput hidden>
           <button mat-raised-button (click)="fileInput.click()">
             <mat-icon>attach_file</mat-icon>
-            {{ selectedFile() ? selectedFile()!.name : 'Choose PDF' }}
+            Choose PDFs
           </button>
           <mat-form-field appearance="outline" class="model-select">
             <mat-label>AI Model</mat-label>
@@ -21,15 +26,43 @@
             </mat-select>
           </mat-form-field>
           <button mat-raised-button color="primary" (click)="onExtract()"
-                  [disabled]="!selectedFile() || extracting()">
+                  [disabled]="!selectedFiles().length || extracting()">
             <mat-icon>{{ extracting() ? 'hourglass_empty' : 'auto_awesome' }}</mat-icon>
-            {{ extracting() ? 'Extracting...' : 'Extract with AI' }}
+            {{ extracting() ? 'Processing...' : 'Extract & Apply' }}
           </button>
         </div>
       </div>
+
+      <!-- Selected Files List -->
+      @if (selectedFiles().length) {
+        <div class="file-list">
+          <div class="file-list-header">
+            <span class="file-count">{{ selectedFiles().length }} file{{ selectedFiles().length > 1 ? 's' : '' }} selected</span>
+            <button mat-icon-button (click)="clearFiles()" matTooltip="Clear all files" class="clear-btn">
+              <mat-icon>clear_all</mat-icon>
+            </button>
+          </div>
+          <div class="file-chips">
+            @for (file of selectedFiles(); track file.name + file.size; let i = $index) {
+              <div class="file-chip">
+                <mat-icon class="file-chip-icon">picture_as_pdf</mat-icon>
+                <span class="file-chip-name">{{ file.name }}</span>
+                <span class="file-chip-size">{{ formatFileSize(file.size) }}</span>
+                <button mat-icon-button class="file-chip-remove" (click)="removeFile(i)" matTooltip="Remove">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
       @if (extracting()) {
         <mat-progress-bar mode="indeterminate" class="extract-progress"></mat-progress-bar>
-        <p class="extracting-text">Analyzing tender document... This may take 30-60 seconds.</p>
+        <p class="extracting-text">
+          Processing {{ selectedFiles().length }} document{{ selectedFiles().length > 1 ? 's' : '' }}...
+          AI is reading, extracting, and applying all tender data automatically.
+        </p>
       }
     </mat-card-content>
   </mat-card>
@@ -37,6 +70,53 @@
   <!-- Extraction Results -->
   @if (extractedData()) {
     <div class="extraction-results">
+
+      <!-- Previously Extracted Banner (when loading stored data) -->
+      @if (previouslyExtracted() && !appliedSummary()) {
+        <div class="applied-banner stored-banner">
+          <mat-icon>history</mat-icon>
+          <div class="applied-banner-content">
+            <strong>Previously Extracted Data</strong>
+            <div class="applied-details">
+              <span>This data was extracted and applied earlier</span>
+              @if (extractionMeta()?.extraction_mode) {
+                <span>Mode: {{ extractionMeta()?.extraction_mode === 'native_pdf' ? 'Native PDF' : 'Text Extraction' }}</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Applied Summary Banner -->
+      @if (appliedSummary()) {
+        <div class="applied-banner">
+          <mat-icon>check_circle</mat-icon>
+          <div class="applied-banner-content">
+            <strong>Tender Updated Successfully</strong>
+            <div class="applied-details">
+              @if (appliedSummary()!.fields_updated.length) {
+                <span>{{ appliedSummary()!.fields_updated.length }} fields updated</span>
+              }
+              @if (appliedSummary()!.criteria_created) {
+                <span>{{ appliedSummary()!.criteria_created }} evaluation criteria</span>
+              }
+              @if (appliedSummary()!.emd_created) {
+                <span>EMD record created</span>
+              }
+              @if (appliedSummary()!.fees_created) {
+                <span>{{ appliedSummary()!.fees_created }} fee records</span>
+              }
+              @if (appliedSummary()!.oem_requirements_created) {
+                <span>{{ appliedSummary()!.oem_requirements_created }} OEM requirements</span>
+              }
+              @if (appliedSummary()!.checklist_created) {
+                <span>{{ appliedSummary()!.checklist_created }} checklist items</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
       <!-- Meta info -->
       <div class="meta-bar">
         <mat-chip class="meta-chip">
@@ -47,6 +127,19 @@
           <mat-icon>token</mat-icon>
           {{ extractionMeta()?.tokens_used }} tokens
         </mat-chip>
+        @if (extractionMeta()?.extraction_mode) {
+          <mat-chip class="meta-chip mode-badge"
+                    [class.native-badge]="extractionMeta()?.extraction_mode === 'native_pdf'">
+            <mat-icon>{{ extractionMeta()?.extraction_mode === 'native_pdf' ? 'picture_as_pdf' : 'text_snippet' }}</mat-icon>
+            {{ extractionMeta()?.extraction_mode === 'native_pdf' ? 'Native PDF' : 'Text Extraction' }}
+          </mat-chip>
+        }
+        @if (extractionMeta()?.files_processed && extractionMeta()!.files_processed! > 1) {
+          <mat-chip class="meta-chip">
+            <mat-icon>file_copy</mat-icon>
+            {{ extractionMeta()?.files_processed }} files merged
+          </mat-chip>
+        }
       </div>
 
       <!-- Basic Info -->
@@ -108,14 +201,84 @@
                   <span class="validity">Valid until {{ extractedData()!.emd!.validity_end_date }}</span>
                 }
               </div>
+              @if (extractedData()!.emd!.msme_exempted) {
+                <div class="extraction-exemption-badge">
+                  <mat-icon>verified</mat-icon>
+                  <strong>MSME Exempted</strong>
+                  @if (extractedData()!.emd!.exemption_details) {
+                    <span> — {{ extractedData()!.emd!.exemption_details }}</span>
+                  }
+                </div>
+              }
+              @if (extractedData()!.emd!.emd_format) {
+                <div class="extraction-detail-row">
+                  <span class="extraction-detail-label">Format:</span>
+                  {{ extractedData()!.emd!.emd_format }}
+                </div>
+              }
+              @if (extractedData()!.emd!.bank_details) {
+                <div class="extraction-bank-details">
+                  <strong>Bank Details:</strong>
+                  @if (extractedData()!.emd!.bank_details!.bank_name) {
+                    <span>{{ extractedData()!.emd!.bank_details!.bank_name }}</span>
+                  }
+                  @if (extractedData()!.emd!.bank_details!.account_number) {
+                    <span>A/C: {{ extractedData()!.emd!.bank_details!.account_number }}</span>
+                  }
+                  @if (extractedData()!.emd!.bank_details!.ifsc_code) {
+                    <span>IFSC: {{ extractedData()!.emd!.bank_details!.ifsc_code }}</span>
+                  }
+                  @if (extractedData()!.emd!.bank_details!.dd_in_favour_of) {
+                    <span>DD in favour of: {{ extractedData()!.emd!.bank_details!.dd_in_favour_of }}</span>
+                  }
+                </div>
+              }
             }
             @if (extractedData()!.tender_fees?.length) {
+              <mat-divider class="emd-fees-divider"></mat-divider>
               <div class="fees-list">
                 @for (fee of extractedData()!.tender_fees; track $index) {
-                  <div class="fee-item">
-                    <span>{{ fee.fee_type | titlecase }}: {{ formatCurrency(fee.amount) }}</span>
-                    @if (fee.payment_mode) {
-                      <span class="payment-mode">({{ fee.payment_mode }})</span>
+                  <div class="fee-item-rich">
+                    <div class="fee-item-main">
+                      <span class="fee-item-type">{{ fee.fee_type | titlecase }}:</span>
+                      <strong>{{ formatCurrency(fee.amount) }}</strong>
+                      @if (fee.payment_mode) {
+                        <mat-chip class="mode-chip">{{ fee.payment_mode | uppercase }}</mat-chip>
+                      }
+                      @if (fee.non_refundable) {
+                        <mat-chip class="non-refundable-chip">Non-Refundable</mat-chip>
+                      }
+                    </div>
+                    @if (fee.msme_exempted) {
+                      <div class="extraction-exemption-badge fee-level">
+                        <mat-icon>verified</mat-icon>
+                        <span>MSME Exempted</span>
+                        @if (fee.exemption_details) {
+                          <span> — {{ fee.exemption_details }}</span>
+                        }
+                      </div>
+                    }
+                    @if (fee.payment_deadline) {
+                      <div class="extraction-detail-row fee-level">
+                        <span class="extraction-detail-label">Deadline:</span>
+                        {{ fee.payment_deadline }}
+                      </div>
+                    }
+                    @if (fee.bank_details?.bank_name || fee.bank_details?.dd_in_favour_of) {
+                      <div class="extraction-bank-details fee-level">
+                        @if (fee.bank_details?.bank_name) {
+                          <span>{{ fee.bank_details!.bank_name }}</span>
+                        }
+                        @if (fee.bank_details?.account_number) {
+                          <span>A/C: {{ fee.bank_details!.account_number }}</span>
+                        }
+                        @if (fee.bank_details?.ifsc_code) {
+                          <span>IFSC: {{ fee.bank_details!.ifsc_code }}</span>
+                        }
+                        @if (fee.bank_details?.dd_in_favour_of) {
+                          <span>DD in favour of: {{ fee.bank_details!.dd_in_favour_of }}</span>
+                        }
+                      </div>
                     }
                   </div>
                 }
@@ -150,26 +313,24 @@
         </mat-card>
       }
 
-      <!-- OEM Requirements (with selection checkboxes) -->
+      <!-- OEM Requirements -->
       @if (extractedData()!.oem_requirements?.length) {
         <mat-card class="result-card">
           <mat-card-header>
             <mat-card-title>OEM Requirements ({{ extractedData()!.oem_requirements!.length }} found)</mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <p class="selection-hint">Select the OEMs relevant to your bid:</p>
             <div class="oem-list">
               @for (oem of extractedData()!.oem_requirements; track $index) {
-                <div class="oem-item" [class.selected]="isOemSelected($index)">
-                  <mat-checkbox [checked]="isOemSelected($index)" (change)="toggleOem($index)">
-                    <strong>{{ oem.oem_name }}</strong>
-                    @if (oem.product_category) {
-                      <span class="oem-category"> - {{ oem.product_category }}</span>
-                    }
-                    @if (oem.maf_required) {
-                      <mat-chip class="maf-chip">MAF Required</mat-chip>
-                    }
-                  </mat-checkbox>
+                <div class="oem-item applied">
+                  <mat-icon class="oem-check">check_circle</mat-icon>
+                  <strong>{{ oem.oem_name }}</strong>
+                  @if (oem.product_category) {
+                    <span class="oem-category"> - {{ oem.product_category }}</span>
+                  }
+                  @if (oem.maf_required) {
+                    <mat-chip class="maf-chip">MAF Required</mat-chip>
+                  }
                 </div>
               }
             </div>
@@ -193,7 +354,7 @@
         </mat-card>
       }
 
-      <!-- Eligibility & Requirements -->
+      <!-- Eligibility Criteria -->
       @if (extractedData()!.eligibility_criteria?.length) {
         <mat-card class="result-card">
           <mat-card-header>
@@ -212,7 +373,7 @@
       @if (extractedData()!.document_checklist?.length) {
         <mat-card class="result-card">
           <mat-card-header>
-            <mat-card-title>Document Checklist</mat-card-title>
+            <mat-card-title>Document Checklist ({{ extractedData()!.document_checklist!.length }})</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <ul class="extracted-list">
@@ -277,16 +438,6 @@
           </mat-card-content>
         </mat-card>
       }
-
-      <!-- Apply Button -->
-      <div class="apply-section">
-        <button mat-raised-button color="primary" class="apply-button"
-                (click)="onApply()" [disabled]="applying()">
-          <mat-icon>{{ applying() ? 'hourglass_empty' : 'check_circle' }}</mat-icon>
-          {{ applying() ? 'Applying...' : 'Apply Extraction to Tender' }}
-        </button>
-        <p class="apply-hint">This will update tender fields, create EMD/fee records, and store the full extraction.</p>
-      </div>
     </div>
   }
 </div>

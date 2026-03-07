@@ -13,54 +13,284 @@
                [class.medium]="getCompletionPercent() >= 40 && getCompletionPercent() < 70"
                [class.high]="getCompletionPercent() >= 70"></div>
         </div>
+        <div class="completion-legend">
+          <span class="legend-item"><span class="legend-dot received"></span> Received</span>
+          <span class="legend-item"><span class="legend-dot pending"></span> Pending</span>
+          <span class="legend-item"><span class="legend-dot na"></span> Not Required</span>
+        </div>
       </mat-card-content>
     </mat-card>
   }
 
-  <!-- Actions -->
-  <div class="tab-actions">
-    <button mat-raised-button color="primary" (click)="showForm.set(!showForm())">
-      <mat-icon>{{ showForm() ? 'close' : 'add' }}</mat-icon>
-      {{ showForm() ? 'Cancel' : 'Add OEM Requirement' }}
-    </button>
-  </div>
+  <!-- Extracted OEMs from AI (if any unimported) -->
+  @if (unimportedExtractedOems().length > 0) {
+    <mat-card class="extracted-oems-card">
+      <mat-card-content>
+        <div class="extracted-header">
+          <div class="extracted-title">
+            <mat-icon>auto_awesome</mat-icon>
+            <span>AI-Extracted OEMs ({{ unimportedExtractedOems().length }} found)</span>
+          </div>
+          <button mat-raised-button color="primary" (click)="onImportAllExtracted()"
+                  [disabled]="importingAll()">
+            @if (importingAll()) {
+              <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+              <mat-icon>download</mat-icon>
+            }
+            Import All
+          </button>
+        </div>
+        <p class="extracted-subtitle">These OEMs were detected in your tender document. Click to import them.</p>
 
-  <!-- Create Form -->
+        <div class="extracted-oem-list">
+          @for (eoem of unimportedExtractedOems(); track $index) {
+            <div class="extracted-oem-row">
+              <div class="extracted-oem-info">
+                <div class="extracted-oem-name">
+                  <mat-icon class="oem-icon">precision_manufacturing</mat-icon>
+                  <strong>{{ eoem.oem_name }}</strong>
+                </div>
+                <div class="extracted-oem-details">
+                  @if (eoem.product_category) {
+                    <span class="detail-chip product">{{ eoem.product_category }}</span>
+                  }
+                  @if (eoem.make_model) {
+                    <span class="detail-chip model">{{ eoem.make_model }}</span>
+                  }
+                  @if (eoem.maf_required) {
+                    <span class="detail-chip maf">MAF Required</span>
+                  }
+                  @if (eoem.is_approved_make) {
+                    <span class="detail-chip approved">Approved Make</span>
+                  }
+                </div>
+              </div>
+              <button mat-stroked-button color="primary"
+                      (click)="onImportExtractedOem(eoem, $index)"
+                      [disabled]="importingIndex() === $index">
+                @if (importingIndex() === $index) {
+                  <mat-spinner diameter="16"></mat-spinner>
+                } @else {
+                  <mat-icon>add_circle</mat-icon>
+                }
+                Import
+              </button>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Already-imported extracted OEMs info -->
+  @if (extractedOems().length > 0 && unimportedExtractedOems().length === 0 && requirements().length > 0) {
+    <div class="imported-info-banner">
+      <mat-icon>check_circle</mat-icon>
+      <span>All {{ extractedOems().length }} AI-extracted OEM(s) have been imported</span>
+    </div>
+  }
+
+  <!-- Re-extract prompt: show when no OEMs found at all -->
+  @if (extractedOems().length === 0 && requirements().length === 0 && !loading()) {
+    <mat-card class="reextract-card">
+      <mat-card-content>
+        <div class="reextract-content">
+          <div class="reextract-text">
+            <mat-icon>find_in_page</mat-icon>
+            <div>
+              <strong>No OEMs detected in extraction</strong>
+              <p>The AI extraction didn't find specific OEM/manufacturer names. You can re-process the tender document with improved detection, or add OEMs manually below.</p>
+            </div>
+          </div>
+          <button mat-raised-button color="accent" (click)="goToExtraction()">
+            <mat-icon>refresh</mat-icon>
+            Go to Extraction Tab
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Quick Add Section -->
+  <mat-card class="quick-add-card">
+    <mat-card-content>
+      <div class="quick-add-header">
+        <div class="quick-add-title">
+          <mat-icon>add_circle</mat-icon>
+          <span>Add OEM to Tender</span>
+        </div>
+        <div class="quick-add-actions">
+          <button mat-stroked-button (click)="showNewOemForm.set(!showNewOemForm())"
+                  matTooltip="Create a new OEM not in the master list">
+            <mat-icon>{{ showNewOemForm() ? 'close' : 'library_add' }}</mat-icon>
+            {{ showNewOemForm() ? 'Cancel' : 'New OEM' }}
+          </button>
+          <button mat-stroked-button (click)="showForm.set(!showForm())"
+                  matTooltip="Add with detailed status settings">
+            <mat-icon>{{ showForm() ? 'close' : 'tune' }}</mat-icon>
+            {{ showForm() ? 'Cancel' : 'Advanced' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Search bar -->
+      @if (oems().length > 0) {
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search OEM master list</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput [formControl]="searchControl"
+                 placeholder="Type OEM name, country, or product category...">
+          @if (searchControl.value) {
+            <button matSuffix mat-icon-button (click)="searchControl.setValue('')">
+              <mat-icon>clear</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+
+        <!-- Available OEMs grid -->
+        @if (availableOems().length > 0) {
+          <div class="oem-chips-grid">
+            @for (oem of availableOems(); track oem.id) {
+              <div class="oem-quick-chip" (click)="onQuickAdd(oem)"
+                   [class.adding]="addingOemId() === oem.id">
+                @if (addingOemId() === oem.id) {
+                  <mat-spinner diameter="16"></mat-spinner>
+                } @else {
+                  <mat-icon class="add-icon">add</mat-icon>
+                }
+                <span class="chip-name">{{ oem.name }}</span>
+                @if (oem.country) {
+                  <span class="chip-country">{{ oem.country }}</span>
+                }
+                @if (oem.product_categories?.length) {
+                  <span class="chip-products">{{ oem.product_categories![0] }}</span>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="no-oems-hint">
+            <mat-icon>check_circle</mat-icon>
+            <span>All OEMs from your master list are already added to this tender.</span>
+          </div>
+        }
+      } @else {
+        <div class="no-oems-hint">
+          <mat-icon>info</mat-icon>
+          <span>No OEMs in master list yet. Click "New OEM" to create one, or run AI extraction on your tender PDF.</span>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- New OEM Inline Form -->
+  @if (showNewOemForm()) {
+    <mat-card class="create-form-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>library_add</mat-icon>
+          Create New OEM & Add to Tender
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="newOemForm" (ngSubmit)="onCreateNewOem()">
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>OEM / Manufacturer Name</mat-label>
+              <input matInput formControlName="name" placeholder="e.g. Cisco, HP Enterprise, Dell">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Country</mat-label>
+              <input matInput formControlName="country" placeholder="e.g. India, USA, Germany">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Product Category</mat-label>
+              <input matInput formControlName="product_category" placeholder="e.g. Networking, Servers, Software">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Notes</mat-label>
+              <input matInput formControlName="notes" placeholder="Optional notes for this tender">
+            </mat-form-field>
+          </div>
+          <div class="form-actions">
+            <button mat-button type="button" (click)="showNewOemForm.set(false)">Cancel</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="newOemForm.invalid">
+              <mat-icon>add</mat-icon>
+              Create & Add
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Advanced Create Form -->
   @if (showForm()) {
     <mat-card class="create-form-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>tune</mat-icon>
+          Add OEM Requirement (Advanced)
+        </mat-card-title>
+      </mat-card-header>
       <mat-card-content>
         <form [formGroup]="createForm" (ngSubmit)="onCreateRequirement()">
+          <h4 class="form-section-label">OEM Selection</h4>
           <div class="form-grid">
             <mat-form-field appearance="outline">
               <mat-label>Select OEM</mat-label>
               <mat-select formControlName="oem_id">
                 @for (oem of oems(); track oem.id) {
-                  <mat-option [value]="oem.id">{{ oem.name }}</mat-option>
+                  <mat-option [value]="oem.id">
+                    {{ oem.name }}
+                    @if (oem.country) { <span class="oem-option-sub">({{ oem.country }})</span> }
+                  </mat-option>
                 }
               </mat-select>
             </mat-form-field>
+          </div>
 
+          <h4 class="form-section-label">Document Status Tracking</h4>
+          <div class="status-grid">
             <mat-form-field appearance="outline">
-              <mat-label>MAF Status</mat-label>
+              <mat-label>MAF</mat-label>
               <mat-select formControlName="maf_status">
                 @for (opt of statusOptions; track opt.value) {
                   <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
-
             <mat-form-field appearance="outline">
-              <mat-label>MS Status</mat-label>
+              <mat-label>Make/Spec</mat-label>
               <mat-select formControlName="ms_status">
                 @for (opt of statusOptions; track opt.value) {
                   <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
-
             <mat-form-field appearance="outline">
-              <mat-label>Partner Cert</mat-label>
+              <mat-label>Partner Certificate</mat-label>
               <mat-select formControlName="partner_cert_status">
+                @for (opt of statusOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Datasheet</mat-label>
+              <mat-select formControlName="datasheet_status">
+                @for (opt of statusOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Compliance Cert</mat-label>
+              <mat-select formControlName="compliance_cert_status">
                 @for (opt of statusOptions; track opt.value) {
                   <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
                 }
@@ -69,15 +299,16 @@
           </div>
 
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Notes</mat-label>
-            <textarea matInput formControlName="notes" rows="2"></textarea>
+            <mat-label>Notes / Product Details</mat-label>
+            <textarea matInput formControlName="notes" rows="2"
+                      placeholder="e.g. Product model, quantity, special requirements"></textarea>
           </mat-form-field>
 
           <div class="form-actions">
             <button mat-button type="button" (click)="showForm.set(false)">Cancel</button>
-            <button mat-raised-button color="primary" type="submit">
+            <button mat-raised-button color="primary" type="submit" [disabled]="createForm.invalid">
               <mat-icon>save</mat-icon>
-              Add
+              Add Requirement
             </button>
           </div>
         </form>
@@ -85,7 +316,7 @@
     </mat-card>
   }
 
-  <!-- Requirements Table -->
+  <!-- Requirements List -->
   @if (loading()) {
     <div class="loading-container">
       <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
@@ -94,87 +325,97 @@
     <div class="empty-state">
       <mat-icon>precision_manufacturing</mat-icon>
       <h3>No OEM requirements for this tender</h3>
-      <p>Add OEM requirements to track MAF, MS, and certification status</p>
+      <p>Use the quick-add above to link OEMs, or run AI extraction on your tender PDF to auto-detect manufacturers</p>
     </div>
   } @else {
-    <mat-card class="table-card">
-      <mat-card-content>
-        <div class="table-container">
-          <table mat-table [dataSource]="requirements()" class="data-table">
-            <ng-container matColumnDef="oem_name">
-              <th mat-header-cell *matHeaderCellDef>OEM</th>
-              <td mat-cell *matCellDef="let r"><strong>{{ getOEMName(r.oem_id) }}</strong></td>
-            </ng-container>
-
-            <ng-container matColumnDef="maf_status">
-              <th mat-header-cell *matHeaderCellDef>MAF</th>
-              <td mat-cell *matCellDef="let r">
-                <mat-chip [class]="getStatusClass(r.maf_status)" class="clickable-chip"
-                          (click)="onCycleStatus(r, 'maf_status')" matTooltip="Click to cycle status">
-                  {{ r.maf_status | titlecase }}
-                </mat-chip>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="ms_status">
-              <th mat-header-cell *matHeaderCellDef>MS</th>
-              <td mat-cell *matCellDef="let r">
-                <mat-chip [class]="getStatusClass(r.ms_status)" class="clickable-chip"
-                          (click)="onCycleStatus(r, 'ms_status')" matTooltip="Click to cycle status">
-                  {{ r.ms_status | titlecase }}
-                </mat-chip>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="partner_cert_status">
-              <th mat-header-cell *matHeaderCellDef>Partner Cert</th>
-              <td mat-cell *matCellDef="let r">
-                <mat-chip [class]="getStatusClass(r.partner_cert_status)" class="clickable-chip"
-                          (click)="onCycleStatus(r, 'partner_cert_status')" matTooltip="Click to cycle status">
-                  {{ r.partner_cert_status | titlecase }}
-                </mat-chip>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="datasheet_status">
-              <th mat-header-cell *matHeaderCellDef>Datasheet</th>
-              <td mat-cell *matCellDef="let r">
-                <mat-chip [class]="getStatusClass(r.datasheet_status)" class="clickable-chip"
-                          (click)="onCycleStatus(r, 'datasheet_status')" matTooltip="Click to cycle status">
-                  {{ r.datasheet_status | titlecase }}
-                </mat-chip>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="compliance_cert_status">
-              <th mat-header-cell *matHeaderCellDef>Compliance</th>
-              <td mat-cell *matCellDef="let r">
-                <mat-chip [class]="getStatusClass(r.compliance_cert_status)" class="clickable-chip"
-                          (click)="onCycleStatus(r, 'compliance_cert_status')" matTooltip="Click to cycle status">
-                  {{ r.compliance_cert_status | titlecase }}
-                </mat-chip>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="notes">
-              <th mat-header-cell *matHeaderCellDef>Notes</th>
-              <td mat-cell *matCellDef="let r">{{ r.notes || '-' }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let r">
-                <button mat-icon-button matTooltip="Delete" color="warn" (click)="onDeleteRequirement(r)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
+    <h4 class="section-label">Linked OEM Requirements ({{ requirements().length }})</h4>
+    @for (req of requirements(); track req.id) {
+      <mat-card class="oem-req-card">
+        <div class="oem-req-header">
+          <div class="oem-req-title">
+            <mat-icon>precision_manufacturing</mat-icon>
+            <strong>{{ getOEMName(req.oem_id) }}</strong>
+            @if (getOEMDetail(req.oem_id, 'country'); as country) {
+              <span class="oem-country-badge">{{ country }}</span>
+            }
+            @if (getOEMDetail(req.oem_id, 'partner_tier'); as tier) {
+              <mat-chip class="tier-chip">{{ tier }}</mat-chip>
+            }
+          </div>
+          <button mat-icon-button matTooltip="Delete" color="warn" (click)="onDeleteRequirement(req)">
+            <mat-icon>delete</mat-icon>
+          </button>
         </div>
-      </mat-card-content>
-    </mat-card>
+
+        <!-- Status Chips Grid -->
+        <div class="status-chips-grid">
+          <div class="status-chip-item">
+            <span class="status-chip-label">MAF</span>
+            <mat-chip [class]="getStatusClass(req.maf_status)" class="clickable-chip"
+                      (click)="onCycleStatus(req, 'maf_status')" matTooltip="Click to cycle: Pending → Received → N/A">
+              <mat-icon class="status-icon">{{ getStatusIcon(req.maf_status) }}</mat-icon>
+              {{ req.maf_status | titlecase }}
+            </mat-chip>
+          </div>
+          <div class="status-chip-item">
+            <span class="status-chip-label">Make/Spec</span>
+            <mat-chip [class]="getStatusClass(req.ms_status)" class="clickable-chip"
+                      (click)="onCycleStatus(req, 'ms_status')" matTooltip="Click to cycle status">
+              <mat-icon class="status-icon">{{ getStatusIcon(req.ms_status) }}</mat-icon>
+              {{ req.ms_status | titlecase }}
+            </mat-chip>
+          </div>
+          <div class="status-chip-item">
+            <span class="status-chip-label">Partner Cert</span>
+            <mat-chip [class]="getStatusClass(req.partner_cert_status)" class="clickable-chip"
+                      (click)="onCycleStatus(req, 'partner_cert_status')" matTooltip="Click to cycle status">
+              <mat-icon class="status-icon">{{ getStatusIcon(req.partner_cert_status) }}</mat-icon>
+              {{ req.partner_cert_status | titlecase }}
+            </mat-chip>
+          </div>
+          <div class="status-chip-item">
+            <span class="status-chip-label">Datasheet</span>
+            <mat-chip [class]="getStatusClass(req.datasheet_status)" class="clickable-chip"
+                      (click)="onCycleStatus(req, 'datasheet_status')" matTooltip="Click to cycle status">
+              <mat-icon class="status-icon">{{ getStatusIcon(req.datasheet_status) }}</mat-icon>
+              {{ req.datasheet_status | titlecase }}
+            </mat-chip>
+          </div>
+          <div class="status-chip-item">
+            <span class="status-chip-label">Compliance</span>
+            <mat-chip [class]="getStatusClass(req.compliance_cert_status)" class="clickable-chip"
+                      (click)="onCycleStatus(req, 'compliance_cert_status')" matTooltip="Click to cycle status">
+              <mat-icon class="status-icon">{{ getStatusIcon(req.compliance_cert_status) }}</mat-icon>
+              {{ req.compliance_cert_status | titlecase }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <!-- OEM Contact Info -->
+        @if (getOEMDetail(req.oem_id, 'am_contact_name') || getOEMDetail(req.oem_id, 'am_contact_email')) {
+          <div class="oem-contact-row">
+            <mat-icon>contact_mail</mat-icon>
+            <span class="contact-label">AM Contact:</span>
+            @if (getOEMDetail(req.oem_id, 'am_contact_name'); as name) {
+              <span>{{ name }}</span>
+            }
+            @if (getOEMDetail(req.oem_id, 'am_contact_email'); as email) {
+              <a [href]="'mailto:' + email" class="contact-link">{{ email }}</a>
+            }
+            @if (getOEMDetail(req.oem_id, 'am_contact_phone'); as phone) {
+              <span class="contact-phone">{{ phone }}</span>
+            }
+          </div>
+        }
+
+        <!-- Notes -->
+        @if (req.notes) {
+          <div class="oem-notes-row">
+            <mat-icon>notes</mat-icon>
+            <span>{{ req.notes }}</span>
+          </div>
+        }
+      </mat-card>
+    }
   }
 </div>

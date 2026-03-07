@@ -6,7 +6,7 @@ preview the extraction results, and apply them to update tender records.
 import os
 import uuid
 import logging
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -41,55 +41,161 @@ class ApplyExtractionRequest(BaseModel):
     oem_requirements: Optional[list] = None
 
 
-@router.post("/{tender_id}/extract")
-async def extract_from_pdf(
-    tender_id: str,
-    file: UploadFile = File(...),
+@router.post("/extract-preview")
+async def extract_preview(
+    files: List[UploadFile] = File(...),
     model: Optional[str] = Form(None),
     db: AsyncSession = Depends(get_db),
     current_user: TokenData = Depends(get_current_user),
 ):
-    """Upload a tender PDF and extract structured data using AI.
+    """Extract tender data from PDFs WITHOUT creating a tender first.
 
-    This endpoint accepts a PDF file, extracts text from it, and uses
-    Claude AI to identify and structure all tender information including
-    eligibility criteria, technical requirements, EMD details, fees,
-    evaluation criteria, OEM requirements, and important dates.
-
-    The extracted data is returned as a preview - it is NOT automatically
-    applied to the tender. Use the apply-extraction endpoint to confirm.
+    Used by the tender creation form to auto-fill fields from uploaded documents.
+    Returns extracted data that can be reviewed before creating the tender.
     """
-    # Validate file type
-    if not file.filename or not file.filename.lower().endswith(".pdf"):
+    if not files:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only PDF files are supported for extraction",
+            detail="At least one PDF file is required",
         )
 
-    # Save uploaded file temporarily
+    for f in files:
+        if not f.filename or not f.filename.lower().endswith(".pdf"):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Only PDF files are supported. '{f.filename}' is not a PDF.",
+            )
+
     upload_dir = os.path.join(settings.upload_dir, "extraction_temp")
     os.makedirs(upload_dir, exist_ok=True)
 
-    temp_filename = f"{uuid.uuid4()}_{file.filename}"
-    file_path = os.path.join(upload_dir, temp_filename)
+    saved_paths: list[str] = []
 
     try:
-        # Save file to disk
-        contents = await file.read()
-        with open(file_path, "wb") as f:
-            f.write(contents)
+        for f in files:
+            temp_filename = f"{uuid.uuid4()}_{f.filename}"
+            file_path = os.path.join(upload_dir, temp_filename)
+            contents = await f.read()
+            with open(file_path, "wb") as out:
+                out.write(contents)
+            saved_paths.append(file_path)
 
-        # Extract data using AI
-        extraction_model = model or "claude-sonnet-4-5-20250514"
-        result = await extract_tender_data(
+        extraction_model = model or "claude-sonnet-4-6"
+        extraction_result = await extract_tender_data(
+            db=db,
+            tender_id=None,
+            file_paths=saved_paths,
+            current_user_id=current_user.user_id,
+            model=extraction_model,
+            tenant_id_override=current_user.tenant_id,
+        )
+
+        # Return just the extracted data for form auto-fill (don't apply to any tender)
+        return {
+            "extracted_data": extraction_result.get("extracted_data", {}),
+            "model_used": extraction_result.get("model_used"),
+            "tokens_used": extraction_result.get("tokens_used"),
+            "extraction_mode": extraction_result.get("extraction_mode"),
+            "files_processed": extraction_result.get("files_processed"),
+        }
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e),
+        )
+    except Exception as e:
+        logger.error(f"Preview extraction failed: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Extraction failed: {str(e)}",
+        )
+    finally:
+        for path in saved_paths:
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
+
+
+@router.post("/{tender_id}/extract")
+async def extract_from_pdf(
+    tender_id: str,
+    files: List[UploadFile] = File(...),
+    model: Optional[str] = Form(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+):
+    """Upload one or more tender PDFs, extract structured data using AI,
+    and automatically apply all extracted information to the tender.
+
+    Accepts multiple PDF files (NIT, technical specs, BOQ, corrigendum, etc.).
+    All documents are sent to Claude in a single call so the AI sees the
+    complete tender context across all files.
+
+    After extraction, the data is immediately applied — tender fields are
+    updated, EMD/fee/criteria/OEM/checklist records are created automatically.
+    """
+    if not files:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one PDF file is required",
+        )
+
+    # Validate all files are PDFs
+    for f in files:
+        if not f.filename or not f.filename.lower().endswith(".pdf"):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Only PDF files are supported. '{f.filename}' is not a PDF.",
+            )
+
+    # Save uploaded files temporarily
+    upload_dir = os.path.join(settings.upload_dir, "extraction_temp")
+    os.makedirs(upload_dir, exist_ok=True)
+
+    saved_paths: list[str] = []
+
+    try:
+        for f in files:
+            temp_filename = f"{uuid.uuid4()}_{f.filename}"
+            file_path = os.path.join(upload_dir, temp_filename)
+            contents = await f.read()
+            with open(file_path, "wb") as out:
+                out.write(contents)
+            saved_paths.append(file_path)
+
+        # Step 1: Extract data using AI
+        extraction_model = model or "claude-sonnet-4-6"
+        extraction_result = await extract_tender_data(
             db=db,
             tender_id=uuid.UUID(tender_id),
-            file_path=file_path,
+            file_paths=saved_paths,
             current_user_id=current_user.user_id,
             model=extraction_model,
         )
 
-        return result
+        # Step 2: Auto-apply extracted data to tender
+        apply_result = await apply_extraction(
+            db=db,
+            tender_id=uuid.UUID(tender_id),
+            extracted_data=extraction_result["extracted_data"],
+            current_user_id=current_user.user_id,
+            extraction_meta={
+                "model_used": extraction_result.get("model_used"),
+                "tokens_used": extraction_result.get("tokens_used"),
+                "extraction_mode": extraction_result.get("extraction_mode"),
+                "files_processed": extraction_result.get("files_processed"),
+            },
+        )
+
+        # Return combined response
+        return {
+            **extraction_result,
+            "applied": True,
+            "applied_summary": apply_result,
+        }
 
     except ValueError as e:
         raise HTTPException(
@@ -103,12 +209,13 @@ async def extract_from_pdf(
             detail=f"Extraction failed: {str(e)}",
         )
     finally:
-        # Clean up temp file
-        if os.path.exists(file_path):
-            try:
-                os.remove(file_path)
-            except OSError:
-                pass
+        # Clean up all temp files
+        for path in saved_paths:
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
 
 
 @router.post("/{tender_id}/apply-extraction")

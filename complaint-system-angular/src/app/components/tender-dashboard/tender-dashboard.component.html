@@ -12,6 +12,9 @@
     </mat-card-header>
   </mat-card>
 
+  <!-- Alert Banner (Feature 1) -->
+  <app-alert-banner></app-alert-banner>
+
   @if (loading()) {
     <div class="loading-container">
       <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
@@ -80,71 +83,23 @@
             <span class="card-label">Total EMD Amount</span>
           </div>
         </mat-card>
-      </div>
-    }
 
-    <!-- Alerts Section -->
-    @if (expiringDSCs().length > 0 || expiringEMDs().length > 0) {
-      <div class="alerts-section">
-        @if (expiringDSCs().length > 0) {
-          <mat-card class="alert-card dsc-alert">
-            <mat-card-header>
-              <mat-card-title>
-                <mat-icon>warning</mat-icon>
-                DSC Expiry Alerts ({{ expiringDSCs().length }})
-              </mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="alert-list">
-                @for (portal of expiringDSCs(); track portal.id) {
-                  <div class="alert-item" (click)="navigateTo('/portal-registrations')"
-                       [class.expired]="isDscExpired(portal.dsc_expiry_date!)"
-                       [class.critical]="isDscCritical(portal.dsc_expiry_date!)">
-                    <div class="alert-info">
-                      <strong>{{ portal.portal_name }}</strong>
-                      <span class="alert-detail">{{ portal.dsc_holder_name || 'No holder' }} - Class {{ portal.dsc_class || 'N/A' }}</span>
-                    </div>
-                    <mat-chip [class.chip-expired]="isDscExpired(portal.dsc_expiry_date!)"
-                              [class.chip-warning]="!isDscExpired(portal.dsc_expiry_date!) && isDscCritical(portal.dsc_expiry_date!)"
-                              [class.chip-caution]="!isDscCritical(portal.dsc_expiry_date!)">
-                      {{ getDscExpiryLabel(portal.dsc_expiry_date!) }}
-                    </mat-chip>
-                  </div>
-                }
-              </div>
-            </mat-card-content>
-          </mat-card>
-        }
-
-        @if (expiringEMDs().length > 0) {
-          <mat-card class="alert-card emd-alert">
-            <mat-card-header>
-              <mat-card-title>
-                <mat-icon>warning</mat-icon>
-                EMD Validity Alerts ({{ expiringEMDs().length }})
-              </mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="alert-list">
-                @for (emd of expiringEMDs(); track emd.id) {
-                  <div class="alert-item" (click)="navigateTo('/emd-tracker')">
-                    <div class="alert-info">
-                      <strong>{{ formatEmdAmount(emd.amount) }}</strong>
-                      <span class="alert-detail">{{ emd.mode | uppercase }} - {{ emd.instrument_number || 'No instrument #' }}</span>
-                    </div>
-                    <mat-chip [class.chip-expired]="getDscExpiryDays(emd.validity_end_date!) < 0"
-                              [class.chip-warning]="getDscExpiryDays(emd.validity_end_date!) >= 0 && getDscExpiryDays(emd.validity_end_date!) <= 7"
-                              [class.chip-caution]="getDscExpiryDays(emd.validity_end_date!) > 7">
-                      {{ getDscExpiryLabel(emd.validity_end_date!) }}
-                    </mat-chip>
-                  </div>
-                }
-              </div>
-            </mat-card-content>
+        @if (averageReadiness() !== null) {
+          <mat-card class="summary-card" (click)="navigateTo('/tenders')">
+            <div class="card-icon" [class]="averageReadiness()! >= 70 ? 'green' : (averageReadiness()! >= 50 ? 'orange' : 'red')">
+              <mat-icon>checklist</mat-icon>
+            </div>
+            <div class="card-content">
+              <span class="card-value">{{ averageReadiness() }}%</span>
+              <span class="card-label">Avg. Readiness</span>
+            </div>
           </mat-card>
         }
       </div>
     }
+
+    <!-- Portal Status Widget (Feature 9) -->
+    <app-portal-status-widget></app-portal-status-widget>
 
     <!-- Tender Pipeline -->
     @if (statusDistribution().length > 0) {
@@ -174,6 +129,65 @@
       </mat-card>
     }
 
+    <!-- KB Health Card -->
+    @if (kbStats()) {
+      <mat-card class="kb-health-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>auto_stories</mat-icon>
+            Knowledge Base Health
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="kb-stats-grid">
+            <div class="kb-stat-box">
+              <span class="kb-stat-value">{{ kbStats()!.total_entries }}</span>
+              <span class="kb-stat-label">Total Entries</span>
+            </div>
+            <div class="kb-stat-box green">
+              <span class="kb-stat-value">{{ kbStats()!.verified_count }}</span>
+              <span class="kb-stat-label">Verified</span>
+            </div>
+            <div class="kb-stat-box amber">
+              <span class="kb-stat-value">{{ kbStats()!.stale_count }}</span>
+              <span class="kb-stat-label">Stale</span>
+            </div>
+            <div class="kb-stat-box blue">
+              <span class="kb-stat-value">{{ kbStats()!.harvested_this_month }}</span>
+              <span class="kb-stat-label">Harvested This Month</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- KB Category Distribution -->
+      @if (kbStats()!.category_distribution.length > 0) {
+        <mat-card class="kb-category-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>category</mat-icon>
+              KB Category Distribution
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="pipeline-bars">
+              @for (cat of kbStats()!.category_distribution; track cat.category) {
+                <div class="pipeline-row">
+                  <div class="pipeline-label">
+                    <span>{{ getCategoryLabel(cat.category) }}</span>
+                  </div>
+                  <div class="pipeline-bar-track">
+                    <div class="pipeline-bar-fill" [style.width]="getCategoryBarWidth(cat.count)" style="background-color: #7b1fa2;"></div>
+                  </div>
+                  <span class="pipeline-count">{{ cat.count }}</span>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    }
+
     <!-- Content Row -->
     <div class="content-row">
       <!-- Upcoming Deadlines -->
@@ -198,7 +212,15 @@
                             [class.urgent]="isDeadlineUrgent(tender.deadline)">
                     {{ isDeadlineUrgent(tender.deadline) ? 'warning' : 'event' }}
                   </mat-icon>
-                  <div matListItemTitle>{{ tender.title }}</div>
+                  <div matListItemTitle class="tender-title-row">
+                    <span>{{ tender.title }}</span>
+                    @if (getReadinessScore(tender.id) !== null) {
+                      <span class="readiness-badge"
+                            [style.background-color]="getReadinessColor(getReadinessScore(tender.id))">
+                        {{ getReadinessScore(tender.id) | number:'1.0-0' }}%
+                      </span>
+                    }
+                  </div>
                   <div matListItemLine
                        [class.deadline-urgent]="isDeadlineUrgent(tender.deadline)">
                     {{ formatDeadline(tender.deadline) }}
@@ -236,6 +258,14 @@
             <button mat-stroked-button (click)="navigateTo('/tenders')">
               <mat-icon>list</mat-icon>
               All Tenders
+            </button>
+            <button mat-stroked-button (click)="navigateTo('/tender-analytics')">
+              <mat-icon>analytics</mat-icon>
+              Tender Analytics
+            </button>
+            <button mat-stroked-button (click)="navigateTo('/tender-calendar')">
+              <mat-icon>calendar_month</mat-icon>
+              Calendar View
             </button>
           </div>
         </mat-card-content>

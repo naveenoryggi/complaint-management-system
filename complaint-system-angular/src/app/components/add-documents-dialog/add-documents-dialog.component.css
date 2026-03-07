@@ -40,7 +40,7 @@ mat-dialog-content {
 }
 
 .doc-name mat-icon {
-  color: #f44336;
+  color: #dc2626;
   font-size: 20px;
 }
 
@@ -57,11 +57,11 @@ mat-dialog-content {
 
 .selection-summary {
   padding: 12px 16px;
-  background-color: #e3f2fd;
+  background-color: #ecfdf5;
   border-radius: 4px;
   margin-top: 12px;
   font-weight: 500;
-  color: #1565c0;
+  color: #057a55;
 }
 
 /* Loading & Empty */
@@ -72,7 +72,7 @@ mat-dialog-content {
   justify-content: center;
   min-height: 200px;
   gap: 12px;
-  color: #666;
+  color: #6b7280;
 }
 
 .empty-state {
@@ -107,7 +107,7 @@ mat-dialog-content {
 }
 
 .upload-area:hover {
-  border-color: #673ab7;
+  border-color: #057a55;
   background-color: #f3e5f5;
 }
 
@@ -115,13 +115,13 @@ mat-dialog-content {
   font-size: 48px;
   width: 48px;
   height: 48px;
-  color: #673ab7;
+  color: #057a55;
   margin-bottom: 8px;
 }
 
 .upload-area p {
   font-size: 16px;
-  color: #333;
+  color: #111827;
   margin: 0 0 4px;
 }
 
@@ -148,7 +148,7 @@ mat-dialog-content {
 }
 
 .file-item mat-icon {
-  color: #673ab7;
+  color: #057a55;
 }
 
 .file-name {
@@ -174,7 +174,7 @@ mat-dialog-content {
 .upload-status {
   text-align: center;
   margin: 8px 0;
-  color: #666;
+  color: #6b7280;
 }
 
 .uploaded-summary {

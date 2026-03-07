@@ -1,0 +1,136 @@
+<div class="compare-container">
+  <!-- Header -->
+  <div class="compare-header">
+    <button mat-icon-button (click)="goBack()" class="back-btn" aria-label="Go back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-title">
+      <mat-icon class="title-icon">compare_arrows</mat-icon>
+      <h1>Tender Comparison</h1>
+    </div>
+    <span class="compare-count" *ngIf="comparisons().length > 0">
+      Comparing {{ comparisons().length }} tenders
+    </span>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading()">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading comparison data...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading() && comparisons().length === 0">
+    <mat-icon class="empty-icon">compare_arrows</mat-icon>
+    <h2>No Tenders to Compare</h2>
+    <p>Select at least 2 tenders from the tender list to compare them side by side.</p>
+    <button mat-raised-button color="primary" (click)="goBack()">
+      <mat-icon>list</mat-icon>
+      Go to Tender List
+    </button>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="comparison-table-wrapper" *ngIf="!loading() && comparisons().length > 0">
+    <!-- Tender Header Row -->
+    <div class="tender-headers">
+      <div class="attr-header-cell">
+        <span>Attribute</span>
+      </div>
+      <div
+        class="tender-header-cell"
+        *ngFor="let tender of comparisons(); let i = index"
+      >
+        <div class="tender-header-inner">
+          <mat-icon class="tender-icon">description</mat-icon>
+          <div class="tender-header-info">
+            <span class="tender-number">Tender {{ i + 1 }}</span>
+            <span class="tender-ref">{{ tender.reference_number || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Rows -->
+    <div class="comparison-rows">
+      <div
+        class="comparison-row"
+        *ngFor="let row of rows; let rowIdx = index"
+        [class.row-even]="rowIdx % 2 === 0"
+      >
+        <!-- Attribute Label -->
+        <div class="attr-cell">
+          <span class="attr-label">{{ row.label }}</span>
+        </div>
+
+        <!-- Tender Data Cells -->
+        <div
+          class="data-cell"
+          *ngFor="let tender of comparisons(); let ti = index"
+          [class.best-value]="isBestForRow(tender, row.key)"
+        >
+          <!-- Status badge -->
+          <ng-container *ngIf="row.type === 'status'; else normalCell">
+            <span
+              class="status-badge"
+              [ngClass]="getStatusColor(tender[row.key])"
+            >
+              {{ tender[row.key] || '—' }}
+            </span>
+          </ng-container>
+
+          <!-- Date with deadline highlight -->
+          <ng-template #normalCell>
+            <ng-container *ngIf="row.key === 'deadline'; else plainCell">
+              <span
+                class="date-val"
+                [class.deadline-soon]="isDeadlineSoon(tender)"
+                [class.deadline-past]="isDeadlinePast(tender)"
+              >
+                <mat-icon *ngIf="isDeadlineSoon(tender)" class="deadline-warn-icon">schedule</mat-icon>
+                {{ formatDate(tender[row.key]) }}
+              </span>
+            </ng-container>
+
+            <!-- Plain value -->
+            <ng-template #plainCell>
+              <span class="cell-value">
+                <mat-icon *ngIf="isBestForRow(tender, row.key)" class="best-icon">star</mat-icon>
+                {{ getCellValue(tender, row) }}
+              </span>
+            </ng-template>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="compare-legend">
+      <div class="legend-item">
+        <span class="legend-dot best-dot"></span>
+        <span>Best value in category</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot deadline-soon-dot"></span>
+        <span>Deadline within 7 days</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot deadline-past-dot"></span>
+        <span>Deadline passed</span>
+      </div>
+    </div>
+
+    <!-- Action Row -->
+    <div class="action-row">
+      <button
+        mat-stroked-button
+        *ngFor="let tender of comparisons()"
+        [routerLink]="['/tender-detail', tender.id]"
+        class="view-tender-btn"
+      >
+        <mat-icon>open_in_new</mat-icon>
+        Open {{ tender.reference_number || ('Tender ' + (comparisons().indexOf(tender) + 1)) }}
+      </button>
+    </div>
+  </div>
+</div>

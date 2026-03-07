@@ -139,7 +139,9 @@ export class AdminMenuConfigService {
         { label: 'OEM Management', route: '/oem-management', icon: 'fa-industry', badge: 'New' },
         { label: 'Portal Registrations', route: '/portal-registrations', icon: 'fa-globe', badge: 'New' },
         { label: 'EMD & Fees Tracker', route: '/emd-tracker', icon: 'fa-landmark', badge: 'New' },
-        { label: 'AI Generator', route: '/ai-generator', icon: 'fa-robot' }
+        { label: 'Company Documents', route: '/company-documents', icon: 'fa-folder-open', badge: 'New' },
+        { label: 'AI Generator', route: '/ai-generator', icon: 'fa-robot' },
+        { label: 'AI Provider Settings', route: '/admin/ai-provider-settings', icon: 'fa-microchip', badge: 'New' }
       ]
     },
     {

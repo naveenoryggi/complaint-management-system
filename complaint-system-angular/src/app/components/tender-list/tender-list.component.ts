@@ -16,7 +16,9 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { debounceTime } from 'rxjs/operators';
-import { TenderService, Tender, TenderListResponse } from '../../services/tender.service';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { TenderService, Tender, TenderListResponse, ComplianceScoreSummary } from '../../services/tender.service';
 
 @Component({
   selector: 'app-tender-list',
@@ -36,7 +38,9 @@ import { TenderService, Tender, TenderListResponse } from '../../services/tender
     MatTooltipModule,
     MatSnackBarModule,
     MatDialogModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatProgressBarModule,
+    MatCheckboxModule
   ],
   templateUrl: './tender-list.component.html',
   styleUrls: ['./tender-list.component.css']
@@ -48,17 +52,21 @@ export class TenderListComponent implements OnInit {
   private dialog = inject(MatDialog);
 
   displayedColumns: string[] = [
+    'select',
     'title',
     'reference_number',
     'issuing_authority',
     'deadline',
     'status',
     'document_count',
+    'readiness',
     'actions'
   ];
 
   tenders = signal<Tender[]>([]);
   loading = signal(false);
+  complianceScores = signal<Map<string, ComplianceScoreSummary>>(new Map());
+  selectedTenderIds = signal<Set<string>>(new Set());
 
   // Pagination
   totalTenders = signal(0);
@@ -113,6 +121,7 @@ export class TenderListComponent implements OnInit {
         this.tenders.set(response.items);
         this.totalTenders.set(response.total);
         this.loading.set(false);
+        this.loadComplianceScores(response.items);
       },
       error: (error) => {
         console.error('Error loading tenders:', error);
@@ -277,5 +286,72 @@ export class TenderListComponent implements OnInit {
     const now = new Date();
 
     return deadlineDate.getTime() < now.getTime();
+  }
+
+  loadComplianceScores(tenders: Tender[]) {
+    const ids = tenders.map(t => t.id);
+    if (ids.length === 0) return;
+
+    this.tenderService.getComplianceScores(ids).subscribe({
+      next: (scores) => {
+        const map = new Map<string, ComplianceScoreSummary>();
+        scores.forEach(s => map.set(s.tender_id, s));
+        this.complianceScores.set(map);
+      },
+      error: () => {}
+    });
+  }
+
+  getReadinessScore(tenderId: string): number | null {
+    const score = this.complianceScores().get(tenderId);
+    return score ? score.overall_score : null;
+  }
+
+  getReadinessLabel(tenderId: string): string {
+    const score = this.complianceScores().get(tenderId);
+    return score ? score.overall_label : '';
+  }
+
+  getReadinessColor(score: number | null): string {
+    if (score === null) return '#9e9e9e';
+    if (score >= 80) return '#4caf50';
+    if (score >= 50) return '#ff9800';
+    return '#f44336';
+  }
+
+  // --- Feature 7: Compare ---
+  toggleSelect(tenderId: string) {
+    const selected = new Set(this.selectedTenderIds());
+    if (selected.has(tenderId)) {
+      selected.delete(tenderId);
+    } else {
+      if (selected.size >= 4) {
+        this.snackBar.open('Maximum 4 tenders can be compared', 'Close', { duration: 3000 });
+        return;
+      }
+      selected.add(tenderId);
+    }
+    this.selectedTenderIds.set(selected);
+  }
+
+  isSelected(tenderId: string): boolean {
+    return this.selectedTenderIds().has(tenderId);
+  }
+
+  getSelectedCount(): number {
+    return this.selectedTenderIds().size;
+  }
+
+  onCompareSelected() {
+    const ids = Array.from(this.selectedTenderIds());
+    if (ids.length < 2) {
+      this.snackBar.open('Select at least 2 tenders to compare', 'Close', { duration: 3000 });
+      return;
+    }
+    this.router.navigate(['/tender-compare'], { queryParams: { ids: ids.join(',') } });
+  }
+
+  clearSelection() {
+    this.selectedTenderIds.set(new Set());
   }
 }

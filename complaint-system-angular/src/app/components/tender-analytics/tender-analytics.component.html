@@ -1,0 +1,247 @@
+<div class="analytics-container">
+  <!-- Header -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>analytics</mat-icon>
+        Tender Analytics
+      </mat-card-title>
+      <mat-card-subtitle>Comprehensive insights into your tender performance</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-actions>
+      <button mat-stroked-button (click)="navigateBack()">
+        <mat-icon>arrow_back</mat-icon> Back to Dashboard
+      </button>
+      <button mat-raised-button color="primary" (click)="loadAnalytics()">
+        <mat-icon>refresh</mat-icon> Refresh
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+      <p>Loading analytics...</p>
+    </div>
+  } @else if (analytics()) {
+    <!-- Summary Row -->
+    <div class="summary-row">
+      <mat-card class="summary-card">
+        <div class="summary-icon blue"><mat-icon>description</mat-icon></div>
+        <div class="summary-content">
+          <span class="summary-value">{{ analytics()!.total_tenders }}</span>
+          <span class="summary-label">Total Tenders</span>
+        </div>
+      </mat-card>
+      <mat-card class="summary-card">
+        <div class="summary-icon green"><mat-icon>emoji_events</mat-icon></div>
+        <div class="summary-content">
+          <span class="summary-value">{{ analytics()!.win_rate | number:'1.1-1' }}%</span>
+          <span class="summary-label">Win Rate</span>
+        </div>
+      </mat-card>
+      <mat-card class="summary-card">
+        <div class="summary-icon purple"><mat-icon>currency_rupee</mat-icon></div>
+        <div class="summary-content">
+          <span class="summary-value">{{ formatCurrency(getTotalValue()) }}</span>
+          <span class="summary-label">Total Pipeline Value</span>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <!-- Status Distribution -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>bar_chart</mat-icon>
+            Status Distribution
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="bar-chart">
+            @for (item of analytics()!.status_distribution; track item.status) {
+              <div class="bar-row">
+                <div class="bar-label">
+                  <mat-icon [style.color]="getStatusColor(item.status)">{{ getStatusIcon(item.status) }}</mat-icon>
+                  <span>{{ getStatusLabel(item.status) }}</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width]="getStatusBarWidth(item.count)" [style.background-color]="getStatusColor(item.status)"></div>
+                </div>
+                <span class="bar-count">{{ item.count }}</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Monthly Trend -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>trending_up</mat-icon>
+            Monthly Trend (Last 12 Months)
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="bar-chart">
+            @for (item of analytics()!.monthly_trend; track item.year + '-' + item.month) {
+              <div class="bar-row">
+                <div class="bar-label">
+                  <span>{{ getMonthLabel(item.year, item.month) }}</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width]="getMonthBarWidth(item.count)" style="background-color: #1565c0;"></div>
+                </div>
+                <span class="bar-count">{{ item.count }}</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="charts-row">
+      <!-- Authority Breakdown -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>account_balance</mat-icon>
+            Top Issuing Authorities
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (analytics()!.authority_breakdown.length === 0) {
+            <p class="no-data">No authority data available</p>
+          } @else {
+            <table mat-table [dataSource]="analytics()!.authority_breakdown" class="authority-table">
+              <ng-container matColumnDef="authority">
+                <th mat-header-cell *matHeaderCellDef>Authority</th>
+                <td mat-cell *matCellDef="let row">{{ row.authority }}</td>
+              </ng-container>
+              <ng-container matColumnDef="count">
+                <th mat-header-cell *matHeaderCellDef>Tenders</th>
+                <td mat-cell *matCellDef="let row"><strong>{{ row.count }}</strong></td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="['authority', 'count']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['authority', 'count'];"></tr>
+            </table>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Value Analysis -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>currency_rupee</mat-icon>
+            Value Analysis by Status
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (analytics()!.value_analysis.length === 0) {
+            <p class="no-data">No value data available</p>
+          } @else {
+            <table mat-table [dataSource]="analytics()!.value_analysis" class="value-table">
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let row">
+                  <mat-icon [style.color]="getStatusColor(row.status)" class="table-icon">{{ getStatusIcon(row.status) }}</mat-icon>
+                  {{ getStatusLabel(row.status) }}
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="count">
+                <th mat-header-cell *matHeaderCellDef>Count</th>
+                <td mat-cell *matCellDef="let row">{{ row.count }}</td>
+              </ng-container>
+              <ng-container matColumnDef="total_value">
+                <th mat-header-cell *matHeaderCellDef>Total Value</th>
+                <td mat-cell *matCellDef="let row"><strong>{{ formatCurrency(row.total_value) }}</strong></td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="['status', 'count', 'total_value']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['status', 'count', 'total_value'];"></tr>
+            </table>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Win/Loss Analytics (Feature 6) -->
+    @if (winLoss()) {
+      <div class="charts-row">
+        <!-- Win/Loss Summary -->
+        <mat-card class="chart-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>emoji_events</mat-icon>
+              Win/Loss Summary
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="win-loss-summary">
+              <div class="wl-stat">
+                <span class="wl-value green">{{ winLoss()!.won_count }}</span>
+                <span class="wl-label">Won</span>
+              </div>
+              <div class="wl-stat">
+                <span class="wl-value red">{{ winLoss()!.lost_count }}</span>
+                <span class="wl-label">Lost</span>
+              </div>
+              <div class="wl-stat">
+                <span class="wl-value blue">{{ winLoss()!.total_results }}</span>
+                <span class="wl-label">Total Results</span>
+              </div>
+              <div class="wl-stat">
+                <span class="wl-value purple">{{ winLoss()!.win_rate | number:'1.1-1' }}%</span>
+                <span class="wl-label">Win Rate</span>
+              </div>
+            </div>
+            <div class="win-rate-bar">
+              <div class="win-rate-track">
+                <div class="win-rate-fill" [style.width.%]="winLoss()!.win_rate"></div>
+              </div>
+              <span class="win-rate-label">{{ winLoss()!.win_rate | number:'1.0-0' }}% Win Rate</span>
+            </div>
+            @if (winLoss()!.average_awarded_value) {
+              <div class="avg-value">
+                Average Awarded Value: <strong>{{ formatCurrency(winLoss()!.average_awarded_value) }}</strong>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Loss Reasons -->
+        <mat-card class="chart-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>report_problem</mat-icon>
+              Loss Reasons
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (getLossReasonsList().length === 0) {
+              <p class="no-data">No loss reason data available</p>
+            } @else {
+              <div class="bar-chart">
+                @for (item of getLossReasonsList(); track item.reason) {
+                  <div class="bar-row">
+                    <div class="bar-label">
+                      <span>{{ item.reason || 'Not specified' }}</span>
+                    </div>
+                    <div class="bar-track">
+                      <div class="bar-fill" [style.width]="getLossReasonBarWidth(item.count)" style="background-color: #f44336;"></div>
+                    </div>
+                    <span class="bar-count">{{ item.count }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+  }
+</div>

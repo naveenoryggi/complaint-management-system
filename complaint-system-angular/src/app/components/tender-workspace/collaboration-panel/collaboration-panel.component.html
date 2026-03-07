@@ -1,0 +1,168 @@
+<div class="collaboration-container">
+
+  <!-- Loading Spinner -->
+  <div class="spinner-overlay" *ngIf="loading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Team Members Section -->
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="section-icon">group</mat-icon>
+        Team Members
+      </mat-card-title>
+      <button mat-stroked-button color="primary" class="add-btn" (click)="toggleAssignForm()">
+        <mat-icon>{{ showAssignForm() ? 'close' : 'person_add' }}</mat-icon>
+        {{ showAssignForm() ? 'Cancel' : 'Add Member' }}
+      </button>
+    </mat-card-header>
+
+    <mat-card-content>
+
+      <!-- Add Assignment Form -->
+      <div class="assign-form" *ngIf="showAssignForm()">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>User ID</mat-label>
+            <input matInput
+                   [ngModel]="newAssignment().user_id"
+                   (ngModelChange)="updateNewAssignmentField('user_id', $event)"
+                   placeholder="Enter user ID" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Full Name</mat-label>
+            <input matInput
+                   [ngModel]="newAssignment().user_name"
+                   (ngModelChange)="updateNewAssignmentField('user_name', $event)"
+                   placeholder="Enter full name" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field role-field">
+            <mat-label>Role</mat-label>
+            <mat-select [ngModel]="newAssignment().role"
+                        (ngModelChange)="updateNewAssignmentField('role', $event)">
+              <mat-option *ngFor="let r of roleOptions" [value]="r.value">{{ r.label }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-flat-button color="primary" (click)="addAssignment()">
+            <mat-icon>check</mat-icon>
+            Add
+          </button>
+        </div>
+      </div>
+
+      <mat-divider *ngIf="showAssignForm()" class="form-divider"></mat-divider>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="assignments().length === 0 && !loading()">
+        <mat-icon class="empty-icon">group_off</mat-icon>
+        <p>No team members assigned yet.</p>
+        <button mat-stroked-button color="primary" (click)="showAssignForm.set(true)">
+          Add First Member
+        </button>
+      </div>
+
+      <!-- Members List -->
+      <div class="members-list" *ngIf="assignments().length > 0">
+        <div class="member-row" *ngFor="let member of assignments()">
+          <div class="member-avatar" [attr.data-role]="member.role">
+            {{ getInitials(member.user_name) }}
+          </div>
+          <div class="member-info">
+            <span class="member-name">{{ member.user_name }}</span>
+            <span class="member-id">ID: {{ member.user_id }}</span>
+            <span *ngIf="member.assigned_at" class="member-date">
+              Added {{ formatDate(member.assigned_at) }}
+            </span>
+          </div>
+          <span class="role-badge" [ngClass]="'role-' + member.role">
+            {{ getRoleLabel(member.role) }}
+          </span>
+          <button mat-icon-button color="warn" class="remove-btn"
+                  (click)="removeAssignment(member.user_id)"
+                  title="Remove member">
+            <mat-icon>person_remove</mat-icon>
+          </button>
+        </div>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Comments Section -->
+  <mat-card class="section-card comments-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="section-icon">chat</mat-icon>
+        Discussion
+        <span class="comment-count" *ngIf="comments().total > 0">({{ comments().total }})</span>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="comments().items.length === 0 && !loading()">
+        <mat-icon class="empty-icon">chat_bubble_outline</mat-icon>
+        <p>No comments yet. Start the discussion below.</p>
+      </div>
+
+      <!-- Comments List -->
+      <div class="comments-list" *ngIf="comments().items.length > 0">
+        <div class="comment-bubble"
+             *ngFor="let comment of comments().items"
+             [class.reply-bubble]="comment.parent_id">
+
+          <div class="comment-header">
+            <div class="comment-avatar">{{ getInitials(comment.user_name) }}</div>
+            <div class="comment-meta">
+              <span class="comment-author">{{ comment.user_name }}</span>
+              <span class="comment-time">{{ formatDate(comment.created_at) }}</span>
+            </div>
+            <div class="comment-actions">
+              <mat-icon class="reply-indicator" *ngIf="comment.parent_id" title="Reply">
+                reply
+              </mat-icon>
+              <button mat-icon-button color="warn" class="delete-comment-btn"
+                      (click)="deleteComment(comment.id)" title="Delete comment">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="comment-body">
+            <p>{{ comment.text }}</p>
+          </div>
+
+        </div>
+      </div>
+
+      <mat-divider class="comment-divider"></mat-divider>
+
+      <!-- Add Comment Form -->
+      <div class="add-comment-form">
+        <mat-form-field appearance="outline" class="comment-input">
+          <mat-label>Add a comment...</mat-label>
+          <textarea matInput
+                    [ngModel]="newComment()"
+                    (ngModelChange)="newComment.set($event)"
+                    rows="3"
+                    placeholder="Share an update, question, or note about this tender"></textarea>
+        </mat-form-field>
+        <div class="comment-submit-row">
+          <button mat-flat-button color="primary"
+                  [disabled]="!newComment().trim()"
+                  (click)="addComment()">
+            <mat-icon>send</mat-icon>
+            Post Comment
+          </button>
+        </div>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+</div>

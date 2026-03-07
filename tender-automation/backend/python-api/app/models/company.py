@@ -48,6 +48,12 @@ class CompanyProfile(Base):
     signature_path = Column(String(500), nullable=True)
     stamp_path = Column(String(500), nullable=True)
 
+    # PF & ESI Registration
+    pf_registration_number = Column(String(100), nullable=True)
+    pf_registration_date = Column(DateTime(timezone=True), nullable=True)
+    esi_registration_number = Column(String(100), nullable=True)
+    esi_registration_date = Column(DateTime(timezone=True), nullable=True)
+
     # Bank Details
     bank_name = Column(String(200), nullable=True)
     account_number = Column(String(50), nullable=True)

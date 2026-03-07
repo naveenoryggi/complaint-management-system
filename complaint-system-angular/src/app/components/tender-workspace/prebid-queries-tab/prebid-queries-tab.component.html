@@ -1,0 +1,209 @@
+<div class="prebid-container">
+  <!-- Header -->
+  <div class="prebid-header">
+    <div class="header-left">
+      <mat-icon>quiz</mat-icon>
+      <h3>PRE-BID QUERIES</h3>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="onGenerate()" [disabled]="generating()">
+        <mat-icon>{{ generating() ? 'hourglass_empty' : 'auto_awesome' }}</mat-icon>
+        {{ generating() ? 'Generating...' : 'Generate AI' }}
+      </button>
+      <button mat-raised-button (click)="onAddManual()">
+        <mat-icon>add</mat-icon> Add Manual
+      </button>
+      @if (queries().length > 0) {
+        <button mat-raised-button color="accent" (click)="onExport()" [disabled]="exporting()">
+          <mat-icon>{{ exporting() ? 'hourglass_empty' : 'download' }}</mat-icon>
+          {{ exporting() ? 'Exporting...' : 'Export DOCX' }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (generating()) {
+    <div class="loading-container">
+      <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+      <p>AI is analyzing tender clauses for pre-bid queries...</p>
+    </div>
+  } @else if (queries().length === 0 && !showAddForm()) {
+    <div class="empty-state">
+      <mat-icon>quiz</mat-icon>
+      <h4>No Pre-Bid Queries</h4>
+      <p>Click "Generate AI" to analyze the tender and auto-generate formal pre-bid queries, or add them manually.</p>
+    </div>
+  } @else {
+    <!-- Summary -->
+    @if (queries().length > 0) {
+      <div class="summary-bar">
+        <span class="summary-text">Found {{ queries().length }} queries in {{ getCategoryKeys().length }} categories</span>
+      </div>
+
+      <!-- Category Filter Chips -->
+      <div class="category-chips">
+        <button mat-stroked-button class="filter-chip" [class.active]="selectedCategory() === null"
+                (click)="onCategoryFilter(null)">
+          All ({{ queries().length }})
+        </button>
+        @for (cat of getCategoryKeys(); track cat) {
+          <button mat-stroked-button class="filter-chip" [class.active]="selectedCategory() === cat"
+                  (click)="onCategoryFilter(cat)">
+            {{ getCategoryLabel(cat) }} ({{ categoryBreakdown()[cat] }})
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Add Form -->
+    @if (showAddForm()) {
+      <mat-card class="add-form-card">
+        <mat-card-header><mat-card-title>Add Pre-Bid Query</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="field-md">
+              <mat-label>Tender Reference (Clause/Page)</mat-label>
+              <input matInput [(ngModel)]="newQuery.tender_reference" placeholder="Cl. 3.2, Page 15">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-sm">
+              <mat-label>Category</mat-label>
+              <mat-select [(ngModel)]="newQuery.category">
+                <mat-option value="ambiguous_specs">Ambiguous Specs</mat-option>
+                <mat-option value="contradictory_clauses">Contradictory</mat-option>
+                <mat-option value="restrictive_conditions">Restrictive</mat-option>
+                <mat-option value="missing_timelines">Timelines</mat-option>
+                <mat-option value="unclear_evaluation">Evaluation</mat-option>
+                <mat-option value="onerous_commercial">Commercial</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-sm">
+              <mat-label>Priority</mat-label>
+              <mat-select [(ngModel)]="newQuery.priority">
+                <mat-option value="high">High</mat-option>
+                <mat-option value="medium">Medium</mat-option>
+                <mat-option value="low">Low</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <mat-form-field appearance="outline" class="form-field-full">
+            <mat-label>Existing Clause/Provision</mat-label>
+            <textarea matInput [(ngModel)]="newQuery.existing_clause" rows="2"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="form-field-full">
+            <mat-label>Clarification/Amendment Sought</mat-label>
+            <textarea matInput [(ngModel)]="newQuery.clarification_sought" rows="2"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="form-field-full">
+            <mat-label>Response from Tendering Authority</mat-label>
+            <textarea matInput [(ngModel)]="newQuery.response" rows="2" placeholder="Leave blank — fill in after pre-bid meeting"></textarea>
+          </mat-form-field>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button (click)="showAddForm.set(false)">Cancel</button>
+          <button mat-raised-button color="primary" (click)="onSaveNewQuery()">Add Query</button>
+        </mat-card-actions>
+      </mat-card>
+    }
+
+    <!-- Queries Table -->
+    @if (filteredQueries().length > 0) {
+      <div class="queries-table">
+        @for (query of filteredQueries(); track query.sno; let i = $index) {
+          <mat-card class="query-card">
+            @if (editingIndex() === i) {
+              <!-- Edit Mode -->
+              <div class="query-edit">
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="field-md">
+                    <mat-label>Tender Reference</mat-label>
+                    <input matInput [(ngModel)]="editData.tender_reference">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="field-sm">
+                    <mat-label>Category</mat-label>
+                    <mat-select [(ngModel)]="editData.category">
+                      <mat-option value="ambiguous_specs">Ambiguous Specs</mat-option>
+                      <mat-option value="contradictory_clauses">Contradictory</mat-option>
+                      <mat-option value="restrictive_conditions">Restrictive</mat-option>
+                      <mat-option value="missing_timelines">Timelines</mat-option>
+                      <mat-option value="unclear_evaluation">Evaluation</mat-option>
+                      <mat-option value="onerous_commercial">Commercial</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="field-sm">
+                    <mat-label>Priority</mat-label>
+                    <mat-select [(ngModel)]="editData.priority">
+                      <mat-option value="high">High</mat-option>
+                      <mat-option value="medium">Medium</mat-option>
+                      <mat-option value="low">Low</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <mat-form-field appearance="outline" class="form-field-full">
+                  <mat-label>Existing Clause</mat-label>
+                  <textarea matInput [(ngModel)]="editData.existing_clause" rows="2"></textarea>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="form-field-full">
+                  <mat-label>Clarification Sought</mat-label>
+                  <textarea matInput [(ngModel)]="editData.clarification_sought" rows="2"></textarea>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="form-field-full">
+                  <mat-label>Response from Tendering Authority</mat-label>
+                  <textarea matInput [(ngModel)]="editData.response" rows="2" placeholder="Enter authority's response"></textarea>
+                </mat-form-field>
+                <div class="edit-actions">
+                  <button mat-button (click)="onCancelEdit()">Cancel</button>
+                  <button mat-raised-button color="primary" (click)="onSaveEdit()">Save</button>
+                </div>
+              </div>
+            } @else {
+              <!-- View Mode -->
+              <div class="query-row">
+                <div class="query-sno">{{ query.sno }}</div>
+                <div class="query-content">
+                  <div class="query-ref">
+                    <strong>{{ query.tender_reference }}</strong>
+                    <span class="priority-badge" [style.background-color]="getPriorityColor(query.priority)">{{ query.priority }}</span>
+                    <span class="category-badge">{{ getCategoryLabel(query.category) }}</span>
+                  </div>
+                  <div class="query-clause">{{ query.existing_clause }}</div>
+                  <div class="query-clarification">
+                    <mat-icon>arrow_forward</mat-icon>
+                    {{ query.clarification_sought }}
+                  </div>
+                  @if (query.response) {
+                    <div class="query-response">
+                      <mat-icon>reply</mat-icon>
+                      <span class="response-label">Response:</span>
+                      {{ query.response }}
+                    </div>
+                  } @else {
+                    <div class="query-response-empty">
+                      <mat-icon>reply</mat-icon>
+                      <span>Awaiting response</span>
+                    </div>
+                  }
+                </div>
+                <div class="query-actions">
+                  <button mat-icon-button matTooltip="AI Suggest Response" (click)="onSuggestResponse(i)"
+                          [disabled]="suggestingIndex() !== null">
+                    @if (suggestingIndex() === i) {
+                      <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+                    } @else {
+                      <mat-icon style="color: #7c4dff">psychology</mat-icon>
+                    }
+                  </button>
+                  <button mat-icon-button matTooltip="Edit" (click)="onStartEdit(i)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button matTooltip="Delete" (click)="onDeleteQuery(i)">
+                    <mat-icon color="warn">delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </mat-card>
+        }
+      </div>
+    }
+  }
+</div>

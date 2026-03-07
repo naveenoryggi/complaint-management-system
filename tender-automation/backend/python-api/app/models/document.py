@@ -1,7 +1,7 @@
 """Document models."""
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Text, DateTime, BigInteger, Boolean, Integer, ForeignKey, Uuid, JSON
+from sqlalchemy import Column, String, Text, DateTime, Date, BigInteger, Boolean, Integer, ForeignKey, Uuid, JSON
 from sqlalchemy.orm import relationship
 
 from app.core.db import Base
@@ -38,6 +38,11 @@ class Document(Base):
     # Template & Versioning
     is_template = Column(Boolean, nullable=False, default=False)
     version = Column(Integer, nullable=False, default=1)
+
+    # Company Document Library fields
+    company_doc_category = Column(String(50), nullable=True, index=True)
+    expiry_date = Column(Date, nullable=True)
+    is_company_document = Column(Boolean, nullable=False, default=False)
 
     # Audit fields
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)

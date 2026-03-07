@@ -1,5 +1,4 @@
-"""AI service - Claude API integration for document generation."""
-import anthropic
+"""AI service - Multi-provider AI integration for document generation."""
 from typing import Optional, Dict, Any
 from uuid import UUID
 from datetime import datetime
@@ -20,18 +19,14 @@ from app.schemas.ai import (
 from app.prompts.templates import format_template
 from app.core.security import TokenData
 from app.services.docx_service import docx_service
+from app.services.ai_provider_service import send_message
 
 
 class AIService:
-    """Service for AI document generation using Claude."""
+    """Service for AI document generation using multi-provider factory."""
 
     def __init__(self):
-        """Initialize Anthropic client."""
-        self.client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
-
-        # Token costs (approximate, as of Feb 2024)
-        # Claude Opus 4: $15 per 1M input tokens, $75 per 1M output tokens
-        # Claude Sonnet 3.5: $3 per 1M input tokens, $15 per 1M output tokens
+        """Initialize pricing lookup (no hardcoded client)."""
         self.pricing = {
             "claude-opus-4": {"input": 15.0, "output": 75.0},
             "claude-opus-4-5": {"input": 15.0, "output": 75.0},
@@ -85,33 +80,23 @@ class AIService:
             context_dict = request.context.model_dump()
             prompt = format_template(request.generation_type.value, context_dict)
 
-            # Call Claude API
-            message = self.client.messages.create(
+            # Call AI via provider factory
+            content, total_tokens, model_used = await send_message(
+                db=db,
+                tenant_id=current_user.tenant_id,
+                prompt=prompt,
+                feature="document_generation",
                 model=request.model,
                 max_tokens=request.max_tokens,
                 temperature=request.temperature,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
             )
-
-            # Extract generated content
-            content = message.content[0].text
-
-            # Calculate tokens used
-            input_tokens = message.usage.input_tokens
-            output_tokens = message.usage.output_tokens
-            total_tokens = input_tokens + output_tokens
 
             # Create AI generation record
             ai_generation = AIGeneration(
                 tenant_id=UUID(current_user.tenant_id),
                 created_by=UUID(current_user.user_id),
                 prompt=prompt,
-                model_used=request.model,
+                model_used=model_used,
                 tokens_used=total_tokens,
                 generation_type=request.generation_type.value,
                 input_context=context_dict,
@@ -197,16 +182,13 @@ class AIService:
                 generation_type=ai_generation.generation_type,
                 content=content,
                 tokens_used=total_tokens,
-                model_used=request.model,
+                model_used=model_used,
                 document_id=document_id,
                 created_at=ai_generation.created_at,
             )
 
-        except anthropic.APIError as e:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Claude API error: {str(e)}"
-            )
+        except HTTPException:
+            raise
         except Exception as e:
             await db.rollback()
             raise HTTPException(

@@ -61,6 +61,9 @@ export class NavigationService {
     '/admin/escalation-wizard': 'Escalation Wizard',
     '/tenders': 'All Tenders',
     '/tenders/new': 'New Tender',
+    '/tender-analytics': 'Tender Analytics',
+    '/tender-compare': 'Tender Compare',
+    '/tender-calendar': 'Tender Calendar',
     '/tender-dashboard': 'Tender Dashboard',
     '/company-profile': 'Company Profile',
     '/reference-bundles': 'Reference Bundles',
@@ -99,6 +102,9 @@ export class NavigationService {
     '/admin/escalation-policy': 'bi-shield-check',
     '/tenders': 'bi-file-text',
     '/tenders/new': 'bi-plus-circle',
+    '/tender-analytics': 'bi-graph-up',
+    '/tender-compare': 'bi-layout-split',
+    '/tender-calendar': 'bi-calendar3',
     '/tender-dashboard': 'bi-speedometer2',
     '/company-profile': 'bi-building',
     '/reference-bundles': 'bi-folder2-open',
@@ -136,6 +142,9 @@ export class NavigationService {
     '/admin/escalation-wizard': '/dashboard',
     '/tenders': '/tender-dashboard',
     '/tenders/new': '/tenders',
+    '/tender-analytics': '/tender-dashboard',
+    '/tender-compare': '/tenders',
+    '/tender-calendar': '/tender-dashboard',
     '/company-profile': '/tender-dashboard',
     '/reference-bundles': '/tender-dashboard',
     '/oem-management': '/tender-dashboard',
@@ -192,16 +201,21 @@ export class NavigationService {
     let title = this.routeTitles[baseUrl];
     let isComplaintDetail = false;
 
+    let isTenderDetail = false;
+
     if (!title) {
       if (baseUrl.startsWith('/complaints/') && baseUrl !== '/complaints/new') {
         title = 'Complaint Details';
         isComplaintDetail = true;
+      } else if (baseUrl.match(/^\/tenders\/[^/]+$/) && baseUrl !== '/tenders/new') {
+        title = 'Tender Details';
+        isTenderDetail = true;
       } else {
         title = 'Page';
       }
     }
 
-    const breadcrumbs = this.buildBreadcrumbs(baseUrl, isComplaintDetail);
+    const breadcrumbs = this.buildBreadcrumbs(baseUrl, isComplaintDetail, isTenderDetail);
     const showBackButton = this.navigationHistory.length > 1 && baseUrl !== '/dashboard';
     const showHomeButton = baseUrl !== '/dashboard';
 
@@ -213,7 +227,7 @@ export class NavigationService {
     });
   }
 
-  private buildBreadcrumbs(url: string, isComplaintDetail: boolean = false): Breadcrumb[] {
+  private buildBreadcrumbs(url: string, isComplaintDetail: boolean = false, isTenderDetail: boolean = false): Breadcrumb[] {
     const breadcrumbs: Breadcrumb[] = [];
 
     // Always start with dashboard (home)
@@ -239,6 +253,29 @@ export class NavigationService {
         label: `Complaint #${complaintId}`,
         url: url,
         icon: 'bi-file-text'
+      });
+
+      return breadcrumbs;
+    }
+
+    // For tender detail pages, build: Dashboard > Tender Dashboard > All Tenders > Tender #ID
+    if (isTenderDetail) {
+      breadcrumbs.push({
+        label: 'Tender Dashboard',
+        url: '/tender-dashboard',
+        icon: 'bi-speedometer2'
+      });
+      breadcrumbs.push({
+        label: 'All Tenders',
+        url: '/tenders',
+        icon: 'bi-file-text'
+      });
+
+      const tenderId = url.split('/').pop();
+      breadcrumbs.push({
+        label: `Tender #${tenderId?.substring(0, 8) || ''}`,
+        url: url,
+        icon: 'bi-file-earmark-text'
       });
 
       return breadcrumbs;

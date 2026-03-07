@@ -1,0 +1,219 @@
+<div class="company-docs-container">
+  <app-breadcrumb></app-breadcrumb>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1><mat-icon>folder_shared</mat-icon> Company Document Library</h1>
+      <p class="subtitle">Manage certificates, legal docs, and financial documents used across all tenders</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="showUploadForm.set(true)" class="upload-btn">
+      <mat-icon>upload_file</mat-icon> Upload Document
+    </button>
+  </div>
+
+  <!-- Expiry Alert Banner -->
+  @if (expiringDocs.length > 0) {
+    <div class="expiry-banner">
+      <mat-icon>warning</mat-icon>
+      <span>{{ expiringDocs.length }} document(s) expiring within 30 days or already expired</span>
+    </div>
+  }
+
+  <!-- Category Grid -->
+  <div class="category-grid">
+    <div class="category-card all-card"
+         [class.active]="selectedCategory() === null"
+         (click)="filterByCategory(null)">
+      <mat-icon>apps</mat-icon>
+      <span class="cat-label">All</span>
+      <span class="cat-count">{{ documents().length }}</span>
+    </div>
+    @for (cat of categories(); track cat.category) {
+      <div class="category-card"
+           [class.active]="selectedCategory() === cat.category"
+           (click)="filterByCategory(cat.category)">
+        <mat-icon [style.color]="getCategoryIconColor(cat)">{{ getCategoryIcon(cat) }}</mat-icon>
+        <span class="cat-label">{{ cat.label }}</span>
+        <span class="cat-count">{{ cat.count }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Upload Form -->
+  @if (showUploadForm()) {
+    <mat-card class="upload-card">
+      <mat-card-header>
+        <mat-card-title>Upload Company Document</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="upload-form">
+          <div class="form-row">
+            <input type="file" (change)="onFileSelected($event)" class="file-input" #fileInput hidden>
+            <button mat-stroked-button (click)="fileInput.click()" class="file-pick-btn">
+              <mat-icon>attach_file</mat-icon>
+              {{ uploadFile ? uploadFile.name : 'Choose File' }}
+            </button>
+          </div>
+          <div class="form-row two-col">
+            <mat-form-field appearance="outline">
+              <mat-label>Document Name</mat-label>
+              <input matInput [(ngModel)]="uploadName" placeholder="e.g. PAN Card - ABC Ltd">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Category</mat-label>
+              <mat-select [(ngModel)]="uploadCategory">
+                @for (opt of categoryOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="form-row two-col">
+            <mat-form-field appearance="outline">
+              <mat-label>Description (optional)</mat-label>
+              <input matInput [(ngModel)]="uploadDescription">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Expiry Date (optional)</mat-label>
+              <input matInput type="date" [(ngModel)]="uploadExpiryDate">
+            </mat-form-field>
+          </div>
+          <div class="form-actions">
+            <button mat-button (click)="resetUploadForm()">Cancel</button>
+            <button mat-raised-button color="primary" (click)="onUpload()"
+                    [disabled]="!uploadFile || !uploadName || uploading()">
+              @if (uploading()) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                <mat-icon>cloud_upload</mat-icon> Upload
+              }
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Edit Form -->
+  @if (editingDoc()) {
+    <mat-card class="edit-card">
+      <mat-card-header>
+        <mat-card-title>Edit: {{ editingDoc()!.name }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="upload-form">
+          <div class="form-row two-col">
+            <mat-form-field appearance="outline">
+              <mat-label>Name</mat-label>
+              <input matInput [(ngModel)]="editName">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Category</mat-label>
+              <mat-select [(ngModel)]="editCategory">
+                @for (opt of categoryOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Expiry Date</mat-label>
+              <input matInput type="date" [(ngModel)]="editExpiry">
+            </mat-form-field>
+          </div>
+          <div class="form-actions">
+            <button mat-button (click)="cancelEdit()">Cancel</button>
+            <button mat-raised-button color="primary" (click)="saveEdit()">Save</button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Documents Table -->
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else if (documents().length === 0) {
+    <div class="empty-state">
+      <mat-icon>folder_off</mat-icon>
+      <h3>No documents found</h3>
+      <p>Upload company documents like PAN, GST, ISO certificates to auto-link them to tenders.</p>
+      <button mat-raised-button color="primary" (click)="showUploadForm.set(true)">
+        <mat-icon>upload_file</mat-icon> Upload First Document
+      </button>
+    </div>
+  } @else {
+    <mat-card class="table-card">
+      <table mat-table [dataSource]="documents()" class="docs-table">
+        <!-- Name -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let doc">
+            <div class="doc-name">
+              <mat-icon class="doc-icon">description</mat-icon>
+              <span>{{ doc.name }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Category -->
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef>Category</th>
+          <td mat-cell *matCellDef="let doc">
+            <mat-chip-set>
+              <mat-chip>{{ getCategoryLabel(doc.company_doc_category) }}</mat-chip>
+            </mat-chip-set>
+          </td>
+        </ng-container>
+
+        <!-- Size -->
+        <ng-container matColumnDef="size">
+          <th mat-header-cell *matHeaderCellDef>Size</th>
+          <td mat-cell *matCellDef="let doc">{{ formatFileSize(doc.file_size) }}</td>
+        </ng-container>
+
+        <!-- Expiry -->
+        <ng-container matColumnDef="expiry">
+          <th mat-header-cell *matHeaderCellDef>Expiry</th>
+          <td mat-cell *matCellDef="let doc">
+            @if (doc.expiry_date) {
+              <span [class.expiry-warning]="isExpiringSoon(doc)" [class.expiry-expired]="isExpired(doc)">
+                {{ doc.expiry_date }}
+                @if (isExpired(doc)) {
+                  <mat-icon class="expiry-icon">error</mat-icon>
+                } @else if (isExpiringSoon(doc)) {
+                  <mat-icon class="expiry-icon">schedule</mat-icon>
+                }
+              </span>
+            } @else {
+              <span class="no-expiry">No expiry</span>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let doc">
+            <button mat-icon-button matTooltip="Download" (click)="onDownload(doc)">
+              <mat-icon>download</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Edit" (click)="startEdit(doc)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Delete" color="warn" (click)="onDelete(doc)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </mat-card>
+  }
+</div>

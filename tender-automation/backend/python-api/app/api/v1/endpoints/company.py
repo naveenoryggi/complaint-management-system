@@ -27,7 +27,16 @@ from app.schemas.company import (
 
 router = APIRouter()
 
-ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp"}
+ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".svg"}
+ALLOWED_DOCUMENT_EXTENSIONS = {".docx", ".doc", ".pdf"}
+
+# Per-asset-type allowed file extensions
+ALLOWED_EXTENSIONS_BY_ASSET: dict[str, set[str]] = {
+    "logo": ALLOWED_IMAGE_EXTENSIONS,
+    "letterhead": ALLOWED_IMAGE_EXTENSIONS | ALLOWED_DOCUMENT_EXTENSIONS,
+    "signature": ALLOWED_IMAGE_EXTENSIONS,
+    "stamp": ALLOWED_IMAGE_EXTENSIONS,
+}
 
 
 class BrandAssetType(str, Enum):
@@ -166,13 +175,14 @@ async def upload_brand_asset(
             detail="Company profile must be created first.",
         )
 
-    # Validate file extension
+    # Validate file extension (per asset type)
     _, ext = os.path.splitext(file.filename or "")
     ext = ext.lower()
-    if ext not in ALLOWED_IMAGE_EXTENSIONS:
+    allowed = ALLOWED_EXTENSIONS_BY_ASSET.get(asset_type.value, ALLOWED_IMAGE_EXTENSIONS)
+    if ext not in allowed:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid file type '{ext}'. Allowed: {', '.join(ALLOWED_IMAGE_EXTENSIONS)}",
+            detail=f"Invalid file type '{ext}' for {asset_type.value}. Allowed: {', '.join(sorted(allowed))}",
         )
 
     # Create upload directory

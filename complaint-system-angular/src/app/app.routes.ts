@@ -395,8 +395,33 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'tender-analytics',
+    loadComponent: () => import('./components/tender-analytics/tender-analytics.component').then(m => m.TenderAnalyticsComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'emd-tracker',
     loadComponent: () => import('./components/emd-tracker/emd-tracker.component').then(m => m.EmdTrackerComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'admin/ai-provider-settings',
+    loadComponent: () => import('./components/admin/ai-provider-settings/ai-provider-settings.component').then(m => m.AIProviderSettingsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'tender-compare',
+    loadComponent: () => import('./components/tender-compare/tender-compare.component').then(m => m.TenderCompareComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'tender-calendar',
+    loadComponent: () => import('./components/tender-calendar/tender-calendar.component').then(m => m.TenderCalendarComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'company-documents',
+    loadComponent: () => import('./components/company-documents/company-documents.component').then(m => m.CompanyDocumentsComponent),
     canActivate: [authGuard]
   },
   { path: '**', redirectTo: '/login' }

@@ -8,6 +8,7 @@ export interface DeclarationType {
   name: string;
   category: string;
   description: string;
+  is_required: boolean;
 }
 
 export interface DeclarationAnalysisItem {
@@ -31,6 +32,53 @@ export interface BulkDeclarationRequest {
   designation?: string;
   ai_types?: string[];
   analysis_results?: DeclarationAnalysisItem[];
+  bidder_role?: string;
+}
+
+export interface ValidationResult {
+  total_points: number;
+  found: number;
+  missing: string[];
+  status: 'pass' | 'warning' | 'none';
+}
+
+export interface DeclarationPreview {
+  key: string;
+  name: string;
+  content: string;
+  mode: 'standard' | 'ai';
+  category: string;
+  validation?: ValidationResult;
+  error?: string;
+}
+
+export interface PreviewBulkResponse {
+  previews: DeclarationPreview[];
+}
+
+export interface SaveAndLinkRequest {
+  tender_id: string;
+  declaration_types: string[];
+  signatory_name?: string;
+  designation?: string;
+  ai_types?: string[];
+  analysis_results?: DeclarationAnalysisItem[];
+  bidder_role?: string;
+}
+
+export interface SaveAndLinkResultItem {
+  key: string;
+  document_id: string | null;
+  linked_checklist_item_id: string | null;
+  filename: string | null;
+  status: string;
+  error?: string;
+}
+
+export interface SaveAndLinkResult {
+  results: SaveAndLinkResultItem[];
+  saved: number;
+  linked: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -55,7 +103,8 @@ export class DeclarationService {
     signatoryName?: string,
     designation?: string,
     mode: string = 'standard',
-    tenderSpecificPoints?: string[]
+    tenderSpecificPoints?: string[],
+    bidderRole: string = 'bidder'
   ): Observable<Blob> {
     return this.http.post(`${this.baseUrl}/generate`, {
       declaration_type: type,
@@ -64,6 +113,7 @@ export class DeclarationService {
       designation: designation || null,
       mode,
       tender_specific_points: tenderSpecificPoints || null,
+      bidder_role: bidderRole,
     }, { responseType: 'blob' });
   }
 
@@ -77,5 +127,33 @@ export class DeclarationService {
       request,
       { responseType: 'blob' }
     );
+  }
+
+  previewBulk(request: BulkDeclarationRequest): Observable<PreviewBulkResponse> {
+    return this.http.post<PreviewBulkResponse>(`${this.baseUrl}/preview`, request);
+  }
+
+  previewSingle(
+    type: string,
+    tenderId?: string,
+    signatoryName?: string,
+    designation?: string,
+    mode: string = 'standard',
+    tenderSpecificPoints?: string[],
+    bidderRole: string = 'bidder'
+  ): Observable<DeclarationPreview> {
+    return this.http.post<DeclarationPreview>(`${this.baseUrl}/preview-single`, {
+      declaration_type: type,
+      tender_id: tenderId || null,
+      signatory_name: signatoryName || null,
+      designation: designation || null,
+      mode,
+      tender_specific_points: tenderSpecificPoints || null,
+      bidder_role: bidderRole,
+    });
+  }
+
+  saveAndLink(request: SaveAndLinkRequest): Observable<SaveAndLinkResult> {
+    return this.http.post<SaveAndLinkResult>(`${this.baseUrl}/save-and-link`, request);
   }
 }

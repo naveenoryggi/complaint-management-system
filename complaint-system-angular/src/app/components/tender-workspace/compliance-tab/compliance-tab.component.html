@@ -1,0 +1,343 @@
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Checking compliance readiness...</p>
+  </div>
+} @else if (compliance()) {
+  <!-- Auto-Fill from KB -->
+  <div class="auto-fill-row">
+    <button mat-stroked-button color="primary" (click)="onAutoFill()" [disabled]="autoFillLoading()">
+      @if (autoFillLoading()) {
+        <mat-progress-spinner mode="indeterminate" diameter="18" style="display:inline-block;margin-right:8px;"></mat-progress-spinner>
+        Loading...
+      } @else {
+        <mat-icon>auto_fix_high</mat-icon>
+        Auto-Fill from KB
+      }
+    </button>
+  </div>
+
+  @if (autoFillSuggestions().length > 0) {
+    <mat-card class="auto-fill-panel">
+      <div class="auto-fill-header">
+        <div class="auto-fill-title">
+          <mat-icon>auto_fix_high</mat-icon>
+          <span>Auto-Fill Suggestions ({{ autoFillSuggestions().length }})</span>
+        </div>
+        <div class="auto-fill-actions">
+          <button mat-stroked-button (click)="applyAllAutoFill()">
+            <mat-icon>content_paste</mat-icon> Copy All
+          </button>
+          <button mat-icon-button (click)="dismissAutoFill()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+      @for (s of autoFillSuggestions(); track s.kb_entry_id) {
+        <div class="auto-fill-item">
+          <div class="auto-fill-info">
+            <strong>{{ s.title }}</strong>
+            <span class="auto-fill-target">Target: {{ s.target_field }}</span>
+            <span class="auto-fill-confidence">Confidence: {{ s.confidence_score | number:'1.0-0' }}%</span>
+            <p class="auto-fill-preview">{{ getAutoFillPreview(s.content) }}</p>
+          </div>
+          <button mat-icon-button matTooltip="Copy" (click)="applyAutoFillSuggestion(s)">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </div>
+      }
+    </mat-card>
+  }
+
+  <!-- Overall Score Card -->
+  <mat-card class="overall-card">
+    <div class="overall-header">
+      <div class="overall-info">
+        <h2 class="overall-title">Overall Readiness</h2>
+        <span class="overall-label" [class]="'label-' + getProgressBarClass(compliance()!.overall_score)">
+          {{ compliance()!.overall_label }}
+        </span>
+      </div>
+      <div class="overall-score-section">
+        <div class="score-circle" [class]="getProgressBarClass(compliance()!.overall_score)">
+          <span class="score-value">{{ compliance()!.overall_score | number:'1.0-0' }}%</span>
+        </div>
+        <button mat-icon-button matTooltip="Refresh" (click)="onRefresh()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+    <mat-progress-bar
+      mode="determinate"
+      [value]="compliance()!.overall_score"
+      [class]="getProgressBarClass(compliance()!.overall_score)">
+    </mat-progress-bar>
+  </mat-card>
+
+  <!-- Category Panels -->
+  <mat-accordion multi>
+    @for (category of compliance()!.categories; track category.category) {
+      <mat-expansion-panel [expanded]="hasMissingItems(category)">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="category-icon">{{ category.icon }}</mat-icon>
+            <span class="category-name">{{ category.label }}</span>
+          </mat-panel-title>
+          <mat-panel-description>
+            @if (category.total_count > 0) {
+              <span class="category-count">{{ category.ready_count }}/{{ category.total_count }} ready</span>
+            } @else {
+              <span class="category-count na">N/A</span>
+            }
+            <div class="category-progress-wrapper">
+              <mat-progress-bar
+                mode="determinate"
+                [value]="category.score"
+                [class]="getProgressBarClass(category.score)">
+              </mat-progress-bar>
+              <span class="category-score">{{ category.score | number:'1.0-0' }}%</span>
+            </div>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <div class="category-items">
+          @for (item of category.items; track item.key) {
+            <div class="check-item" [class]="getStatusClass(item.status)">
+              <mat-icon [class]="getStatusClass(item.status)">{{ getStatusIcon(item.status) }}</mat-icon>
+              <div class="item-info">
+                <span class="item-label">{{ item.label }}</span>
+                @if (item.detail) {
+                  <span class="item-detail">{{ item.detail }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </mat-expansion-panel>
+    }
+  </mat-accordion>
+
+  <!-- AI Alignment Verification -->
+  <mat-card class="alignment-card">
+    <div class="alignment-header">
+      <div class="alignment-title">
+        <mat-icon>verified</mat-icon>
+        <h3>AI Alignment Verification</h3>
+      </div>
+      <button mat-raised-button color="primary" (click)="onRunAlignmentCheck()" [disabled]="alignmentLoading()">
+        @if (alignmentLoading()) {
+          <mat-progress-spinner mode="indeterminate" diameter="20" style="display: inline-block; margin-right: 8px;"></mat-progress-spinner>
+          Analyzing...
+        } @else {
+          <mat-icon>psychology</mat-icon>
+          Run Alignment Check
+        }
+      </button>
+    </div>
+
+    @if (alignmentResult()) {
+      <div class="alignment-results">
+        <!-- Score + Label -->
+        <div class="alignment-score-row">
+          <div class="alignment-score-circle" [class]="getAlignmentScoreClass(alignmentResult()!.alignment_score)">
+            <span class="alignment-score-value">{{ alignmentResult()!.alignment_score }}%</span>
+          </div>
+          <div class="alignment-meta">
+            <span class="alignment-label-badge" [class]="getAlignmentLabelClass(alignmentResult()!.alignment_label)">
+              {{ alignmentResult()!.alignment_label }}
+            </span>
+            <p class="alignment-summary">{{ alignmentResult()!.summary }}</p>
+            <span class="alignment-model">Model: {{ alignmentResult()!.model_used }} | Tokens: {{ alignmentResult()!.tokens_used | number }}</span>
+          </div>
+        </div>
+
+        <!-- Issues -->
+        @if (alignmentResult()!.issues.length > 0) {
+          <div class="alignment-section">
+            <h4>Issues Found ({{ alignmentResult()!.issues.length }})</h4>
+            @for (issue of alignmentResult()!.issues; track issue.title) {
+              <div class="alignment-issue" [style.border-left-color]="getSeverityColor(issue.severity)">
+                <div class="issue-header">
+                  <mat-icon [style.color]="getSeverityColor(issue.severity)">{{ getSeverityIcon(issue.severity) }}</mat-icon>
+                  <strong>{{ issue.title }}</strong>
+                  <span class="issue-area-badge">{{ issue.area }}</span>
+                  <span class="issue-severity-badge" [style.background-color]="getSeverityColor(issue.severity)">{{ issue.severity }}</span>
+                </div>
+                <p class="issue-description">{{ issue.description }}</p>
+                <p class="issue-recommendation"><mat-icon>lightbulb</mat-icon> {{ issue.recommendation }}</p>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Strengths -->
+        @if (alignmentResult()!.strengths.length > 0) {
+          <div class="alignment-section">
+            <h4>Strengths</h4>
+            <div class="alignment-list">
+              @for (s of alignmentResult()!.strengths; track s) {
+                <div class="alignment-list-item strength">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>{{ s }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Risk Areas -->
+        @if (alignmentResult()!.risk_areas.length > 0) {
+          <div class="alignment-section">
+            <h4>Risk Areas</h4>
+            <div class="alignment-list">
+              @for (r of alignmentResult()!.risk_areas; track r) {
+                <div class="alignment-list-item risk">
+                  <mat-icon>warning</mat-icon>
+                  <span>{{ r }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </mat-card>
+
+  <!-- Clause Interpretation & Risk Analysis -->
+  <mat-card class="interpretation-card">
+    <div class="interpretation-header">
+      <div class="interpretation-title">
+        <mat-icon>security</mat-icon>
+        <h3>Clause Risk Analysis</h3>
+      </div>
+      <button mat-raised-button color="accent" (click)="onInterpretClauses()" [disabled]="interpretationLoading()">
+        @if (interpretationLoading()) {
+          <mat-progress-spinner mode="indeterminate" diameter="20" style="display: inline-block; margin-right: 8px;"></mat-progress-spinner>
+          Interpreting...
+        } @else {
+          <mat-icon>psychology</mat-icon>
+          Interpret Clauses
+        }
+      </button>
+    </div>
+
+    @if (interpretationResult(); as ir) {
+      <div class="interpretation-results">
+        <!-- Risk Distribution -->
+        <div class="risk-distribution-row">
+          <div class="risk-stat" style="border-color: #4caf50">
+            <span class="risk-stat-count">{{ ir.risk_distribution.distribution.low }}</span>
+            <span class="risk-stat-label">Low Risk</span>
+          </div>
+          <div class="risk-stat" style="border-color: #ff9800">
+            <span class="risk-stat-count">{{ ir.risk_distribution.distribution.medium }}</span>
+            <span class="risk-stat-label">Medium</span>
+          </div>
+          <div class="risk-stat" style="border-color: #f44336">
+            <span class="risk-stat-count">{{ ir.risk_distribution.distribution.high }}</span>
+            <span class="risk-stat-label">High</span>
+          </div>
+          <div class="risk-stat" style="border-color: #d32f2f">
+            <span class="risk-stat-count">{{ ir.risk_distribution.distribution.critical }}</span>
+            <span class="risk-stat-label">Critical</span>
+          </div>
+          <div class="risk-stat avg-stat">
+            <span class="risk-stat-count">{{ ir.risk_distribution.average_risk_score }}</span>
+            <span class="risk-stat-label">Avg Score</span>
+          </div>
+        </div>
+
+        @if (ir.overall_risk_summary) {
+          <div class="risk-summary-text">
+            <mat-icon>summarize</mat-icon>
+            <span>{{ ir.overall_risk_summary }}</span>
+          </div>
+        }
+
+        <!-- Red Flags -->
+        @if (ir.red_flags.length > 0) {
+          <div class="red-flags-section">
+            <h4><mat-icon style="color: #d32f2f">flag</mat-icon> Red Flags</h4>
+            @for (flag of ir.red_flags; track flag) {
+              <div class="red-flag-item">
+                <mat-icon style="color: #d32f2f">dangerous</mat-icon>
+                <span>{{ flag }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Interpreted Clauses -->
+        <div class="interpreted-clauses">
+          <h4>Interpreted Clauses ({{ ir.interpreted }})</h4>
+          @for (interp of ir.interpretations; track interp.clause_id) {
+            <div class="interpreted-item" [style.border-left-color]="getRiskColor(interp.risk_category)">
+              <div class="interp-header">
+                <mat-icon [style.color]="getRiskColor(interp.risk_category)">{{ getRiskIcon(interp.risk_category) }}</mat-icon>
+                <span class="interp-clause-id">{{ interp.clause_id | slice:0:8 }}</span>
+                <span class="interp-risk-badge" [style.background-color]="getRiskColor(interp.risk_category)">
+                  {{ interp.risk_category }} ({{ interp.risk_score }}/10)
+                </span>
+              </div>
+              <p class="interp-text">{{ interp.interpretation }}</p>
+              @if (interp.risk_reason) {
+                <p class="interp-reason"><mat-icon>info_outline</mat-icon> {{ interp.risk_reason }}</p>
+              }
+              @if (interp.cross_references && interp.cross_references.length > 0) {
+                <div class="interp-cross-refs">
+                  <mat-icon>link</mat-icon>
+                  @for (ref of interp.cross_references; track ref.clause) {
+                    <span class="cross-ref-chip">{{ ref.clause }} ({{ ref.relationship }})</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="interpretation-meta">
+          <span>Model: {{ ir.model_used }} | Tokens: {{ ir.tokens_used | number }}</span>
+        </div>
+      </div>
+    }
+  </mat-card>
+
+  <!-- KB Suggestions -->
+  @if (kbSuggestions().length > 0) {
+    <mat-card class="kb-suggestions-card">
+      <div class="kb-suggestions-header" (click)="toggleKBSuggestions()">
+        <div class="kb-suggestions-title">
+          <mat-icon>lightbulb</mat-icon>
+          <span>KB Suggestions</span>
+          <span class="kb-badge">{{ kbSuggestions().length }}</span>
+        </div>
+        <mat-icon>{{ showKBSuggestions() ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </div>
+      @if (showKBSuggestions()) {
+        <div class="kb-suggestions-body">
+          @for (entry of kbSuggestions(); track entry.id) {
+            <div class="kb-suggestion-item">
+              <div class="kb-suggestion-info">
+                <strong>{{ entry.title }}</strong>
+                <p class="kb-preview">{{ getKBPreview(entry.content) }}</p>
+              </div>
+              <button mat-icon-button matTooltip="Copy content" (click)="onCopyKBContent(entry)">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </mat-card>
+  }
+} @else {
+  <div class="empty-state">
+    <mat-icon>checklist</mat-icon>
+    <h4>Compliance Check</h4>
+    <p>Click refresh to run a compliance readiness check</p>
+    <button mat-raised-button color="primary" (click)="onRefresh()">
+      <mat-icon>play_arrow</mat-icon>
+      Run Check
+    </button>
+  </div>
+}

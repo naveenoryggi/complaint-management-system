@@ -1,9 +1,9 @@
 """Tender management API endpoints."""
 from typing import List, Optional
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_
 
@@ -14,6 +14,17 @@ from app.models.document import Document
 from app.models.document import TenderDocument
 
 router = APIRouter()
+
+
+def _strip_tz(dt: Optional[datetime]) -> Optional[datetime]:
+    """Convert timezone-aware datetime to naive UTC datetime for SQL Server compatibility."""
+    if dt is None:
+        return None
+    if dt.tzinfo is not None:
+        # Convert to UTC then remove timezone info
+        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+    # Remove microseconds to avoid SQL Server precision issues
+    return dt.replace(microsecond=0)
 
 
 # Request/Response schemas
@@ -30,6 +41,21 @@ class TenderCreate(BaseModel):
     notes: Optional[str] = None
     status: str = Field("draft", max_length=50)
 
+    @field_validator("deadline", mode="before")
+    @classmethod
+    def normalize_deadline(cls, v):
+        if v is None:
+            return None
+        if isinstance(v, str):
+            # Parse ISO string
+            try:
+                v = datetime.fromisoformat(v.replace("Z", "+00:00"))
+            except ValueError:
+                return None
+        if isinstance(v, datetime):
+            return _strip_tz(v)
+        return v
+
 
 class TenderUpdate(BaseModel):
     """Schema for updating a tender."""
@@ -43,6 +69,20 @@ class TenderUpdate(BaseModel):
     requirements: Optional[dict] = None
     notes: Optional[str] = None
     status: Optional[str] = Field(None, max_length=50)
+
+    @field_validator("deadline", mode="before")
+    @classmethod
+    def normalize_deadline(cls, v):
+        if v is None:
+            return None
+        if isinstance(v, str):
+            try:
+                v = datetime.fromisoformat(v.replace("Z", "+00:00"))
+            except ValueError:
+                return None
+        if isinstance(v, datetime):
+            return _strip_tz(v)
+        return v
 
 
 class TenderResponse(BaseModel):
@@ -135,7 +175,7 @@ async def create_tender(
 @router.get("/", response_model=TenderListResponse)
 async def list_tenders(
     page: int = Query(1, ge=1),
-    page_size: int = Query(50, ge=1, le=100),
+    page_size: int = Query(50, ge=1, le=500),
     status_filter: Optional[str] = Query(None, alias="status"),
     search: Optional[str] = None,
     db: AsyncSession = Depends(get_db),

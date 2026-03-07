@@ -1,0 +1,444 @@
+/* =============================================
+   Tender Compare Component Styles
+   ============================================= */
+
+.compare-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+/* Header */
+.compare-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding: 16px 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.back-btn {
+  color: #5f6368;
+  flex-shrink: 0;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.title-icon {
+  color: #057a55;
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.header-title h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #202124;
+  margin: 0;
+}
+
+.compare-count {
+  font-size: 13px;
+  color: #5f6368;
+  background: #ecfdf5;
+  color: #057a55;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 80px 20px;
+  color: #5f6368;
+}
+
+.loading-state p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 20px;
+  text-align: center;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.empty-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: #dadce0;
+}
+
+.empty-state h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #202124;
+  margin: 0;
+}
+
+.empty-state p {
+  font-size: 14px;
+  color: #5f6368;
+  margin: 0;
+  max-width: 400px;
+}
+
+/* Comparison Table Wrapper */
+.comparison-table-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* Tender Headers */
+.tender-headers {
+  display: flex;
+  background: linear-gradient(135deg, #057a55 0%, #046c4e 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.attr-header-cell {
+  width: 220px;
+  min-width: 220px;
+  padding: 16px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+}
+
+.tender-header-cell {
+  flex: 1;
+  padding: 14px 16px;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.tender-header-cell:last-child {
+  border-right: none;
+}
+
+.tender-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tender-icon {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.tender-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.tender-number {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.tender-ref {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Data Rows */
+.comparison-rows {
+  border-bottom: 1px solid #e8eaed;
+}
+
+.comparison-row {
+  display: flex;
+  border-bottom: 1px solid #f1f3f4;
+  transition: background 0.15s;
+}
+
+.comparison-row:last-child {
+  border-bottom: none;
+}
+
+.comparison-row.row-even {
+  background: #fafafa;
+}
+
+.comparison-row:hover {
+  background: #f0fdf4;
+}
+
+/* Attribute Cell */
+.attr-cell {
+  width: 220px;
+  min-width: 220px;
+  padding: 14px 20px;
+  border-right: 2px solid #e8eaed;
+  display: flex;
+  align-items: center;
+  background: inherit;
+}
+
+.attr-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3c4043;
+}
+
+/* Data Cell */
+.data-cell {
+  flex: 1;
+  padding: 12px 16px;
+  border-right: 1px solid #f1f3f4;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  transition: background 0.15s;
+}
+
+.data-cell:last-child {
+  border-right: none;
+}
+
+.data-cell.best-value {
+  background: #e6f4ea;
+}
+
+.cell-value {
+  font-size: 13px;
+  color: #202124;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  word-break: break-word;
+}
+
+.best-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #34a853;
+  flex-shrink: 0;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}
+
+.status-active {
+  background: #e6f4ea;
+  color: #1e7e34;
+}
+
+.status-draft {
+  background: #f1f3f4;
+  color: #5f6368;
+}
+
+.status-submitted {
+  background: #ecfdf5;
+  color: #057a55;
+}
+
+.status-won {
+  background: #e6f4ea;
+  color: #0d652d;
+  font-weight: 700;
+}
+
+.status-lost {
+  background: #fce8e6;
+  color: #c5221f;
+}
+
+.status-cancelled {
+  background: #fef7e0;
+  color: #b06000;
+}
+
+.status-closed {
+  background: #f1f3f4;
+  color: #3c4043;
+}
+
+.status-default {
+  background: #f1f3f4;
+  color: #5f6368;
+}
+
+/* Date Values */
+.date-val {
+  font-size: 13px;
+  color: #202124;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.date-val.deadline-soon {
+  color: #e37400;
+  font-weight: 600;
+}
+
+.date-val.deadline-past {
+  color: #c5221f;
+  font-weight: 600;
+  text-decoration: line-through;
+}
+
+.deadline-warn-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #e37400;
+}
+
+/* Legend */
+.compare-legend {
+  display: flex;
+  gap: 24px;
+  padding: 14px 20px;
+  background: #fafafa;
+  border-top: 1px solid #e8eaed;
+  border-bottom: 1px solid #e8eaed;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #5f6368;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.best-dot {
+  background: #34a853;
+}
+
+.deadline-soon-dot {
+  background: #e37400;
+}
+
+.deadline-past-dot {
+  background: #c5221f;
+}
+
+/* Action Row */
+.action-row {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  background: #fff;
+}
+
+.view-tender-btn {
+  font-size: 13px;
+  border-radius: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .compare-container {
+    padding: 12px 8px;
+  }
+
+  .attr-header-cell,
+  .attr-cell {
+    width: 140px;
+    min-width: 140px;
+    padding: 10px 12px;
+  }
+
+  .tender-header-cell,
+  .data-cell {
+    padding: 10px 10px;
+  }
+
+  .header-title h1 {
+    font-size: 18px;
+  }
+
+  .compare-legend {
+    gap: 12px;
+  }
+
+  .action-row {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .attr-header-cell,
+  .attr-cell {
+    width: 110px;
+    min-width: 110px;
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  .tender-ref {
+    display: none;
+  }
+
+  .cell-value,
+  .status-badge,
+  .date-val {
+    font-size: 11px;
+  }
+}

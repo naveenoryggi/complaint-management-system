@@ -5,179 +5,671 @@
       <p>Loading tender details...</p>
     </div>
   } @else if (tender()) {
-    <!-- Header Card -->
-    <mat-card class="header-card">
-      <mat-card-header>
-        <mat-card-title>
-          {{ tender()!.title }}
-        </mat-card-title>
-        <mat-card-subtitle>
-          @if (tender()!.reference_number) {
-            <span class="reference">{{ tender()!.reference_number }}</span>
-          }
-        </mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-actions>
-        @for (transition of getAvailableTransitions(); track transition.value) {
-          <button mat-stroked-button (click)="onChangeStatus(transition.value)"
-                  [color]="transition.value === 'cancelled' || transition.value === 'lost' ? 'warn' : 'primary'">
-            <mat-icon>{{ transition.icon }}</mat-icon>
-            {{ transition.label }}
-          </button>
-        }
-        <button mat-raised-button color="primary" (click)="onExportPackage()">
-          <mat-icon>archive</mat-icon>
-          Export Package
-        </button>
-        <button mat-raised-button (click)="onMergePDFs()">
-          <mat-icon>picture_as_pdf</mat-icon>
-          Merge PDFs
-        </button>
-        <button mat-icon-button [matMenuTriggerFor]="menu">
-          <mat-icon>more_vert</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-          <button mat-menu-item (click)="onEdit()">
-            <mat-icon>edit</mat-icon>
-            <span>Edit</span>
-          </button>
-          <button mat-menu-item (click)="onCloneTender()">
-            <mat-icon>content_copy</mat-icon>
-            <span>Clone Tender</span>
-          </button>
-          <button mat-menu-item (click)="onDelete()" color="warn">
-            <mat-icon color="warn">delete</mat-icon>
-            <span>Delete</span>
-          </button>
-        </mat-menu>
-      </mat-card-actions>
-    </mat-card>
 
-    <!-- Info Cards Row -->
-    <div class="info-cards-row">
-      <mat-card class="info-card">
-        <mat-card-content>
-          <div class="info-label">Status</div>
-          <mat-chip [class]="'status-' + tender()!.status">
-            <mat-icon>{{ getStatusIcon(tender()!.status) }}</mat-icon>
-            {{ tender()!.status | titlecase }}
-          </mat-chip>
-        </mat-card-content>
-      </mat-card>
+    <!-- 1. Breadcrumb -->
+    <app-breadcrumb></app-breadcrumb>
 
-      <mat-card class="info-card">
-        <mat-card-content>
-          <div class="info-label">Deadline</div>
-          <div class="deadline-value"
-            [class.deadline-near]="isDeadlineNear(tender()!.deadline)"
-            [class.deadline-overdue]="isDeadlineOverdue(tender()!.deadline)">
-            <mat-icon>schedule</mat-icon>
-            {{ formatDeadline(tender()!.deadline) }}
+    <!-- 2. Page Header Section -->
+    <div class="page-header-section">
+      <div class="header-top">
+        <div class="title-block">
+          <h1 class="tender-title">{{ tender()!.title }}</h1>
+          <div class="title-meta">
+            @if (tender()!.reference_number) {
+              <span class="reference-badge">{{ tender()!.reference_number }}</span>
+            }
+            <span class="status-badge" [class]="getStatusPillClass(tender()!.status)">
+              {{ tender()!.status | titlecase }}
+            </span>
           </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="info-card">
-        <mat-card-content>
-          <div class="info-label">Estimated Value</div>
-          <div class="value-text">
-            <mat-icon>currency_rupee</mat-icon>
-            {{ formatCurrency(tender()!.estimated_value) }}
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="info-card">
-        <mat-card-content>
-          <div class="info-label">Documents</div>
-          <div class="documents-count">
-            <mat-icon>attach_file</mat-icon>
-            {{ documents().length }} files
-          </div>
-        </mat-card-content>
-      </mat-card>
+        </div>
+        <div class="header-actions">
+          <button class="btn-export" (click)="onExportPackage()">
+            <mat-icon>ios_share</mat-icon>
+            <span>Export</span>
+          </button>
+          <button class="btn-merge" (click)="onMergePDFs()">
+            <mat-icon>call_merge</mat-icon>
+            <span>Merge</span>
+          </button>
+          <button mat-icon-button [matMenuTriggerFor]="moreMenu" matTooltip="More actions">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #moreMenu="matMenu">
+            @for (transition of getAvailableTransitions(); track transition.value) {
+              <button mat-menu-item (click)="onChangeStatus(transition.value)">
+                <mat-icon>{{ transition.icon }}</mat-icon>
+                <span>{{ transition.label }}</span>
+              </button>
+            }
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="onEdit()">
+              <mat-icon>edit</mat-icon>
+              <span>Edit</span>
+            </button>
+            <button mat-menu-item (click)="onCloneTender()">
+              <mat-icon>content_copy</mat-icon>
+              <span>Clone Tender</span>
+            </button>
+            <button mat-menu-item (click)="loadStatusHistory()">
+              <mat-icon>history</mat-icon>
+              <span>Status History</span>
+            </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="onDelete()">
+              <mat-icon color="warn">delete</mat-icon>
+              <span>Delete</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
     </div>
 
-    <!-- Workspace Tabs -->
-    <mat-tab-group animationDuration="200ms" class="workspace-tabs">
-      <!-- Tab 1: Overview -->
+    <!-- 3. Metadata Cards Grid -->
+    <div class="metadata-grid">
+      <div class="meta-card" [class]="getDeadlineUrgencyClass(tender()!.deadline)">
+        <div class="meta-card-label">Deadline</div>
+        <div class="meta-card-body">
+          <div class="meta-icon-circle meta-icon-deadline">
+            <mat-icon>calendar_today</mat-icon>
+          </div>
+          <div class="meta-card-text">
+            <span class="meta-card-value">{{ getDeadlineAbsoluteDate(tender()!.deadline) || 'No deadline' }}</span>
+            <span class="meta-card-sub">{{ formatDeadline(tender()!.deadline) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="meta-card">
+        <div class="meta-card-label">Estimated Value</div>
+        <div class="meta-card-body">
+          <div class="meta-icon-circle meta-icon-value">
+            <mat-icon>payments</mat-icon>
+          </div>
+          <div class="meta-card-text">
+            <span class="meta-card-value">{{ formatCurrency(tender()!.estimated_value) }}</span>
+            <span class="meta-card-sub">Budget approved</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="meta-card">
+        <div class="meta-card-label">Documents</div>
+        <div class="meta-card-body">
+          <div class="meta-icon-circle meta-icon-docs">
+            <mat-icon>description</mat-icon>
+          </div>
+          <div class="meta-card-text">
+            <span class="meta-card-value">{{ documents().length }} Files</span>
+            <span class="meta-card-sub">Attached to tender</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="meta-card">
+        <div class="meta-card-label">Authority</div>
+        <div class="meta-card-body">
+          <div class="meta-icon-circle meta-icon-authority">
+            <mat-icon>account_balance</mat-icon>
+          </div>
+          <div class="meta-card-text">
+            <span class="meta-card-value">{{ tender()!.issuing_authority || 'N/A' }}</span>
+            <span class="meta-card-sub">Issuing Organization</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Phase Selector -->
+    <div class="phase-selector-row">
+      <div class="phase-selector">
+        @for (phase of phaseKeys; track phase; let i = $index) {
+          <button class="phase-btn" [class.phase-active]="activePhase() === phase" (click)="onPhaseChange(phase)">
+            @if (activePhase() === phase) {
+              <mat-icon class="phase-check-icon">check_circle</mat-icon>
+            } @else {
+              <span class="phase-step-num">{{ i + 1 }}</span>
+            }
+            <span class="phase-label">{{ phaseConfig[phase].label }}</span>
+            <span class="phase-count" [class.phase-count-active]="activePhase() === phase">{{ phaseConfig[phase].tabs.length }}</span>
+          </button>
+        }
+      </div>
+
+      <!-- Mobile tab trigger -->
+      <button class="mobile-tab-trigger" (click)="toggleMobileTabs()">
+        <mat-icon>{{ mobileTabsOpen() ? 'close' : 'menu' }}</mat-icon>
+        {{ phaseConfig[activePhase()].label }} &mdash; {{ phaseConfig[activePhase()].tabs[selectedTabIndex() - phaseConfig[activePhase()].tabs[0].index]?.label || 'Select Tab' }}
+      </button>
+    </div>
+
+    <!-- 5. Tab Group (all 14 tabs with shortened labels) -->
+    <mat-tab-group animationDuration="200ms"
+                   class="workspace-tabs"
+                   mat-stretch-tabs="false"
+                   [selectedIndex]="selectedTabIndex()"
+                   (selectedIndexChange)="onTabChange($event)">
+
+      <!-- Tab 0: Overview -->
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>info</mat-icon>
+          <mat-icon matTooltip="Overview">info</mat-icon>
           <span class="tab-label-text">Overview</span>
         </ng-template>
 
         <div class="tab-body">
-          <mat-card class="details-card">
-            <mat-card-header>
-              <mat-card-title>Tender Details</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="detail-row">
-                <div class="detail-label">Issuing Authority:</div>
-                <div class="detail-value">{{ tender()!.issuing_authority || 'N/A' }}</div>
-              </div>
-
-              @if (tender()!.portal_name) {
+          <!-- Overview Grid: Details + Quick Info -->
+          <div class="overview-grid">
+            <!-- Left: Tender Details Card -->
+            <mat-card class="details-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>info</mat-icon>
+                  Tender Details
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
                 <div class="detail-row">
-                  <div class="detail-label">Portal:</div>
-                  <div class="detail-value">
-                    {{ tender()!.portal_name }}
-                    @if (tender()!.portal_url) {
-                      <a [href]="tender()!.portal_url" target="_blank" class="portal-link">
-                        <mat-icon>open_in_new</mat-icon>
-                      </a>
-                    }
-                  </div>
+                  <div class="detail-label">Issuing Authority</div>
+                  <div class="detail-value">{{ tender()!.issuing_authority || 'N/A' }}</div>
                 </div>
-              }
 
-              @if (tender()!.requirements) {
-                <div class="detail-row full-width">
-                  <div class="detail-label">Requirements:</div>
-                  <div class="requirements-box">
-                    <pre>{{ tender()!.requirements | json }}</pre>
+                @if (tender()!.reference_number) {
+                  <div class="detail-row">
+                    <div class="detail-label">Reference Number</div>
+                    <div class="detail-value detail-value-mono">{{ tender()!.reference_number }}</div>
                   </div>
-                </div>
-              }
+                }
 
-              @if (tender()!.notes) {
-                <div class="detail-row full-width">
-                  <div class="detail-label">Notes:</div>
-                  <div class="notes-box">
-                    {{ tender()!.notes }}
+                @if (tender()!.portal_name) {
+                  <div class="detail-row">
+                    <div class="detail-label">Portal</div>
+                    <div class="detail-value">
+                      {{ tender()!.portal_name }}
+                      @if (tender()!.portal_url) {
+                        <a [href]="tender()!.portal_url" target="_blank" class="portal-link">
+                          <mat-icon>open_in_new</mat-icon> Visit
+                        </a>
+                      }
+                    </div>
                   </div>
-                </div>
-              }
+                }
 
-              <mat-divider></mat-divider>
+                @if (tender()!.estimated_value) {
+                  <div class="detail-row">
+                    <div class="detail-label">Estimated Value</div>
+                    <div class="detail-value detail-value-highlight">{{ formatCurrency(tender()!.estimated_value) }}</div>
+                  </div>
+                }
 
-              <div class="meta-row">
-                <span class="meta-item">
+                @if (tender()!.deadline) {
+                  <div class="detail-row">
+                    <div class="detail-label">Deadline</div>
+                    <div class="detail-value">
+                      <span [class]="getDeadlineUrgencyClass(tender()!.deadline)">
+                        {{ getDeadlineAbsoluteDate(tender()!.deadline) }}
+                      </span>
+                      <span class="deadline-relative">{{ formatDeadline(tender()!.deadline) }}</span>
+                    </div>
+                  </div>
+                }
+
+                @if (tender()!.notes) {
+                  <div class="detail-row detail-row-block">
+                    <div class="detail-label">Notes</div>
+                    <div class="notes-box">{{ tender()!.notes }}</div>
+                  </div>
+                }
+              </mat-card-content>
+
+              <!-- Meta footer -->
+              <div class="overview-meta-row">
+                <span class="overview-meta-item">
                   <mat-icon>person</mat-icon>
-                  Created by: {{ tender()!.created_by }}
+                  {{ tender()!.created_by }}
                 </span>
-                <span class="meta-item">
+                <span class="overview-meta-item">
                   <mat-icon>calendar_today</mat-icon>
-                  Created: {{ tender()!.created_at | date:'medium' }}
+                  {{ tender()!.created_at | date:'mediumDate' }}
                 </span>
                 @if (tender()!.updated_at !== tender()!.created_at) {
-                  <span class="meta-item">
+                  <span class="overview-meta-item">
                     <mat-icon>update</mat-icon>
-                    Updated: {{ tender()!.updated_at | date:'medium' }}
+                    {{ tender()!.updated_at | date:'mediumDate' }}
                   </span>
                 }
               </div>
+            </mat-card>
+
+            <!-- Right: Quick Stats Card -->
+            <mat-card class="quick-stats-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>bar_chart</mat-icon>
+                  Quick Stats
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-item">
+                  <div class="stat-icon stat-icon-docs"><mat-icon>description</mat-icon></div>
+                  <div class="stat-text">
+                    <span class="stat-value">{{ documents().length }}</span>
+                    <span class="stat-label">Documents</span>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-icon stat-icon-status"><mat-icon>{{ getStatusIcon(tender()!.status) }}</mat-icon></div>
+                  <div class="stat-text">
+                    <span class="stat-value">{{ tender()!.status | titlecase }}</span>
+                    <span class="stat-label">Current Status</span>
+                  </div>
+                </div>
+                @if (hasExtractedRequirements()) {
+                  <div class="stat-item">
+                    <div class="stat-icon stat-icon-extracted"><mat-icon>auto_awesome</mat-icon></div>
+                    <div class="stat-text">
+                      <span class="stat-value">{{ getRequirementsKeys().length }}</span>
+                      <span class="stat-label">Extracted Sections</span>
+                    </div>
+                  </div>
+                }
+                @if (tender()!.deadline) {
+                  <div class="stat-item" [class]="getDeadlineUrgencyClass(tender()!.deadline)">
+                    <div class="stat-icon stat-icon-deadline"><mat-icon>timer</mat-icon></div>
+                    <div class="stat-text">
+                      <span class="stat-value">{{ formatDeadline(tender()!.deadline) }}</span>
+                      <span class="stat-label">Time Remaining</span>
+                    </div>
+                  </div>
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- EMD & Tender Fees Card -->
+          @if (hasEmdOrFees()) {
+            <mat-card class="emd-fees-overview-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>account_balance</mat-icon>
+                  EMD &amp; Tender Fees
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="emd-fees-grid">
+
+                  <!-- EMD Section: DB records first, then extracted data as fallback -->
+                  @if (emdRecords().length || getEmdData()) {
+                    <div class="emd-block">
+                      <div class="emd-block-header">
+                        <h4>
+                          <mat-icon>security</mat-icon>
+                          Earnest Money Deposit (EMD)
+                        </h4>
+                      </div>
+
+                      <!-- Show from DB EMD records (primary source) -->
+                      @for (emd of emdRecords(); track emd.id) {
+                        <div class="emd-record-card">
+                          <div class="emd-amount-row">
+                            <span class="emd-amount">{{ formatCurrency(emd.amount) }}</span>
+                            <span class="emd-mode-badge">{{ getEmdModeLabel(emd.mode) }}</span>
+                            <span class="emd-status-badge" [class]="'emd-status-' + emd.status">{{ emd.status | titlecase }}</span>
+                          </div>
+
+                          <div class="emd-details-grid">
+                            @if (emd.validity_end_date) {
+                              <div class="emd-detail-item">
+                                <span class="emd-detail-label">Validity</span>
+                                <span class="emd-detail-value">{{ emd.validity_end_date }}</span>
+                              </div>
+                            }
+                            @if (emd.issuing_bank) {
+                              <div class="emd-detail-item">
+                                <span class="emd-detail-label">Bank</span>
+                                <span class="emd-detail-value">{{ emd.issuing_bank }}</span>
+                              </div>
+                            }
+                            @if (emd.instrument_number) {
+                              <div class="emd-detail-item">
+                                <span class="emd-detail-label">Instrument No.</span>
+                                <span class="emd-detail-value">{{ emd.instrument_number }}</span>
+                              </div>
+                            }
+                            @if (emd.instrument_date) {
+                              <div class="emd-detail-item">
+                                <span class="emd-detail-label">Instrument Date</span>
+                                <span class="emd-detail-value">{{ emd.instrument_date }}</span>
+                              </div>
+                            }
+                            @if (emd.submitted_date) {
+                              <div class="emd-detail-item">
+                                <span class="emd-detail-label">Submitted</span>
+                                <span class="emd-detail-value">{{ emd.submitted_date }}</span>
+                              </div>
+                            }
+                          </div>
+
+                          @if (emd.notes) {
+                            <div class="emd-notes">{{ emd.notes }}</div>
+                          }
+                        </div>
+                      }
+
+                      <!-- Fallback: show from extracted JSON if no DB records -->
+                      @if (!emdRecords().length && getEmdData()) {
+                        <div class="emd-amount-row">
+                          @if (getEmdData().amount) {
+                            <span class="emd-amount">{{ formatCurrency(getEmdData().amount) }}</span>
+                          }
+                          @if (getEmdData().mode) {
+                            <span class="emd-mode-badge">{{ getEmdModeLabel(getEmdData().mode) }}</span>
+                          }
+                          @if (getEmdData().validity_end_date) {
+                            <span class="emd-validity">Valid until {{ getEmdData().validity_end_date }}</span>
+                          }
+                        </div>
+                      }
+
+                      <!-- Extracted enrichment: MSME exemption, format, bank details (from requirements JSON) -->
+                      @if (getEmdData()?.msme_exempted) {
+                        <div class="emd-exemption-badge">
+                          <mat-icon>verified</mat-icon>
+                          <div>
+                            <strong>MSME Exempted</strong>
+                            @if (getEmdData().exemption_details) {
+                              <span>{{ getEmdData().exemption_details }}</span>
+                            }
+                          </div>
+                        </div>
+                      }
+
+                      @if (getEmdData()?.emd_format) {
+                        <div class="emd-detail-row">
+                          <span class="emd-detail-label">Format</span>
+                          <span class="emd-detail-value">{{ getEmdData().emd_format }}</span>
+                        </div>
+                      }
+
+                      @if (getBankDetailEntries(getEmdData()?.bank_details).length) {
+                        <div class="bank-details-section">
+                          <div class="bank-details-title">
+                            <mat-icon>account_balance_wallet</mat-icon>
+                            Bank Details
+                          </div>
+                          <div class="bank-details-grid">
+                            @for (entry of getBankDetailEntries(getEmdData().bank_details); track entry.label) {
+                              <div class="bank-detail-item">
+                                <span class="bank-detail-label">{{ entry.label }}</span>
+                                <span class="bank-detail-value">{{ entry.value }}</span>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <!-- Tender Fees Section: DB records first, then extracted data -->
+                  @if (feeRecords().length || getFeeData().length) {
+                    <div class="fees-block">
+                      <div class="emd-block-header">
+                        <h4>
+                          <mat-icon>receipt_long</mat-icon>
+                          Tender Fees
+                        </h4>
+                      </div>
+
+                      <!-- From DB records (primary) -->
+                      @for (fee of feeRecords(); track fee.id) {
+                        <div class="fee-card">
+                          <div class="fee-card-header">
+                            <span class="fee-type-label">{{ getFeeTypeLabel(fee.fee_type) }}</span>
+                            <span class="fee-amount">{{ formatCurrency(fee.amount) }}</span>
+                          </div>
+                          <div class="fee-meta-row">
+                            @if (fee.payment_mode) {
+                              <span class="fee-meta-chip">{{ getEmdModeLabel(fee.payment_mode) }}</span>
+                            }
+                            <span class="fee-meta-chip" [class]="'emd-status-' + fee.status">{{ fee.status | titlecase }}</span>
+                            @if (fee.payment_reference) {
+                              <span class="fee-meta-chip">Ref: {{ fee.payment_reference }}</span>
+                            }
+                          </div>
+                          @if (fee.notes) {
+                            <div class="emd-notes">{{ fee.notes }}</div>
+                          }
+                        </div>
+                      }
+
+                      <!-- Fallback: extracted JSON if no DB records -->
+                      @if (!feeRecords().length) {
+                        @for (fee of getFeeData(); track $index) {
+                          <div class="fee-card">
+                            <div class="fee-card-header">
+                              <span class="fee-type-label">{{ getFeeTypeLabel(fee.fee_type) }}</span>
+                              <span class="fee-amount">{{ formatCurrency(fee.amount) }}</span>
+                            </div>
+                            <div class="fee-meta-row">
+                              @if (fee.payment_mode) {
+                                <span class="fee-meta-chip">{{ getEmdModeLabel(fee.payment_mode) }}</span>
+                              }
+                              @if (fee.non_refundable) {
+                                <span class="fee-meta-chip fee-non-refundable">Non-Refundable</span>
+                              }
+                              @if (fee.payment_deadline) {
+                                <span class="fee-meta-chip fee-deadline">Due: {{ fee.payment_deadline }}</span>
+                              }
+                            </div>
+                            @if (fee.msme_exempted) {
+                              <div class="emd-exemption-badge fee-exemption">
+                                <mat-icon>verified</mat-icon>
+                                <div>
+                                  <strong>MSME Exempted</strong>
+                                  @if (fee.exemption_details) {
+                                    <span>{{ fee.exemption_details }}</span>
+                                  }
+                                </div>
+                              </div>
+                            }
+                            @if (getBankDetailEntries(fee.bank_details).length) {
+                              <div class="bank-details-section">
+                                <div class="bank-details-title">
+                                  <mat-icon>account_balance_wallet</mat-icon>
+                                  Payment Details
+                                </div>
+                                <div class="bank-details-grid">
+                                  @for (entry of getBankDetailEntries(fee.bank_details); track entry.label) {
+                                    <div class="bank-detail-item">
+                                      <span class="bank-detail-label">{{ entry.label }}</span>
+                                      <span class="bank-detail-value">{{ entry.value }}</span>
+                                    </div>
+                                  }
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        }
+                      }
+                    </div>
+                  }
+
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+
+          <!-- Extracted Requirements (structured rendering) -->
+          @if (hasExtractedRequirements()) {
+            <mat-card class="requirements-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>auto_awesome</mat-icon>
+                  Extracted Requirements
+                </mat-card-title>
+                <mat-card-subtitle>AI-extracted from tender documents</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="requirements-sections">
+                  @for (key of getRequirementsKeys(); track key) {
+                    <div class="req-section">
+                      <div class="req-section-header">
+                        <mat-icon>{{ getRequirementIcon(key) }}</mat-icon>
+                        <h4>{{ formatRequirementLabel(key) }}</h4>
+                      </div>
+                      <div class="req-section-body">
+                        @if (isArray(getRequirementValue(key))) {
+                          <div class="req-list">
+                            @for (item of getRequirementValue(key); track $index) {
+                              <div class="req-list-item">
+                                <span class="req-bullet">{{ $index + 1 }}</span>
+                                <div class="req-item-content">
+                                  <span class="req-item-text">{{ getItemText(item) }}</span>
+                                  @if (getItemSubtext(item); as subtext) {
+                                    <span class="req-item-sub">{{ subtext }}</span>
+                                  }
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        } @else if (isObject(getRequirementValue(key))) {
+                          <div class="req-key-value-list">
+                            @for (entry of getObjectEntries(getRequirementValue(key)); track entry.key) {
+                              <div class="req-kv-row">
+                                <span class="req-kv-key">{{ entry.key }}</span>
+                                <span class="req-kv-value">
+                                  @if (isSimple(entry.value)) {
+                                    {{ entry.value }}
+                                  } @else {
+                                    {{ entry.value | json }}
+                                  }
+                                </span>
+                              </div>
+                            }
+                          </div>
+                        } @else {
+                          <p class="req-text">{{ getRequirementValue(key) }}</p>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+
+          <!-- Status History (Feature 4) -->
+          @if (showStatusHistory() && statusHistory().length > 0) {
+            <mat-card class="history-card">
+              <mat-card-header>
+                <mat-card-title>Status History</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="history-timeline">
+                  @for (h of statusHistory(); track h.id) {
+                    <div class="history-item">
+                      <mat-icon class="history-icon">swap_horiz</mat-icon>
+                      <div class="history-info">
+                        <span class="history-transition">
+                          <mat-chip class="history-chip">{{ h.from_status }}</mat-chip>
+                          <mat-icon>arrow_forward</mat-icon>
+                          <mat-chip class="history-chip">{{ h.to_status }}</mat-chip>
+                        </span>
+                        @if (h.change_reason) {
+                          <span class="history-reason">{{ h.change_reason }}</span>
+                        }
+                        <span class="history-date">{{ h.changed_at | date:'medium' }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+
+          <!-- Bid/No-Bid Analysis (Feature 8) -->
+          <mat-card class="bid-analysis-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>analytics</mat-icon>
+                AI Bid/No-Bid Advisor
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              @if (!bidNoBidResult()) {
+                <button mat-raised-button color="primary" (click)="onRunBidNoBidAnalysis()" [disabled]="bidNoBidLoading()">
+                  @if (bidNoBidLoading()) {
+                    <mat-progress-spinner mode="indeterminate" diameter="20" style="display:inline-block;margin-right:8px;"></mat-progress-spinner>
+                    Analyzing...
+                  } @else {
+                    <mat-icon>psychology</mat-icon>
+                    Run Bid/No-Bid Analysis
+                  }
+                </button>
+              } @else {
+                <div class="bid-result">
+                  <div class="bid-recommendation" [style.background-color]="getRecommendationColor(bidNoBidResult()!.recommendation)">
+                    {{ getRecommendationLabel(bidNoBidResult()!.recommendation) }}
+                  </div>
+                  <div class="bid-confidence">
+                    Confidence: {{ bidNoBidResult()!.confidence }}%
+                  </div>
+                  <p class="bid-rationale">{{ bidNoBidResult()!.rationale }}</p>
+
+                  @if (bidNoBidResult()!.score_breakdown) {
+                    <div class="bid-scores">
+                      <div class="bid-score-item">
+                        <span>Technical Fit</span>
+                        <mat-progress-bar mode="determinate" [value]="bidNoBidResult()!.score_breakdown.technical_fit"></mat-progress-bar>
+                        <span>{{ bidNoBidResult()!.score_breakdown.technical_fit }}%</span>
+                      </div>
+                      <div class="bid-score-item">
+                        <span>Financial Capacity</span>
+                        <mat-progress-bar mode="determinate" [value]="bidNoBidResult()!.score_breakdown.financial_capacity"></mat-progress-bar>
+                        <span>{{ bidNoBidResult()!.score_breakdown.financial_capacity }}%</span>
+                      </div>
+                      <div class="bid-score-item">
+                        <span>Timeline</span>
+                        <mat-progress-bar mode="determinate" [value]="bidNoBidResult()!.score_breakdown.timeline"></mat-progress-bar>
+                        <span>{{ bidNoBidResult()!.score_breakdown.timeline }}%</span>
+                      </div>
+                      <div class="bid-score-item">
+                        <span>Competition</span>
+                        <mat-progress-bar mode="determinate" [value]="bidNoBidResult()!.score_breakdown.competition"></mat-progress-bar>
+                        <span>{{ bidNoBidResult()!.score_breakdown.competition }}%</span>
+                      </div>
+                      <div class="bid-score-item">
+                        <span>Strategic Value</span>
+                        <mat-progress-bar mode="determinate" [value]="bidNoBidResult()!.score_breakdown.strategic"></mat-progress-bar>
+                        <span>{{ bidNoBidResult()!.score_breakdown.strategic }}%</span>
+                      </div>
+                    </div>
+                  }
+
+                  @if (bidNoBidResult()!.risks.length > 0) {
+                    <div class="bid-risks">
+                      <strong>Risks:</strong>
+                      @for (risk of bidNoBidResult()!.risks; track risk) {
+                        <div class="risk-item"><mat-icon>warning</mat-icon> {{ risk }}</div>
+                      }
+                    </div>
+                  }
+
+                  <button mat-stroked-button (click)="onRunBidNoBidAnalysis()" [disabled]="bidNoBidLoading()" class="re-analyze-btn">
+                    <mat-icon>refresh</mat-icon> Re-analyze
+                  </button>
+                </div>
+              }
             </mat-card-content>
           </mat-card>
         </div>
       </mat-tab>
 
-      <!-- Tab 2: Documents -->
+      <!-- Tab 1: Documents -->
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>description</mat-icon>
-          <span class="tab-label-text">Documents ({{ documents().length }})</span>
+          <mat-icon matTooltip="Documents">description</mat-icon>
+          <span class="tab-label-text">Docs ({{ documents().length }})</span>
         </ng-template>
 
         <div class="tab-body">
@@ -301,65 +793,173 @@
         </div>
       </mat-tab>
 
-      <!-- Tab 3: AI Extraction -->
+      <!-- Tab 2: AI Extraction -->
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>auto_awesome</mat-icon>
-          <span class="tab-label-text">AI Extraction</span>
+          <mat-icon matTooltip="AI Extraction">auto_awesome</mat-icon>
+          <span class="tab-label-text">Extraction</span>
         </ng-template>
-
         <div class="tab-body">
-          <app-extraction-tab [tenderId]="tenderId()"></app-extraction-tab>
+          <app-extraction-tab [tenderId]="tenderId()" [tenderRequirements]="tender()?.requirements"></app-extraction-tab>
         </div>
       </mat-tab>
 
-      <!-- Tab 4: Criteria & Scoring -->
+      <!-- Tab 3: Criteria -->
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>grading</mat-icon>
-          <span class="tab-label-text">Criteria &amp; Scoring</span>
+          <mat-icon matTooltip="Criteria & Scoring">grading</mat-icon>
+          <span class="tab-label-text">Criteria</span>
         </ng-template>
-
         <div class="tab-body">
           <app-criteria-tab [tenderId]="tenderId()"></app-criteria-tab>
         </div>
       </mat-tab>
 
-      <!-- Tab 5: OEM Requirements -->
+      <!-- Tab 4: OEM -->
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>precision_manufacturing</mat-icon>
-          <span class="tab-label-text">OEM Requirements</span>
+          <mat-icon matTooltip="OEM Requirements">precision_manufacturing</mat-icon>
+          <span class="tab-label-text">OEM</span>
         </ng-template>
-
         <div class="tab-body">
-          <app-oem-requirements-tab [tenderId]="tenderId()"></app-oem-requirements-tab>
+          <app-oem-requirements-tab [tenderId]="tenderId()" [tenderRequirements]="tender()?.requirements"
+            (navigateToTab)="selectedTabIndex.set($event)"></app-oem-requirements-tab>
         </div>
       </mat-tab>
 
-      <!-- Tab 6: EMD & Fees -->
+      <!-- Tab 5: EMD -->
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>account_balance</mat-icon>
-          <span class="tab-label-text">EMD &amp; Fees</span>
+          <mat-icon matTooltip="EMD & Fees">account_balance</mat-icon>
+          <span class="tab-label-text">EMD</span>
         </ng-template>
-
         <div class="tab-body">
           <app-emd-fees-tab [tenderId]="tenderId()"></app-emd-fees-tab>
         </div>
       </mat-tab>
 
-      <!-- Tab 7: Declarations -->
+      <!-- Tab 6: Declarations -->
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>gavel</mat-icon>
+          <mat-icon matTooltip="Declarations">gavel</mat-icon>
           <span class="tab-label-text">Declarations</span>
         </ng-template>
-
         <div class="tab-body">
           <app-declarations-tab [tenderId]="tenderId()"></app-declarations-tab>
         </div>
       </mat-tab>
+
+      <!-- Tab 7: Bid Prep -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon matTooltip="Bid Preparation">assignment</mat-icon>
+          <span class="tab-label-text">Bid Prep</span>
+        </ng-template>
+        <div class="tab-body">
+          <app-bid-preparation-tab [tenderId]="tenderId()"></app-bid-preparation-tab>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 8: Checklist -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon matTooltip="Submission Checklist">checklist_rtl</mat-icon>
+          <span class="tab-label-text">Checklist</span>
+        </ng-template>
+        <div class="tab-body">
+          <app-submission-checklist-tab [tenderId]="tenderId()"></app-submission-checklist-tab>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 9: Compliance -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon matTooltip="Compliance">checklist</mat-icon>
+          <span class="tab-label-text">Compliance</span>
+        </ng-template>
+        <div class="tab-body">
+          <app-compliance-tab [tenderId]="tenderId()"></app-compliance-tab>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 10: Queries -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon matTooltip="Pre-Bid Queries">quiz</mat-icon>
+          <span class="tab-label-text">Queries</span>
+        </ng-template>
+        <div class="tab-body">
+          <app-prebid-queries-tab [tenderId]="tenderId()"></app-prebid-queries-tab>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 11: KB -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon matTooltip="Knowledge Base">auto_stories</mat-icon>
+          <span class="tab-label-text">KB</span>
+        </ng-template>
+        <div class="tab-body">
+          <app-knowledge-base-tab [tenderId]="tenderId()"></app-knowledge-base-tab>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 12: Team -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon matTooltip="Collaboration">groups</mat-icon>
+          <span class="tab-label-text">Team</span>
+        </ng-template>
+        <div class="tab-body">
+          <app-collaboration-panel [tenderId]="tenderId()"></app-collaboration-panel>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 13: Results -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon matTooltip="Results">emoji_events</mat-icon>
+          <span class="tab-label-text">Results</span>
+        </ng-template>
+        <div class="tab-body">
+          <app-results-tab [tenderId]="tenderId()"></app-results-tab>
+        </div>
+      </mat-tab>
     </mat-tab-group>
+
+    <!-- 6. Mobile Tab Drawer -->
+    @if (mobileTabsOpen()) {
+      <div class="mobile-tab-overlay" (click)="toggleMobileTabs()"></div>
+      <div class="mobile-tab-drawer">
+        <div class="drawer-header">
+          <h3>Workspace Tabs</h3>
+          <button mat-icon-button (click)="toggleMobileTabs()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        @for (phase of phaseKeys; track phase) {
+          <div class="drawer-phase-group">
+            <div class="drawer-phase-label">
+              <mat-icon>{{ phaseConfig[phase].icon }}</mat-icon>
+              {{ phaseConfig[phase].label }}
+            </div>
+            @for (tab of phaseConfig[phase].tabs; track tab.index) {
+              <button class="drawer-tab-btn"
+                      [class.active]="selectedTabIndex() === tab.index"
+                      (click)="selectMobileTab(tab.index)">
+                <mat-icon>{{ tab.icon }}</mat-icon>
+                <span>{{ tab.label }}</span>
+                @if (tab.index === 1) {
+                  <span class="drawer-badge">{{ documents().length }}</span>
+                }
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- AI Chat Widget (floating) -->
+    <app-tender-chat-widget [tenderId]="tender()!.id"></app-tender-chat-widget>
   }
 </div>

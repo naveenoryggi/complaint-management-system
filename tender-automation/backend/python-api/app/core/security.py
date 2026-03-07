@@ -31,7 +31,8 @@ class TokenData:
         self.company_id: str = payload.get("CompanyId", "")
         self.tenant_id: str = (
             payload.get("TenantId")
-            or payload.get("tenant_id", "")
+            or payload.get("tenant_id")
+            or payload.get("CompanyId", "")
         )
         self.employee_code: str = payload.get("EmployeeCode", "")
         self.permissions: list = payload.get("Permission", [])

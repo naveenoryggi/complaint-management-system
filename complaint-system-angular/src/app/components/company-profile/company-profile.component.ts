@@ -65,6 +65,8 @@ export class CompanyProfileComponent implements OnInit {
     this.loadProfile();
     this.loadCertifications();
     this.loadPersonnel();
+    // Start with profile form disabled (read-only mode)
+    this.profileForm.disable();
   }
 
   private initForms() {
@@ -81,6 +83,10 @@ export class CompanyProfileComponent implements OnInit {
       email: ['', Validators.email],
       year_established: [null],
       employee_count: [null],
+      pf_registration_number: [''],
+      pf_registration_date: [''],
+      esi_registration_number: [''],
+      esi_registration_date: [''],
       bank_name: [''],
       account_number: [''],
       ifsc_code: [''],
@@ -143,7 +149,23 @@ export class CompanyProfileComponent implements OnInit {
     });
   }
 
+  enableEdit() {
+    this.editMode.set(true);
+    this.profileForm.enable();
+  }
+
+  cancelEdit() {
+    this.editMode.set(false);
+    this.profileForm.disable();
+    // Restore original values
+    const p = this.profile();
+    if (p) this.profileForm.patchValue(p);
+  }
+
   saveProfile() {
+    // Temporarily enable to read values (disabled controls excluded from .value)
+    this.profileForm.enable();
+
     if (this.profileForm.invalid) {
       this.snackBar.open('Please fill in all required fields', 'Close', { duration: 3000 });
       return;
@@ -158,6 +180,7 @@ export class CompanyProfileComponent implements OnInit {
       next: (result) => {
         this.profile.set(result);
         this.editMode.set(false);
+        this.profileForm.disable();
         this.snackBar.open('Company profile saved successfully', 'Close', { duration: 3000 });
       },
       error: (error) => {
@@ -238,11 +261,11 @@ export class CompanyProfileComponent implements OnInit {
   // Brand Assets
   uploadingAsset = signal<string | null>(null);
 
-  brandAssets: { key: string; label: string; icon: string; accept: string }[] = [
-    { key: 'logo', label: 'Company Logo', icon: 'image', accept: 'image/*' },
-    { key: 'letterhead', label: 'Letterhead Template', icon: 'article', accept: 'image/*' },
-    { key: 'signature', label: 'Authorized Signature', icon: 'draw', accept: 'image/*' },
-    { key: 'stamp', label: 'Company Stamp / Seal', icon: 'approval', accept: 'image/*' },
+  brandAssets: { key: string; label: string; icon: string; accept: string; hint: string }[] = [
+    { key: 'logo', label: 'Company Logo', icon: 'image', accept: 'image/*,.svg', hint: 'PNG, JPG, SVG' },
+    { key: 'letterhead', label: 'Letterhead Template', icon: 'article', accept: 'image/*,.docx,.doc,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,application/pdf', hint: 'DOCX, PDF, or image' },
+    { key: 'signature', label: 'Authorized Signature', icon: 'draw', accept: 'image/*', hint: 'PNG, JPG (sign + stamp image)' },
+    { key: 'stamp', label: 'Company Stamp / Seal', icon: 'approval', accept: 'image/*', hint: 'PNG, JPG image' },
   ];
 
   getAssetPath(key: string): string | null | undefined {
@@ -278,7 +301,7 @@ export class CompanyProfileComponent implements OnInit {
       error: (error) => {
         console.error(`Error uploading ${assetType}:`, error);
         this.uploadingAsset.set(null);
-        this.snackBar.open(`Failed to upload ${assetType}`, 'Close', { duration: 3000 });
+        this.snackBar.open(error.error?.detail || `Failed to upload ${assetType}`, 'Close', { duration: 5000 });
       },
     });
 
@@ -286,7 +309,7 @@ export class CompanyProfileComponent implements OnInit {
   }
 
   onDeleteBrandAsset(assetType: string) {
-    if (!confirm(`Remove the ${assetType} image?`)) return;
+    if (!confirm(`Remove the ${assetType} file?`)) return;
 
     this.companyService.deleteBrandAsset(assetType).subscribe({
       next: () => {

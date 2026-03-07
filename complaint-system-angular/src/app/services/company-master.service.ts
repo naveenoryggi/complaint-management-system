@@ -23,6 +23,10 @@ export interface CompanyProfile {
   letterhead_path?: string;
   signature_path?: string;
   stamp_path?: string;
+  pf_registration_number?: string;
+  pf_registration_date?: string;
+  esi_registration_number?: string;
+  esi_registration_date?: string;
   bank_name?: string;
   account_number?: string;
   ifsc_code?: string;

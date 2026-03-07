@@ -10,7 +10,11 @@ import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TrackingService, DashboardSummary, PortalRegistration, EMDRecord } from '../../services/tracking.service';
-import { TenderService, Tender } from '../../services/tender.service';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TenderService, Tender, ComplianceScoreSummary } from '../../services/tender.service';
+import { KnowledgeBaseService, KBDashboardStats } from '../../services/knowledge-base.service';
+import { AlertBannerComponent } from '../alert-banner/alert-banner.component';
+import { PortalStatusWidgetComponent } from '../portal-status-widget/portal-status-widget.component';
 
 @Component({
   selector: 'app-tender-dashboard',
@@ -24,7 +28,10 @@ import { TenderService, Tender } from '../../services/tender.service';
     MatDividerModule,
     MatListModule,
     MatChipsModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatProgressBarModule,
+    AlertBannerComponent,
+    PortalStatusWidgetComponent
   ],
   templateUrl: './tender-dashboard.component.html',
   styleUrls: ['./tender-dashboard.component.css']
@@ -34,14 +41,19 @@ export class TenderDashboardComponent implements OnInit {
   private tenderService = inject(TenderService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private kbService = inject(KnowledgeBaseService);
 
   summary = signal<DashboardSummary | null>(null);
   upcomingTenders = signal<Tender[]>([]);
+  // Legacy alert signals kept for backward compat — alerts now handled by AlertBannerComponent
   expiringDSCs = signal<PortalRegistration[]>([]);
   expiringEMDs = signal<EMDRecord[]>([]);
   statusDistribution = signal<{ status: string; label: string; count: number; color: string; icon: string }[]>([]);
   totalTenders = signal(0);
   loading = signal(false);
+  complianceScores = signal<Map<string, ComplianceScoreSummary>>(new Map());
+  averageReadiness = signal<number | null>(null);
+  kbStats = signal<KBDashboardStats | null>(null);
 
   statusConfig: { [key: string]: { label: string; color: string; icon: string } } = {
     'draft': { label: 'Draft', color: '#9e9e9e', icon: 'edit' },
@@ -53,14 +65,25 @@ export class TenderDashboardComponent implements OnInit {
   };
 
   ngOnInit() {
+    this.loading.set(true);
+
+    // Fire all data loads in parallel
     this.loadDashboard();
     this.loadUpcomingTenders();
-    this.loadAlerts();
     this.loadStatusDistribution();
+    this.loadKBStats();
+    // Note: loadAlerts() removed — AlertBannerComponent and PortalStatusWidget
+    // handle alerts independently, avoiding duplicate listPortals()/listEMDs() calls
+
+    // Safety: ensure spinner never shows longer than 5s even if an API hangs
+    setTimeout(() => {
+      if (this.loading()) {
+        this.loading.set(false);
+      }
+    }, 5000);
   }
 
   loadDashboard() {
-    this.loading.set(true);
     this.trackingService.getDashboard().subscribe({
       next: (data) => {
         this.summary.set(data);
@@ -76,11 +99,45 @@ export class TenderDashboardComponent implements OnInit {
 
   loadUpcomingTenders() {
     this.tenderService.getUpcomingTenders(14).subscribe({
-      next: (data) => this.upcomingTenders.set(data),
+      next: (data) => {
+        this.upcomingTenders.set(data);
+        this.loadComplianceScores(data);
+      },
       error: (error) => {
         console.error('Error loading upcoming tenders:', error);
       }
     });
+  }
+
+  loadComplianceScores(tenders: Tender[]) {
+    const ids = tenders.map(t => t.id);
+    if (ids.length === 0) return;
+
+    this.tenderService.getComplianceScores(ids).subscribe({
+      next: (scores) => {
+        const map = new Map<string, ComplianceScoreSummary>();
+        scores.forEach(s => map.set(s.tender_id, s));
+        this.complianceScores.set(map);
+
+        if (scores.length > 0) {
+          const avg = scores.reduce((sum, s) => sum + s.overall_score, 0) / scores.length;
+          this.averageReadiness.set(Math.round(avg));
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  getReadinessScore(tenderId: string): number | null {
+    const s = this.complianceScores().get(tenderId);
+    return s ? s.overall_score : null;
+  }
+
+  getReadinessColor(score: number | null): string {
+    if (score === null) return '#9e9e9e';
+    if (score >= 80) return '#4caf50';
+    if (score >= 50) return '#ff9800';
+    return '#f44336';
   }
 
   navigateTo(route: string) {
@@ -189,7 +246,7 @@ export class TenderDashboardComponent implements OnInit {
   }
 
   loadStatusDistribution() {
-    this.tenderService.listTenders(1, 1000).subscribe({
+    this.tenderService.listTenders(1, 500).subscribe({
       next: (response) => {
         const counts: { [key: string]: number } = {};
         response.items.forEach(t => {
@@ -221,5 +278,28 @@ export class TenderDashboardComponent implements OnInit {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency', currency: 'INR', maximumFractionDigits: 0
     }).format(amount);
+  }
+
+  loadKBStats() {
+    this.kbService.getDashboardStats().subscribe({
+      next: (stats) => this.kbStats.set(stats),
+      error: () => {}
+    });
+  }
+
+  getCategoryBarWidth(count: number): string {
+    const stats = this.kbStats();
+    if (!stats) return '0%';
+    const max = Math.max(...stats.category_distribution.map(c => c.count), 1);
+    return `${Math.round((count / max) * 100)}%`;
+  }
+
+  getCategoryLabel(category: string): string {
+    const labels: { [key: string]: string } = {
+      company_snippet: 'Company', financial_data: 'Financial', experience_summary: 'Experience',
+      declaration_text: 'Declarations', technical_response: 'Technical', personnel_bio: 'Personnel',
+      pricing_data: 'Pricing', standard_clause: 'Clauses', submission_note: 'Notes'
+    };
+    return labels[category] || category;
   }
 }

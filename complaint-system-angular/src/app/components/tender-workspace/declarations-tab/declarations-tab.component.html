@@ -50,7 +50,52 @@
           </div>
         }
 
-        <!-- Signatory Fields -->
+        <!-- Auto-Fill from KB -->
+        <div class="auto-fill-row">
+          <button mat-stroked-button color="primary" (click)="onAutoFill()" [disabled]="autoFillLoading() || !tenderId()">
+            @if (autoFillLoading()) {
+              <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+              Loading...
+            } @else {
+              <mat-icon>auto_fix_high</mat-icon>
+              Auto-Fill from KB
+            }
+          </button>
+        </div>
+
+        @if (autoFillSuggestions().length > 0) {
+          <mat-card class="auto-fill-panel">
+            <div class="auto-fill-header">
+              <div class="auto-fill-title">
+                <mat-icon>auto_fix_high</mat-icon>
+                <span>Auto-Fill Suggestions ({{ autoFillSuggestions().length }})</span>
+              </div>
+              <div class="auto-fill-actions">
+                <button mat-stroked-button (click)="applyAllAutoFill()">
+                  <mat-icon>content_paste</mat-icon> Copy All
+                </button>
+                <button mat-icon-button (click)="dismissAutoFill()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+            @for (s of autoFillSuggestions(); track s.kb_entry_id) {
+              <div class="auto-fill-item">
+                <div class="auto-fill-info">
+                  <strong>{{ s.title }}</strong>
+                  <span class="auto-fill-target">Target: {{ s.target_field }}</span>
+                  <span class="auto-fill-confidence">Confidence: {{ s.confidence_score | number:'1.0-0' }}%</span>
+                  <p class="auto-fill-preview">{{ getKBPreview(s.content) }}</p>
+                </div>
+                <button mat-icon-button matTooltip="Copy this suggestion" (click)="applyAutoFillSuggestion(s)">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </div>
+            }
+          </mat-card>
+        }
+
+        <!-- Signatory Fields + Bidder Role -->
         <div class="signatory-row">
           <mat-form-field appearance="outline" class="signatory-field">
             <mat-label>Authorized Signatory Name</mat-label>
@@ -64,6 +109,21 @@
             <input matInput [ngModel]="designation()" (ngModelChange)="designation.set($event)"
                    placeholder="e.g. Managing Director">
             <mat-icon matPrefix>badge</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="role-field">
+            <mat-label>Participating As</mat-label>
+            <mat-select [ngModel]="bidderRole()" (ngModelChange)="bidderRole.set($event)">
+              <mat-option value="bidder">
+                <mat-icon>store</mat-icon>
+                Bidder / Reseller
+              </mat-option>
+              <mat-option value="oem">
+                <mat-icon>precision_manufacturing</mat-icon>
+                OEM (Manufacturer)
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>business</mat-icon>
           </mat-form-field>
         </div>
 
@@ -106,6 +166,13 @@
                     <span class="item-name">{{ item.name }}</span>
                   </mat-checkbox>
 
+                  <!-- Required / Optional badge -->
+                  @if (item.is_required) {
+                    <span class="required-badge">Required</span>
+                  } @else {
+                    <span class="optional-badge">Optional</span>
+                  }
+
                   <!-- AI recommendation badge -->
                   @if (item.ai_recommended) {
                     <mat-chip class="ai-badge" matTooltip="{{ item.reason }}">
@@ -127,6 +194,19 @@
                       <span class="mode-label">{{ item.mode === 'ai' ? 'AI' : 'Std' }}</span>
                     </mat-slide-toggle>
                   }
+
+                  <!-- Preview single (inline) -->
+                  <button mat-icon-button
+                          [matTooltip]="'Preview (' + (item.mode === 'ai' ? 'AI-customized' : 'standard') + ')'"
+                          (click)="onPreviewSingle(item.key)"
+                          [disabled]="item.previewing"
+                          class="single-preview-btn">
+                    @if (item.previewing) {
+                      <mat-spinner diameter="18"></mat-spinner>
+                    } @else {
+                      <mat-icon>visibility</mat-icon>
+                    }
+                  </button>
 
                   <!-- Download single -->
                   <button mat-icon-button
@@ -154,6 +234,24 @@
                     }
                   </div>
                 }
+
+                <!-- Inline preview content -->
+                @if (item.previewContent && item.previewExpanded) {
+                  <div class="inline-preview">
+                    <div class="inline-preview-header">
+                      <span>Preview — {{ item.name }}</span>
+                      <button mat-icon-button (click)="toggleItemPreview(item.key)" matTooltip="Collapse preview">
+                        <mat-icon>expand_less</mat-icon>
+                      </button>
+                    </div>
+                    <pre class="inline-preview-content">{{ item.previewContent }}</pre>
+                  </div>
+                } @else if (item.previewContent && !item.previewExpanded) {
+                  <div class="inline-preview-collapsed" (click)="toggleItemPreview(item.key)">
+                    <mat-icon>expand_more</mat-icon>
+                    <span>Show preview — {{ item.name }}</span>
+                  </div>
+                }
               }
             </div>
           </div>
@@ -178,16 +276,147 @@
               }
             }
           </button>
+
+          <button mat-raised-button color="accent"
+                  [disabled]="selectedCount() === 0 || previewing()"
+                  (click)="onGeneratePreview()">
+            @if (previewing()) {
+              <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+              Generating Previews...
+            } @else {
+              <mat-icon>visibility</mat-icon>
+              Generate &amp; Preview
+            }
+          </button>
         </div>
 
-        @if (generating()) {
+        @if (generating() || previewing()) {
           <mat-progress-bar mode="indeterminate" class="generate-progress"></mat-progress-bar>
           @if (aiSelectedCount() > 0) {
             <p class="generate-note">AI-customized declarations take a few seconds each...</p>
           }
         }
 
-        <!-- Generated Documents -->
+        <!-- Preview Section -->
+        @if (previews().length > 0) {
+          <mat-divider></mat-divider>
+          <h3 class="section-title">
+            Declaration Previews ({{ previews().length }})
+            @if (previewsWithWarnings() > 0) {
+              <span class="warnings-badge">
+                <mat-icon>warning</mat-icon>
+                {{ previewsWithWarnings() }} warning(s)
+              </span>
+            }
+          </h3>
+
+          <!-- Approve All / Reject All -->
+          <div class="preview-actions-row">
+            <button mat-stroked-button color="primary" (click)="approveAll()">
+              <mat-icon>check_circle</mat-icon>
+              Approve All
+            </button>
+            <button mat-stroked-button (click)="rejectAll()">
+              <mat-icon>cancel</mat-icon>
+              Reject All
+            </button>
+            <span class="approved-count">{{ approvedCount() }}/{{ previews().length }} approved</span>
+          </div>
+
+          @for (preview of previews(); track preview.key) {
+            <mat-card class="preview-card"
+                      [class.approved]="preview.approved"
+                      [class.has-warning]="preview.validation?.status === 'warning'">
+              <div class="preview-header">
+                <mat-checkbox [checked]="preview.approved"
+                              (change)="toggleApproval(preview.key)">
+                </mat-checkbox>
+                <span class="preview-name">{{ preview.name }}</span>
+                <mat-chip class="mode-chip">
+                  @if (preview.mode === 'ai') {
+                    <mat-icon>auto_awesome</mat-icon> AI
+                  } @else {
+                    Standard
+                  }
+                </mat-chip>
+                @if (preview.validation?.status === 'warning') {
+                  <span class="warning-badge-inline">
+                    <mat-icon>warning</mat-icon>
+                    {{ preview.validation!.missing!.length }} missing point(s)
+                  </span>
+                }
+                @if (preview.validation?.status === 'pass') {
+                  <span class="pass-badge-inline">
+                    <mat-icon>check_circle</mat-icon>
+                    All points covered
+                  </span>
+                }
+                <span class="preview-spacer"></span>
+                <button mat-icon-button
+                        matTooltip="Regenerate this declaration"
+                        [disabled]="preview.regenerating"
+                        (click)="onRegenerateSingle(preview.key)">
+                  @if (preview.regenerating) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                  } @else {
+                    <mat-icon>refresh</mat-icon>
+                  }
+                </button>
+                <button mat-icon-button
+                        [matTooltip]="preview.expanded ? 'Collapse' : 'Expand'"
+                        (click)="toggleExpand(preview.key)">
+                  <mat-icon>{{ preview.expanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+              </div>
+
+              @if (preview.expanded) {
+                <pre class="preview-content">{{ preview.content }}</pre>
+
+                @if (preview.validation && preview.validation.missing && preview.validation.missing.length > 0) {
+                  <div class="validation-warnings">
+                    <mat-icon>warning</mat-icon>
+                    <div>
+                      <strong>Missing tender-specific points:</strong>
+                      @for (point of preview.validation!.missing!; track point) {
+                        <div class="missing-point">• {{ point }}</div>
+                      }
+                    </div>
+                  </div>
+                }
+              }
+            </mat-card>
+          }
+
+          <!-- Letterhead note + Save button -->
+          <div class="letterhead-note">
+            <mat-icon>info</mat-icon>
+            <span>Preview shows text content. Saved DOCX includes company letterhead, signature, and stamp.</span>
+          </div>
+
+          @if (tenderId()) {
+            <div class="save-link-row">
+              <button mat-raised-button color="accent"
+                      [disabled]="saving() || approvedCount() === 0"
+                      (click)="onSaveAndLink()">
+                @if (saving()) {
+                  <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+                  Saving & Linking...
+                } @else {
+                  <mat-icon>link</mat-icon>
+                  Save Approved ({{ approvedCount() }}) &amp; Link to Checklist
+                }
+              </button>
+              @if (saveResult(); as result) {
+                <span class="save-result-msg">
+                  <mat-icon class="save-result-icon">check_circle</mat-icon>
+                  {{ result.saved }} saved, {{ result.linked }} linked
+                </span>
+              }
+            </div>
+          }
+        }
+
+        <!-- Generated Documents (ZIP download) -->
         @if (generatedDocs().length > 0) {
           <mat-divider></mat-divider>
           <h3 class="section-title">Generated Documents</h3>
@@ -208,8 +437,60 @@
               </div>
             }
           </div>
+
+          <!-- Save & Link (fallback when no previews) -->
+          @if (tenderId() && previews().length === 0) {
+            <div class="save-link-row">
+              <button mat-raised-button color="accent"
+                      [disabled]="saving()"
+                      (click)="onSaveAndLink()">
+                @if (saving()) {
+                  <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+                  Saving & Linking...
+                } @else {
+                  <mat-icon>link</mat-icon>
+                  Save & Link to Checklist
+                }
+              </button>
+              @if (saveResult(); as result) {
+                <span class="save-result-msg">
+                  <mat-icon class="save-result-icon">check_circle</mat-icon>
+                  {{ result.saved }} saved, {{ result.linked }} linked
+                </span>
+              }
+            </div>
+          }
         }
       }
     </mat-card-content>
+
+    <!-- KB Suggestions -->
+    @if (kbSuggestions().length > 0) {
+      <mat-card class="kb-suggestions-card">
+        <div class="kb-suggestions-header" (click)="toggleKBSuggestions()">
+          <div class="kb-suggestions-title">
+            <mat-icon>lightbulb</mat-icon>
+            <span>KB Suggestions</span>
+            <span class="kb-badge">{{ kbSuggestions().length }}</span>
+          </div>
+          <mat-icon>{{ showKBSuggestions() ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </div>
+        @if (showKBSuggestions()) {
+          <div class="kb-suggestions-body">
+            @for (entry of kbSuggestions(); track entry.id) {
+              <div class="kb-suggestion-item">
+                <div class="kb-suggestion-info">
+                  <strong>{{ entry.title }}</strong>
+                  <p class="kb-preview">{{ getKBPreview(entry.content) }}</p>
+                </div>
+                <button mat-icon-button matTooltip="Copy content" (click)="onCopyKBContent(entry)">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </mat-card>
+    }
   </mat-card>
 </div>

@@ -486,6 +486,7 @@ body {
   color: var(--text-primary);
   background-color: var(--background-color, #ffffff);
   transition: background-color var(--transition-base), color var(--transition-base);
+  overflow-x: hidden;
 }
 
 // Ensure all form elements inherit font family
@@ -2931,4 +2932,48 @@ select.form-control,
       padding: 12px !important;
     }
   }
+}
+
+// -----------------------------------------------------------------------------
+// Angular Material Select / Dropdown Panel Fix
+// Ensures readable text in mat-select dropdown overlays
+// -----------------------------------------------------------------------------
+.mat-mdc-select-panel,
+.cdk-overlay-pane .mat-mdc-select-panel {
+  background: #ffffff !important;
+}
+
+.mat-mdc-option {
+  color: #1e293b !important;
+
+  .mdc-list-item__primary-text {
+    color: #1e293b !important;
+  }
+
+  mat-icon {
+    color: inherit;
+    margin-right: 8px;
+  }
+
+  &.mdc-list-item--selected,
+  &.mat-mdc-option-active {
+    background-color: #e8f5e9 !important;
+
+    .mdc-list-item__primary-text {
+      color: #057a55 !important;
+    }
+  }
+
+  &:hover {
+    background-color: #f1f5f9 !important;
+  }
+}
+
+.mat-mdc-select-value,
+.mat-mdc-select-value-text {
+  color: #1e293b !important;
+}
+
+.mat-mdc-select-placeholder {
+  color: #94a3b8 !important;
 }

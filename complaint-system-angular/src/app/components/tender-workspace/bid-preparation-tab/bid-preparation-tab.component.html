@@ -1,0 +1,981 @@
+<mat-tab-group animationDuration="150ms" class="bid-tabs">
+  <!-- Sub-Tab 1: Technical Compliance Matrix -->
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>fact_check</mat-icon>
+      <span class="sub-tab-label">Compliance Matrix</span>
+    </ng-template>
+
+    <div class="sub-tab-body">
+      <!-- Auto-Fill from KB -->
+      <div class="auto-fill-row">
+        <button mat-stroked-button color="primary" (click)="onAutoFill()" [disabled]="autoFillLoading() || !tenderId()">
+          @if (autoFillLoading()) {
+            <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+            Loading...
+          } @else {
+            <mat-icon>auto_fix_high</mat-icon>
+            Auto-Fill Technical Responses
+          }
+        </button>
+      </div>
+
+      @if (autoFillSuggestions().length > 0) {
+        <mat-card class="auto-fill-panel">
+          <div class="auto-fill-header">
+            <div class="auto-fill-title">
+              <mat-icon>auto_fix_high</mat-icon>
+              <span>Auto-Fill Suggestions ({{ autoFillSuggestions().length }})</span>
+            </div>
+            <div class="auto-fill-actions">
+              <button mat-stroked-button (click)="applyAllAutoFill()">
+                <mat-icon>content_paste</mat-icon> Copy All
+              </button>
+              <button mat-icon-button (click)="dismissAutoFill()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+          @for (s of autoFillSuggestions(); track s.kb_entry_id) {
+            <div class="auto-fill-item">
+              <div class="auto-fill-info">
+                <strong>{{ s.title }}</strong>
+                <span class="auto-fill-target">Target: {{ s.target_field }}</span>
+                <span class="auto-fill-confidence">Confidence: {{ s.confidence_score | number:'1.0-0' }}%</span>
+                <p class="auto-fill-preview">{{ getKBPreview(s.content) }}</p>
+              </div>
+              <button mat-icon-button matTooltip="Copy" (click)="applyAutoFillSuggestion(s)">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </div>
+          }
+        </mat-card>
+      }
+
+      <!-- Summary Bar -->
+      @if (complianceSummary()) {
+        <div class="summary-bar">
+          <div class="summary-stat">
+            <span class="stat-value">{{ complianceSummary().total }}</span>
+            <span class="stat-label">Total Clauses</span>
+          </div>
+          <div class="summary-stat green">
+            <span class="stat-value">{{ complianceSummary().complied }}</span>
+            <span class="stat-label">Complied</span>
+          </div>
+          <div class="summary-stat red">
+            <span class="stat-value">{{ complianceSummary().not_complied }}</span>
+            <span class="stat-label">Not Complied</span>
+          </div>
+          <div class="summary-stat amber">
+            <span class="stat-value">{{ complianceSummary().partially_complied }}</span>
+            <span class="stat-label">Partial</span>
+          </div>
+          <div class="summary-stat">
+            <span class="stat-value">{{ complianceSummary().pending }}</span>
+            <span class="stat-label">Pending</span>
+          </div>
+          <div class="summary-progress">
+            <mat-progress-bar mode="determinate" [value]="complianceSummary().compliance_percentage"
+              [class]="complianceSummary().compliance_percentage >= 80 ? 'bar-green' : (complianceSummary().compliance_percentage >= 50 ? 'bar-amber' : 'bar-red')">
+            </mat-progress-bar>
+            <span class="progress-label">{{ complianceSummary().compliance_percentage }}%</span>
+          </div>
+          @if (complianceSummary().has_critical_failure) {
+            <mat-chip class="critical-chip">
+              <mat-icon>error</mat-icon>
+              Critical Failure
+            </mat-chip>
+          }
+        </div>
+      }
+
+      <div class="section-header">
+        <h3>Technical Specification Compliance</h3>
+        <button mat-raised-button color="primary" (click)="showNewCompliance.set(true)">
+          <mat-icon>add</mat-icon> Add Clause
+        </button>
+      </div>
+
+      @if (showNewCompliance()) {
+        <mat-card class="add-form-card">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="field-sm">
+              <mat-label>Clause #</mat-label>
+              <input matInput [(ngModel)]="newCompliance.clause_number" placeholder="3.2.1">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-lg">
+              <mat-label>Clause Title</mat-label>
+              <input matInput [(ngModel)]="newCompliance.clause_title">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-md">
+              <mat-label>Section</mat-label>
+              <input matInput [(ngModel)]="newCompliance.section" placeholder="Technical Specs">
+            </mat-form-field>
+          </div>
+          <div class="form-actions">
+            <button mat-button (click)="showNewCompliance.set(false)">Cancel</button>
+            <button mat-raised-button color="primary" (click)="addComplianceItem()" [disabled]="!newCompliance.clause_number || !newCompliance.clause_title">Add</button>
+          </div>
+        </mat-card>
+      }
+
+      @if (complianceLoading()) {
+        <div class="loading-inline"><mat-spinner diameter="30"></mat-spinner></div>
+      } @else if (complianceItems().length === 0 && !showNewCompliance()) {
+        <div class="empty-state-sm">
+          <mat-icon>fact_check</mat-icon>
+          <p>No compliance clauses added yet. Add clauses from the tender document to track compliance.</p>
+        </div>
+      } @else {
+        <table mat-table [dataSource]="complianceItems()" class="compliance-table">
+          <ng-container matColumnDef="clause_number">
+            <th mat-header-cell *matHeaderCellDef>Clause</th>
+            <td mat-cell *matCellDef="let item">
+              <strong>{{ item.clause_number }}</strong>
+              @if (item.is_critical) { <mat-icon class="critical-icon" matTooltip="Critical / Knock-out">error</mat-icon> }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="clause_title">
+            <th mat-header-cell *matHeaderCellDef>Description</th>
+            <td mat-cell *matCellDef="let item">{{ item.clause_title }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="section">
+            <th mat-header-cell *matHeaderCellDef>Section</th>
+            <td mat-cell *matCellDef="let item">{{ item.section || '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let item">
+              <mat-form-field appearance="outline" class="status-select">
+                <mat-select [value]="item.compliance_status" (selectionChange)="updateComplianceStatus(item, $event.value)">
+                  @for (s of complianceStatuses; track s.value) {
+                    <mat-option [value]="s.value">
+                      <mat-icon [style.color]="s.color">{{ s.icon }}</mat-icon>
+                      {{ s.label }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="page_ref">
+            <th mat-header-cell *matHeaderCellDef>Page Ref</th>
+            <td mat-cell *matCellDef="let item">{{ item.page_reference || '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let item">
+              <button mat-icon-button matTooltip="Delete" (click)="deleteComplianceItem(item)">
+                <mat-icon color="warn">delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="complianceColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: complianceColumns;"></tr>
+        </table>
+      }
+      <!-- KB Suggestions: Technical -->
+      @if (kbTechnicalSuggestions().length > 0) {
+        <mat-card class="kb-suggestions-card">
+          <div class="kb-suggestions-header" (click)="showKBTechnical.set(!showKBTechnical())">
+            <div class="kb-suggestions-title">
+              <mat-icon>lightbulb</mat-icon>
+              <span>KB Technical Suggestions</span>
+              <span class="kb-badge">{{ kbTechnicalSuggestions().length }}</span>
+            </div>
+            <mat-icon>{{ showKBTechnical() ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </div>
+          @if (showKBTechnical()) {
+            <div class="kb-suggestions-body">
+              @for (entry of kbTechnicalSuggestions(); track entry.id) {
+                <div class="kb-suggestion-item">
+                  <div class="kb-suggestion-info">
+                    <strong>{{ entry.title }}</strong>
+                    <p class="kb-preview">{{ getKBPreview(entry.content) }}</p>
+                  </div>
+                  <button mat-icon-button matTooltip="Copy" (click)="onCopyKBContent(entry)">
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </mat-card>
+      }
+    </div>
+  </mat-tab>
+
+  <!-- Sub-Tab 2: Bill of Quantities -->
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>request_quote</mat-icon>
+      <span class="sub-tab-label">Price Schedule / BoQ</span>
+    </ng-template>
+
+    <div class="sub-tab-body">
+      @if (boqSummary()) {
+        <div class="boq-summary-bar">
+          <div class="boq-total">
+            <span class="boq-label">Total (excl. GST)</span>
+            <span class="boq-value">{{ formatINR(boqSummary()!.total_before_tax) }}</span>
+          </div>
+          <div class="boq-total">
+            <span class="boq-label">GST</span>
+            <span class="boq-value">{{ formatINR(boqSummary()!.total_gst) }}</span>
+          </div>
+          <div class="boq-total highlight">
+            <span class="boq-label">Grand Total</span>
+            <span class="boq-value">{{ formatINR(boqSummary()!.total_with_tax) }}</span>
+          </div>
+          <div class="boq-total">
+            <span class="boq-label">Items</span>
+            <span class="boq-value">{{ boqSummary()!.total_items }}</span>
+          </div>
+        </div>
+      }
+
+      <div class="section-header">
+        <h3>Bill of Quantities / Price Schedule</h3>
+        <button mat-raised-button color="primary" (click)="showNewBoQ.set(true)">
+          <mat-icon>add</mat-icon> Add Item
+        </button>
+      </div>
+
+      @if (showNewBoQ()) {
+        <mat-card class="add-form-card">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="field-sm">
+              <mat-label>Item #</mat-label>
+              <input matInput [(ngModel)]="newBoQ.item_number" placeholder="1.1">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-lg">
+              <mat-label>Description</mat-label>
+              <input matInput [(ngModel)]="newBoQ.description">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-xs">
+              <mat-label>Unit</mat-label>
+              <input matInput [(ngModel)]="newBoQ.unit" placeholder="Nos">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-xs">
+              <mat-label>Qty</mat-label>
+              <input matInput type="number" [(ngModel)]="newBoQ.quantity">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-sm">
+              <mat-label>Unit Rate</mat-label>
+              <input matInput type="number" [(ngModel)]="newBoQ.unit_rate">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-xs">
+              <mat-label>GST %</mat-label>
+              <input matInput type="number" [(ngModel)]="newBoQ.gst_percentage">
+            </mat-form-field>
+          </div>
+          <div class="form-actions">
+            <button mat-button (click)="showNewBoQ.set(false)">Cancel</button>
+            <button mat-raised-button color="primary" (click)="addBoQItem()" [disabled]="!newBoQ.item_number || !newBoQ.description">Add</button>
+          </div>
+        </mat-card>
+      }
+
+      @if (boqLoading()) {
+        <div class="loading-inline"><mat-spinner diameter="30"></mat-spinner></div>
+      } @else if (boqItems().length === 0 && !showNewBoQ()) {
+        <div class="empty-state-sm">
+          <mat-icon>request_quote</mat-icon>
+          <p>No BoQ items yet. Add line items for your financial bid.</p>
+        </div>
+      } @else {
+        <table mat-table [dataSource]="boqItems()" class="boq-table">
+          <ng-container matColumnDef="item_number">
+            <th mat-header-cell *matHeaderCellDef>S.No</th>
+            <td mat-cell *matCellDef="let item">{{ item.item_number }}</td>
+          </ng-container>
+          <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef>Description</th>
+            <td mat-cell *matCellDef="let item">
+              {{ item.description }}
+              @if (item.make_model) { <span class="make-model">{{ item.make_model }}</span> }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="unit">
+            <th mat-header-cell *matHeaderCellDef>Unit</th>
+            <td mat-cell *matCellDef="let item">{{ item.unit || '-' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="quantity">
+            <th mat-header-cell *matHeaderCellDef>Qty</th>
+            <td mat-cell *matCellDef="let item">{{ item.quantity }}</td>
+          </ng-container>
+          <ng-container matColumnDef="unit_rate">
+            <th mat-header-cell *matHeaderCellDef>Unit Rate</th>
+            <td mat-cell *matCellDef="let item">{{ formatINR(item.unit_rate) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="gst">
+            <th mat-header-cell *matHeaderCellDef>GST</th>
+            <td mat-cell *matCellDef="let item">{{ item.gst_percentage }}%</td>
+          </ng-container>
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef>Total (incl. GST)</th>
+            <td mat-cell *matCellDef="let item"><strong>{{ formatINR(item.total_with_tax) }}</strong></td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let item">
+              <button mat-icon-button matTooltip="Delete" (click)="deleteBoQItem(item)">
+                <mat-icon color="warn">delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="boqColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: boqColumns;"></tr>
+        </table>
+      }
+
+      <!-- KB Suggestions: Pricing -->
+      @if (kbPricingSuggestions().length > 0) {
+        <mat-card class="kb-suggestions-card">
+          <div class="kb-suggestions-header" (click)="showKBPricing.set(!showKBPricing())">
+            <div class="kb-suggestions-title">
+              <mat-icon>lightbulb</mat-icon>
+              <span>KB Pricing Suggestions</span>
+              <span class="kb-badge">{{ kbPricingSuggestions().length }}</span>
+            </div>
+            <mat-icon>{{ showKBPricing() ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </div>
+          @if (showKBPricing()) {
+            <div class="kb-suggestions-body">
+              @for (entry of kbPricingSuggestions(); track entry.id) {
+                <div class="kb-suggestion-item">
+                  <div class="kb-suggestion-info">
+                    <strong>{{ entry.title }}</strong>
+                    <p class="kb-preview">{{ getKBPreview(entry.content) }}</p>
+                  </div>
+                  <button mat-icon-button matTooltip="Copy" (click)="onCopyKBContent(entry)">
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </mat-card>
+      }
+    </div>
+  </mat-tab>
+
+  <!-- Sub-Tab 3: Timeline & Milestones -->
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>timeline</mat-icon>
+      <span class="sub-tab-label">Timeline</span>
+    </ng-template>
+
+    <div class="sub-tab-body">
+      <div class="section-header">
+        <h3>Important Dates & Milestones</h3>
+        <button mat-raised-button color="primary" (click)="showNewMilestone.set(true)">
+          <mat-icon>add</mat-icon> Add Date
+        </button>
+      </div>
+
+      @if (showNewMilestone()) {
+        <mat-card class="add-form-card">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="field-md">
+              <mat-label>Type</mat-label>
+              <mat-select [(ngModel)]="newMilestone.milestone_type">
+                @for (t of milestoneTypes; track t.value) {
+                  <mat-option [value]="t.value">{{ t.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-lg">
+              <mat-label>Label</mat-label>
+              <input matInput [(ngModel)]="newMilestone.label" placeholder="e.g. Bid Submission Deadline">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-md">
+              <mat-label>Date</mat-label>
+              <input matInput type="datetime-local" [(ngModel)]="newMilestone.event_date">
+            </mat-form-field>
+          </div>
+          <div class="form-actions">
+            <button mat-button (click)="showNewMilestone.set(false)">Cancel</button>
+            <button mat-raised-button color="primary" (click)="addMilestone()" [disabled]="!newMilestone.label">Add</button>
+          </div>
+        </mat-card>
+      }
+
+      @if (milestonesLoading()) {
+        <div class="loading-inline"><mat-spinner diameter="30"></mat-spinner></div>
+      } @else if (milestones().length === 0 && !showNewMilestone()) {
+        <div class="empty-state-sm">
+          <mat-icon>timeline</mat-icon>
+          <p>No milestones added. Track important dates like pre-bid meeting, submission deadline, and opening dates.</p>
+        </div>
+      } @else {
+        <div class="timeline-list">
+          @for (m of milestones(); track m.id) {
+            <div class="timeline-item" [class.completed]="m.is_completed"
+                 [class.urgent]="isMilestoneUrgent(m.event_date)"
+                 [class.overdue]="isMilestoneOverdue(m.event_date) && !m.is_completed">
+              <div class="timeline-marker" (click)="toggleMilestoneComplete(m)">
+                <mat-icon>{{ m.is_completed ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <mat-chip class="type-chip">{{ getMilestoneTypeLabel(m.milestone_type) }}</mat-chip>
+                  <strong>{{ m.label }}</strong>
+                </div>
+                <div class="timeline-meta">
+                  @if (m.event_date) {
+                    <span class="date-info">
+                      <mat-icon>event</mat-icon>
+                      {{ m.event_date | date:'medium' }}
+                      <span class="days-left" [class.urgent-text]="isMilestoneUrgent(m.event_date)"
+                            [class.overdue-text]="isMilestoneOverdue(m.event_date)">
+                        ({{ getMilestoneDaysLeft(m.event_date) }})
+                      </span>
+                    </span>
+                  }
+                  @if (m.location) {
+                    <span class="location-info"><mat-icon>location_on</mat-icon> {{ m.location }}</span>
+                  }
+                </div>
+              </div>
+              <button mat-icon-button matTooltip="Delete" (click)="deleteMilestone(m)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Corrigendums Section -->
+      <mat-divider class="section-divider"></mat-divider>
+      <div class="section-header">
+        <h3>Corrigendums / Addendums</h3>
+        <button mat-raised-button color="accent" (click)="showNewCorrigendum.set(true)">
+          <mat-icon>add</mat-icon> Add Corrigendum
+        </button>
+      </div>
+
+      @if (showNewCorrigendum()) {
+        <mat-card class="add-form-card">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="field-xs">
+              <mat-label>#</mat-label>
+              <input matInput type="number" [(ngModel)]="newCorrigendum.corrigendum_number">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-lg">
+              <mat-label>Title</mat-label>
+              <input matInput [(ngModel)]="newCorrigendum.title" placeholder="Extension of bid submission date">
+            </mat-form-field>
+          </div>
+          <div class="form-actions">
+            <button mat-button (click)="showNewCorrigendum.set(false)">Cancel</button>
+            <button mat-raised-button color="primary" (click)="addCorrigendum()" [disabled]="!newCorrigendum.title">Add</button>
+          </div>
+        </mat-card>
+      }
+
+      @if (corrigendums().length === 0 && !showNewCorrigendum()) {
+        <div class="empty-state-sm compact">
+          <p>No corrigendums issued for this tender.</p>
+        </div>
+      } @else {
+        @for (c of corrigendums(); track c.id) {
+          <mat-card class="corrigendum-card">
+            <div class="corrigendum-header">
+              <div>
+                <strong>Corrigendum #{{ c.corrigendum_number }}</strong>
+                <span class="corrigendum-title">{{ c.title }}</span>
+              </div>
+              <div class="corrigendum-actions">
+                @if (!c.is_acknowledged) {
+                  <button mat-stroked-button color="primary" (click)="acknowledgeCorrigendum(c)">
+                    <mat-icon>check</mat-icon> Acknowledge
+                  </button>
+                } @else {
+                  <mat-chip class="ack-chip"><mat-icon>check_circle</mat-icon> Acknowledged</mat-chip>
+                }
+                <button mat-icon-button (click)="deleteCorrigendum(c)"><mat-icon>delete</mat-icon></button>
+              </div>
+            </div>
+            @if (c.summary) {
+              <p class="corrigendum-summary">{{ c.summary }}</p>
+            }
+          </mat-card>
+        }
+      }
+    </div>
+  </mat-tab>
+
+  <!-- Sub-Tab 4: Eligibility & QCBS -->
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>verified_user</mat-icon>
+      <span class="sub-tab-label">Eligibility & QCBS</span>
+    </ng-template>
+
+    <div class="sub-tab-body">
+      <!-- Eligibility Check -->
+      <div class="section-header">
+        <h3>Pre-Qualification Eligibility Check</h3>
+        <button mat-raised-button color="primary" (click)="runEligibilityCheck()" [disabled]="eligibilityLoading()">
+          <mat-icon>{{ eligibilityLoading() ? 'hourglass_empty' : 'play_arrow' }}</mat-icon>
+          Run Check
+        </button>
+      </div>
+
+      @if (eligibilityLoading()) {
+        <div class="loading-inline"><mat-spinner diameter="30"></mat-spinner></div>
+      } @else if (eligibility()) {
+        <mat-card class="eligibility-result-card" [class.eligible]="eligibility()!.eligible" [class.not-eligible]="!eligibility()!.eligible">
+          <div class="eligibility-verdict">
+            <mat-icon>{{ eligibility()!.eligible ? 'check_circle' : 'cancel' }}</mat-icon>
+            <div>
+              <h3>{{ eligibility()!.overall_status }}</h3>
+              <span>{{ eligibility()!.summary.passed }}/{{ eligibility()!.summary.total_checks }} checks passed</span>
+            </div>
+          </div>
+        </mat-card>
+
+        @for (check of eligibility()!.checks; track check.check) {
+          <div class="eligibility-check-item" [class]="'check-' + check.status">
+            <mat-icon>{{ check.status === 'pass' ? 'check_circle' : (check.status === 'fail' ? 'cancel' : (check.status === 'warn' ? 'warning' : 'info')) }}</mat-icon>
+            <div class="check-info">
+              <strong>{{ check.label }}</strong>
+              @if (check.is_critical) { <mat-chip class="critical-mini">Critical</mat-chip> }
+              <div class="check-detail">
+                <span class="req">Required: {{ check.requirement }}</span>
+                <span class="actual">Actual: {{ check.actual }}</span>
+              </div>
+              @if (check.note) { <span class="check-note">{{ check.note }}</span> }
+              @if (check.savings) { <span class="savings-note">Potential savings: {{ formatINR(check.savings) }}</span> }
+            </div>
+          </div>
+        }
+      } @else {
+        <div class="empty-state-sm">
+          <mat-icon>verified_user</mat-icon>
+          <p>Click "Run Check" to auto-verify your turnover, experience, and certifications against this tender's PQ requirements.</p>
+        </div>
+      }
+
+      <!-- QCBS Calculator -->
+      <mat-divider class="section-divider"></mat-divider>
+      <div class="section-header">
+        <h3>QCBS Score Calculator</h3>
+      </div>
+
+      <mat-card class="qcbs-card">
+        <div class="qcbs-inputs">
+          <mat-form-field appearance="outline">
+            <mat-label>Technical Weight (%)</mat-label>
+            <input matInput type="number" [(ngModel)]="qcbsParams.technical_weight" (ngModelChange)="onQCBSWeightChange()">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Financial Weight (%)</mat-label>
+            <input matInput type="number" [ngModel]="qcbsParams.financial_weight" disabled>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Our Technical Score</mat-label>
+            <input matInput type="number" [(ngModel)]="qcbsParams.our_technical_score" placeholder="0-100">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Our Financial Bid (Rs.)</mat-label>
+            <input matInput type="number" [(ngModel)]="qcbsParams.our_financial_bid">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Lowest Financial Bid - L1 (Rs.)</mat-label>
+            <input matInput type="number" [(ngModel)]="qcbsParams.lowest_financial_bid">
+          </mat-form-field>
+        </div>
+        <button mat-raised-button color="primary" (click)="calculateQCBS()" [disabled]="!qcbsParams.our_financial_bid">
+          <mat-icon>calculate</mat-icon> Calculate Combined Score
+        </button>
+
+        @if (qcbsResult()) {
+          <mat-divider class="divider-sm"></mat-divider>
+          <div class="qcbs-result">
+            <div class="qcbs-score-display">
+              <span class="qcbs-label">Combined Score</span>
+              <span class="qcbs-value">{{ qcbsResult()!.combined_score }}</span>
+              <span class="qcbs-max">/ 100</span>
+            </div>
+            <div class="qcbs-breakdown">
+              @for (note of qcbsResult()!.notes; track $index) {
+                <p class="qcbs-note">{{ note }}</p>
+              }
+            </div>
+          </div>
+        }
+      </mat-card>
+    </div>
+  </mat-tab>
+
+  <!-- Sub-Tab 5: Bid Cost Estimator -->
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>calculate</mat-icon>
+      <span class="sub-tab-label">Bid Cost Estimator</span>
+    </ng-template>
+
+    <div class="sub-tab-body">
+      <div class="section-header">
+        <h3>Bid Cost Estimation</h3>
+        <button mat-raised-button color="primary" (click)="onEstimateBidCost()" [disabled]="bidCostLoading() || !tenderId()">
+          @if (bidCostLoading()) {
+            <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+            Estimating...
+          } @else {
+            <mat-icon>calculate</mat-icon>
+            Estimate Bid Cost
+          }
+        </button>
+      </div>
+
+      @if (bidCostLoading()) {
+        <div class="loading-inline"><mat-spinner diameter="30"></mat-spinner></div>
+      } @else if (bidCostEstimate()) {
+        <!-- Direct Costs -->
+        <mat-card class="estimate-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>payments</mat-icon>
+              Direct Costs
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="cost-grid">
+              <div class="cost-item">
+                <span class="cost-label">EMD Amount</span>
+                <span class="cost-value">{{ formatINR(bidCostEstimate()!.direct_costs.emd) }}</span>
+              </div>
+              <div class="cost-item">
+                <span class="cost-label">Tender Fee</span>
+                <span class="cost-value">{{ formatINR(bidCostEstimate()!.direct_costs.tender_fee) }}</span>
+              </div>
+              <div class="cost-item">
+                <span class="cost-label">Document Cost</span>
+                <span class="cost-value">{{ formatINR(bidCostEstimate()!.direct_costs.document_cost) }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- BoQ Summary -->
+        <mat-card class="estimate-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>request_quote</mat-icon>
+              BoQ Summary
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="cost-grid">
+              <div class="cost-item">
+                <span class="cost-label">Subtotal</span>
+                <span class="cost-value">{{ formatINR(bidCostEstimate()!.boq_summary.subtotal) }}</span>
+              </div>
+              <div class="cost-item">
+                <span class="cost-label">GST</span>
+                <span class="cost-value">{{ formatINR(bidCostEstimate()!.boq_summary.gst) }}</span>
+              </div>
+              <div class="cost-item highlight">
+                <span class="cost-label">BoQ Total</span>
+                <span class="cost-value">{{ formatINR(bidCostEstimate()!.boq_summary.total) }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- AI Analysis -->
+        @if (bidCostEstimate()!.ai_analysis) {
+          <mat-card class="estimate-card ai-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>psychology</mat-icon>
+                AI Analysis
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="cost-grid">
+                <div class="cost-item">
+                  <span class="cost-label">Recommended Margin</span>
+                  <span class="cost-value accent">{{ bidCostEstimate()!.ai_analysis.recommended_margin_pct }}%</span>
+                </div>
+                <div class="cost-item">
+                  <span class="cost-label">Competitive Score</span>
+                  <span class="cost-value">{{ bidCostEstimate()!.ai_analysis.competitive_score }}/100</span>
+                </div>
+              </div>
+
+              @if (bidCostEstimate()!.ai_analysis.risk_factors.length > 0) {
+                <div class="risk-section">
+                  <strong>Risk Factors:</strong>
+                  @for (risk of bidCostEstimate()!.ai_analysis.risk_factors; track risk) {
+                    <div class="risk-item"><mat-icon>warning</mat-icon> {{ risk }}</div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+
+        <!-- Totals -->
+        <mat-card class="estimate-card totals-card">
+          <mat-card-content>
+            <div class="cost-grid">
+              <div class="cost-item highlight-primary">
+                <span class="cost-label">Total Bid Value</span>
+                <span class="cost-value large">{{ formatINR(bidCostEstimate()!.total_bid_value) }}</span>
+              </div>
+              <div class="cost-item highlight-green">
+                <span class="cost-label">Estimated Profit</span>
+                <span class="cost-value large">{{ formatINR(bidCostEstimate()!.profit_estimate) }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      } @else {
+        <div class="empty-state-sm">
+          <mat-icon>calculate</mat-icon>
+          <p>Click "Estimate Bid Cost" to analyze EMD, fees, BoQ totals, and get AI-powered margin recommendations.</p>
+        </div>
+      }
+    </div>
+  </mat-tab>
+
+  <!-- Sub-Tab 6: Solution Document Generator -->
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>auto_stories</mat-icon>
+      <span class="sub-tab-label">Solution Generator</span>
+    </ng-template>
+
+    <div class="sub-tab-body">
+      <!-- Header Actions -->
+      <div class="solution-header">
+        <div class="solution-title">
+          <mat-icon>auto_stories</mat-icon>
+          <span>AI Technical Proposal Generator</span>
+        </div>
+        <div class="solution-actions">
+          @if (solutionStatus()?.status === 'completed') {
+            <button mat-stroked-button (click)="onExportSolution()" color="primary">
+              <mat-icon>download</mat-icon>
+              Export DOCX
+            </button>
+            <button mat-stroked-button (click)="onGenerateSolution(true)" [disabled]="solutionGenerating()" color="warn">
+              <mat-icon>refresh</mat-icon>
+              Regenerate All
+            </button>
+          }
+          @if (!solutionStatus() || solutionStatus()?.status === 'not_started' || solutionStatus()?.status === 'failed') {
+            <button mat-flat-button color="primary" (click)="onGenerateSolution()" [disabled]="solutionGenerating()">
+              @if (solutionGenerating()) {
+                <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+                Generating...
+              } @else {
+                <mat-icon>play_arrow</mat-icon>
+                Generate Technical Proposal
+              }
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Generation Progress -->
+      @if (solutionGenerating() || solutionStatus()?.status === 'started' || solutionStatus()?.status === 'analyzing' || solutionStatus()?.status === 'generating_toc' || solutionStatus()?.status === 'generating_sections' || solutionStatus()?.status === 'optimizing' || solutionStatus()?.status === 'gap_analysis' || solutionStatus()?.status === 'evaluation') {
+        <mat-card class="solution-progress-card">
+          <div class="progress-header">
+            <mat-spinner diameter="24"></mat-spinner>
+            <span class="progress-step">{{ solutionStatus()?.current_step || 'Starting pipeline...' }}</span>
+          </div>
+          <mat-progress-bar mode="determinate" [value]="solutionStatus()?.progress_percentage || 0"></mat-progress-bar>
+          <div class="progress-detail">
+            Step {{ solutionStatus()?.completed_steps || 0 }} of {{ solutionStatus()?.total_steps || 8 }}
+            ({{ solutionStatus()?.progress_percentage || 0 }}%)
+          </div>
+        </mat-card>
+      }
+
+      <!-- Error State -->
+      @if (solutionStatus()?.status === 'failed') {
+        <mat-card class="solution-error-card">
+          <mat-icon>error_outline</mat-icon>
+          <div class="error-details">
+            <strong>Generation Failed</strong>
+            <p>{{ solutionStatus()?.error_message || 'Unknown error' }}</p>
+          </div>
+        </mat-card>
+      }
+
+      <!-- Results Summary -->
+      @if (solutionStatus()?.status === 'completed') {
+        <div class="solution-summary-grid">
+          <mat-card class="summary-stat">
+            <div class="stat-icon"><mat-icon>article</mat-icon></div>
+            <div class="stat-value">{{ solutionStatus()?.total_sections || 0 }}</div>
+            <div class="stat-label">Sections</div>
+          </mat-card>
+          <mat-card class="summary-stat">
+            <div class="stat-icon"><mat-icon>checklist</mat-icon></div>
+            <div class="stat-value">{{ solutionStatus()?.total_requirements || 0 }}</div>
+            <div class="stat-label">Requirements</div>
+          </mat-card>
+          <mat-card class="summary-stat">
+            <div class="stat-icon"><mat-icon>pie_chart</mat-icon></div>
+            <div class="stat-value">{{ (solutionStatus()?.coverage_percentage || 0) | number:'1.0-0' }}%</div>
+            <div class="stat-label">Coverage</div>
+          </mat-card>
+          <mat-card class="summary-stat">
+            <div class="stat-icon"><mat-icon>grade</mat-icon></div>
+            <div class="stat-value">{{ (solutionStatus()?.estimated_score || 0) | number:'1.0-0' }}%</div>
+            <div class="stat-label">Est. Score</div>
+          </mat-card>
+        </div>
+
+        <!-- Evaluation Results -->
+        @if (solutionStatus()?.evaluation_results?.length) {
+          <mat-card class="evaluation-card">
+            <div class="eval-header">
+              <mat-icon>assessment</mat-icon>
+              <span>Evaluation Simulation</span>
+            </div>
+            <table class="eval-table">
+              <thead>
+                <tr>
+                  <th>Criteria</th>
+                  <th>Max Marks</th>
+                  <th>Est. Score</th>
+                  <th>%</th>
+                  <th>Improvement</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (ev of solutionStatus()?.evaluation_results || []; track ev.criteria) {
+                  <tr [class.eval-low]="(ev.percentage || 0) < 60"
+                      [class.eval-medium]="(ev.percentage || 0) >= 60 && (ev.percentage || 0) < 80"
+                      [class.eval-high]="(ev.percentage || 0) >= 80">
+                    <td>{{ ev.criteria }}</td>
+                    <td class="center">{{ ev.max_marks }}</td>
+                    <td class="center">{{ ev.estimated_score }}</td>
+                    <td class="center">{{ ev.percentage }}%</td>
+                    <td class="improvements">
+                      @for (imp of ev.improvement_suggestions || []; track imp) {
+                        <span class="improvement-chip">{{ imp }}</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </mat-card>
+        }
+
+        <!-- Gap Analysis -->
+        @if (solutionStatus()?.gap_analysis?.length) {
+          <mat-card class="gap-card">
+            <div class="gap-header">
+              <mat-icon>warning</mat-icon>
+              <span>Gap Analysis ({{ solutionStatus()?.gap_analysis?.length }} issues)</span>
+            </div>
+            @for (gap of solutionStatus()?.gap_analysis || []; track gap.requirement_id) {
+              <div class="gap-item" [class]="'gap-' + gap.risk_level">
+                <span class="gap-risk-badge">{{ gap.risk_level }}</span>
+                <div class="gap-content">
+                  <div class="gap-issue">{{ gap.issue }}</div>
+                  <div class="gap-recommendation">{{ gap.recommendation }}</div>
+                </div>
+              </div>
+            }
+          </mat-card>
+        }
+
+        <!-- Diagram Suggestions -->
+        @if (solutionStatus()?.diagram_suggestions?.length) {
+          <mat-card class="diagrams-card">
+            <div class="diagrams-header">
+              <mat-icon>schema</mat-icon>
+              <span>Suggested Diagrams ({{ solutionStatus()?.diagram_suggestions?.length }})</span>
+            </div>
+            @for (d of solutionStatus()?.diagram_suggestions || []; track d.description) {
+              <div class="diagram-item">
+                <mat-icon>image</mat-icon>
+                <div>
+                  <strong>{{ d.section_title }}</strong> — {{ d.diagram_type }}
+                  <div class="diagram-desc">{{ d.description }}</div>
+                </div>
+              </div>
+            }
+          </mat-card>
+        }
+
+        <!-- Proposal Sections -->
+        @if (solutionSections().length) {
+          <mat-card class="sections-card">
+            <div class="sections-header">
+              <mat-icon>format_list_numbered</mat-icon>
+              <span>Proposal Sections ({{ solutionSections().length }})</span>
+            </div>
+            @for (sec of solutionSections(); track sec.id) {
+              <div class="section-item" [class.expanded]="solutionExpandedSection() === sec.id">
+                <div class="section-row" (click)="onToggleSection(sec.id)">
+                  <mat-icon class="expand-icon">{{ solutionExpandedSection() === sec.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+                  <span class="section-number">{{ sec.section_number }}</span>
+                  <span class="section-title">{{ sec.section_title }}</span>
+                  <span class="section-version" *ngIf="sec.content_version">v{{ sec.content_version }}</span>
+                  <span class="section-status" [class]="'status-' + sec.status">{{ sec.status }}</span>
+                  <button mat-icon-button matTooltip="Regenerate this section" (click)="onRegenerateSection(sec); $event.stopPropagation()" [disabled]="solutionRegenerating() === sec.id">
+                    @if (solutionRegenerating() === sec.id) {
+                      <mat-spinner diameter="18"></mat-spinner>
+                    } @else {
+                      <mat-icon>refresh</mat-icon>
+                    }
+                  </button>
+                </div>
+                @if (solutionExpandedSection() === sec.id && sec.content) {
+                  <div class="section-content">
+                    <div class="regen-input">
+                      <mat-form-field appearance="outline" class="regen-field">
+                        <mat-label>Custom instructions (optional)</mat-label>
+                        <input matInput [(ngModel)]="solutionCustomPrompt" placeholder="e.g., Add more detail about deployment architecture">
+                      </mat-form-field>
+                      <button mat-stroked-button color="primary" (click)="onRegenerateSection(sec)" [disabled]="solutionRegenerating() === sec.id">
+                        Regenerate with Instructions
+                      </button>
+                    </div>
+                    <pre class="content-preview">{{ sec.content }}</pre>
+                  </div>
+                }
+              </div>
+            }
+          </mat-card>
+        }
+      }
+
+      <!-- Empty State -->
+      @if (!solutionGenerating() && (!solutionStatus() || solutionStatus()?.status === 'not_started')) {
+        <mat-card class="solution-empty">
+          <mat-icon class="empty-icon">auto_stories</mat-icon>
+          <h3>Generate Technical Proposal</h3>
+          <p>AI will analyze the tender requirements, generate a complete proposal structure, write each section with requirement traceability, and produce a downloadable DOCX document.</p>
+          <p class="pipeline-info">
+            Pipeline: Structure Analysis → Requirement Classification → TOC Generation → Section Writing → Diagram Suggestions → Gap Analysis → Evaluation Simulation → Optimization
+          </p>
+          <button mat-flat-button color="primary" (click)="onGenerateSolution()" [disabled]="solutionGenerating()">
+            <mat-icon>play_arrow</mat-icon>
+            Generate Technical Proposal
+          </button>
+        </mat-card>
+      }
+    </div>
+  </mat-tab>
+</mat-tab-group>

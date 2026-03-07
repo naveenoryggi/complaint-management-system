@@ -28,6 +28,7 @@ class SingleDeclarationRequest(BaseModel):
     designation: Optional[str] = None
     mode: str = "standard"  # "standard" or "ai"
     tender_specific_points: Optional[List[str]] = None
+    bidder_role: str = "bidder"  # "bidder" or "oem"
 
 
 class BulkDeclarationRequest(BaseModel):
@@ -37,6 +38,17 @@ class BulkDeclarationRequest(BaseModel):
     designation: Optional[str] = None
     ai_types: Optional[List[str]] = None  # keys that should use AI mode
     analysis_results: Optional[List[dict]] = None  # pass analysis back for points
+    bidder_role: str = "bidder"  # "bidder" or "oem"
+
+
+class SaveAndLinkRequest(BaseModel):
+    tender_id: UUID
+    declaration_types: List[str]
+    signatory_name: Optional[str] = None
+    designation: Optional[str] = None
+    ai_types: Optional[List[str]] = None
+    analysis_results: Optional[List[dict]] = None
+    bidder_role: str = "bidder"  # "bidder" or "oem"
 
 
 # ---------------------------------------------------------------------------
@@ -113,7 +125,7 @@ async def _get_tender_full(db: AsyncSession, tender_id: UUID, tenant_id: str) ->
 async def get_declaration_types(
     current_user: TokenData = Depends(get_current_user),
 ):
-    """List all 15 available declaration types with metadata."""
+    """List all available declaration types with metadata."""
     return declaration_service.get_available_types()
 
 
@@ -134,7 +146,9 @@ async def analyze_tender_declarations(
     """
     tender_dict, requirements = await _get_tender_full(db, tender_id, current_user.tenant_id)
 
-    analysis = declaration_service.analyze_tender_requirements(
+    analysis = await declaration_service.analyze_tender_requirements(
+        db=db,
+        tenant_id=current_user.tenant_id,
         tender=tender_dict,
         tender_requirements=requirements,
     )
@@ -165,7 +179,9 @@ async def generate_single_declaration(
 
     try:
         if request.mode == "ai" and tender_dict:
-            buffer, filename = declaration_service.generate_ai_customized(
+            buffer, filename = await declaration_service.generate_ai_customized(
+                db=db,
+                tenant_id=current_user.tenant_id,
                 declaration_type=request.declaration_type,
                 company_profile=company_profile,
                 tender=tender_dict,
@@ -173,6 +189,7 @@ async def generate_single_declaration(
                 tender_specific_points=request.tender_specific_points,
                 signatory_name=request.signatory_name,
                 designation=request.designation,
+                bidder_role=request.bidder_role,
             )
         else:
             buffer, filename = declaration_service.generate_single(
@@ -181,6 +198,7 @@ async def generate_single_declaration(
                 tender=tender_dict,
                 signatory_name=request.signatory_name,
                 designation=request.designation,
+                bidder_role=request.bidder_role,
             )
     except ValueError as e:
         raise HTTPException(
@@ -215,7 +233,9 @@ async def generate_bulk_declarations(
     if request.tender_id:
         tender_dict, requirements = await _get_tender_full(db, request.tender_id, current_user.tenant_id)
 
-    zip_buffer, zip_filename, generated_files = declaration_service.generate_bulk(
+    zip_buffer, zip_filename, generated_files = await declaration_service.generate_bulk(
+        db=db,
+        tenant_id=current_user.tenant_id,
         declaration_types=request.declaration_types,
         company_profile=company_profile,
         tender=tender_dict,
@@ -224,6 +244,7 @@ async def generate_bulk_declarations(
         ai_types=request.ai_types,
         tender_requirements=requirements,
         analysis_results=request.analysis_results,
+        bidder_role=request.bidder_role,
     )
 
     return StreamingResponse(
@@ -250,7 +271,9 @@ async def generate_bulk_for_tender(
     company_profile = await _get_company_profile_dict(db, current_user.tenant_id)
     tender_dict, requirements = await _get_tender_full(db, tender_id, current_user.tenant_id)
 
-    zip_buffer, zip_filename, generated_files = declaration_service.generate_bulk(
+    zip_buffer, zip_filename, generated_files = await declaration_service.generate_bulk(
+        db=db,
+        tenant_id=current_user.tenant_id,
         declaration_types=request.declaration_types,
         company_profile=company_profile,
         tender=tender_dict,
@@ -259,6 +282,7 @@ async def generate_bulk_for_tender(
         ai_types=request.ai_types,
         tender_requirements=requirements,
         analysis_results=request.analysis_results,
+        bidder_role=request.bidder_role,
     )
 
     return StreamingResponse(
@@ -266,3 +290,123 @@ async def generate_bulk_for_tender(
         media_type="application/zip",
         headers={"Content-Disposition": f'attachment; filename="{zip_filename}"'},
     )
+
+
+@router.post("/preview")
+async def preview_bulk_declarations(
+    request: BulkDeclarationRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+):
+    """
+    Generate text previews for multiple declarations without creating DOCX files.
+    Returns text content for user review before saving.
+    """
+    if not request.declaration_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one declaration type must be specified.",
+        )
+
+    company_profile = await _get_company_profile_dict(db, current_user.tenant_id)
+
+    tender_dict = None
+    requirements = None
+    if request.tender_id:
+        tender_dict, requirements = await _get_tender_full(db, request.tender_id, current_user.tenant_id)
+
+    previews = await declaration_service.preview_bulk(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        declaration_types=request.declaration_types,
+        company_profile=company_profile,
+        tender=tender_dict,
+        signatory_name=request.signatory_name,
+        designation=request.designation,
+        ai_types=request.ai_types,
+        tender_requirements=requirements,
+        analysis_results=request.analysis_results,
+        bidder_role=request.bidder_role,
+    )
+
+    return {"previews": previews}
+
+
+@router.post("/preview-single")
+async def preview_single_declaration(
+    request: SingleDeclarationRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+):
+    """
+    Generate a text preview for a single declaration without creating a DOCX file.
+    Returns text content for user review.
+    """
+    company_profile = await _get_company_profile_dict(db, current_user.tenant_id)
+
+    tender_dict = None
+    requirements = None
+    if request.tender_id:
+        tender_dict, requirements = await _get_tender_full(db, request.tender_id, current_user.tenant_id)
+
+    try:
+        preview = await declaration_service.preview_single(
+            db=db,
+            tenant_id=current_user.tenant_id,
+            declaration_type=request.declaration_type,
+            company_profile=company_profile,
+            tender=tender_dict,
+            signatory_name=request.signatory_name,
+            designation=request.designation,
+            mode=request.mode,
+            tender_requirements=requirements,
+            tender_specific_points=request.tender_specific_points,
+            bidder_role=request.bidder_role,
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
+    return preview
+
+
+@router.post("/save-and-link")
+async def save_declarations_and_link(
+    request: SaveAndLinkRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+):
+    """
+    Generate declarations, persist to document library, and auto-link
+    to matching submission checklist items.
+
+    Returns saved/linked counts and per-declaration results.
+    """
+    if not request.declaration_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one declaration type must be specified.",
+        )
+
+    company_profile = await _get_company_profile_dict(db, current_user.tenant_id)
+    tender_dict, requirements = await _get_tender_full(db, request.tender_id, current_user.tenant_id)
+
+    result = await declaration_service.save_and_link(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        user_id=current_user.user_id,
+        tender_id=str(request.tender_id),
+        declaration_types=request.declaration_types,
+        company_profile=company_profile,
+        tender=tender_dict,
+        signatory_name=request.signatory_name,
+        designation=request.designation,
+        ai_types=request.ai_types,
+        tender_requirements=requirements,
+        analysis_results=request.analysis_results,
+        bidder_role=request.bidder_role,
+    )
+
+    return result

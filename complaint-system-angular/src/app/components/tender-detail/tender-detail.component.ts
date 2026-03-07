@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,7 +14,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TenderService, Tender, TenderDocument } from '../../services/tender.service';
+import { TrackingService, EMDRecord, TenderFee } from '../../services/tracking.service';
 import { DocumentService } from '../../services/document.service';
 import { AssemblyService } from '../../services/assembly.service';
 import { CompanyService } from '../../services/company.service';
@@ -26,12 +29,25 @@ import { CriteriaTabComponent } from '../tender-workspace/criteria-tab/criteria-
 import { OemRequirementsTabComponent } from '../tender-workspace/oem-requirements-tab/oem-requirements-tab.component';
 import { EmdFeesTabComponent } from '../tender-workspace/emd-fees-tab/emd-fees-tab.component';
 import { DeclarationsTabComponent } from '../tender-workspace/declarations-tab/declarations-tab.component';
+import { ComplianceTabComponent } from '../tender-workspace/compliance-tab/compliance-tab.component';
+import { BidPreparationTabComponent } from '../tender-workspace/bid-preparation-tab/bid-preparation-tab.component';
+import { SubmissionChecklistTabComponent } from '../tender-workspace/submission-checklist-tab/submission-checklist-tab.component';
+import { KnowledgeBaseTabComponent } from '../tender-workspace/knowledge-base-tab/knowledge-base-tab.component';
+import { PrebidQueriesTabComponent } from '../tender-workspace/prebid-queries-tab/prebid-queries-tab.component';
+import { CollaborationPanelComponent } from '../tender-workspace/collaboration-panel/collaboration-panel.component';
+import { ResultsTabComponent } from '../tender-workspace/results-tab/results-tab.component';
+import { TenderChatWidgetComponent } from '../tender-workspace/tender-chat-widget/tender-chat-widget.component';
+import { KnowledgeBaseService } from '../../services/knowledge-base.service';
+import { BidNoBidAnalysis } from '../../services/tender.service';
+import { NavigationService } from '../../services/navigation.service';
+import { BreadcrumbComponent } from '../shared/breadcrumb/breadcrumb.component';
 
 @Component({
   selector: 'app-tender-detail',
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -44,12 +60,23 @@ import { DeclarationsTabComponent } from '../tender-workspace/declarations-tab/d
     MatDividerModule,
     MatMenuModule,
     MatTabsModule,
+    MatProgressBarModule,
+    MatButtonToggleModule,
     DragDropModule,
+    BreadcrumbComponent,
     ExtractionTabComponent,
     CriteriaTabComponent,
     OemRequirementsTabComponent,
     EmdFeesTabComponent,
-    DeclarationsTabComponent
+    DeclarationsTabComponent,
+    ComplianceTabComponent,
+    BidPreparationTabComponent,
+    SubmissionChecklistTabComponent,
+    KnowledgeBaseTabComponent,
+    PrebidQueriesTabComponent,
+    CollaborationPanelComponent,
+    ResultsTabComponent,
+    TenderChatWidgetComponent
   ],
   templateUrl: './tender-detail.component.html',
   styleUrls: ['./tender-detail.component.css']
@@ -62,8 +89,11 @@ export class TenderDetailComponent implements OnInit {
   private assemblyService = inject(AssemblyService);
   private companyService = inject(CompanyService);
   private authService = inject(AuthService);
+  private trackingService = inject(TrackingService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private kbService = inject(KnowledgeBaseService);
+  private navigationService = inject(NavigationService);
 
   tender = signal<Tender | null>(null);
   documents = signal<TenderDocument[]>([]);
@@ -74,6 +104,61 @@ export class TenderDetailComponent implements OnInit {
   orderChanged = signal(false);
   savingOrder = signal(false);
 
+  // EMD & Fees (from DB records)
+  emdRecords = signal<EMDRecord[]>([]);
+  feeRecords = signal<TenderFee[]>([]);
+
+  // Feature 4: Workflow
+  allowedTransitionsFromApi = signal<string[]>([]);
+  statusHistory = signal<any[]>([]);
+  showStatusHistory = signal(false);
+  transitionReason = signal('');
+
+  // Feature 8: Bid/No-Bid
+  bidNoBidResult = signal<BidNoBidAnalysis | null>(null);
+  bidNoBidLoading = signal(false);
+
+  // UX Redesign: Phase selector & mobile drawer
+  activePhase = signal<'prepare' | 'review' | 'finalize'>('prepare');
+  selectedTabIndex = signal(0);
+  mobileTabsOpen = signal(false);
+
+  readonly phaseConfig = {
+    prepare: {
+      label: 'Prepare', icon: 'edit_note',
+      tabs: [
+        { index: 0, label: 'Overview', icon: 'info' },
+        { index: 1, label: 'Documents', icon: 'description' },
+        { index: 2, label: 'Extraction', icon: 'auto_awesome' },
+        { index: 3, label: 'Criteria', icon: 'grading' },
+        { index: 4, label: 'OEM', icon: 'precision_manufacturing' },
+        { index: 5, label: 'EMD', icon: 'account_balance' },
+        { index: 6, label: 'Declarations', icon: 'gavel' }
+      ]
+    },
+    review: {
+      label: 'Review', icon: 'fact_check',
+      tabs: [
+        { index: 7, label: 'Bid Prep', icon: 'assignment' },
+        { index: 8, label: 'Checklist', icon: 'checklist_rtl' },
+        { index: 9, label: 'Compliance', icon: 'checklist' },
+        { index: 10, label: 'Queries', icon: 'quiz' }
+      ]
+    },
+    finalize: {
+      label: 'Finalize', icon: 'send',
+      tabs: [
+        { index: 11, label: 'KB', icon: 'auto_stories' },
+        { index: 12, label: 'Team', icon: 'groups' },
+        { index: 13, label: 'Results', icon: 'emoji_events' }
+      ]
+    }
+  };
+
+  currentPhaseTabs = computed(() => this.phaseConfig[this.activePhase()].tabs);
+
+  readonly phaseKeys: Array<'prepare' | 'review' | 'finalize'> = ['prepare', 'review', 'finalize'];
+
   displayedColumns: string[] = ['drag', 'name', 'type', 'size', 'generated', 'actions'];
 
   ngOnInit() {
@@ -82,8 +167,20 @@ export class TenderDetailComponent implements OnInit {
       this.tenderId.set(id);
       this.loadTender(id);
       this.loadDocuments(id);
+      this.loadEmdAndFees(id);
     }
     this.loadCompanySettings();
+  }
+
+  loadEmdAndFees(tenderId: string) {
+    this.trackingService.listEMDs(tenderId).subscribe({
+      next: (records) => this.emdRecords.set(records),
+      error: () => {} // silent — not critical
+    });
+    this.trackingService.listFees(tenderId).subscribe({
+      next: (records) => this.feeRecords.set(records),
+      error: () => {}
+    });
   }
 
   loadCompanySettings() {
@@ -119,6 +216,12 @@ export class TenderDetailComponent implements OnInit {
       next: (tender) => {
         this.tender.set(tender);
         this.loading.set(false);
+        this.loadWorkflowTransitions();
+        // Update breadcrumb with tender title
+        this.navigationService.updateLastBreadcrumb(
+          tender.title?.substring(0, 40) || `Tender #${this.tenderId().substring(0, 8)}`,
+          'bi-file-earmark-text'
+        );
       },
       error: (error) => {
         console.error('Error loading tender:', error);
@@ -509,54 +612,132 @@ export class TenderDetailComponent implements OnInit {
     return new Date(deadline).getTime() < new Date().getTime();
   }
 
-  statusTransitions: { [key: string]: { value: string; label: string; icon: string }[] } = {
-    'draft': [
-      { value: 'in_progress', label: 'Start Progress', icon: 'play_arrow' }
-    ],
-    'in_progress': [
-      { value: 'submitted', label: 'Mark Submitted', icon: 'send' },
-      { value: 'draft', label: 'Back to Draft', icon: 'undo' }
-    ],
-    'submitted': [
-      { value: 'won', label: 'Mark Won', icon: 'check_circle' },
-      { value: 'lost', label: 'Mark Lost', icon: 'cancel' }
-    ],
-    'won': [],
-    'lost': [],
-    'cancelled': []
+  statusLabels: { [key: string]: { label: string; icon: string } } = {
+    'draft': { label: 'Draft', icon: 'edit' },
+    'in_progress': { label: 'In Progress', icon: 'play_arrow' },
+    'submitted': { label: 'Submitted', icon: 'send' },
+    'won': { label: 'Won', icon: 'check_circle' },
+    'lost': { label: 'Lost', icon: 'cancel' },
+    'cancelled': { label: 'Cancelled', icon: 'block' },
   };
 
-  getAvailableTransitions(): { value: string; label: string; icon: string }[] {
+  loadWorkflowTransitions() {
     const tender = this.tender();
-    if (!tender) return [];
-    const transitions = [...(this.statusTransitions[tender.status] || [])];
-    if (tender.status !== 'cancelled' && tender.status !== 'won' && tender.status !== 'lost') {
-      transitions.push({ value: 'cancelled', label: 'Cancel Tender', icon: 'block' });
+    if (!tender) return;
+    this.tenderService.getAllowedTransitions(tender.id).subscribe({
+      next: (result) => this.allowedTransitionsFromApi.set(result.allowed_transitions),
+      error: () => {
+        // Fallback to local transitions
+        this.allowedTransitionsFromApi.set(this.getLocalTransitions(tender.status));
+      }
+    });
+  }
+
+  getLocalTransitions(status: string): string[] {
+    const map: { [key: string]: string[] } = {
+      'draft': ['in_progress', 'cancelled'],
+      'in_progress': ['submitted', 'cancelled', 'draft'],
+      'submitted': ['won', 'lost', 'cancelled'],
+      'won': [], 'lost': [], 'cancelled': []
+    };
+    return map[status] || [];
+  }
+
+  getAvailableTransitions(): { value: string; label: string; icon: string }[] {
+    const allowed = this.allowedTransitionsFromApi();
+    if (allowed.length === 0) {
+      const tender = this.tender();
+      if (!tender) return [];
+      const local = this.getLocalTransitions(tender.status);
+      return local.map(s => ({
+        value: s,
+        label: this.statusLabels[s]?.label || s,
+        icon: this.statusLabels[s]?.icon || 'help'
+      }));
     }
-    return transitions;
+    return allowed.map(s => ({
+      value: s,
+      label: this.statusLabels[s]?.label || s,
+      icon: this.statusLabels[s]?.icon || 'help'
+    }));
   }
 
   onChangeStatus(newStatus: string) {
     const tender = this.tender();
     if (!tender) return;
 
-    const labels: { [key: string]: string } = {
-      'in_progress': 'In Progress', 'submitted': 'Submitted',
-      'won': 'Won', 'lost': 'Lost', 'cancelled': 'Cancelled', 'draft': 'Draft'
-    };
+    const label = this.statusLabels[newStatus]?.label || newStatus;
 
-    if (confirm(`Change status to "${labels[newStatus] || newStatus}"?`)) {
-      this.tenderService.updateTender(tender.id, { status: newStatus }).subscribe({
-        next: (updated) => {
-          this.tender.set(updated);
-          this.snackBar.open(`Status changed to ${labels[newStatus]}`, 'Close', { duration: 3000 });
+    if (confirm(`Change status to "${label}"?`)) {
+      this.tenderService.transitionStatus(tender.id, newStatus, this.transitionReason() || undefined).subscribe({
+        next: (result) => {
+          this.tender.set({ ...tender, status: newStatus });
+          this.snackBar.open(`Status changed to ${label}`, 'Close', { duration: 3000 });
+          this.transitionReason.set('');
+          this.loadWorkflowTransitions();
+          // Auto-harvest KB when tender is submitted or won
+          if (newStatus === 'submitted' || newStatus === 'won') {
+            this.kbService.harvestFromTender(tender.id).subscribe({
+              next: (result) => {
+                if (result.created > 0) {
+                  this.snackBar.open(
+                    `KB auto-harvested: ${result.created} entries added (${result.skipped} skipped)`,
+                    'Close', { duration: 5000 }
+                  );
+                }
+              },
+              error: () => {}
+            });
+          }
         },
         error: (error) => {
           console.error('Error changing status:', error);
-          this.snackBar.open('Failed to change status', 'Close', { duration: 3000 });
+          const detail = error?.error?.detail || 'Failed to change status';
+          this.snackBar.open(detail, 'Close', { duration: 4000 });
         }
       });
     }
+  }
+
+  loadStatusHistory() {
+    const tender = this.tender();
+    if (!tender) return;
+    this.tenderService.getStatusHistory(tender.id).subscribe({
+      next: (history) => {
+        this.statusHistory.set(history);
+        this.showStatusHistory.set(true);
+      },
+      error: () => this.snackBar.open('Failed to load status history', 'Close', { duration: 3000 })
+    });
+  }
+
+  // Feature 8: Bid/No-Bid
+  onRunBidNoBidAnalysis() {
+    const tender = this.tender();
+    if (!tender) return;
+    this.bidNoBidLoading.set(true);
+    this.tenderService.analyzeBidDecision(tender.id).subscribe({
+      next: (result) => {
+        this.bidNoBidResult.set(result);
+        this.bidNoBidLoading.set(false);
+      },
+      error: () => {
+        this.bidNoBidLoading.set(false);
+        this.snackBar.open('Bid analysis failed', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  getRecommendationColor(rec: string): string {
+    if (rec === 'bid') return '#4caf50';
+    if (rec === 'no_bid') return '#f44336';
+    return '#ff9800';
+  }
+
+  getRecommendationLabel(rec: string): string {
+    if (rec === 'bid') return 'BID';
+    if (rec === 'no_bid') return 'NO BID';
+    return 'CONDITIONAL';
   }
 
   formatCurrency(value: number | undefined): string {
@@ -564,5 +745,197 @@ export class TenderDetailComponent implements OnInit {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(value);
+  }
+
+  // UX Redesign: Phase & Tab methods
+  onPhaseChange(phase: 'prepare' | 'review' | 'finalize') {
+    this.activePhase.set(phase);
+    const firstTab = this.phaseConfig[phase].tabs[0];
+    this.selectedTabIndex.set(firstTab.index);
+  }
+
+  onTabChange(index: number) {
+    this.selectedTabIndex.set(index);
+    // Auto-detect phase from tab index
+    if (index <= 6) {
+      this.activePhase.set('prepare');
+    } else if (index <= 10) {
+      this.activePhase.set('review');
+    } else {
+      this.activePhase.set('finalize');
+    }
+  }
+
+  toggleMobileTabs() {
+    this.mobileTabsOpen.set(!this.mobileTabsOpen());
+  }
+
+  selectMobileTab(index: number) {
+    this.selectedTabIndex.set(index);
+    this.onTabChange(index);
+    this.mobileTabsOpen.set(false);
+  }
+
+  getDeadlineUrgencyClass(deadline: string | undefined): string {
+    if (!deadline) return '';
+    const diffDays = Math.ceil((new Date(deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return 'urgency-overdue';
+    if (diffDays <= 3) return 'urgency-critical';
+    if (diffDays <= 7) return 'urgency-warning';
+    return 'urgency-safe';
+  }
+
+  getDeadlineAbsoluteDate(deadline: string | undefined): string {
+    if (!deadline) return '';
+    return new Date(deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  getStatusPillClass(status: string): string {
+    return `status-pill-${status}`;
+  }
+
+  // --- Overview: Requirements Rendering Helpers ---
+
+  getRequirementsKeys(): string[] {
+    const req = this.tender()?.requirements;
+    if (!req || typeof req !== 'object') return [];
+    // Only exclude _extraction_meta (internal). Keep emd/tender_fees in generic
+    // rendering too — the dedicated card provides rich view, generic is fallback.
+    const excludeKeys = new Set(['_extraction_meta']);
+    // If dedicated EMD card is showing, exclude from generic to avoid duplication
+    if (this.hasEmdOrFees()) {
+      excludeKeys.add('emd');
+      excludeKeys.add('tender_fees');
+    }
+    return Object.keys(req).filter(k => {
+      if (excludeKeys.has(k)) return false;
+      const val = req[k];
+      if (val === null || val === undefined) return false;
+      if (Array.isArray(val) && val.length === 0) return false;
+      if (typeof val === 'string' && val.trim() === '') return false;
+      return true;
+    });
+  }
+
+  // --- EMD & Fee helpers for Overview ---
+
+  getEmdData(): any {
+    return this.tender()?.requirements?.emd;
+  }
+
+  getFeeData(): any[] {
+    return this.tender()?.requirements?.tender_fees || [];
+  }
+
+  hasEmdOrFees(): boolean {
+    // Check both: requirements JSON (extracted) AND DB records
+    const emd = this.getEmdData();
+    const hasExtractedEmd = emd && typeof emd === 'object' && Object.keys(emd).length > 0;
+    return hasExtractedEmd || this.getFeeData().length > 0
+      || this.emdRecords().length > 0 || this.feeRecords().length > 0;
+  }
+
+  getEmdModeLabel(mode: string): string {
+    const labels: Record<string, string> = {
+      'bg': 'Bank Guarantee', 'dd': 'Demand Draft', 'online': 'Online Transfer',
+      'fixed_deposit': 'Fixed Deposit', 'insurance_surety': 'Insurance Surety Bond',
+      'neft': 'NEFT', 'rtgs': 'RTGS',
+    };
+    return labels[mode] || mode;
+  }
+
+  getFeeTypeLabel(type: string): string {
+    const labels: Record<string, string> = {
+      'tender_fee': 'Tender Fee', 'processing_fee': 'Processing Fee',
+      'document_fee': 'Document Fee', 'e_procurement_fee': 'E-Procurement Fee',
+      'bid_security': 'Bid Security',
+    };
+    return labels[type] || type;
+  }
+
+  getBankDetailEntries(bank: any): { label: string; value: string }[] {
+    if (!bank || typeof bank !== 'object') return [];
+    const map: Record<string, string> = {
+      bank_name: 'Bank', branch: 'Branch', account_number: 'Account No.',
+      ifsc_code: 'IFSC', account_holder: 'Beneficiary', dd_in_favour_of: 'DD in Favour of',
+    };
+    return Object.entries(map)
+      .filter(([k]) => bank[k])
+      .map(([k, label]) => ({ label, value: bank[k] }));
+  }
+
+  formatRequirementLabel(key: string): string {
+    return key
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  getRequirementIcon(key: string): string {
+    const icons: Record<string, string> = {
+      eligibility_criteria: 'verified_user',
+      technical_requirements: 'precision_manufacturing',
+      special_conditions: 'warning',
+      document_checklist: 'checklist',
+      evaluation_criteria: 'grading',
+      financial_requirements: 'payments',
+      oem_requirements: 'factory',
+      emd_details: 'account_balance',
+      tender_fees: 'receipt_long',
+      key_dates: 'event',
+      contact_details: 'contact_mail',
+      scope_of_work: 'work',
+      quantities: 'inventory',
+    };
+    return icons[key] || 'info';
+  }
+
+  getRequirementValue(key: string): any {
+    return this.tender()?.requirements?.[key];
+  }
+
+  isArray(val: any): boolean {
+    return Array.isArray(val);
+  }
+
+  isObject(val: any): boolean {
+    return val !== null && typeof val === 'object' && !Array.isArray(val);
+  }
+
+  isSimple(val: any): boolean {
+    return typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean';
+  }
+
+  getItemText(item: any): string {
+    if (typeof item === 'string') return item;
+    if (typeof item === 'number' || typeof item === 'boolean') return String(item);
+    if (typeof item === 'object' && item !== null) {
+      // Common patterns: {name: ...}, {description: ...}, {title: ...}
+      return item.name || item.description || item.title || item.document_name || JSON.stringify(item);
+    }
+    return String(item);
+  }
+
+  getItemSubtext(item: any): string | null {
+    if (typeof item !== 'object' || item === null) return null;
+    const parts: string[] = [];
+    if (item.max_marks !== undefined) parts.push(`Max marks: ${item.max_marks}`);
+    if (item.weightage !== undefined) parts.push(`Weightage: ${item.weightage}`);
+    if (item.mode) parts.push(`Mode: ${item.mode}`);
+    if (item.category) parts.push(`Category: ${item.category}`);
+    if (item.amount) parts.push(`Amount: ${item.amount}`);
+    if (item.date) parts.push(`Date: ${item.date}`);
+    if (item.status) parts.push(`Status: ${item.status}`);
+    return parts.length > 0 ? parts.join(' · ') : null;
+  }
+
+  getObjectEntries(val: any): { key: string; value: any }[] {
+    if (!val || typeof val !== 'object' || Array.isArray(val)) return [];
+    return Object.entries(val)
+      .filter(([, v]) => v !== null && v !== undefined && v !== '')
+      .map(([k, v]) => ({ key: this.formatRequirementLabel(k), value: v }));
+  }
+
+  hasExtractedRequirements(): boolean {
+    return this.getRequirementsKeys().length > 0;
   }
 }

@@ -1,6 +1,6 @@
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -12,7 +12,16 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
 import { TrackingService, OEMMaster, OEMTenderRequirement } from '../../../services/tracking.service';
+
+interface ExtractedOEM {
+  oem_name: string;
+  product_category?: string;
+  maf_required?: boolean;
+  make_model?: string;
+  is_approved_make?: boolean;
+}
 
 @Component({
   selector: 'app-oem-requirements-tab',
@@ -30,13 +39,16 @@ import { TrackingService, OEMMaster, OEMTenderRequirement } from '../../../servi
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatChipsModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDividerModule
   ],
   templateUrl: './oem-requirements-tab.component.html',
   styleUrls: ['./oem-requirements-tab.component.css']
 })
-export class OemRequirementsTabComponent implements OnInit {
+export class OemRequirementsTabComponent implements OnInit, OnChanges {
   @Input() tenderId!: string;
+  @Input() tenderRequirements: any;
+  @Output() navigateToTab = new EventEmitter<number>();
 
   private trackingService = inject(TrackingService);
   private snackBar = inject(MatSnackBar);
@@ -46,10 +58,43 @@ export class OemRequirementsTabComponent implements OnInit {
   oems = signal<OEMMaster[]>([]);
   loading = signal(false);
   showForm = signal(false);
+  showNewOemForm = signal(false);
+  addingOemId = signal<string | null>(null);
+  importingIndex = signal<number | null>(null);
+  importingAll = signal(false);
+
+  // Extracted OEMs from tender requirements JSON
+  extractedOems = signal<ExtractedOEM[]>([]);
+
+  // Quick-add search
+  searchControl = new FormControl('');
+  searchQuery = signal('');
+
+  // Filtered OEMs: those not already added to this tender
+  availableOems = computed(() => {
+    const allOems = this.oems();
+    const existingOemIds = new Set(this.requirements().map(r => r.oem_id));
+    const query = this.searchQuery().toLowerCase();
+    return allOems
+      .filter(o => !existingOemIds.has(o.id))
+      .filter(o => !query || o.name.toLowerCase().includes(query)
+        || (o.country && o.country.toLowerCase().includes(query))
+        || (o.product_categories && o.product_categories.some((c: string) => c.toLowerCase().includes(query)))
+      );
+  });
+
+  // Extracted OEMs that haven't been imported yet
+  unimportedExtractedOems = computed(() => {
+    const existingNames = new Set(
+      this.requirements().map(r => this.getOEMName(r.oem_id).toLowerCase())
+    );
+    return this.extractedOems().filter(
+      e => !existingNames.has(e.oem_name.toLowerCase())
+    );
+  });
 
   createForm!: FormGroup;
-
-  displayedColumns: string[] = ['oem_name', 'maf_status', 'ms_status', 'partner_cert_status', 'datasheet_status', 'compliance_cert_status', 'notes', 'actions'];
+  newOemForm!: FormGroup;
 
   statusOptions = [
     { value: 'pending', label: 'Pending' },
@@ -69,10 +114,154 @@ export class OemRequirementsTabComponent implements OnInit {
       notes: ['']
     });
 
+    this.newOemForm = this.fb.group({
+      name: ['', Validators.required],
+      country: ['India'],
+      product_category: [''],
+      notes: ['']
+    });
+
+    this.searchControl.valueChanges.subscribe(val => {
+      this.searchQuery.set(val || '');
+    });
+
     this.loadOEMs();
     if (this.tenderId) {
       this.loadRequirements();
     }
+    this.parseExtractedOems();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['tenderRequirements'] && !changes['tenderRequirements'].firstChange) {
+      this.parseExtractedOems();
+    }
+  }
+
+  private parseExtractedOems() {
+    const oems: ExtractedOEM[] = [];
+
+    // 1. Direct oem_requirements from extraction (best source)
+    if (this.tenderRequirements?.oem_requirements?.length) {
+      for (const o of this.tenderRequirements.oem_requirements) {
+        if (o.oem_name) {
+          oems.push(o);
+        }
+      }
+    }
+
+    // 2. If no direct OEMs, heuristically scan other extracted fields (zero AI tokens)
+    if (oems.length === 0 && this.tenderRequirements) {
+      const detected = this.heuristicOemScan(this.tenderRequirements);
+      oems.push(...detected);
+    }
+
+    this.extractedOems.set(oems);
+  }
+
+  /**
+   * Heuristic OEM detection from already-extracted requirements text.
+   * Scans technical_requirements, document_checklist, eligibility_criteria, special_conditions
+   * for OEM/manufacturer/brand references. Zero AI calls — pure regex + keyword matching.
+   */
+  private heuristicOemScan(req: any): ExtractedOEM[] {
+    const found: ExtractedOEM[] = [];
+    const seenNames = new Set<string>();
+
+    // Collect all text strings from requirements
+    const texts: string[] = [];
+    for (const key of ['technical_requirements', 'eligibility_criteria', 'special_conditions', 'document_checklist']) {
+      const val = req[key];
+      if (Array.isArray(val)) {
+        for (const item of val) {
+          if (typeof item === 'string') texts.push(item);
+          else if (item?.description) texts.push(item.description);
+          else if (item?.name) texts.push(item.name);
+        }
+      } else if (typeof val === 'string') {
+        texts.push(val);
+      }
+    }
+
+    // Pattern 1: "make: XYZ" or "brand: XYZ" or "manufacturer: XYZ"
+    const makePattern = /(?:make|brand|manufacturer|oem)\s*[:=]\s*([A-Z][A-Za-z\s&.]+?)(?:\s*[,;/]|\s+or\s|\s*$)/gi;
+    for (const text of texts) {
+      let match;
+      while ((match = makePattern.exec(text)) !== null) {
+        const name = match[1].trim();
+        if (name.length > 2 && name.length < 60 && !seenNames.has(name.toLowerCase())) {
+          seenNames.add(name.toLowerCase());
+          found.push({ oem_name: name, product_category: this.guessCategory(text), maf_required: true });
+        }
+      }
+    }
+
+    // Pattern 2: Known brand names in text
+    const knownBrands = [
+      'Cisco', 'HP', 'HPE', 'Dell', 'Lenovo', 'IBM', 'Microsoft', 'Oracle', 'SAP',
+      'Juniper', 'Fortinet', 'Palo Alto', 'Check Point', 'SonicWall',
+      'VMware', 'Red Hat', 'Citrix', 'Nutanix', 'NetApp',
+      'Huawei', 'ZTE', 'Samsung', 'LG', 'Sony', 'Epson', 'Canon', 'Ricoh',
+      'Schneider', 'APC', 'Emerson', 'Vertiv', 'Eaton', 'Luminous',
+      'Honeywell', 'Bosch', 'Siemens', 'ABB', 'Havells', 'Crompton',
+      'D-Link', 'TP-Link', 'Aruba', 'Ruckus', 'Cambium',
+      'Poly', 'Logitech', 'Jabra', 'Yealink', 'Grandstream',
+      'Tata', 'HCL', 'Wipro', 'Infosys', 'TCS',
+      'Acer', 'ASUS', 'BenQ', 'ViewSonic', 'Epson',
+      'Hikvision', 'Dahua', 'CP Plus', 'Pelco',
+      'Tyco', 'UTC', 'Panasonic', 'NEC', 'Hitachi',
+    ];
+
+    const fullText = texts.join(' ');
+    for (const brand of knownBrands) {
+      if (seenNames.has(brand.toLowerCase())) continue;
+      // Word boundary check
+      const regex = new RegExp(`\\b${brand.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      if (regex.test(fullText)) {
+        seenNames.add(brand.toLowerCase());
+        found.push({
+          oem_name: brand,
+          product_category: this.guessCategory(fullText.substring(
+            Math.max(0, fullText.toLowerCase().indexOf(brand.toLowerCase()) - 50),
+            fullText.toLowerCase().indexOf(brand.toLowerCase()) + brand.length + 50
+          )),
+          maf_required: true,
+          is_approved_make: true,
+        });
+      }
+    }
+
+    // Pattern 3: "MAF" or "Manufacturer Authorization" mentions — flag that OEM auth is needed
+    const mafPattern = /(?:MAF|manufacturer\s+authoriz|OEM\s+authoriz|authorized\s+dealer)/gi;
+    if (mafPattern.test(fullText) && found.length === 0) {
+      // MAF is mentioned but no specific OEM found — add a generic hint
+      found.push({
+        oem_name: 'OEM Authorization Required',
+        product_category: 'Check tender for specific OEM/brand names',
+        maf_required: true,
+      });
+    }
+
+    return found;
+  }
+
+  private guessCategory(context: string): string {
+    const lower = context.toLowerCase();
+    const categories: [string, string[]][] = [
+      ['Networking', ['switch', 'router', 'network', 'lan', 'wan', 'firewall', 'wifi', 'access point']],
+      ['Server / Storage', ['server', 'storage', 'nas', 'san', 'rack', 'blade']],
+      ['Computing', ['desktop', 'laptop', 'workstation', 'pc', 'computer', 'tablet']],
+      ['UPS / Power', ['ups', 'power', 'battery', 'inverter', 'stabilizer']],
+      ['Security / CCTV', ['cctv', 'camera', 'surveillance', 'dvr', 'nvr', 'access control']],
+      ['Software', ['software', 'license', 'os ', 'operating system', 'erp', 'database']],
+      ['Printing', ['printer', 'scanner', 'copier', 'mfp', 'multifunct']],
+      ['Display / AV', ['display', 'monitor', 'projector', 'led wall', 'video conference']],
+      ['Telecom', ['telephone', 'pbx', 'ip phone', 'voip', 'intercom']],
+    ];
+    for (const [cat, keywords] of categories) {
+      if (keywords.some(kw => lower.includes(kw))) return cat;
+    }
+    return '';
   }
 
   loadOEMs() {
@@ -92,6 +281,213 @@ export class OemRequirementsTabComponent implements OnInit {
       error: (error) => {
         console.error('Error loading OEM requirements:', error);
         this.loading.set(false);
+      }
+    });
+  }
+
+  // Import a single extracted OEM: create in master + link to tender
+  onImportExtractedOem(extractedOem: ExtractedOEM, index: number) {
+    this.importingIndex.set(index);
+
+    // Check if OEM already exists in master list by name
+    const existingOem = this.oems().find(
+      o => o.name.toLowerCase() === extractedOem.oem_name.toLowerCase()
+    );
+
+    if (existingOem) {
+      // OEM exists, just create the tender requirement
+      this.createRequirementForOem(existingOem.id, extractedOem);
+    } else {
+      // Create new OEM in master list first
+      const oemData: Partial<OEMMaster> = {
+        name: extractedOem.oem_name,
+        product_categories: extractedOem.product_category ? [extractedOem.product_category] : [],
+      };
+
+      this.trackingService.createOEM(oemData).subscribe({
+        next: (newOem) => {
+          this.createRequirementForOem(newOem.id, extractedOem);
+          this.loadOEMs();
+        },
+        error: (error) => {
+          console.error('Error creating OEM:', error);
+          this.importingIndex.set(null);
+          this.snackBar.open('Failed to create OEM', 'Close', { duration: 3000 });
+        }
+      });
+    }
+  }
+
+  private createRequirementForOem(oemId: string, extractedOem: ExtractedOEM) {
+    const noteParts: string[] = [];
+    if (extractedOem.product_category) noteParts.push(`Product: ${extractedOem.product_category}`);
+    if (extractedOem.make_model) noteParts.push(`Model: ${extractedOem.make_model}`);
+    if (extractedOem.is_approved_make) noteParts.push('Approved make');
+
+    const data = {
+      oem_id: oemId,
+      maf_status: extractedOem.maf_required ? 'pending' : 'not_required',
+      ms_status: 'pending',
+      partner_cert_status: 'pending',
+      datasheet_status: 'pending',
+      compliance_cert_status: 'pending',
+      notes: noteParts.join(' | ') || 'Imported from extraction'
+    };
+
+    this.trackingService.createOEMRequirement(this.tenderId, data).subscribe({
+      next: () => {
+        this.importingIndex.set(null);
+        this.loadRequirements();
+        this.snackBar.open(`${extractedOem.oem_name} imported`, 'Close', { duration: 2000 });
+      },
+      error: (error) => {
+        console.error('Error:', error);
+        this.importingIndex.set(null);
+        this.snackBar.open('Failed to import OEM', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  // Import all unimported extracted OEMs at once
+  onImportAllExtracted() {
+    const toImport = this.unimportedExtractedOems();
+    if (toImport.length === 0) return;
+
+    this.importingAll.set(true);
+    let completed = 0;
+    const total = toImport.length;
+
+    for (const extractedOem of toImport) {
+      const existingOem = this.oems().find(
+        o => o.name.toLowerCase() === extractedOem.oem_name.toLowerCase()
+      );
+
+      const importOne = (oemId: string) => {
+        const noteParts: string[] = [];
+        if (extractedOem.product_category) noteParts.push(`Product: ${extractedOem.product_category}`);
+        if (extractedOem.make_model) noteParts.push(`Model: ${extractedOem.make_model}`);
+        if (extractedOem.is_approved_make) noteParts.push('Approved make');
+
+        const data = {
+          oem_id: oemId,
+          maf_status: extractedOem.maf_required ? 'pending' : 'not_required',
+          ms_status: 'pending',
+          partner_cert_status: 'pending',
+          datasheet_status: 'pending',
+          compliance_cert_status: 'pending',
+          notes: noteParts.join(' | ') || 'Imported from extraction'
+        };
+
+        this.trackingService.createOEMRequirement(this.tenderId, data).subscribe({
+          next: () => {
+            completed++;
+            if (completed === total) {
+              this.importingAll.set(false);
+              this.loadOEMs();
+              this.loadRequirements();
+              this.snackBar.open(`${total} OEM(s) imported successfully`, 'Close', { duration: 3000 });
+            }
+          },
+          error: () => {
+            completed++;
+            if (completed === total) {
+              this.importingAll.set(false);
+              this.loadOEMs();
+              this.loadRequirements();
+              this.snackBar.open(`Import completed with some errors`, 'Close', { duration: 3000 });
+            }
+          }
+        });
+      };
+
+      if (existingOem) {
+        importOne(existingOem.id);
+      } else {
+        const oemData: Partial<OEMMaster> = {
+          name: extractedOem.oem_name,
+          product_categories: extractedOem.product_category ? [extractedOem.product_category] : [],
+        };
+        this.trackingService.createOEM(oemData).subscribe({
+          next: (newOem) => importOne(newOem.id),
+          error: () => {
+            completed++;
+            if (completed === total) {
+              this.importingAll.set(false);
+              this.loadOEMs();
+              this.loadRequirements();
+            }
+          }
+        });
+      }
+    }
+  }
+
+  // Quick-add: one-click add existing OEM to tender
+  onQuickAdd(oem: OEMMaster) {
+    this.addingOemId.set(oem.id);
+    const data = {
+      oem_id: oem.id,
+      maf_status: 'pending',
+      ms_status: 'pending',
+      partner_cert_status: 'pending',
+      datasheet_status: 'pending',
+      compliance_cert_status: 'pending',
+      notes: oem.product_categories?.length ? `Products: ${oem.product_categories.join(', ')}` : ''
+    };
+
+    this.trackingService.createOEMRequirement(this.tenderId, data).subscribe({
+      next: () => {
+        this.addingOemId.set(null);
+        this.loadRequirements();
+        this.snackBar.open(`${oem.name} added to tender`, 'Close', { duration: 2000 });
+      },
+      error: (error) => {
+        console.error('Error:', error);
+        this.addingOemId.set(null);
+        this.snackBar.open('Failed to add OEM', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  // Create new OEM in master list and immediately add to tender
+  onCreateNewOem() {
+    if (this.newOemForm.invalid) return;
+
+    const formVal = this.newOemForm.value;
+    const oemData: Partial<OEMMaster> = {
+      name: formVal.name,
+      country: formVal.country || 'India',
+      product_categories: formVal.product_category ? [formVal.product_category] : [],
+    };
+
+    this.trackingService.createOEM(oemData).subscribe({
+      next: (newOem) => {
+        const reqData = {
+          oem_id: newOem.id,
+          maf_status: 'pending',
+          ms_status: 'pending',
+          partner_cert_status: 'pending',
+          datasheet_status: 'pending',
+          compliance_cert_status: 'pending',
+          notes: formVal.notes || ''
+        };
+        this.trackingService.createOEMRequirement(this.tenderId, reqData).subscribe({
+          next: () => {
+            this.newOemForm.reset({ country: 'India' });
+            this.showNewOemForm.set(false);
+            this.loadOEMs();
+            this.loadRequirements();
+            this.snackBar.open(`${newOem.name} created and added`, 'Close', { duration: 3000 });
+          },
+          error: () => {
+            this.loadOEMs();
+            this.snackBar.open('OEM created but failed to link', 'Close', { duration: 3000 });
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error:', error);
+        this.snackBar.open('Failed to create OEM', 'Close', { duration: 3000 });
       }
     });
   }
@@ -158,10 +554,31 @@ export class OemRequirementsTabComponent implements OnInit {
     }
   }
 
+  getOEMDetail(oemId: string, field: string): string | null {
+    const oem = this.oems().find(o => o.id === oemId);
+    if (!oem) return null;
+    const val = (oem as any)[field];
+    return val || null;
+  }
+
+  getStatusIcon(status: string): string {
+    const map: Record<string, string> = {
+      received: 'check_circle',
+      pending: 'schedule',
+      not_required: 'remove_circle_outline',
+      expired: 'error',
+    };
+    return map[status] || 'help';
+  }
+
+  goToExtraction() {
+    this.navigateToTab.emit(2); // Tab index 2 = AI Extraction
+  }
+
   getCompletionPercent(): number {
     const reqs = this.requirements();
     if (reqs.length === 0) return 0;
-    const total = reqs.length * 5; // 5 status fields per requirement
+    const total = reqs.length * 5;
     let received = 0;
     for (const r of reqs) {
       if (r.maf_status === 'received' || r.maf_status === 'not_required') received++;

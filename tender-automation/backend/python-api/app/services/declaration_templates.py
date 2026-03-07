@@ -1,7 +1,7 @@
 """
 Standard Indian Tender Declaration Templates.
 
-15 deterministic templates that require only company + tender data substitution.
+30 deterministic templates that require only company + tender data substitution.
 No AI API calls needed — instant generation.
 
 Placeholders used:
@@ -16,29 +16,26 @@ DECLARATION_TEMPLATES = [
         "key": "non_blacklist",
         "name": "Non-Blacklisting / Non-Debarment Declaration",
         "category": "eligibility",
+        "is_required": True,
         "description": "Declares that the company has not been blacklisted or debarred by any government agency.",
         "content_template": """DECLARATION OF NON-BLACKLISTING / NON-DEBARMENT
 
 To,
 {issuing_authority}
 
-Subject: Declaration of Non-Blacklisting in reference to Tender No. {tender_reference}
+Subject: Declaration of Non-Blacklisting for Tender No. {tender_reference}
 
 Dear Sir/Madam,
 
-We, {company_name}, having our registered office at {registered_address}, do hereby solemnly declare and affirm as under:
+We, {company_name}, participating as {bidder_role}, having our registered office at {registered_address}, do hereby declare that:
 
-1. That our company / firm / organization has not been blacklisted or debarred by any Central Government Ministry/Department, State Government, Public Sector Undertaking (PSU), Autonomous Body, or any other Government Agency in India or abroad, as on the date of submission of this tender.
+1. Our company has not been blacklisted or debarred by any Central/State Government Ministry, PSU, Autonomous Body, or any Government Agency in India or abroad as on date.
 
-2. That no case of fraud, malpractice, or any criminal proceeding is pending against our company / firm / any of its Directors/Partners in any court of law in India or abroad.
+2. No case of fraud, malpractice, or criminal proceeding is pending against our company or its Directors/Partners.
 
-3. That our company / firm has not been declared insolvent or bankrupt by any competent authority.
+3. Our company has not been declared insolvent or bankrupt by any competent authority.
 
-4. That we have not been convicted of any offense involving moral turpitude or economic offense.
-
-5. That no investigation by any investigating agency (CBI/CVC/State Anti-Corruption Bureau or equivalent) is pending against our company / firm / any of its Directors/Partners.
-
-6. We understand that if this declaration is found to be false at any stage, the tender/contract shall be liable for cancellation/termination and our company shall be liable for blacklisting/debarment and any other action as deemed fit by the procuring authority.
+4. If this declaration is found false at any stage, the tender/contract shall be liable for cancellation and our company shall be liable for blacklisting and other action as deemed fit by the procuring authority.
 
 This declaration is made on {date} and is true to the best of our knowledge and belief.
 
@@ -49,6 +46,7 @@ GSTIN: {gstin}""",
         "key": "make_in_india",
         "name": "Make in India Declaration",
         "category": "compliance",
+        "is_required": True,
         "description": "Declaration of compliance with Make in India policy and local content requirements.",
         "content_template": """MAKE IN INDIA DECLARATION
 (As per Public Procurement (Preference to Make in India) Order 2017 and amendments thereof)
@@ -87,6 +85,7 @@ GSTIN: {gstin}""",
         "key": "land_border",
         "name": "Land Border Country Declaration (China Clause)",
         "category": "compliance",
+        "is_required": True,
         "description": "Declaration regarding bidders from countries sharing land border with India (Order No. 6040/2020).",
         "content_template": """DECLARATION REGARDING COUNTRIES SHARING LAND BORDER WITH INDIA
 (As per OM No. 6/18/2019-PPD dated 23.07.2020 and Order (Public Procurement No. 1) dated 04.06.2020)
@@ -122,6 +121,7 @@ GSTIN: {gstin}""",
         "key": "no_relation",
         "name": "No-Relation Certificate",
         "category": "eligibility",
+        "is_required": False,
         "description": "Declares no relation with any employee of the procuring organization.",
         "content_template": """CERTIFICATE OF NO RELATION
 
@@ -153,6 +153,7 @@ GSTIN: {gstin}""",
         "key": "no_conviction",
         "name": "Non-Conviction Certificate",
         "category": "eligibility",
+        "is_required": True,
         "description": "Declares no criminal convictions against the company or its directors.",
         "content_template": """NON-CONVICTION CERTIFICATE
 
@@ -188,6 +189,7 @@ GSTIN: {gstin}""",
         "key": "authenticity",
         "name": "Authenticity of Documents Declaration",
         "category": "compliance",
+        "is_required": True,
         "description": "Declares all submitted documents and information are genuine and authentic.",
         "content_template": """DECLARATION OF AUTHENTICITY OF DOCUMENTS
 
@@ -226,6 +228,7 @@ GSTIN: {gstin}""",
         "key": "acceptance_terms",
         "name": "Acceptance of Terms & Conditions",
         "category": "compliance",
+        "is_required": True,
         "description": "Unconditional acceptance of all tender terms and conditions.",
         "content_template": """DECLARATION OF ACCEPTANCE OF TERMS AND CONDITIONS
 
@@ -262,6 +265,7 @@ GSTIN: {gstin}""",
         "key": "msme_declaration",
         "name": "MSME Declaration / Udyam Certificate",
         "category": "eligibility",
+        "is_required": False,
         "description": "Declaration of MSME status under Udyam Registration for benefits and exemptions.",
         "content_template": """MSME / UDYAM REGISTRATION DECLARATION
 
@@ -302,6 +306,7 @@ GSTIN: {gstin}""",
         "key": "gst_compliance",
         "name": "GST Compliance Declaration",
         "category": "financial",
+        "is_required": False,
         "description": "Declaration confirming GST registration and regular filing of returns.",
         "content_template": """GST COMPLIANCE DECLARATION
 
@@ -342,6 +347,7 @@ PAN: {pan_number}""",
         "key": "annual_turnover",
         "name": "Annual Turnover Certificate",
         "category": "financial",
+        "is_required": False,
         "description": "Self-declaration of annual turnover for the past three financial years.",
         "content_template": """ANNUAL TURNOVER CERTIFICATE / SELF-DECLARATION
 
@@ -382,6 +388,7 @@ CIN: {cin_number}""",
         "key": "oem_authorization",
         "name": "OEM Authorization Letter Template",
         "category": "technical",
+        "is_required": False,
         "description": "Template for OEM authorization letter to be issued by the manufacturer.",
         "content_template": """OEM AUTHORIZATION LETTER
 
@@ -427,6 +434,7 @@ Company Seal:""",
         "key": "no_deviation",
         "name": "No-Deviation / No-Assumption Statement",
         "category": "compliance",
+        "is_required": True,
         "description": "States no deviations or assumptions from the tender specifications.",
         "content_template": """NO-DEVIATION / NO-ASSUMPTION STATEMENT
 
@@ -464,6 +472,7 @@ GSTIN: {gstin}""",
         "key": "bid_validity",
         "name": "Bid Validity Declaration",
         "category": "compliance",
+        "is_required": True,
         "description": "Declares bid validity period and commitment to maintain prices.",
         "content_template": """BID VALIDITY DECLARATION
 
@@ -502,6 +511,7 @@ GSTIN: {gstin}""",
         "key": "conflict_of_interest",
         "name": "Conflict of Interest Declaration",
         "category": "eligibility",
+        "is_required": True,
         "description": "Declares no conflict of interest in the tender process.",
         "content_template": """CONFLICT OF INTEREST DECLARATION
 
@@ -538,6 +548,7 @@ GSTIN: {gstin}""",
         "key": "integrity_pact",
         "name": "Integrity Pact Declaration",
         "category": "compliance",
+        "is_required": True,
         "description": "Commitment to integrity and anti-corruption in the procurement process.",
         "content_template": """INTEGRITY PACT DECLARATION
 
@@ -548,43 +559,479 @@ Subject: Integrity Pact for Tender No. {tender_reference}
 
 Dear Sir/Madam,
 
-We, {company_name}, having our registered office at {registered_address}, do hereby solemnly declare and undertake the following:
+We, {company_name}, having our registered office at {registered_address}, do hereby declare and undertake that:
 
-PREAMBLE
+1. We shall take all measures to prevent corruption and shall not directly or indirectly offer, promise, or give any undue advantage to obtain favourable treatment in this procurement.
 
-This Integrity Pact is entered into between {issuing_authority} (hereinafter referred to as "the Buyer") and {company_name} (hereinafter referred to as "the Bidder/Seller") for Tender No. {tender_reference} - "{tender_title}".
+2. We shall not enter into any undisclosed agreement with other bidders to manipulate prices, quality, or tender outcome, nor improperly influence the evaluation process.
 
-COMMITMENTS OF THE BIDDER / SELLER
+3. We shall not misuse any information or documents provided by {issuing_authority} for competitive advantage or personal gain.
 
-1. The Bidder commits to take all measures necessary to prevent corruption and to observe the following principles during participation in this tender and during the execution of the resulting contract:
+4. We acknowledge that violation of these commitments may result in disqualification, contract cancellation, forfeiture of EMD/performance security, and debarment from future procurements.
 
-2. The Bidder will not, directly or through any other person or firm:
-   a. Offer, promise, or give to any officer or employee of the Buyer or any third person any material or immaterial benefit which he/she is not legally entitled to, in order to obtain any advantage in the procurement process
-   b. Enter into any undisclosed agreement or arrangement with other bidders to manipulate the prices, quality, or the tender outcome
-   c. Improperly influence the procurement process or tender evaluation
-
-3. The Bidder will not use improperly, for purposes of competition or personal gain, any information or document provided by the Buyer as part of the business relationship.
-
-4. The Bidder shall, when signing this Integrity Pact, disclose any and all payments made or agreed to be made relating to this specific tender and contract.
-
-PENALTIES FOR VIOLATION
-
-5. In case of violation of any of the above provisions:
-   a. The Buyer may disqualify the Bidder from the tender process
-   b. The Buyer may cancel the contract and recover all sums already paid
-   c. The Buyer may forfeit the EMD / performance security
-   d. The Buyer may debar the Bidder from future procurements for a suitable period
-   e. The Bidder agrees and accepts that any violation may lead to legal proceedings
-
-INDEPENDENT EXTERNAL MONITOR (IEM)
-
-6. The Buyer may appoint one or more Independent External Monitors (IEMs) to review the procurement process. The IEM shall have access to all relevant documents and information.
-
-VALIDITY
-
-7. This Integrity Pact shall be valid from the date of the invitation of bids till the complete execution of the contract or until the warranty period expires, whichever is later.
+5. This Integrity Pact is valid from the date of bid invitation till complete execution of the contract or warranty expiry, whichever is later.
 
 This declaration is made on {date} and is binding upon us.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "pf_compliance",
+        "name": "Provident Fund (PF) Compliance Declaration",
+        "category": "compliance",
+        "is_required": False,
+        "description": "Declaration of compliance with Employees' Provident Fund and Miscellaneous Provisions Act, 1952.",
+        "content_template": """PROVIDENT FUND (PF) COMPLIANCE DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: PF Compliance Declaration for Tender No. {tender_reference}
+
+Dear Sir/Madam,
+
+We, {company_name}, having our registered office at {registered_address}, do hereby declare that:
+
+1. Our establishment is registered under the Employees' Provident Funds and Miscellaneous Provisions Act, 1952.
+   PF Establishment Code: {pf_registration_number}
+
+2. We are regular in depositing PF contributions and all returns (ECR) are up-to-date. There are no outstanding PF dues or penalties against our establishment.
+
+3. We undertake to comply with all PF provisions throughout the contract period and provide compliance certificates as required.
+
+4. Non-compliance with PF provisions may result in withholding of payments and other penal consequences.
+
+This declaration is made on {date} and is true and correct.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "esi_compliance",
+        "name": "ESI (Employees' State Insurance) Compliance Declaration",
+        "category": "compliance",
+        "is_required": False,
+        "description": "Declaration of compliance with the Employees' State Insurance Act, 1948.",
+        "content_template": """ESI COMPLIANCE DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: ESI Compliance Declaration for Tender No. {tender_reference}
+
+Dear Sir/Madam,
+
+We, {company_name}, having our registered office at {registered_address}, do hereby declare that:
+
+1. Our establishment is registered under the Employees' State Insurance Act, 1948.
+   ESI Code Number: {esi_registration_number}
+
+2. We are regular in depositing ESI contributions and all returns are up-to-date. There are no outstanding ESI dues or penalties against our establishment.
+
+3. We undertake to comply with all ESI provisions throughout the contract period and provide compliance certificates as required.
+
+4. Non-compliance with ESI provisions may result in withholding of payments and other penal consequences.
+
+This declaration is made on {date} and is true and correct.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "power_of_attorney",
+        "name": "Power of Attorney",
+        "category": "eligibility",
+        "is_required": False,
+        "description": "Authorizes a representative to sign bid documents on behalf of the company.",
+        "content_template": """POWER OF ATTORNEY
+
+To,
+{issuing_authority}
+
+Subject: Power of Attorney for Tender No. {tender_reference}
+
+Know all men by these presents, We, {company_name} ({role_abbrev}), a company incorporated under the laws of India, having its registered office at {registered_address}, do hereby appoint and authorize {authorized_signatory}, {designation}, as our attorney and authorized representative to:
+
+1. Sign, submit, and execute all documents relating to Tender No. {tender_reference} - "{tender_title}" on behalf of {company_name}.
+
+2. Attend pre-bid meetings, tender opening events, and negotiate on our behalf.
+
+3. Receive correspondence and communications from {issuing_authority} related to this tender.
+
+4. Bind the company in all matters related to this procurement process.
+
+This Power of Attorney is valid for the duration of the tender process and the resulting contract period.
+
+PAN: {pan_number}
+GSTIN: {gstin}
+CIN: {cin_number}""",
+    },
+    {
+        "key": "no_litigation",
+        "name": "No Pending Litigation Declaration",
+        "category": "eligibility",
+        "is_required": False,
+        "description": "Declares no pending litigation that could affect contract performance.",
+        "content_template": """DECLARATION OF NO PENDING LITIGATION
+
+To,
+{issuing_authority}
+
+Subject: No Pending Litigation Declaration for Tender No. {tender_reference}
+
+We, {company_name}, participating as {bidder_role} in this tender, having our registered office at {registered_address}, do hereby declare that:
+
+1. There is no pending litigation or arbitration proceeding against our company that could materially affect our ability to perform the contract arising from Tender No. {tender_reference}.
+
+2. No winding-up petition or insolvency proceeding has been filed against our company.
+
+3. We are not involved in any legal dispute with any government entity that could impair our eligibility for this tender.
+
+4. We undertake to inform {issuing_authority} immediately if any such litigation or proceeding arises during the tender or contract period.
+
+This declaration is made on {date} and is true to the best of our knowledge and belief.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "past_performance",
+        "name": "Past Performance / Experience Declaration",
+        "category": "technical",
+        "is_required": False,
+        "description": "Self-declaration of relevant past experience and completed projects.",
+        "content_template": """PAST PERFORMANCE / EXPERIENCE DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: Experience Declaration for Tender No. {tender_reference}
+
+We, {company_name}, participating as {bidder_role} in this tender, having our registered office at {registered_address}, do hereby declare that:
+
+1. We have successfully executed similar contracts/projects during the last ______ years as detailed below:
+
+| S.No | Client Name | Project Description | Contract Value (INR) | Period | Completion Status |
+|------|-------------|--------------------|--------------------|--------|------------------|
+| 1    |             |                    |                    |        |                  |
+| 2    |             |                    |                    |        |                  |
+| 3    |             |                    |                    |        |                  |
+
+2. Completion certificates / work orders for the above projects are enclosed / shall be produced upon request.
+
+3. We confirm that no contract awarded to us has been terminated for default or poor performance during the last five years.
+
+This declaration is made on {date} and is true and correct.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "manpower_declaration",
+        "name": "Manpower Deployment Declaration",
+        "category": "technical",
+        "is_required": False,
+        "description": "Commitment to deploy qualified manpower as per tender requirements.",
+        "content_template": """MANPOWER DEPLOYMENT DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: Manpower Declaration for Tender No. {tender_reference}
+
+We, {company_name}, participating as {bidder_role} in this tender, having our registered office at {registered_address}, do hereby declare and undertake that:
+
+1. We have adequate qualified manpower to execute the scope of work as specified in Tender No. {tender_reference}.
+
+2. We shall deploy only qualified and experienced personnel as per the requirements of the tender.
+
+3. The key personnel proposed shall not be changed without prior written approval of {issuing_authority}.
+
+4. We shall comply with all applicable labour laws including minimum wages, working hours, and safety regulations.
+
+This declaration is made on {date} and is true and correct.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "subcontracting",
+        "name": "No Subcontracting Declaration",
+        "category": "compliance",
+        "is_required": False,
+        "description": "Commitment not to subcontract without prior approval.",
+        "content_template": """NO SUBCONTRACTING DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: No Subcontracting Declaration for Tender No. {tender_reference}
+
+We, {company_name}, participating as {bidder_role} in this tender, having our registered office at {registered_address}, do hereby declare that:
+
+1. We shall not subcontract, assign, or transfer the contract or any part thereof to any third party without the prior written approval of {issuing_authority}.
+
+2. We possess the required infrastructure, resources, and capability to execute the entire scope of work independently.
+
+3. In case subcontracting is permitted by the tender, we shall remain solely responsible for the quality, timelines, and obligations under the contract.
+
+This declaration is made on {date} and forms part of our bid.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "warranty_commitment",
+        "name": "Warranty / AMC Commitment Declaration",
+        "category": "technical",
+        "is_required": False,
+        "description": "Commitment to warranty and post-contract support obligations.",
+        "content_template": """WARRANTY / AMC COMMITMENT DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: Warranty Commitment for Tender No. {tender_reference}
+
+We, {company_name}, participating as {bidder_role} in this tender, having our registered office at {registered_address}, do hereby declare and undertake that:
+
+1. We shall provide comprehensive warranty for the products/services supplied under Tender No. {tender_reference} for a period as specified in the tender document from the date of acceptance/commissioning.
+
+2. During the warranty period, we shall provide free replacement/repair of any defective items and attend to complaints within the response time specified in the tender.
+
+3. We shall maintain adequate spare parts inventory and service infrastructure for the warranty period and beyond.
+
+4. After the warranty period, we shall offer Annual Maintenance Contract (AMC) at competitive rates if required by {issuing_authority}.
+
+This declaration is made on {date} and is binding upon us.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "environment_compliance",
+        "name": "Environmental Compliance Declaration",
+        "category": "compliance",
+        "is_required": False,
+        "description": "Declaration of compliance with environmental laws and regulations.",
+        "content_template": """ENVIRONMENTAL COMPLIANCE DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: Environmental Compliance Declaration for Tender No. {tender_reference}
+
+We, {company_name}, having our registered office at {registered_address}, do hereby declare that:
+
+1. Our company / manufacturing facility complies with all applicable environmental laws and regulations including the Environment Protection Act, 1986 and rules made thereunder.
+
+2. We hold all necessary environmental clearances and consent orders from the State/Central Pollution Control Board (as applicable).
+
+3. No penalty or show-cause notice for environmental violation is pending against our company.
+
+4. We shall adhere to all environmental norms during the execution of the contract.
+
+This declaration is made on {date} and is true and correct.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "data_security",
+        "name": "Data Security / Confidentiality Declaration",
+        "category": "compliance",
+        "is_required": False,
+        "description": "Commitment to data security and confidentiality of procuring entity's information.",
+        "content_template": """DATA SECURITY / CONFIDENTIALITY DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: Data Security & Confidentiality Declaration for Tender No. {tender_reference}
+
+We, {company_name}, participating as {bidder_role} in this tender, having our registered office at {registered_address}, do hereby declare and undertake that:
+
+1. We shall maintain strict confidentiality of all information, data, and documents shared by {issuing_authority} during the tender process and contract execution.
+
+2. We shall implement appropriate data security measures to protect sensitive information from unauthorized access, disclosure, or misuse.
+
+3. We shall not use the procuring entity's data for any purpose other than fulfilling contractual obligations.
+
+4. We shall comply with the Information Technology Act, 2000 and applicable data protection regulations.
+
+5. Upon termination of the contract, we shall return or destroy all confidential information as directed by {issuing_authority}.
+
+This declaration is made on {date} and remains binding throughout the contract period and thereafter.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "site_visit",
+        "name": "Site Visit Certificate / Declaration",
+        "category": "technical",
+        "is_required": False,
+        "description": "Confirmation of site visit and understanding of ground conditions.",
+        "content_template": """SITE VISIT CERTIFICATE / DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: Site Visit Declaration for Tender No. {tender_reference}
+
+We, {company_name}, participating as {bidder_role} in this tender, having our registered office at {registered_address}, do hereby certify that:
+
+1. Our authorized representative(s) have visited the site/location(s) mentioned in Tender No. {tender_reference} and have fully acquainted ourselves with the local conditions, site conditions, accessibility, and other factors that may affect the execution of the contract.
+
+2. Our bid is based on our own assessment of the site conditions and we shall not claim any extra payment or variation on account of site conditions, unforeseen or otherwise.
+
+3. We have satisfied ourselves regarding the availability of materials, labour, water, electricity, and other resources required for execution.
+
+This declaration is made on {date} and forms part of our bid.
+
+Date of Site Visit: ___________________
+Name of Representative: ___________________
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "iso_quality",
+        "name": "ISO / Quality Certification Declaration",
+        "category": "technical",
+        "is_required": False,
+        "description": "Declaration regarding ISO and quality management certifications.",
+        "content_template": """ISO / QUALITY CERTIFICATION DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: Quality Certification Declaration for Tender No. {tender_reference}
+
+We, {company_name}, participating as {bidder_role} in this tender, having our registered office at {registered_address}, do hereby declare that:
+
+1. Our company holds the following quality management certifications (as applicable):
+   [ ] ISO 9001:2015 — Quality Management System
+   [ ] ISO 14001:2015 — Environmental Management System
+   [ ] ISO 27001:2013 — Information Security Management System
+   [ ] ISO 45001:2018 — Occupational Health and Safety
+   [ ] CMMI Level ____
+   [ ] Other: ___________________
+
+   Certificate Number: ___________________
+   Certifying Body: ___________________
+   Valid Until: ___________________
+
+2. The certifications are current, valid, and have not been suspended or withdrawn.
+
+3. Copies of the relevant certificates are enclosed / shall be produced for verification.
+
+This declaration is made on {date} and is true and correct.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "labour_law",
+        "name": "Labour Law Compliance Declaration",
+        "category": "compliance",
+        "is_required": False,
+        "description": "Declaration of compliance with applicable labour laws and regulations.",
+        "content_template": """LABOUR LAW COMPLIANCE DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: Labour Law Compliance for Tender No. {tender_reference}
+
+We, {company_name}, having our registered office at {registered_address}, do hereby declare that:
+
+1. We are in compliance with all applicable labour laws including but not limited to:
+   a. Minimum Wages Act, 1948
+   b. Contract Labour (Regulation and Abolition) Act, 1970
+   c. Payment of Wages Act, 1936
+   d. Payment of Bonus Act, 1965
+   e. Payment of Gratuity Act, 1972
+   f. Equal Remuneration Act, 1976
+   g. Child Labour (Prohibition & Regulation) Act, 1986
+
+2. We do not employ child labour or bonded labour in any form.
+
+3. We shall comply with all labour welfare obligations during contract execution.
+
+This declaration is made on {date} and is true and correct.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "startup_declaration",
+        "name": "Startup India Declaration",
+        "category": "eligibility",
+        "is_required": False,
+        "description": "Declaration of Startup India recognition for applicable benefits.",
+        "content_template": """STARTUP INDIA DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: Startup India Declaration for Tender No. {tender_reference}
+
+We, {company_name}, having our registered office at {registered_address}, do hereby declare that:
+
+1. Our company is recognized as a Startup under the Startup India initiative by the Department for Promotion of Industry and Internal Trade (DPIIT).
+
+2. Our DPIIT Recognition details are:
+   Recognition Number: ___________________
+   Date of Recognition: ___________________
+   Valid Until: ___________________
+
+3. We claim applicable benefits as per the public procurement policy for startups including:
+   [ ] Relaxation in prior turnover criteria
+   [ ] Relaxation in prior experience criteria
+   [ ] Exemption from EMD
+
+4. The information provided above is true and correct. Supporting documents are enclosed.
+
+This declaration is made on {date}.
+
+PAN: {pan_number}
+GSTIN: {gstin}""",
+    },
+    {
+        "key": "joint_venture",
+        "name": "Joint Venture / Consortium Declaration",
+        "category": "eligibility",
+        "is_required": False,
+        "description": "Declaration regarding joint venture or consortium participation in the tender.",
+        "content_template": """JOINT VENTURE / CONSORTIUM DECLARATION
+
+To,
+{issuing_authority}
+
+Subject: JV/Consortium Declaration for Tender No. {tender_reference}
+
+We, {company_name} (Lead Partner), having our registered office at {registered_address}, on behalf of the Joint Venture / Consortium, do hereby declare that:
+
+1. The following entities form this JV/Consortium for Tender No. {tender_reference}:
+
+   Lead Partner: {company_name}
+   Partner 2: ___________________
+   Partner 3: ___________________
+
+2. {company_name} shall act as the Lead Partner and single point of contact with {issuing_authority}.
+
+3. All partners are jointly and severally liable for the performance of the contract.
+
+4. The JV/Consortium agreement is enclosed with this bid.
+
+5. The work share distribution among partners is as follows:
+   {company_name}: ______%
+   Partner 2: ______%
+   Partner 3: ______%
+
+This declaration is made on {date} and is binding on all partners.
 
 PAN: {pan_number}
 GSTIN: {gstin}""",
@@ -600,6 +1047,7 @@ def get_all_templates() -> list:
             "name": t["name"],
             "category": t["category"],
             "description": t["description"],
+            "is_required": t.get("is_required", False),
         }
         for t in DECLARATION_TEMPLATES
     ]

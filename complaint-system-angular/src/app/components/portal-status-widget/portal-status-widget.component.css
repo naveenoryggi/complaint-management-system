@@ -1,0 +1,274 @@
+/* =============================================
+   Portal Status Widget Styles
+   ============================================= */
+
+.portal-widget-card {
+  border-radius: 12px !important;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s;
+  padding: 0 !important;
+  overflow: hidden;
+  min-width: 200px;
+  border: 1px solid #e8eaed;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06) !important;
+  outline: none;
+}
+
+.portal-widget-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+  transform: translateY(-2px);
+}
+
+.portal-widget-card:focus-visible {
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.3) !important;
+}
+
+/* Loading */
+.widget-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  min-height: 100px;
+}
+
+/* Widget Content */
+.widget-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid #f1f3f4;
+  background: #fff;
+}
+
+.widget-title-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.widget-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #057a55;
+}
+
+.widget-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #202124;
+}
+
+/* Health Badge */
+.health-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.health-good {
+  background: #e6f4ea;
+  color: #1e7e34;
+}
+
+.health-fair {
+  background: #fef7e0;
+  color: #b06000;
+}
+
+.health-poor {
+  background: #fce8e6;
+  color: #c5221f;
+}
+
+/* No Portals */
+.no-portals {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 16px;
+  color: #9aa0a6;
+  font-size: 13px;
+}
+
+.no-portal-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #dadce0;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: flex;
+  gap: 0;
+  padding: 12px 12px 8px;
+  justify-content: space-between;
+}
+
+/* Stat Box */
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: 10px;
+  flex: 1;
+  margin: 0 3px;
+  transition: opacity 0.15s;
+}
+
+.stat-active {
+  background: #e6f4ea;
+}
+
+.stat-expiring {
+  background: #fef7e0;
+}
+
+.stat-expired {
+  background: #fce8e6;
+}
+
+/* Stat Icon Wrap */
+.stat-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.stat-active .stat-icon {
+  color: #1e7e34;
+}
+
+.stat-expiring .stat-icon {
+  color: #b06000;
+}
+
+.stat-expired .stat-icon {
+  color: #c5221f;
+}
+
+/* Stat Info */
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.stat-count {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-active .stat-count {
+  color: #0d652d;
+}
+
+.stat-expiring .stat-count {
+  color: #b06000;
+}
+
+.stat-expired .stat-count {
+  color: #c5221f;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.stat-active .stat-label {
+  color: #34a853;
+}
+
+.stat-expiring .stat-label {
+  color: #e37400;
+}
+
+.stat-expired .stat-label {
+  color: #ea4335;
+}
+
+/* Widget Footer */
+.widget-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 12px;
+}
+
+.total-label {
+  font-size: 11px;
+  color: #9aa0a6;
+}
+
+.nav-arrow {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #9aa0a6;
+  transition: color 0.15s;
+}
+
+.portal-widget-card:hover .nav-arrow {
+  color: #057a55;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .portal-widget-card {
+    min-width: unset;
+  }
+
+  .widget-header {
+    padding: 10px 12px 8px;
+  }
+
+  .stats-grid {
+    flex-wrap: wrap;
+    padding: 8px;
+  }
+
+  .stat-box {
+    min-width: 60px;
+  }
+}
+
+@media (max-width: 360px) {
+  .stat-count {
+    font-size: 16px;
+  }
+
+  .stat-label {
+    font-size: 9px;
+  }
+
+  .stats-grid {
+    padding: 8px 6px 6px;
+  }
+}

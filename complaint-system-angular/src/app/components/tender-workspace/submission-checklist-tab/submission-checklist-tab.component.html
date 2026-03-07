@@ -1,0 +1,621 @@
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading submission checklist...</p>
+  </div>
+} @else {
+  <!-- Summary Bar -->
+  @if (summary(); as s) {
+    @if (s.total > 0) {
+      <mat-card class="summary-card">
+        <mat-card-content>
+          <div class="summary-header">
+            <h3>Submission Readiness</h3>
+            <div class="summary-badges">
+              @if (s.critical_pending > 0) {
+                <mat-chip class="critical-badge">
+                  <mat-icon>warning</mat-icon>
+                  {{ s.critical_pending }} Critical Pending
+                </mat-chip>
+              }
+              @if (s.notarization_pending > 0) {
+                <mat-chip class="notarization-badge">
+                  <mat-icon>stamp</mat-icon>
+                  {{ s.notarization_pending }} Notarization Pending
+                </mat-chip>
+              }
+            </div>
+          </div>
+
+          <div class="progress-row">
+            <div class="progress-item">
+              <div class="progress-label">
+                <mat-icon>cloud_upload</mat-icon>
+                <span>Online</span>
+                <span class="progress-count">{{ s.online.ready }}/{{ s.online.total }}</span>
+              </div>
+              <mat-progress-bar
+                [value]="s.online.percentage"
+                [class]="getProgressBarClass(s.online.percentage)"
+                mode="determinate">
+              </mat-progress-bar>
+              <span class="progress-pct">{{ s.online.percentage }}%</span>
+            </div>
+            <div class="progress-item">
+              <div class="progress-label">
+                <mat-icon>local_shipping</mat-icon>
+                <span>Offline</span>
+                <span class="progress-count">{{ s.offline.ready }}/{{ s.offline.total }}</span>
+              </div>
+              <mat-progress-bar
+                [value]="s.offline.percentage"
+                [class]="getProgressBarClass(s.offline.percentage)"
+                mode="determinate">
+              </mat-progress-bar>
+              <span class="progress-pct">{{ s.offline.percentage }}%</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+
+  <!-- View Toggle + Filters -->
+  <div class="toolbar-row">
+    <mat-button-toggle-group [(ngModel)]="viewMode" (ngModelChange)="viewMode.set($event)">
+      <mat-button-toggle value="checklist">
+        <mat-icon>checklist</mat-icon> Checklist
+      </mat-button-toggle>
+      <mat-button-toggle value="covers">
+        <mat-icon>inventory_2</mat-icon> Cover Packaging
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+
+    @if (viewMode() === 'checklist') {
+      <div class="filters">
+        <mat-button-toggle-group [value]="modeFilter()" (change)="modeFilter.set($event.value)">
+          <mat-button-toggle value="all">All</mat-button-toggle>
+          <mat-button-toggle value="online">Online</mat-button-toggle>
+          <mat-button-toggle value="offline">Offline</mat-button-toggle>
+          <mat-button-toggle value="both">Both</mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <mat-form-field appearance="outline" class="category-filter">
+          <mat-label>Category</mat-label>
+          <mat-select [value]="categoryFilter()" (selectionChange)="categoryFilter.set($event.value)">
+            <mat-option value="all">All Categories</mat-option>
+            @for (cat of categories; track cat.value) {
+              <mat-option [value]="cat.value">
+                <mat-icon>{{ cat.icon }}</mat-icon> {{ cat.label }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="category-filter">
+          <mat-label>Origin</mat-label>
+          <mat-select [value]="originFilter()" (selectionChange)="originFilter.set($event.value)">
+            <mat-option value="all">All Origins</mat-option>
+            @for (orig of documentOrigins; track orig.value) {
+              <mat-option [value]="orig.value">
+                <mat-icon>{{ orig.icon }}</mat-icon> {{ orig.label }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    }
+
+    <div class="toolbar-actions">
+      <button mat-stroked-button (click)="showNewItem.set(!showNewItem())">
+        <mat-icon>add</mat-icon> Add Custom
+      </button>
+      <button mat-stroked-button (click)="onToggleDedupPanel()"
+              [disabled]="checklistItems().length === 0">
+        <mat-icon>find_replace</mat-icon> Find Duplicates
+      </button>
+      <button mat-stroked-button color="accent"
+              (click)="onAnalyzeChecklist()"
+              [disabled]="analyzing() || checklistItems().length === 0">
+        <mat-icon>{{ analyzing() ? 'hourglass_empty' : 'psychology' }}</mat-icon>
+        {{ analyzing() ? 'Analyzing...' : 'Analyze Requirements' }}
+      </button>
+      <button mat-raised-button color="primary"
+              (click)="onGenerateChecklist()"
+              [disabled]="generating()">
+        <mat-icon>{{ generating() ? 'hourglass_empty' : 'auto_fix_high' }}</mat-icon>
+        {{ generating() ? 'Generating...' : 'Generate Checklist' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- AI Analysis Banner -->
+  @if (analyzing()) {
+    <div class="analysis-banner analyzing">
+      <mat-spinner diameter="20"></mat-spinner>
+      <span>Analyzing tender requirements to identify relevant checklist items...</span>
+    </div>
+  }
+
+  @if (analysisResult(); as ar) {
+    <div class="analysis-banner analyzed">
+      <mat-icon>psychology</mat-icon>
+      <div class="analysis-info">
+        <span><strong>{{ ar.relevant_count }}</strong> relevant ({{ ar.required_count }} required) · <strong>{{ ar.irrelevant_count }}</strong> not needed for this tender</span>
+        @if (ar.summary) {
+          <div class="analysis-summary">{{ ar.summary }}</div>
+        }
+      </div>
+      <div class="analysis-actions">
+        @if (ar.irrelevant_count > 0) {
+          <button mat-stroked-button (click)="showIrrelevant.set(!showIrrelevant())">
+            <mat-icon>{{ showIrrelevant() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            {{ showIrrelevant() ? 'Hide' : 'Show' }} Irrelevant
+          </button>
+          <button mat-flat-button color="warn"
+                  (click)="onRemoveIrrelevant()"
+                  [disabled]="removingIrrelevant()">
+            <mat-icon>delete_sweep</mat-icon>
+            Remove {{ ar.irrelevant_count }} Irrelevant
+          </button>
+        }
+        <button mat-icon-button matTooltip="Re-analyze (uses AI tokens)" (click)="onReanalyze()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Duplicate Detection Panel -->
+  @if (showDedupPanel()) {
+    <mat-card class="dedup-panel">
+      <mat-card-content>
+        <div class="dedup-header">
+          <div class="dedup-title">
+            <mat-icon>find_replace</mat-icon>
+            <span>Duplicate Detection</span>
+          </div>
+          <button mat-icon-button (click)="showDedupPanel.set(false)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="dedup-controls">
+          <div class="threshold-control">
+            <label class="threshold-label">Similarity Threshold: <strong>{{ (dedupThreshold() * 100).toFixed(0) }}%</strong></label>
+            <mat-slider min="10" max="100" step="5" [discrete]="true" class="threshold-slider">
+              <input matSliderThumb [ngModel]="dedupThreshold() * 100" (ngModelChange)="dedupThreshold.set($event / 100)">
+            </mat-slider>
+            <div class="threshold-hints">
+              <span class="hint-loose">Loose (catches more)</span>
+              <span class="hint-strict">Strict (exact only)</span>
+            </div>
+          </div>
+          <button mat-stroked-button (click)="onPreviewDuplicates()" [disabled]="dedupLoading()">
+            <mat-icon>{{ dedupLoading() ? 'hourglass_empty' : 'search' }}</mat-icon>
+            {{ dedupLoading() ? 'Checking...' : 'Check' }}
+          </button>
+        </div>
+
+        @if (dedupResult(); as dr) {
+          @if (dr.duplicate_count === 0) {
+            <div class="dedup-empty">
+              <mat-icon>check_circle</mat-icon>
+              <span>No duplicates found at {{ (dr.threshold * 100).toFixed(0) }}% threshold</span>
+            </div>
+          } @else {
+            <div class="dedup-results">
+              <div class="dedup-summary">
+                <span>Found <strong>{{ dr.duplicate_count }}</strong> duplicate(s) at {{ (dr.threshold * 100).toFixed(0) }}% threshold</span>
+                <button mat-flat-button color="warn" (click)="onRemoveDuplicates()" [disabled]="dedupRemoving()">
+                  <mat-icon>delete_sweep</mat-icon>
+                  {{ dedupRemoving() ? 'Removing...' : 'Remove All Duplicates' }}
+                </button>
+              </div>
+              <div class="dedup-list">
+                @for (dup of dr.duplicates; track dup.item_id) {
+                  <div class="dedup-item">
+                    <div class="dedup-item-info">
+                      <mat-icon class="dedup-icon">content_copy</mat-icon>
+                      <div>
+                        <div class="dedup-item-name">{{ dup.item_name }}</div>
+                        <div class="dedup-item-match">
+                          <mat-icon class="dedup-match-icon">arrow_forward</mat-icon>
+                          duplicate of: <strong>{{ dup.matched_with }}</strong>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="dedup-item-meta">
+                      <mat-chip class="dedup-type-chip">{{ getMatchTypeLabel(dup.match_type) }}</mat-chip>
+                      <span class="dedup-similarity">{{ (dup.similarity * 100).toFixed(0) }}%</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Add Custom Item Form -->
+  @if (showNewItem()) {
+    <mat-card class="new-item-card">
+      <mat-card-content>
+        <div class="new-item-form">
+          <mat-form-field appearance="outline" class="new-item-name">
+            <mat-label>Document Name</mat-label>
+            <input matInput [(ngModel)]="newItem.document_name" placeholder="e.g., Technical Compliance Certificate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Category</mat-label>
+            <mat-select [(ngModel)]="newItem.document_category">
+              @for (cat of categories; track cat.value) {
+                <mat-option [value]="cat.value">{{ cat.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Mode</mat-label>
+            <mat-select [(ngModel)]="newItem.submission_mode">
+              <mat-option value="online">Online</mat-option>
+              <mat-option value="offline">Offline</mat-option>
+              <mat-option value="both">Both</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Envelope</mat-label>
+            <mat-select [(ngModel)]="newItem.envelope">
+              @for (env of envelopes; track env.value) {
+                <mat-option [value]="env.value">{{ env.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Cover Name</mat-label>
+            <input matInput [(ngModel)]="newItem.cover_name" placeholder="e.g., Cover 1 - Technical Bid">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Document Origin</mat-label>
+            <mat-select [(ngModel)]="newItem.document_origin">
+              @for (orig of documentOrigins; track orig.value) {
+                <mat-option [value]="orig.value">
+                  <mat-icon>{{ orig.icon }}</mat-icon> {{ orig.label }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Notarization</mat-label>
+            <mat-select [(ngModel)]="newItem.notarization_type">
+              <mat-option [value]="undefined">Not Required</mat-option>
+              <mat-option value="judicial">Judicial</mat-option>
+              <mat-option value="non_judicial">Non-Judicial</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-checkbox [(ngModel)]="newItem.is_critical">Critical</mat-checkbox>
+          <mat-checkbox [(ngModel)]="newItem.notarization_required">Notarization Required</mat-checkbox>
+
+          <div class="new-item-actions">
+            <button mat-button (click)="showNewItem.set(false)">Cancel</button>
+            <button mat-raised-button color="primary" (click)="onAddCustomItem()" [disabled]="!newItem.document_name">
+              <mat-icon>add</mat-icon> Add Item
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- CHECKLIST VIEW -->
+  @if (viewMode() === 'checklist') {
+    @if (filteredItems().length === 0 && !loading()) {
+      <div class="empty-state">
+        <mat-icon>checklist_rtl</mat-icon>
+        <h4>No checklist items yet</h4>
+        <p>Click "Generate Checklist" to auto-populate standard Indian tender documents</p>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table mat-table [dataSource]="filteredItems()" class="checklist-table">
+
+          <!-- Critical Column -->
+          <ng-container matColumnDef="critical">
+            <th mat-header-cell *matHeaderCellDef class="critical-col"></th>
+            <td mat-cell *matCellDef="let item" class="critical-col">
+              @if (item.is_critical) {
+                <mat-icon class="critical-icon" matTooltip="Critical Document">warning</mat-icon>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Document Name -->
+          <ng-container matColumnDef="document">
+            <th mat-header-cell *matHeaderCellDef>Document</th>
+            <td mat-cell *matCellDef="let item" [class.critical-row]="item.is_critical">
+              <div class="doc-name">
+                {{ item.document_name }}
+                @if (item.is_critical) {
+                  <span class="required-badge">Required</span>
+                } @else {
+                  <span class="optional-badge">Optional</span>
+                }
+              </div>
+              @if (item.format_reference) {
+                <div class="doc-ref">
+                  <mat-icon class="doc-ref-icon">link</mat-icon>
+                  {{ item.format_reference }}
+                </div>
+              }
+              @if (item.obtaining_source) {
+                <div class="doc-ref">
+                  <mat-icon class="doc-ref-icon">open_in_new</mat-icon>
+                  {{ item.obtaining_source }}
+                </div>
+              }
+              @if (item.notes) {
+                <div class="doc-notes">{{ item.notes }}</div>
+              }
+              <div class="doc-badges">
+                @if (item.source !== 'manual') {
+                  <mat-chip class="source-chip">{{ item.source }}</mat-chip>
+                }
+                @if (item.can_auto_generate) {
+                  <mat-chip class="source-chip auto-gen-chip" matTooltip="Platform can generate this document">
+                    <mat-icon class="auto-gen-icon">auto_fix_high</mat-icon> Auto
+                  </mat-chip>
+                }
+              </div>
+              @if (getItemAnalysis(item.id); as ai) {
+                <div class="ai-reason-row" [class.ai-irrelevant]="!ai.relevant">
+                  <mat-icon class="ai-reason-icon" [class.irrelevant-icon]="!ai.relevant">
+                    {{ ai.relevant ? (ai.is_required ? 'check_circle' : 'info') : 'cancel' }}
+                  </mat-icon>
+                  <span class="ai-reason-text" [class.irrelevant-text]="!ai.relevant">{{ ai.reason }}</span>
+                </div>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Document Origin -->
+          <ng-container matColumnDef="origin">
+            <th mat-header-cell *matHeaderCellDef>Origin</th>
+            <td mat-cell *matCellDef="let item">
+              <div class="origin-badge"
+                   [style.background]="getOriginConfig(item.document_origin).bgColor"
+                   [style.color]="getOriginConfig(item.document_origin).color"
+                   [matTooltip]="getOriginHint(item)">
+                <mat-icon class="origin-icon">{{ getOriginIcon(item.document_origin) }}</mat-icon>
+                <span class="origin-label">{{ getOriginLabel(item.document_origin) }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Category -->
+          <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef>Cat</th>
+            <td mat-cell *matCellDef="let item">
+              <mat-icon [matTooltip]="getCategoryLabel(item.document_category)" class="category-icon">
+                {{ getCategoryIcon(item.document_category) }}
+              </mat-icon>
+            </td>
+          </ng-container>
+
+          <!-- Mode -->
+          <ng-container matColumnDef="mode">
+            <th mat-header-cell *matHeaderCellDef>Mode</th>
+            <td mat-cell *matCellDef="let item">
+              <mat-chip [color]="getModeColor(item.submission_mode)" selected class="mode-chip">
+                {{ getModeLabel(item.submission_mode) }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Envelope / Cover -->
+          <ng-container matColumnDef="envelope">
+            <th mat-header-cell *matHeaderCellDef>Cover</th>
+            <td mat-cell *matCellDef="let item">
+              <span class="envelope-label" [matTooltip]="item.cover_name || ''">
+                {{ getEnvelopeLabel(item.envelope) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Online Status -->
+          <ng-container matColumnDef="online">
+            <th mat-header-cell *matHeaderCellDef>Online</th>
+            <td mat-cell *matCellDef="let item">
+              @if (hasOnlineColumn(item)) {
+                <mat-form-field appearance="outline" class="status-select">
+                  <mat-select [value]="item.online_status"
+                              (selectionChange)="onStatusChange(item, 'online_status', $event.value)">
+                    @for (s of onlineStatuses; track s.value) {
+                      <mat-option [value]="s.value">
+                        <mat-icon [style.color]="s.color">{{ s.icon }}</mat-icon>
+                        {{ s.label }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              } @else {
+                <span class="na-cell">--</span>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Offline Status -->
+          <ng-container matColumnDef="offline">
+            <th mat-header-cell *matHeaderCellDef>Offline</th>
+            <td mat-cell *matCellDef="let item">
+              @if (hasOfflineColumn(item)) {
+                <mat-form-field appearance="outline" class="status-select">
+                  <mat-select [value]="item.offline_status"
+                              (selectionChange)="onStatusChange(item, 'offline_status', $event.value)">
+                    @for (s of offlineStatuses; track s.value) {
+                      <mat-option [value]="s.value">
+                        <mat-icon [style.color]="s.color">{{ s.icon }}</mat-icon>
+                        {{ s.label }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              } @else {
+                <span class="na-cell">--</span>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Notarization -->
+          <ng-container matColumnDef="notarization">
+            <th mat-header-cell *matHeaderCellDef>Notarization</th>
+            <td mat-cell *matCellDef="let item">
+              @if (item.notarization_required) {
+                <div class="notarization-cell">
+                  <mat-chip class="notarization-type-chip"
+                            [class.judicial]="item.notarization_type === 'judicial'"
+                            [class.non-judicial]="item.notarization_type === 'non_judicial'">
+                    {{ getNotarizationLabel(item.notarization_type) }}
+                  </mat-chip>
+                  <mat-form-field appearance="outline" class="status-select notarization-select">
+                    <mat-select [value]="item.notarization_status"
+                                (selectionChange)="onStatusChange(item, 'notarization_status', $event.value)">
+                      @for (s of notarizationStatuses; track s.value) {
+                        <mat-option [value]="s.value">
+                          <mat-icon [style.color]="s.color">{{ s.icon }}</mat-icon>
+                          {{ s.label }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              } @else {
+                <span class="na-cell">--</span>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let item">
+              <button mat-icon-button matTooltip="Delete" (click)="onDeleteItem(item)">
+                <mat-icon color="warn">delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+              [class.critical-row]="row.is_critical"
+              [class.notarization-row]="row.notarization_required && row.notarization_status === 'pending'"
+              [class.irrelevant-row]="getItemAnalysis(row.id) && !getItemAnalysis(row.id)!.relevant">
+          </tr>
+        </table>
+      </div>
+    }
+  }
+
+  <!-- COVER PACKAGING VIEW -->
+  @if (viewMode() === 'covers') {
+    @if (covers().length === 0) {
+      <div class="empty-state">
+        <mat-icon>inventory_2</mat-icon>
+        <h4>No covers configured</h4>
+        <p>Generate a checklist first to see document packaging by cover</p>
+      </div>
+    } @else {
+      <!-- Assembly All button -->
+      <div class="assembly-toolbar">
+        <button mat-raised-button color="primary"
+                (click)="onAssembleAllCovers()"
+                [disabled]="assemblingAll()">
+          <mat-icon>{{ assemblingAll() ? 'hourglass_empty' : 'archive' }}</mat-icon>
+          {{ assemblingAll() ? 'Assembling...' : 'Assemble Full Bid Package (ZIP)' }}
+        </button>
+        <span class="assembly-hint">
+          Stage documents by linking them to checklist items, then assemble covers into PDFs
+        </span>
+      </div>
+
+      <div class="covers-grid">
+        @for (cover of covers(); track cover.cover_name) {
+          <mat-card class="cover-card" [class.cover-complete]="getCoverReadinessPercentage(cover) === 100">
+            <mat-card-header>
+              <mat-icon mat-card-avatar class="cover-icon">inventory_2</mat-icon>
+              <mat-card-title>{{ cover.cover_name }}</mat-card-title>
+              <mat-card-subtitle>
+                {{ cover.total }} documents | {{ cover.critical }} critical
+              </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="cover-progress">
+                <mat-progress-bar
+                  [value]="getCoverReadinessPercentage(cover)"
+                  [class]="getProgressBarClass(getCoverReadinessPercentage(cover))"
+                  mode="determinate">
+                </mat-progress-bar>
+                <span class="cover-pct">{{ cover.ready }}/{{ cover.total }} ready ({{ getCoverReadinessPercentage(cover) }}%)</span>
+              </div>
+
+              <div class="cover-documents">
+                @for (doc of cover.documents; track doc.id) {
+                  <div class="cover-doc-row" [class.cover-doc-critical]="doc.is_critical">
+                    <mat-icon class="cover-doc-icon"
+                              [class.cover-doc-ready]="(doc.online_status === 'verified' || doc.online_status === 'digitally_signed' || doc.online_status === 'uploaded') || (doc.offline_status === 'verified' || doc.offline_status === 'received' || doc.offline_status === 'dispatched')">
+                      {{ doc.is_critical ? 'warning' : 'description' }}
+                    </mat-icon>
+                    <span class="cover-doc-name">
+                      {{ doc.document_name }}
+                      @if (doc.is_critical) {
+                        <span class="required-badge">Required</span>
+                      } @else {
+                        <span class="optional-badge">Optional</span>
+                      }
+                    </span>
+                    <div class="cover-doc-badges">
+                      @if (doc.document_origin) {
+                        <mat-chip class="mini-chip origin-mini"
+                                  [style.background]="getOriginConfig(doc.document_origin).bgColor"
+                                  [style.color]="getOriginConfig(doc.document_origin).color">
+                          {{ getOriginLabel(doc.document_origin) }}
+                        </mat-chip>
+                      }
+                      @if (doc.online_status) {
+                        <mat-chip class="mini-chip">O: {{ doc.online_status }}</mat-chip>
+                      }
+                      @if (doc.offline_status) {
+                        <mat-chip class="mini-chip">P: {{ doc.offline_status }}</mat-chip>
+                      }
+                      @if (doc.notarization_required) {
+                        <mat-chip class="mini-chip notarization-mini"
+                                  [class.notarization-done]="doc.notarization_status === 'completed' || doc.notarization_status === 'verified'">
+                          {{ getNotarizationLabel(doc.notarization_type) }}
+                        </mat-chip>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+            <mat-card-actions class="cover-actions">
+              <button mat-stroked-button color="primary"
+                      (click)="onAssembleCover(cover.cover_name)"
+                      [disabled]="assemblingCover() === cover.cover_name">
+                <mat-icon>{{ assemblingCover() === cover.cover_name ? 'hourglass_empty' : 'picture_as_pdf' }}</mat-icon>
+                {{ assemblingCover() === cover.cover_name ? 'Assembling...' : 'Assemble Cover PDF' }}
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+    }
+  }
+}

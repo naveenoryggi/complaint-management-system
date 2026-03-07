@@ -30,9 +30,10 @@ class Settings(BaseSettings):
     jwt_issuer: str = Field(default="ComplaintManagement")
     jwt_audience: str = Field(default="ComplaintManagement")
 
-    # Claude API
+    # Claude API (optional — can be configured via AI Provider Settings instead)
     anthropic_api_key: str = Field(
-        description="Anthropic API key for Claude"
+        default="",
+        description="Anthropic API key for Claude (fallback if no DB provider configured)"
     )
 
     # Redis
