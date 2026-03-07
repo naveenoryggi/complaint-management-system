@@ -287,6 +287,30 @@ export interface TenderCorrigendum {
   is_acknowledged: boolean;
 }
 
+export interface CorrigendumChange {
+  field: string;
+  clause_reference?: string;
+  description: string;
+  old_value?: string;
+  new_value: string;
+  impact: 'minor' | 'moderate' | 'major' | 'critical';
+  affected_areas: string[];
+  action_required?: string;
+}
+
+export interface CorrigendumAnalysis {
+  corrigendum_id: string;
+  corrigendum_number: number;
+  changes: CorrigendumChange[];
+  summary: string;
+  deadline_affected: boolean;
+  eligibility_affected: boolean;
+  requires_rebid: boolean;
+  total_changes: number;
+  tokens_used: number;
+  model_used: string;
+}
+
 // Eligibility
 export interface EligibilityCheck {
   check: string;
@@ -693,6 +717,10 @@ export class TenderService {
 
   deleteCorrigendum(corrigendumId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/corrigendums/${corrigendumId}`);
+  }
+
+  analyzeCorrigendum(tenderId: string, corrigendumId: string): Observable<CorrigendumAnalysis> {
+    return this.http.post<CorrigendumAnalysis>(`${this.baseUrl}/${tenderId}/corrigendums/${corrigendumId}/analyze`, {});
   }
 
   // --- Eligibility Check ---

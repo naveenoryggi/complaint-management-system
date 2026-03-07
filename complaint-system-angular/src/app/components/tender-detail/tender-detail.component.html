@@ -587,6 +587,149 @@
             </mat-card>
           }
 
+          <!-- Corrigendums & Amendments -->
+          <mat-card class="corrigendum-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>assignment_late</mat-icon>
+                Corrigendums &amp; Amendments
+              </mat-card-title>
+              <button mat-stroked-button (click)="showAddCorrigendum.set(!showAddCorrigendum())">
+                <mat-icon>{{ showAddCorrigendum() ? 'close' : 'add' }}</mat-icon>
+                {{ showAddCorrigendum() ? 'Cancel' : 'Add Corrigendum' }}
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              <!-- Add Corrigendum Form -->
+              @if (showAddCorrigendum()) {
+                <div class="corr-add-form">
+                  <mat-form-field appearance="outline" class="corr-field-title">
+                    <mat-label>Title</mat-label>
+                    <input matInput [ngModel]="newCorrigendum().title" (ngModelChange)="updateNewCorrigendumField('title', $event)" placeholder="e.g., Corrigendum-1: Extension of deadline">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="corr-field-summary">
+                    <mat-label>Summary</mat-label>
+                    <textarea matInput [ngModel]="newCorrigendum().summary" (ngModelChange)="updateNewCorrigendumField('summary', $event)" rows="3" placeholder="Describe the changes made in this corrigendum..."></textarea>
+                  </mat-form-field>
+                  <button mat-raised-button color="primary" (click)="onAddCorrigendum()" [disabled]="!newCorrigendum().title">
+                    <mat-icon>save</mat-icon> Save Corrigendum
+                  </button>
+                </div>
+              }
+
+              <!-- Corrigendum List -->
+              @if (corrigendums().length === 0 && !showAddCorrigendum()) {
+                <div class="corr-empty">
+                  <mat-icon>task_alt</mat-icon>
+                  <p>No corrigendums issued for this tender</p>
+                </div>
+              }
+
+              @for (corr of corrigendums(); track corr.id) {
+                <div class="corr-item">
+                  <div class="corr-item-header">
+                    <div class="corr-item-title">
+                      <span class="corr-number-badge">#{{ corr.corrigendum_number }}</span>
+                      <strong>{{ corr.title }}</strong>
+                      @if (corr.issue_date) {
+                        <span class="corr-date">{{ corr.issue_date | date:'mediumDate' }}</span>
+                      }
+                    </div>
+                    <div class="corr-item-actions">
+                      <button mat-icon-button matTooltip="AI Analyze Changes" (click)="onAnalyzeCorrigendum(corr)"
+                              [disabled]="corrigendumAnalyzing() === corr.id">
+                        @if (corrigendumAnalyzing() === corr.id) {
+                          <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+                        } @else {
+                          <mat-icon>psychology</mat-icon>
+                        }
+                      </button>
+                      <button mat-icon-button matTooltip="Delete" (click)="onDeleteCorrigendum(corr)">
+                        <mat-icon color="warn">delete</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+
+                  @if (corr.summary) {
+                    <p class="corr-summary">{{ corr.summary }}</p>
+                  }
+
+                  <!-- Analysis Results -->
+                  @if (getCorrigendumAnalysis(corr.id); as analysis) {
+                    <div class="corr-analysis">
+                      <div class="corr-analysis-header">
+                        <span class="corr-analysis-title">
+                          <mat-icon>auto_awesome</mat-icon>
+                          AI Analysis — {{ analysis.total_changes }} change(s) detected
+                        </span>
+                        <div class="corr-analysis-flags">
+                          @if (analysis.deadline_affected) {
+                            <span class="corr-flag corr-flag-critical">
+                              <mat-icon>schedule</mat-icon> Deadline Affected
+                            </span>
+                          }
+                          @if (analysis.eligibility_affected) {
+                            <span class="corr-flag corr-flag-warning">
+                              <mat-icon>verified_user</mat-icon> Eligibility Affected
+                            </span>
+                          }
+                          @if (analysis.requires_rebid) {
+                            <span class="corr-flag corr-flag-critical">
+                              <mat-icon>replay</mat-icon> Requires Rebid
+                            </span>
+                          }
+                        </div>
+                      </div>
+
+                      @if (analysis.summary) {
+                        <p class="corr-analysis-summary">{{ analysis.summary }}</p>
+                      }
+
+                      <div class="corr-changes-list">
+                        @for (change of analysis.changes; track $index) {
+                          <div class="corr-change-item" [style.border-left-color]="getImpactColor(change.impact)">
+                            <div class="corr-change-header">
+                              <mat-icon [style.color]="getImpactColor(change.impact)">{{ getImpactIcon(change.impact) }}</mat-icon>
+                              <strong>{{ change.description }}</strong>
+                              <span class="corr-impact-badge" [style.background-color]="getImpactColor(change.impact)">{{ change.impact }}</span>
+                            </div>
+                            @if (change.clause_reference) {
+                              <span class="corr-clause-ref">{{ change.clause_reference }}</span>
+                            }
+                            @if (change.old_value || change.new_value) {
+                              <div class="corr-change-values">
+                                @if (change.old_value) {
+                                  <span class="corr-old-value"><mat-icon>remove_circle_outline</mat-icon> {{ change.old_value }}</span>
+                                }
+                                <span class="corr-new-value"><mat-icon>add_circle_outline</mat-icon> {{ change.new_value }}</span>
+                              </div>
+                            }
+                            @if (change.action_required) {
+                              <div class="corr-action-required">
+                                <mat-icon>lightbulb</mat-icon> {{ change.action_required }}
+                              </div>
+                            }
+                            @if (change.affected_areas.length > 0) {
+                              <div class="corr-affected-areas">
+                                @for (area of change.affected_areas; track area) {
+                                  <span class="corr-area-chip">{{ area }}</span>
+                                }
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+
+                      <div class="corr-analysis-meta">
+                        Model: {{ analysis.model_used }} | Tokens: {{ analysis.tokens_used | number }}
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+
           <!-- Bid/No-Bid Analysis (Feature 8) -->
           <mat-card class="bid-analysis-card">
             <mat-card-header>

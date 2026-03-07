@@ -16,7 +16,10 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { TenderService, Tender, TenderDocument } from '../../services/tender.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { TenderService, Tender, TenderDocument, TenderCorrigendum, CorrigendumAnalysis } from '../../services/tender.service';
 import { TrackingService, EMDRecord, TenderFee } from '../../services/tracking.service';
 import { DocumentService } from '../../services/document.service';
 import { AssemblyService } from '../../services/assembly.service';
@@ -62,6 +65,9 @@ import { BreadcrumbComponent } from '../shared/breadcrumb/breadcrumb.component';
     MatTabsModule,
     MatProgressBarModule,
     MatButtonToggleModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
     DragDropModule,
     BreadcrumbComponent,
     ExtractionTabComponent,
@@ -118,6 +124,13 @@ export class TenderDetailComponent implements OnInit {
   bidNoBidResult = signal<BidNoBidAnalysis | null>(null);
   bidNoBidLoading = signal(false);
 
+  // Corrigendums
+  corrigendums = signal<TenderCorrigendum[]>([]);
+  corrigendumAnalysis = signal<Map<string, CorrigendumAnalysis>>(new Map());
+  corrigendumAnalyzing = signal<string | null>(null);
+  showAddCorrigendum = signal(false);
+  newCorrigendum = signal<Partial<TenderCorrigendum>>({ title: '', summary: '' });
+
   // UX Redesign: Phase selector & mobile drawer
   activePhase = signal<'prepare' | 'review' | 'finalize'>('prepare');
   selectedTabIndex = signal(0);
@@ -168,6 +181,7 @@ export class TenderDetailComponent implements OnInit {
       this.loadTender(id);
       this.loadDocuments(id);
       this.loadEmdAndFees(id);
+      this.loadCorrigendums(id);
     }
     this.loadCompanySettings();
   }
@@ -937,5 +951,91 @@ export class TenderDetailComponent implements OnInit {
 
   hasExtractedRequirements(): boolean {
     return this.getRequirementsKeys().length > 0;
+  }
+
+  // --- Corrigendums ---
+  loadCorrigendums(tenderId: string) {
+    this.tenderService.getCorrigendums(tenderId).subscribe({
+      next: (list) => this.corrigendums.set(list),
+      error: () => {}
+    });
+  }
+
+  updateNewCorrigendumField(field: string, value: string) {
+    const current = this.newCorrigendum();
+    this.newCorrigendum.set({ ...current, [field]: value });
+  }
+
+  onAddCorrigendum() {
+    const id = this.tenderId();
+    const data = this.newCorrigendum();
+    if (!id || !data.title) return;
+
+    this.tenderService.createCorrigendum(id, data).subscribe({
+      next: (created) => {
+        this.corrigendums.set([...this.corrigendums(), created]);
+        this.showAddCorrigendum.set(false);
+        this.newCorrigendum.set({ title: '', summary: '' });
+        this.snackBar.open('Corrigendum added', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        this.snackBar.open(err.error?.detail || 'Failed to add corrigendum', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  onAnalyzeCorrigendum(corrigendum: TenderCorrigendum) {
+    const id = this.tenderId();
+    if (!id) return;
+
+    this.corrigendumAnalyzing.set(corrigendum.id);
+    this.tenderService.analyzeCorrigendum(id, corrigendum.id).subscribe({
+      next: (result) => {
+        const map = new Map(this.corrigendumAnalysis());
+        map.set(corrigendum.id, result);
+        this.corrigendumAnalysis.set(map);
+        this.corrigendumAnalyzing.set(null);
+        this.snackBar.open(`${result.total_changes} change(s) detected`, 'Close', { duration: 4000 });
+      },
+      error: (err) => {
+        this.corrigendumAnalyzing.set(null);
+        this.snackBar.open(err.error?.detail || 'Analysis failed', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  onDeleteCorrigendum(corrigendum: TenderCorrigendum) {
+    if (!confirm(`Delete corrigendum #${corrigendum.corrigendum_number}?`)) return;
+    this.tenderService.deleteCorrigendum(corrigendum.id).subscribe({
+      next: () => {
+        this.corrigendums.set(this.corrigendums().filter(c => c.id !== corrigendum.id));
+        this.snackBar.open('Corrigendum deleted', 'Close', { duration: 3000 });
+      },
+      error: () => this.snackBar.open('Failed to delete', 'Close', { duration: 3000 })
+    });
+  }
+
+  getCorrigendumAnalysis(id: string): CorrigendumAnalysis | undefined {
+    return this.corrigendumAnalysis().get(id);
+  }
+
+  getImpactColor(impact: string): string {
+    switch (impact) {
+      case 'critical': return '#d32f2f';
+      case 'major': return '#f44336';
+      case 'moderate': return '#ff9800';
+      case 'minor': return '#4caf50';
+      default: return '#9e9e9e';
+    }
+  }
+
+  getImpactIcon(impact: string): string {
+    switch (impact) {
+      case 'critical': return 'dangerous';
+      case 'major': return 'error';
+      case 'moderate': return 'warning';
+      case 'minor': return 'info';
+      default: return 'help';
+    }
   }
 }
